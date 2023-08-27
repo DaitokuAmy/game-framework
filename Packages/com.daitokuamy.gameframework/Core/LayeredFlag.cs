@@ -78,12 +78,12 @@ namespace GameFramework.Core {
         /// <summary>
         /// 等価比較演算
         /// </summary>
-        public static bool operator ==(LayeredFlag a, LayeredFlag b) {
-            var maxFlagCount = Mathf.Max(a.BitFlags.Count, b.BitFlags.Count);
+        public static bool operator ==(LayeredFlag lhs, LayeredFlag rhs) {
+            var maxFlagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < maxFlagCount; i++) {
-                var maskA = i < a.BitFlags.Count ? a.BitFlags[i] : 0;
-                var maskB = i < b.BitFlags.Count ? b.BitFlags[i] : 0;
+                var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;
+                var maskB = i < rhs.BitFlags.Count ? rhs.BitFlags[i] : 0;
 
                 if (maskA != maskB) {
                     return false;
@@ -96,22 +96,22 @@ namespace GameFramework.Core {
         /// <summary>
         /// 等価比較演算
         /// </summary>
-        public static bool operator ==(LayeredFlag flag, bool on) {
-            return on ? flag.IsOn : !flag.IsOn;
+        public static bool operator ==(LayeredFlag lhs, bool rhs) {
+            return rhs ? lhs.IsOn : !lhs.IsOn;
         }
 
         /// <summary>
         /// 不等価比較演算
         /// </summary>
-        public static bool operator !=(LayeredFlag a, LayeredFlag b) {
-            return !(a == b);
+        public static bool operator !=(LayeredFlag lhs, LayeredFlag rhs) {
+            return !(lhs == rhs);
         }
 
         /// <summary>
         /// 不等価比較演算
         /// </summary>
-        public static bool operator !=(LayeredFlag flag, bool on) {
-            return !(flag == on);
+        public static bool operator !=(LayeredFlag lhs, bool rhs) {
+            return !(lhs == rhs);
         }
 
         /// <summary>
@@ -138,14 +138,14 @@ namespace GameFramework.Core {
         /// <summary>
         /// AND演算
         /// </summary>
-        public static LayeredFlag operator &(LayeredFlag a, LayeredFlag b) {
+        public static LayeredFlag operator &(LayeredFlag lhs, LayeredFlag rhs) {
             var result = new LayeredFlag();
             result._bitFlags = new List<uint>();
-            var flagCount = Mathf.Max(a.BitFlags.Count, b.BitFlags.Count);
+            var flagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < flagCount; i++) {
-                var maskA = i < a.BitFlags.Count ? a.BitFlags[i] : 0;
-                var maskB = i < b.BitFlags.Count ? b.BitFlags[i] : 0;
+                var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;
+                var maskB = i < rhs.BitFlags.Count ? rhs.BitFlags[i] : 0;
                 result._bitFlags.Add(maskA & maskB);
             }
 
@@ -155,14 +155,14 @@ namespace GameFramework.Core {
         /// <summary>
         /// OR演算
         /// </summary>
-        public static LayeredFlag operator |(LayeredFlag a, LayeredFlag b) {
+        public static LayeredFlag operator |(LayeredFlag lhs, LayeredFlag rhs) {
             var result = new LayeredFlag();
             result._bitFlags = new List<uint>();
-            var flagCount = Mathf.Max(a.BitFlags.Count, b.BitFlags.Count);
+            var flagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < flagCount; i++) {
-                var maskA = i < a.BitFlags.Count ? a.BitFlags[i] : 0;
-                var maskB = i < b.BitFlags.Count ? b.BitFlags[i] : 0;
+                var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;
+                var maskB = i < rhs.BitFlags.Count ? rhs.BitFlags[i] : 0;
                 result._bitFlags.Add(maskA | maskB);
             }
 
@@ -172,14 +172,14 @@ namespace GameFramework.Core {
         /// <summary>
         /// EOR演算
         /// </summary>
-        public static LayeredFlag operator ^(LayeredFlag a, LayeredFlag b) {
+        public static LayeredFlag operator ^(LayeredFlag lhs, LayeredFlag rhs) {
             var result = new LayeredFlag();
             result._bitFlags = new List<uint>();
-            var flagCount = Mathf.Max(a.BitFlags.Count, b.BitFlags.Count);
+            var flagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < flagCount; i++) {
-                var maskA = i < a.BitFlags.Count ? a.BitFlags[i] : 0;
-                var maskB = i < b.BitFlags.Count ? b.BitFlags[i] : 0;
+                var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;
+                var maskB = i < rhs.BitFlags.Count ? rhs.BitFlags[i] : 0;
                 result._bitFlags.Add(maskA ^ maskB);
             }
 

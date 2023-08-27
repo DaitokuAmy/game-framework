@@ -127,14 +127,14 @@ namespace GameFramework.Core {
         /// 比較演算
         /// </summary>
         public static bool operator <=(LayeredScale lhs, float rhs) {
-            return lhs.Value >= rhs;
+            return lhs.Value <= rhs;
         }
 
         /// <summary>
         /// 比較演算
         /// </summary>
         public static bool operator <=(LayeredScale lhs, LayeredScale rhs) {
-            return lhs.Value >= rhs.Value;
+            return lhs.Value <= rhs.Value;
         }
 
         /// <summary>
