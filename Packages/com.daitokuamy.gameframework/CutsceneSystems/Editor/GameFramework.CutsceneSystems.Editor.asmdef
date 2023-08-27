@@ -1,0 +1,19 @@
+{
+    "name": "GameFramework.CutsceneSystems.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f81aeb728114a8b47bae588391825a3c",
+        "GUID:54a1b6bd4302b8449a4bca44b72cfbfb"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

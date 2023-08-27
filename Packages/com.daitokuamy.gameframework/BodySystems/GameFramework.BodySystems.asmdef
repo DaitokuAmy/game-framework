@@ -1,0 +1,36 @@
+{
+    "name": "GameFramework.BodySystems",
+    "rootNamespace": "",
+    "references": [
+        "GUID:afebead123e02784da390b52d3e15019",
+        "GUID:54a1b6bd4302b8449a4bca44b72cfbfb",
+        "GUID:6f86735331082a34db1f5c5a53a37d19",
+        "GUID:14368971c13ea3c44895cfadd2a9c1e0",
+        "GUID:aafbca04a30d6314fa04811bbf9a60f3",
+        "GUID:7f7d1af65c2641843945d409d28f2e20",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285",
+        "GUID:f06555f75b070af458a003d92f9efb00"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.neuecc.unirx",
+            "expression": "",
+            "define": "USE_UNI_RX"
+        },
+        {
+            "name": "com.unity.animation.rigging",
+            "expression": "",
+            "define": "USE_ANIMATION_RIGGING"
+        }
+    ],
+    "noEngineReferences": false
+}

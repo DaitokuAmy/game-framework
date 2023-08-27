@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 15a4adcdbd17311459ca9f4ee12be4a9
+labels:
+- chainreactions
+- spritesheet
+- flare
+- smoke
+- fx
+- effects
+- shuriken
+- beam
+- lightning
+- fire
+- explosion
+- particles
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

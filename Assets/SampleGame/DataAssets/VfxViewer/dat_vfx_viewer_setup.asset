@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 657a194677dadab4ca1f1e4aa40c72a0, type: 3}
+  m_Name: dat_vfx_viewer_setup
+  m_EditorClassIdentifier: 
+  defaultVfxDataId: act_test001
+  vfxDataIds:
+  - act_explosion001
+  - act_fire001_lp
+  - act_fire002_lp
+  - act_smoke001_lp
+  - act_smoke002_lp
+  - act_test001
+  - act_test002
+  - act_test003
+  - act_test004
+  - act_test005_lp
+  - prj_ball001
+  - prj_bomb001
+  defaultEnvironmentId: fld000
+  environmentIds:
+  - fld000

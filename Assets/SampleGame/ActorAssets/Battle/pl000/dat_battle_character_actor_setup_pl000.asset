@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7151ea70da7f014d9ead6f8267255e1, type: 3}
+  m_Name: dat_battle_character_actor_setup_pl000
+  m_EditorClassIdentifier: 
+  controller: {fileID: 9100000, guid: 17ca755ec5a14d442a85f9de63861ae8, type: 2}
+  cameraGroupPrefab: {fileID: 2746645614848940905, guid: d099bcfb506394858a1a5a3a298441f8, type: 3}
+  moveActionInfo:
+    speed: 5
+    acceleration: 10
+    brake: 1
+    angularSpeed: 360
+  jumpActionInfo:
+    action:
+      triggerPropertyName: onJump
+      indexPropertyName: 
+      index: 0
+      lastStateName: Jump
+      sequenceClips: []
+  damageActionInfo:
+    knockBackAction:
+      triggerPropertyName: onDamage
+      indexPropertyName: damageIndex
+      index: 0
+      lastStateName: Damage_Light
+      sequenceClips: []
+    vibrateClip: {fileID: 4966007522477284117, guid: 6f36d974de0fac648a26b5796fbfc3c3, type: 3}
+  skillActionInfos:
+  - key: Attack01
+    action:
+      actionType: 0
+      clipActorAction:
+        animationClip: {fileID: 1453985722396304077, guid: 6d57102141fc7184db95eafa963b4572, type: 3}
+        sequenceClips:
+        - {fileID: 11400000, guid: 89c75680f4809c5419fbefab62124403, type: 2}
+        inBlend: 0
+        outBlend: 0
+      sequentialClipActorAction:
+        clipInfos: []
+      controllerActorAction:
+        controller: {fileID: 0}
+        lastStateName: 
+        sequenceClips: []
+        inBlend: 0
+        outBlend: 0
+      timelineActorAction:
+        timelineAsset: {fileID: 0}
+        sequenceClips: []
+        inBlend: 0
+        outBlend: 0
+  - key: Attack02
+    action:
+      actionType: 0
+      clipActorAction:
+        animationClip: {fileID: -1778816102765906175, guid: 32ed0de2e84ee9540870e3c35b13272c, type: 3}
+        sequenceClips:
+        - {fileID: 11400000, guid: 6ad7d7fc7688a5946af987dce5a31d78, type: 2}
+        inBlend: 0
+        outBlend: 0
+      sequentialClipActorAction:
+        clipInfos: []
+      controllerActorAction:
+        controller: {fileID: 0}
+        lastStateName: 
+        sequenceClips: []
+        inBlend: 0
+        outBlend: 0
+      timelineActorAction:
+        timelineAsset: {fileID: 0}
+        sequenceClips: []
+        inBlend: 0
+        outBlend: 0
+  - key: Attack03
+    action:
+      actionType: 0
+      clipActorAction:
+        animationClip: {fileID: -670441952743862688, guid: e85eabbd59e479e48a4b8d0cb836f2e3, type: 3}
+        sequenceClips:
+        - {fileID: 11400000, guid: c0aee90ae5b952049b5561ddc4f8e0ad, type: 2}
+        inBlend: 0
+        outBlend: 0
+      sequentialClipActorAction:
+        clipInfos: []
+      controllerActorAction:
+        controller: {fileID: 0}
+        lastStateName: 
+        sequenceClips: []
+        inBlend: 0
+        outBlend: 0
+      timelineActorAction:
+        timelineAsset: {fileID: 0}
+        sequenceClips: []
+        inBlend: 0
+        outBlend: 0
+  - key: Attack04
+    action:
+      actionType: 3
+      clipActorAction:
+        animationClip: {fileID: 0}
+        sequenceClips:
+        - {fileID: 0}
+        inBlend: 0
+        outBlend: 0
+      sequentialClipActorAction:
+        clipInfos: []
+      controllerActorAction:
+        controller: {fileID: 0}
+        lastStateName: 
+        sequenceClips: []
+        inBlend: 0
+        outBlend: 0
+      timelineActorAction:
+        timelineAsset: {fileID: 11400000, guid: 9837f5c4028dee04394e0c7094a131c0, type: 2}
+        sequenceClips:
+        - {fileID: 11400000, guid: 649b9d6f3f3ac3143b77f75c6594cc1e, type: 2}
+        inBlend: 0
+        outBlend: 0
+  aimDamping: 0.2
+  bulletPrefab: {fileID: 7681070998809717475, guid: 826e7461ffcb845a2b8402f11409e321, type: 3}
+  auraPrefab: {fileID: 164126522019934283, guid: 2fd65f5e89652d04eaddcdd082f96f42, type: 3}

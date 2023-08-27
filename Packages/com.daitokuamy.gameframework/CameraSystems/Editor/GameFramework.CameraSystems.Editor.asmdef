@@ -1,0 +1,28 @@
+{
+    "name": "GameFramework.CameraSystems.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:13a742725a4bf334e84ad1c9fc59b498",
+        "GUID:54a1b6bd4302b8449a4bca44b72cfbfb",
+        "GUID:4307f53044263cf4b835bd812fc161a4"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "USE_CINEMACHINE"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.cinemachine",
+            "expression": "",
+            "define": "USE_CINEMACHINE"
+        }
+    ],
+    "noEngineReferences": false
+}

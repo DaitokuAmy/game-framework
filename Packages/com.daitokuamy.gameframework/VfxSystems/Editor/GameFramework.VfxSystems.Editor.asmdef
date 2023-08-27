@@ -1,0 +1,19 @@
+{
+  "name": "GameFramework.VfxSystems.Editor",
+  "rootNamespace": "",
+  "references": [
+    "GUID:54a1b6bd4302b8449a4bca44b72cfbfb",
+    "GUID:d543a3acbc713954a9c6c79158e37ff3"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

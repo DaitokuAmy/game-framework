@@ -1,0 +1,18 @@
+{
+  "name": "GameFramework.RendererSystems.Editor",
+  "rootNamespace": "",
+  "references": [
+    "GUID:14368971c13ea3c44895cfadd2a9c1e0"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

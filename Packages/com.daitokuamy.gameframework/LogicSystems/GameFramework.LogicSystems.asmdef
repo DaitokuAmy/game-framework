@@ -1,0 +1,17 @@
+{
+  "name": "GameFramework.LogicSystems",
+  "rootNamespace": "",
+  "references": [
+    "GUID:afebead123e02784da390b52d3e15019",
+    "GUID:54a1b6bd4302b8449a4bca44b72cfbfb"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
