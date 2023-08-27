@@ -16,7 +16,6 @@ using UniRx;
 using UnityEngine;
 using SampleGame.Battle;
 using UnityDebugMenu;
-using UnityEngine.Playables;
 using UnityEngine.SceneManagement;
 using Component = UnityEngine.Component;
 
