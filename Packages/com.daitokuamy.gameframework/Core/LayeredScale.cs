@@ -196,8 +196,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="enumValue">設定したいIndexを表すEnum</param>
         /// <param name="value">設定する値</param>
-        public void Set<T>(T enumValue, float value)
-            where T : Enum {
+        public void Set(Enum enumValue, float value) {
             Set(Convert.ToInt32(enumValue), value);
         }
 
@@ -217,8 +216,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="value">設定する値</param>
         /// <param name="enumValues">設定したいIndexを表すEnumリスト</param>
-        public void Set<T>(float value, params T[] enumValues)
-            where T : Enum {
+        public void Set(float value, params Enum[] enumValues) {
             for (var i = 0; i < enumValues.Length; i++) {
                 Set(Convert.ToInt32(enumValues[i]), value);
             }
@@ -252,8 +250,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="enumValue">加算したいIndexを表すEnum</param>
         /// <param name="value">加算する値</param>
-        public void Add<T>(T enumValue, float value)
-            where T : Enum {
+        public void Add(Enum enumValue, float value) {
             Add(Convert.ToInt32(enumValue), value);
         }
 
@@ -272,8 +269,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="enumValue">乗算したいIndexを表すEnum</param>
         /// <param name="value">乗算する値</param>
-        public void Mul<T>(T enumValue, float value)
-            where T : Enum {
+        public void Mul(Enum enumValue, float value) {
             Mul(Convert.ToInt32(enumValue), value);
         }
 
@@ -292,8 +288,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="enumValue">除算したいIndexを表すEnum</param>
         /// <param name="value">除算する値</param>
-        public void Div<T>(T enumValue, float value)
-            where T : Enum {
+        public void Div(Enum enumValue, float value) {
             Mul(Convert.ToInt32(enumValue), value);
         }
 
@@ -327,8 +322,7 @@ namespace GameFramework.Core {
         /// Index指定のScale取得
         /// </summary>
         /// <param name="enumValue">取得対象のIndexを表すEnum</param>
-        public float GetValue<T>(T enumValue)
-            where T : Enum {
+        public float GetValue(Enum enumValue) {
             return GetValue(Convert.ToInt32(enumValue));
         }
 

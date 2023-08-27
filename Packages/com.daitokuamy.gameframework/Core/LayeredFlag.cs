@@ -35,6 +35,16 @@ namespace GameFramework.Core {
                 return result != 0;
             }
         }
+        /// <summary>インデクサ</summary>
+        public bool this[int index] {
+            get => Check(index);
+            set => Set(index, value);
+        }
+        /// <summary>インデクサ</summary>
+        public bool this[Enum enumValue] {
+            get => Check(enumValue);
+            set => Set(enumValue, value);
+        }
 
         /// <summary>
         /// コンストラクタ
@@ -267,8 +277,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="enumValue">設定したいIndexを表すEnum</param>
         /// <param name="on">フラグの状態</param>
-        public void Set<T>(T enumValue, bool on)
-            where T : Enum {
+        public void Set(Enum enumValue, bool on) {
             Set(Convert.ToInt32(enumValue), on);
         }
 
@@ -288,8 +297,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="on">フラグの状態</param>
         /// <param name="enumValues">設定したいIndexを表すEnumリスト</param>
-        public void Set<T>(bool on, params T[] enumValues)
-            where T : Enum {
+        public void Set(bool on, params Enum[] enumValues) {
             for (var i = 0; i < enumValues.Length; i++) {
                 Set(Convert.ToInt32(enumValues[i]), on);
             }
@@ -307,8 +315,7 @@ namespace GameFramework.Core {
         /// FlagのON設定
         /// </summary>
         /// <param name="enumValues">設定したいIndexを表すEnumリスト</param>
-        public void On<T>(params T[] enumValues)
-            where T : Enum {
+        public void On(params Enum[] enumValues) {
             Set(true, enumValues);
         }
 
@@ -324,8 +331,7 @@ namespace GameFramework.Core {
         /// FlagのOFF設定
         /// </summary>
         /// <param name="enumValues">設定したいIndexを表すEnumリスト</param>
-        public void Off<T>(params T[] enumValues)
-            where T : Enum {
+        public void Off(params Enum[] enumValues) {
             Set(false, enumValues);
         }
 
@@ -365,8 +371,7 @@ namespace GameFramework.Core {
         /// ビット単位でのフラグチェック
         /// </summary>
         /// <param name="enumValues">確認したいIndexを表すEnumリスト</param>
-        public bool Check<T>(params T[] enumValues)
-            where T : Enum {
+        public bool Check(params Enum[] enumValues) {
             return Check(enumValues.Select(x => Convert.ToInt32(x)).ToArray());
         }
 
