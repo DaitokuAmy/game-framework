@@ -237,11 +237,18 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
+        /// 等価判定
+        /// </summary>
+        public bool Equals(LayeredFlag other) {
+            return this == other;
+        }
+
+        /// <summary>
         /// Flagの設定
         /// </summary>
-        /// <param name="on">フラグの状態</param>
         /// <param name="index">設定したいIndex</param>
-        public void Set(bool on, int index) {
+        /// <param name="on">フラグの状態</param>
+        public void Set(int index, bool on) {
             RebuildBitFlags(index);
 
             var flagIndex = index / 32;
@@ -258,11 +265,21 @@ namespace GameFramework.Core {
         /// <summary>
         /// Flagの設定
         /// </summary>
+        /// <param name="enumValue">設定したいIndexを表すEnum</param>
+        /// <param name="on">フラグの状態</param>
+        public void Set<T>(T enumValue, bool on)
+            where T : Enum {
+            Set(Convert.ToInt32(enumValue), on);
+        }
+
+        /// <summary>
+        /// Flagの設定
+        /// </summary>
         /// <param name="on">フラグの状態</param>
         /// <param name="indices">設定したいIndexリスト</param>
         public void Set(bool on, params int[] indices) {
             for (var i = 0; i < indices.Length; i++) {
-                Set(on, indices[i]);
+                Set(indices[i], on);
             }
         }
 
@@ -274,7 +291,7 @@ namespace GameFramework.Core {
         public void Set<T>(bool on, params T[] enumValues)
             where T : Enum {
             for (var i = 0; i < enumValues.Length; i++) {
-                Set(on, enumValues[i]);
+                Set(Convert.ToInt32(enumValues[i]), on);
             }
         }
 
@@ -350,7 +367,7 @@ namespace GameFramework.Core {
         /// <param name="enumValues">確認したいIndexを表すEnumリスト</param>
         public bool Check<T>(params T[] enumValues)
             where T : Enum {
-            return Check(enumValues.Select(x => (int)(object)x).ToArray());
+            return Check(enumValues.Select(x => Convert.ToInt32(x)).ToArray());
         }
 
         /// <summary>
