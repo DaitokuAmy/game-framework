@@ -119,6 +119,13 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
+        /// boolキャスト
+        /// </summary>
+        public static implicit operator bool(LayeredFlag flag) {
+            return flag.IsOn;
+        }
+
+        /// <summary>
         /// AND演算
         /// </summary>
         public static LayeredFlag operator &(LayeredFlag a, LayeredFlag b) {
