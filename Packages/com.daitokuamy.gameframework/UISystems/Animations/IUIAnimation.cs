@@ -11,5 +11,10 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="time">現在時間</param>
         void SetTime(float time);
+
+        /// <summary>
+        /// 再生開始時通知
+        /// </summary>
+        void OnPlay();
     }
 }

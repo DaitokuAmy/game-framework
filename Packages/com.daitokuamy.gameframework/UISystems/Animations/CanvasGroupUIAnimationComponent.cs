@@ -30,12 +30,6 @@ namespace GameFramework.UISystems {
         public override float Duration => _duration;
         
         /// <summary>
-        /// 初期化処理
-        /// </summary>
-        protected override void InitializeInternal() {
-        }
-        
-        /// <summary>
         /// 時間の設定
         /// </summary>
         /// <param name="time">現在時間</param>

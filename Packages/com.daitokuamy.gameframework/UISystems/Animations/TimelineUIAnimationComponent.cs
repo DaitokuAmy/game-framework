@@ -20,7 +20,6 @@ namespace GameFramework.UISystems {
         /// </summary>
         protected override void InitializeInternal() {
             if (_playableDirector != null) {
-                _playableDirector.playableAsset = _timelineAsset ? _timelineAsset : _playableDirector.playableAsset;
                 _playableDirector.time = 0.0;
                 _playableDirector.playOnAwake = false;
                 _playableDirector.initialTime = 0.0;
@@ -37,6 +36,15 @@ namespace GameFramework.UISystems {
             if (_playableDirector != null) {
                 _playableDirector.time = time;
                 _playableDirector.Evaluate();
+            }
+        }
+
+        /// <summary>
+        /// 再生開始通知
+        /// </summary>
+        protected override void OnPlayInternal() {
+            if (_playableDirector != null) {
+                _playableDirector.playableAsset = _timelineAsset ? _timelineAsset : _playableDirector.playableAsset;
             }
         }
     }

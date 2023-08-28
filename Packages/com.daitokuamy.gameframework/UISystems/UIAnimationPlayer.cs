@@ -78,6 +78,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         internal class PlayingInfo {
             public IUIAnimation animation;
+            public bool first = true;
             public float time;
             public bool reverse;
             public bool loop;
@@ -98,6 +99,7 @@ namespace GameFramework.UISystems {
                 time = reverse ? 0.0f : animation.Duration;
                 loop = false;
                 Apply();
+                animation = null;
             }
 
             /// <summary>
@@ -113,6 +115,12 @@ namespace GameFramework.UISystems {
             public bool Update(float deltaTime) {
                 if (!IsValid) {
                     return false;
+                }
+
+                // 初回は再生開始を通知
+                if (first) {
+                    animation.OnPlay();
+                    first = false;
                 }
 
                 var duration = animation.Duration;

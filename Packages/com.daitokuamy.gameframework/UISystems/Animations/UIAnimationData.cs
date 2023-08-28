@@ -43,6 +43,13 @@ namespace GameFramework.UISystems {
             }
 
             /// <summary>
+            /// 再生開始通知
+            /// </summary>
+            void IUIAnimation.OnPlay() {
+                OnPlayInternal();
+            }
+
+            /// <summary>
             /// 初期化処理
             /// </summary>
             protected abstract void InitializeInternal();
@@ -51,6 +58,11 @@ namespace GameFramework.UISystems {
             /// 時間の設定
             /// </summary>
             protected abstract void SetTimeInternal(float time);
+
+            /// <summary>
+            /// 再生開始通知
+            /// </summary>
+            protected virtual void OnPlayInternal() {}
         }
         
         /// <summary>再生トータル時間</summary>

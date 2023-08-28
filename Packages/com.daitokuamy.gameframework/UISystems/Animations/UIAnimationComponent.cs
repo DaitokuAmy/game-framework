@@ -18,6 +18,14 @@ namespace GameFramework.UISystems {
             Initialize();
             SetTimeInternal(time);
         }
+
+        /// <summary>
+        /// 再生開始通知
+        /// </summary>
+        void IUIAnimation.OnPlay() {
+            Initialize();
+            OnPlayInternal();
+        }
         
         /// <summary>
         /// 生成時処理
@@ -34,6 +42,11 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="time">現在時間</param>
         protected virtual void SetTimeInternal(float time) {}
+        
+        /// <summary>
+        /// 再生開始通知
+        /// </summary>
+        protected virtual void OnPlayInternal() {}
 
         /// <summary>
         /// 初期化処理
