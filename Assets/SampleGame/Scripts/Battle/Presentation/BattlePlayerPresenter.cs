@@ -1,3 +1,4 @@
+using ActionSequencer;
 using Cysharp.Threading.Tasks;
 using GameFramework.BodySystems;
 using GameFramework.CameraSystems;
@@ -207,6 +208,9 @@ namespace SampleGame.Battle {
             });
             sequenceController.BindRangeEventHandler<LookAtMotionCameraRangeEvent, LookAtMotionCameraRangeEventHandler>(handler => {
                 handler.Setup(cameraManager, _actor.Body.Transform, _actor.Body.LayeredTime);
+            });
+            sequenceController.BindRangeEventHandler<RepeatSequenceClipRangeEvent, RepeatSequenceClipRangeEventHandler>(handler => {
+                handler.Setup((SequenceController)_actor.SequenceController);
             });
             sequenceController.BindSignalEventHandler<BattleCurveProjectileSignalEvent, BattleCurveProjectileSignalEventHandler>(handler => {
                 handler.Setup(projectileObjectManager, this, _actor, -1, null);

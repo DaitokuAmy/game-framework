@@ -82,3 +82,6 @@ MonoBehaviour:
   - fullName: SampleGame.SequenceEvents.BodyStateGimmickSingleEvent
     label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyStateGimmickSingleEvent"
     color: {r: 0, g: 0, b: 0, a: 0}
+  - fullName: SampleGame.SequenceEvents.RepeatSequenceClipRangeEvent
+    label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
+    color: {r: 1, g: 0.95, b: 1, a: 1}

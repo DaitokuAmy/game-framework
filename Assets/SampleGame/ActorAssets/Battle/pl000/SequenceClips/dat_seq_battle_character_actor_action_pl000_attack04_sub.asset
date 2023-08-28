@@ -138,7 +138,7 @@ MonoBehaviour:
     tilt: 0
     duration: 1
     durationPerMeter: 0
---- !u!114 &-6869094386147863506
+--- !u!114 &-6702535864295485271
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -147,16 +147,45 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ec759be625eb05742a96f7837c763d97, type: 3}
-  m_Name: RepeatSequenceClipRangeEvent
+  m_Script: {fileID: 11500000, guid: cb29687b4c84345489348c4ee1e99627, type: 3}
+  m_Name: BattleHomingBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
-  label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
+  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30DB\u30FC\u30DF\u30F3\u30B0)"
   active: 1
-  enterTime: 0.76666665
-  exitTime: 2.15
-  sequenceClips:
-  - {fileID: 11400000, guid: 40b1b5d742a83a841a1ff859372df382, type: 2}
-  count: 20
+  time: 0
+  hitCount: 1
+  prefab: {fileID: 7681070998809717475, guid: 826e7461ffcb845a2b8402f11409e321, type: 3}
+  scale: 1
+  locatorName: Hand_C
+  offsetPosition:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  offsetAngles:
+    useRandom: 1
+    minValue: {x: -45, y: -45, z: -45}
+    maxValue: {x: -45, y: 45, z: 45}
+  emptyRange: 30
+  targetLocatorName: 
+  targetPositionOffset:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  projectileContext:
+    startSpeed:
+      useRandom: 1
+      minValue: 10
+      maxValue: 20
+    maxAcceleration:
+      useRandom: 0
+      minValue: 100
+      maxValue: 0
+    maxDistance: 1000
+    duration:
+      useRandom: 0
+      minValue: 1
+      maxValue: 0
+    durationBaseMeter: 50
 --- !u!114 &-6569975835554042020
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -490,42 +519,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5ec08f2e03b1d49a8aa03fbf2f4ddcce, type: 3}
-  m_Name: dat_seq_battle_character_actor_action_pl000_attack04
+  m_Name: dat_seq_battle_character_actor_action_pl000_attack04_sub
   m_EditorClassIdentifier: 
   tracks:
   - {fileID: 7952287914908441018}
   frameRate: 60
---- !u!114 &2369820132901745488
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e3c7909ff318194c8db5d062c7dd33c, type: 3}
-  m_Name: BattleBeamProjectileRangeEvent
-  m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0\u653B\u6483"
-  active: 1
-  enterTime: 0.6166667
-  exitTime: 2.0833333
-  hitCount: -1
-  prefab: {fileID: 1068142218427537299, guid: 58fed2083325af04c99957e58e0c71b7, type: 3}
-  scale: 8
-  locatorName: Hand_C
-  relativePosition: {x: 0, y: 0, z: 0}
-  relativeAngles: {x: 0, y: 0, z: 0}
-  context:
-    startSpeed: 50
-    endSpeed: 100
-    obstacleLayerMask:
-      serializedVersion: 2
-      m_Bits: 1
-    radius: 0
-    maxDistance: 100
-    tilt: 0
 --- !u!114 &4994005298439760526
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -677,20 +675,20 @@ MonoBehaviour:
   m_Name: BattleShotBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u5C04\u51FA)"
-  active: 0
-  time: 0.65
+  active: 1
+  time: 0
   hitCount: 1
-  prefab: {fileID: 7681070998809717475, guid: 826e7461ffcb845a2b8402f11409e321, type: 3}
+  prefab: {fileID: 1035855108615972641, guid: 5ea6eb48b20d682418b1e9380e3db17f, type: 3}
   scale: 1
   locatorName: Hand_C
   offsetPosition:
     useRandom: 0
-    minValue: {x: 0, y: -0.5, z: 0}
+    minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   offsetAngles:
     useRandom: 1
-    minValue: {x: -1, y: -1, z: 0}
-    maxValue: {x: 1, y: 1, z: 0}
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 30
   targetLocatorName: 
   targetPositionOffset:
@@ -704,7 +702,7 @@ MonoBehaviour:
       maxValue: 0
     acceleration:
       useRandom: 0
-      minValue: -10
+      minValue: 0
       maxValue: 0
     gravity: 0
     maxDistance: 1000
@@ -766,15 +764,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   label: Track
   sequenceEvents:
-  - {fileID: -8591742924472959636}
-  - {fileID: -1026308857274177823}
-  - {fileID: 8058463315691965020}
-  - {fileID: 2369820132901745488}
-  - {fileID: 8878967300115485079}
-  - {fileID: -5083351723732175732}
   - {fileID: 6456773790468593231}
-  - {fileID: 8940707502685451561}
-  - {fileID: -6869094386147863506}
 --- !u!114 &8058463315691965020
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -977,7 +967,7 @@ MonoBehaviour:
   m_Name: BattleCustomBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30AB\u30B9\u30BF\u30E0)"
-  active: 0
+  active: 1
   time: 0.65
   hitCount: 1
   prefab: {fileID: 7681070998809717475, guid: 826e7461ffcb845a2b8402f11409e321, type: 3}

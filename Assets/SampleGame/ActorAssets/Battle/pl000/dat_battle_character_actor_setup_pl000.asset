@@ -18,7 +18,7 @@ MonoBehaviour:
     speed: 5
     acceleration: 10
     brake: 1
-    angularSpeed: 360
+    angularSpeed: 90
   jumpActionInfo:
     action:
       triggerPropertyName: onJump
