@@ -6,6 +6,7 @@ using GameFramework.ProjectileSystems;
 using GameFramework.Core;
 using GameFramework.ActorSystems;
 using GameFramework.CollisionSystems;
+using GameFramework.CommandSystems;
 using GameFramework.VfxSystems;
 using SampleGame.SequenceEvents;
 using UniRx;
@@ -21,6 +22,8 @@ namespace SampleGame.Battle {
         private BattleCharacterActor _actor;
         private BattlePlayerModel _model;
         private GimmickController _gimmickController;
+
+        private CommandManager _commandManager;
 
         /// <summary>
         /// コンストラクタ
@@ -54,6 +57,9 @@ namespace SampleGame.Battle {
                 constraintRotation = true,
                 localScale = Vector3.one,
             };
+            
+            // CommandManager初期化
+            _commandManager = new CommandManager(5).ScopeTo(scope);
             
             // Camera登録
             if (_model.ActorModel.SetupData.cameraGroupPrefab != null) {
@@ -141,6 +147,7 @@ namespace SampleGame.Battle {
             // テスト用にダメージ発生
             if (Keyboard.current.qKey.wasPressedThisFrame) {
                 _model.AddDamage(1);
+                _commandManager.Add(new LogCommand("Ite!!"));
             }
 
             if (Keyboard.current.vKey.wasPressedThisFrame) {
@@ -149,6 +156,12 @@ namespace SampleGame.Battle {
 
             if (Keyboard.current.zKey.wasPressedThisFrame) {
                 _actor.Body.IsVisible ^= true;
+                if (_actor.Body.IsVisible) {
+                    _commandManager.Add(new DelayLogCommand("Mieta!!", 1.0f, 1, _actor.Body.LayeredTime));
+                }
+                else{
+                    _commandManager.Add(new DelayLogCommand("Mien!!", 1.0f, 0, _actor.Body.LayeredTime));
+                }
             }
 
             // テスト用にTimeScale変更
@@ -179,6 +192,9 @@ namespace SampleGame.Battle {
             if (Keyboard.current.fKey.wasPressedThisFrame) {
                 _gimmickController.GetAnimationGimmicks("Damage").Play();
             }
+            
+            // コマンド更新
+            _commandManager.Update();
         }
 
         /// <summary>
