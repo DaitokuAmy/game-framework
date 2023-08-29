@@ -5,6 +5,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// カーブ制御Projectile
     /// </summary>
+    [Obsolete("CustomBulletProjectileを使って下さい")]
     public class CurveBulletProjectile : IBulletProjectile {
         /// <summary>
         /// 初期化用データ 

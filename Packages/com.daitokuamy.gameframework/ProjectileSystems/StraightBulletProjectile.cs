@@ -5,6 +5,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 直進用Projectile
     /// </summary>
+    [Obsolete("ShotBulletProjectileを使って下さい")]
     public class StraightBulletProjectile : IBulletProjectile {
         /// <summary>
         /// 初期化用データ 
