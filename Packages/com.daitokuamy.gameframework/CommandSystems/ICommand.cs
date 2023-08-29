@@ -5,20 +5,23 @@ namespace GameFramework.CommandSystems {
     public interface ICommand {
         /// <summary>優先順位(0以上, 高いほうが優先度高)</summary>
         int Priority { get; }
-        /// <summary>割り込みするか(自分より優先度の低い物が実行中だった場合、強制的に停止して実行する)</summary>
-        bool Interrupt { get; }
+        /// <summary>スタンバイ中の他Commandの実行をBlockするか</summary>
+        bool BlockStandbyOthers { get; }
+        /// <summary>実行中のCommandが無くなるまでスタンバイし続けるか</summary>
+        bool WaitExecutionOthers { get; }
         /// <summary>現在のステート</summary>
         CommandState CurrentState { get; }
         
         /// <summary>
         /// 初期化処理
         /// </summary>
-        void Initialize();
+        /// <param name="manager">Command実行を行うManager</param>
+        void Initialize(CommandManager manager);
 
         /// <summary>
         /// 開始処理
         /// </summary>
-        /// <returns>trueを返すと実行継続</returns>
+        /// <returns>trueを返すと実行開始</returns>
         bool Start();
 
         /// <summary>

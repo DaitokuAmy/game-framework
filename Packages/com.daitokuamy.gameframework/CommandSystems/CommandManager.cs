@@ -7,12 +7,25 @@ namespace GameFramework.CommandSystems {
     /// コマンド管理クラス
     /// </summary>
     public class CommandManager : IDisposable {
-        private List<ICommand> _standbyCommands = new();
-        private ICommand _executingCommand;
-
-        private int _maxStandbyCount;
+        private readonly List<ICommand> _standbyCommands = new();
+        private readonly List<ICommand> _executingCommands = new();
+        private readonly int _maxStandbyCount;
+        
         private bool _standbyDirty;
-        private List<int> _nextCommandIndices = new();
+
+        /// <summary>実行待機中Command(Debug用)</summary>
+        public IReadOnlyList<ICommand> StandbyCommands {
+            get {
+                if (_standbyDirty) {
+                    Sort(_standbyCommands);
+                    _standbyDirty = false;
+                }
+
+                return _standbyCommands;
+            }
+        }
+        /// <summary>実行中Command(Debug用)</summary>
+        public IReadOnlyList<ICommand> ExecutingCommands => _executingCommands;
 
         /// <summary>
         /// コンストラクタ
@@ -26,7 +39,7 @@ namespace GameFramework.CommandSystems {
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
-            Clear();
+            ClearCommands();
         }
 
         /// <summary>
@@ -44,18 +57,19 @@ namespace GameFramework.CommandSystems {
                 return CommandHandle.Empty;
             }
 
-            // 待機上限に入っていた場合、優先度が低い物を除外
             _standbyCommands.Add(command);
-            command.Initialize();
-            
+            command.Initialize(this);
+
+            // 待機上限に入っていた場合、優先度が低い物を除外            
             if (_maxStandbyCount >= 0 && _standbyCommands.Count > _maxStandbyCount) {
-                _standbyCommands.Sort((lhs, rhs) => lhs.Priority - rhs.Priority);
+                Sort(_standbyCommands);
                 while (_standbyCommands.Count > _maxStandbyCount) {
                     var removeCommand = _standbyCommands[0];
                     removeCommand.Destroy();
                     _standbyCommands.RemoveAt(0);
                 }
             }
+            // 要素追加されていた場合、ソートを依頼
             else {
                 _standbyDirty = true;
             }
@@ -66,21 +80,44 @@ namespace GameFramework.CommandSystems {
         /// <summary>
         /// 実行中コマンドのクリア
         /// </summary>
-        public void Clear() {
+        public void ClearCommands() {
             // 実行中のコマンドを強制終了
-            if (_executingCommand != null) {
-                _executingCommand.Destroy();
-                _executingCommand = null;
+            for (var i = _executingCommands.Count - 1; i >= 0; i--) {
+                _executingCommands[i].Destroy();
             }
             
             // 実行待機中のコマンドを強制終了
             for (var i = _standbyCommands.Count - 1; i >= 0; i--) {
                 _standbyCommands[i].Destroy();
-                _standbyCommands.RemoveAt(i);
             }
 
             _standbyDirty = false;
-            _nextCommandIndices.Clear();
+        }
+
+        /// <summary>
+        /// 特定優先度以下のCommandをキャンセルする
+        /// </summary>
+        /// <param name="priority">キャンセルするCommandのPriority</param>
+        public void CancelCommands(int priority) {
+            // 実行中のコマンドを強制終了
+            for (var i = _executingCommands.Count - 1; i >= 0; i--) {
+                var command = _executingCommands[i];
+                if (command.Priority > priority) {
+                    break;
+                }
+                
+                _executingCommands[i].Destroy();
+            }
+            
+            // 実行待機中のコマンドを強制終了
+            for (var i = _standbyCommands.Count - 1; i >= 0; i--) {
+                var command = _standbyCommands[i];
+                if (command.Priority > priority) {
+                    break;
+                }
+                
+                _standbyCommands[i].Destroy();
+            }
         }
 
         /// <summary>
@@ -88,73 +125,77 @@ namespace GameFramework.CommandSystems {
         /// </summary>
         public void Update() {
             if (_standbyDirty) {
-                _standbyCommands.Sort((lhs, rhs) => lhs.Priority - rhs.Priority);
+                Sort(_standbyCommands);
                 _standbyDirty = false;
             }
 
-            // 実行中のCommandに関する処理
+            // 実行中CommandからBlockPriorityを取得
             var blockPriority = -1;
-            if (_executingCommand != null) {
-                // 終わっていたら廃棄
-                if (_executingCommand.CurrentState != CommandState.Executing) {
-                    _executingCommand.Destroy();
-                    _executingCommand = null;
-                }
-                // 存在していたらブロック優先度を設定
-                else {
-                    blockPriority = _executingCommand.Priority;
-                }
-            }
-
-            // 待機中コマンドを実行状態に移す
-            _nextCommandIndices.Clear();
-            for (var i = _standbyCommands.Count - 1; i >= 0; i--) {
-                var command = _standbyCommands[i];
-
-                // 実行状態に移せるか
-                if (command.Priority > blockPriority) {
-                    // 割り込み可能なら割り込む
-                    if (_executingCommand == null || command.Interrupt) {
-                        _nextCommandIndices.Add(i);
-                    }
-                }
-                // Priorityが低い物は見ない
-                else {
+            for (var i = _executingCommands.Count - 1; i >= 0; i--) {
+                var command = _executingCommands[i];
+                if (command.BlockStandbyOthers) {
+                    blockPriority = command.Priority;
                     break;
                 }
             }
 
-            // コマンドの実行開始
-            if (_nextCommandIndices.Count > 0) {
-                // 実行中の物があれば廃棄
-                if (_executingCommand != null) {
-                    _executingCommand.Destroy();
-                    _executingCommand = null;
+            // 待機中コマンドを実行状態に移す
+            var executingDirty = false;
+            for (var i = _standbyCommands.Count - 1; i >= 0; i--) {
+                var command = _standbyCommands[i];
+                
+                // Standbyじゃない物は除外
+                if (command.CurrentState != CommandState.Standby) {
+                    command.Destroy();
+                    _standbyCommands.RemoveAt(i);
+                    continue;
+                }
+
+                // 実行状態に移せるか
+                if (command.Priority < blockPriority) {
+                    continue;
+                }
+
+                // 実行待ちを行う場合は空じゃないとやらない
+                if (command.WaitExecutionOthers && _executingCommands.Count > 0) {
+                    continue;
                 }
                 
-                // 優先度の高い物で実行可能な物を動かす
-                for (var i = 0; i < _nextCommandIndices.Count; i++) {
-                    var index = _nextCommandIndices[i];
-                    var command = _standbyCommands[index];
-                    if (command.Start()) {
-                        _executingCommand = command;
-                        _standbyCommands.RemoveAt(index);
-                        break;
-                    }
+                // 実行開始
+                if (command.Start()) {
+                    _standbyCommands.RemoveAt(i);
+                    _executingCommands.Add(command);
+                    executingDirty = true;
                 }
-                
-                _nextCommandIndices.Clear();
+            }
+            
+            // 実行中リストをソート
+            if (executingDirty) {
+                Sort(_executingCommands);
+                executingDirty = false;
             }
 
             // 実行中コマンドの更新
-            if (_executingCommand != null) {
-                if (!_executingCommand.Update()) {
-                    // 更新が終わったら終了
-                    _executingCommand.Finish();
-                    _executingCommand.Destroy();
-                    _executingCommand = null;
+            for (var i = _executingCommands.Count - 1; i >= 0; i--) {
+                var command = _executingCommands[i];
+                
+                // 実行継続か
+                if (command.CurrentState == CommandState.Executing && command.Update()) {
+                    continue;
                 }
+                
+                // 終了
+                command.Finish();
+                command.Destroy();
+                _executingCommands.RemoveAt(i);
             }
+        }
+
+        /// <summary>
+        /// コマンドリストの優先度ソート
+        /// </summary>
+        private void Sort(List<ICommand> commands) {
+            commands.Sort((lhs, rhs) => lhs.Priority - rhs.Priority);
         }
     }
 }

@@ -19,9 +19,8 @@ namespace SampleGame {
         /// <summary>
         /// 開始処理
         /// </summary>
-        protected override bool StartInternal(IScope scope) {
+        protected override void StartInternal(IScope scope) {
             Debug.Log(_log);
-            return false;
         }
     }
 }

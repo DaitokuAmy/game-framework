@@ -5,6 +5,7 @@ namespace GameFramework.CommandSystems {
     /// コマンドクラス
     /// </summary>
     public abstract class Command : ICommand {
+        private CommandManager _manager;
         private CommandState _currentState = CommandState.Invalid;
         private DisposableScope _initializeScope;
         private DisposableScope _startScope;
@@ -14,18 +15,21 @@ namespace GameFramework.CommandSystems {
 
         /// <summary>優先順位(0以上, 高いほうが優先度高)</summary>
         public virtual int Priority => 0;
-        /// <summary>割り込みするか(自分より優先度の低い物が実行中だった場合、強制的に停止して実行する)</summary>
-        public virtual bool Interrupt => false;
+        /// <summary>スタンバイ中の他Commandの実行をBlockするか</summary>
+        public virtual bool BlockStandbyOthers => false;
+        /// <summary>実行中のCommandが無くなるまでスタンバイし続けるか</summary>
+        public virtual bool WaitExecutionOthers => false;
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        void ICommand.Initialize() {
+        void ICommand.Initialize(CommandManager manager) {
             if (_currentState != CommandState.Invalid) {
                 return;
             }
 
             _initializeScope = new DisposableScope();
+            _manager = manager;
             InitializeInternal(_initializeScope);
             _currentState = CommandState.Standby;
         }
@@ -33,16 +37,20 @@ namespace GameFramework.CommandSystems {
         /// <summary>
         /// 開始処理
         /// </summary>
-        /// <returns>trueを返すと実行継続</returns>
+        /// <returns>trueを返すと実行開始</returns>
         bool ICommand.Start() {
             if (_currentState != CommandState.Standby) {
-                return true;
+                return false;
+            }
+            
+            if (!CheckStartInternal()) {
+                return false;
             }
             
             _startScope = new DisposableScope();
-            var result = StartInternal(_startScope);
+            StartInternal(_startScope);
             _currentState = CommandState.Executing;
-            return result;
+            return true;
         }
 
         /// <summary>
@@ -92,6 +100,7 @@ namespace GameFramework.CommandSystems {
             }
 
             DestroyInternal();
+            _manager = null;
             _currentState = CommandState.Destroyed;
         }
         
@@ -103,12 +112,18 @@ namespace GameFramework.CommandSystems {
         }
 
         /// <summary>
+        /// 開始チェック処理
+        /// </summary>
+        /// <returns>trueを返すと実行開始</returns>
+        protected virtual bool CheckStartInternal() {
+            return true;
+        }
+
+        /// <summary>
         /// 開始処理
         /// </summary>
         /// <param name="scope">Finishで消えるScope</param>
-        /// <returns>trueを返すと実行継続</returns>
-        protected virtual bool StartInternal(IScope scope) {
-            return true;
+        protected virtual void StartInternal(IScope scope) {
         }
 
         /// <summary>
@@ -129,6 +144,17 @@ namespace GameFramework.CommandSystems {
         /// 廃棄時処理
         /// </summary>
         protected virtual void DestroyInternal() {
+        }
+
+        /// <summary>
+        /// 自分より優先度の低いCommandをキャンセルさせる
+        /// </summary>
+        protected void CancelLowPriorityCommands() {
+            if (_manager == null) {
+                return;
+            }
+            
+            _manager.CancelCommands(Priority);
         }
     }
 }

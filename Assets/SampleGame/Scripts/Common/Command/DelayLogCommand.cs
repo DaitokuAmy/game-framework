@@ -12,6 +12,8 @@ namespace SampleGame {
         private string _log = "";
 
         public override int Priority { get; }
+        public override bool BlockStandbyOthers => true;
+        public override bool WaitExecutionOthers => true;
 
         /// <summary>
         /// コンストラクタ

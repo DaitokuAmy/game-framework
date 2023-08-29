@@ -59,7 +59,7 @@ namespace SampleGame.Battle {
             };
             
             // CommandManager初期化
-            _commandManager = new CommandManager(5).ScopeTo(scope);
+            _commandManager = new CommandManager().ScopeTo(scope);
             
             // Camera登録
             if (_model.ActorModel.SetupData.cameraGroupPrefab != null) {
