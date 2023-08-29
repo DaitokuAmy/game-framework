@@ -12,7 +12,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "cea765e0bdd9aaefb1e86ff3d3537c93b0df52b5"
+      "hash": "ea42bfe7d7494d21c8a059fe00d3ee403405cd79"
     },
     "com.daitokuamy.gameframework": {
       "version": "file:com.daitokuamy.gameframework",
