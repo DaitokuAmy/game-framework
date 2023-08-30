@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 飛翔体用制御用インターフェース
@@ -17,6 +19,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void Stop();
+        /// <param name="stopPosition">停止時に更新する座標(特に指定なければnull)</param>
+        void Stop(Vector3? stopPosition);
     }
 }

@@ -244,8 +244,8 @@ namespace GameFramework.ProjectileSystems {
                 if (hitCount >= 0 && result.hitCount >= hitCount) {
                     // 着弾位置に移動してから廃棄する
                     lastHitPoint = result.raycastHit.point;
-                    instance.SetPosition(result.raycastHit.point);
-                    projectileHandle.Stop();
+                    instance.SetPosition(lastHitPoint.Value);
+                    projectileHandle.Stop(lastHitPoint);
                 }
             });
 

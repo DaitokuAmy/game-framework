@@ -27,13 +27,13 @@ namespace GameFramework.ProjectileSystems {
             /// <summary>
             /// 停止処理
             /// </summary>
-            public void Stop() {
+            public void Stop(Vector3? stopPosition = null) {
                 if (!IsValid) {
                     _playingInfo = null;
                     return;
                 }
                 
-                _playingInfo.Stop();
+                _playingInfo.Stop(stopPosition);
                 _playingInfo = null;
             }
         }
@@ -83,12 +83,12 @@ namespace GameFramework.ProjectileSystems {
             /// <summary>
             /// 停止処理
             /// </summary>
-            public void Stop() {
+            public void Stop(Vector3? stopPosition) {
                 if (state >= State.Stopping) {
                     return;
                 }
 
-                projectile.Stop();
+                projectile.Stop(stopPosition);
                 state = State.Stopping;
             }
 
@@ -217,7 +217,7 @@ namespace GameFramework.ProjectileSystems {
         public void StopAll(bool clear = false) {
             for (var i = 0; i < _playingInfos.Count; i++) {
                 var info = _playingInfos[i];
-                info.Stop();
+                info.Stop(null);
                 if (clear) {
                     info.Stopped();
                 }

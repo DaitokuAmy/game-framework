@@ -99,6 +99,10 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
         bool IProjectile.Update(float deltaTime) {
+            if (_stopped) {
+                return false;
+            }
+            
             // 速度更新
             _velocity += Vector3.down * (_gravity * deltaTime);
 
@@ -160,13 +164,17 @@ namespace GameFramework.ProjectileSystems {
             // 時間更新
             _timer -= deltaTime;
 
-            return !_stopped && _timer > 0.0f;
+            return _timer > 0.0f;
         }
 
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void IProjectile.Stop() {
+        void IProjectile.Stop(Vector3? stopPosition) {
+            if (stopPosition != null) {
+                Position = stopPosition.Value;
+            }
+            
             _stopped = true;
         }
     }

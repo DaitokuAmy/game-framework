@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: RepeatSequenceClipRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
-  active: 1
+  active: 0
   enterTime: 0.76666665
   exitTime: 2.15
   sequenceClips:
@@ -508,7 +508,7 @@ MonoBehaviour:
   m_Name: BattleBeamProjectileRangeEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0\u653B\u6483"
-  active: 1
+  active: 0
   enterTime: 0.6166667
   exitTime: 2.0833333
   hitCount: -1
@@ -677,7 +677,7 @@ MonoBehaviour:
   m_Name: BattleShotBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u5C04\u51FA)"
-  active: 0
+  active: 1
   time: 0.65
   hitCount: 1
   prefab: {fileID: 7681070998809717475, guid: 826e7461ffcb845a2b8402f11409e321, type: 3}

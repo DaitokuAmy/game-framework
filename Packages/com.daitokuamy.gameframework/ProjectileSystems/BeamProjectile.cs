@@ -180,7 +180,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void IProjectile.Stop() {
+        void IProjectile.Stop(Vector3? stopPosition) {
             _stopped = true;
         }
 

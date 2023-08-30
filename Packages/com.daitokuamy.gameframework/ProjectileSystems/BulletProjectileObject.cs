@@ -168,10 +168,10 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 座標の設定
         /// </summary>
-        /// <param name="scale">更新後の座標</param>
-        void IBulletProjectileObject.SetPosition(Vector3 scale) {
+        /// <param name="position">更新後の座標</param>
+        void IBulletProjectileObject.SetPosition(Vector3 position) {
             var trans = transform;
-            trans.position = scale;
+            trans.position = position;
         }
 
         /// <summary>

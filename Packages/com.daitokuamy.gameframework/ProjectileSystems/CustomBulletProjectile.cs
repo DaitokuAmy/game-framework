@@ -124,6 +124,10 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
         bool IProjectile.Update(float deltaTime) {
+            if (_stopped) {
+                return false;
+            }
+            
             var vector = _endPoint - _startPoint;
             var distance = vector.magnitude;
 
@@ -154,13 +158,17 @@ namespace GameFramework.ProjectileSystems {
             Rotation = Quaternion.LookRotation(Position - _prevPosition, up) * Quaternion.Euler(0.0f, 0.0f, _tilt);
             _prevPosition = Position;
 
-            return !_stopped && _timer > 0.0f;
+            return _timer > 0.0f;
         }
 
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void IProjectile.Stop() {
+        void IProjectile.Stop(Vector3? stopPosition) {
+            if (stopPosition != null) {
+                Position = stopPosition.Value;
+            }
+            
             _stopped = true;
         }
 
