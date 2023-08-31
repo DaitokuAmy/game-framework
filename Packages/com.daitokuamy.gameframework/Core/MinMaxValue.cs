@@ -18,6 +18,11 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="t">補間割合</param>
         T Lerp(float t);
+
+        /// <summary>
+        /// ランダム
+        /// </summary>
+        T Rand(FastRandom random);
     }
     
     /// <summary>
@@ -66,6 +71,17 @@ namespace GameFramework.Core {
         /// <param name="t">補間割合</param>
         public float LerpUnclamped(float t) {
             return Mathf.LerpUnclamped(minValue, maxValue, t);
+        }
+
+        /// <summary>
+        /// ランダム
+        /// </summary>
+        public float Rand(FastRandom random) {
+            if (!useRandom) {
+                return minValue;
+            }
+            
+            return Lerp(random.Range(0.0f, 1.0f));
         }
     }
     
@@ -116,6 +132,19 @@ namespace GameFramework.Core {
         public Vector2 LerpUnclamped(float t) {
             return Vector2.LerpUnclamped(minValue, maxValue, t);
         }
+
+        /// <summary>
+        /// ランダム
+        /// </summary>
+        public Vector2 Rand(FastRandom random) {
+            if (!useRandom) {
+                return minValue;
+            }
+            
+            return new Vector2(
+                Mathf.Lerp(minValue.x, maxValue.x, random.Range(0.0f, 1.0f)),
+                Mathf.Lerp(minValue.y, maxValue.y, random.Range(0.0f, 1.0f)));
+        }
     }
     
     /// <summary>
@@ -164,6 +193,20 @@ namespace GameFramework.Core {
         /// <param name="t">補間割合</param>
         public Vector3 LerpUnclamped(float t) {
             return Vector3.LerpUnclamped(minValue, maxValue, t);
+        }
+
+        /// <summary>
+        /// ランダム
+        /// </summary>
+        public Vector3 Rand(FastRandom random) {
+            if (!useRandom) {
+                return minValue;
+            }
+            
+            return new Vector3(
+                Mathf.Lerp(minValue.x, maxValue.x, random.Range(0.0f, 1.0f)),
+                Mathf.Lerp(minValue.y, maxValue.y, random.Range(0.0f, 1.0f)),
+                Mathf.Lerp(minValue.z, maxValue.z, random.Range(0.0f, 1.0f)));
         }
 
         /// <summary>
@@ -225,6 +268,21 @@ namespace GameFramework.Core {
         /// <param name="t">補間割合</param>
         public Vector4 LerpUnclamped(float t) {
             return Vector3.LerpUnclamped(minValue, maxValue, t);
+        }
+
+        /// <summary>
+        /// ランダム
+        /// </summary>
+        public Vector4 Rand(FastRandom random) {
+            if (!useRandom) {
+                return minValue;
+            }
+            
+            return new Vector4(
+                Mathf.Lerp(minValue.x, maxValue.x, random.Range(0.0f, 1.0f)),
+                Mathf.Lerp(minValue.y, maxValue.y, random.Range(0.0f, 1.0f)),
+                Mathf.Lerp(minValue.z, maxValue.z, random.Range(0.0f, 1.0f)),
+                Mathf.Lerp(minValue.w, maxValue.w, random.Range(0.0f, 1.0f)));
         }
     }
     
