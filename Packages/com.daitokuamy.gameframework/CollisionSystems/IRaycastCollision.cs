@@ -6,9 +6,11 @@ namespace GameFramework.CollisionSystems {
     /// レイキャストコリジョン用インターフェース
     /// </summary>
     public interface IRaycastCollision : IVisualizable {
-        // 開始位置
+        /// <summary>有効状態</summary>
+        bool IsActive { get; set; }
+        /// <summary>開始位置</summary>
         Vector3 Start { get; set; }
-        // 終了位置
+        /// <summary>終了位置</summary>
         Vector3 End { get; set; }
 
         /// <summary>

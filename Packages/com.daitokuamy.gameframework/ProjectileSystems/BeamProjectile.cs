@@ -52,6 +52,10 @@ namespace GameFramework.ProjectileSystems {
         public Quaternion Rotation { get; private set; }
         /// <summary>飛翔体の長さ</summary>
         public float Distance { get; private set; }
+        /// <summary>太さ</summary>
+        public float Thickness { get; private set; }
+        /// <summary>実体化しているか</summary>
+        public bool IsSolid => true;
         /// <summary>衝突中か</summary>
         public bool IsHitting { get; private set; }
 

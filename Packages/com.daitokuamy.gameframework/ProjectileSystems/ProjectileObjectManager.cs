@@ -371,6 +371,7 @@ namespace GameFramework.ProjectileSystems {
                 instance.UpdateProjectile(prj);
                 raycastCollision.Start = prj.TailPosition;
                 raycastCollision.End = prj.HeadPosition;
+                raycastCollision.IsActive = prj.IsSolid;
                 onUpdatedTransform?.Invoke(prj.HeadPosition, prj.TailPosition, prj.Rotation);
             }, () => {
                 collisionHandle.Dispose();

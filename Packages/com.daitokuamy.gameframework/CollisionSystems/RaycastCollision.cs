@@ -15,9 +15,11 @@ namespace GameFramework.CollisionSystems {
         // 衝突済みのCollider
         private readonly List<Collider> _hitColliders = new List<Collider>();
 
-        // 開始位置
+        /// <summary>アクティブ状態</summary>
+        public bool IsActive { get; set; } = true;
+        /// <summary>開始位置</summary>
         public Vector3 Start { get; set; }
-        // 終了位置
+        /// <summary>終了位置</summary>
         public Vector3 End { get; set; }
 
         /// <summary>
@@ -50,6 +52,10 @@ namespace GameFramework.CollisionSystems {
         /// 更新処理
         /// </summary>
         bool IRaycastCollision.Tick(int layerMask, List<RaycastHit> newHitResults) {
+            if (!IsActive) {
+                return false;
+            }
+            
             var count = HitCheck(layerMask, s_workResults);
             if (count <= 0) {
                 return false;

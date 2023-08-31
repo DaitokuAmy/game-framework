@@ -13,6 +13,10 @@ namespace GameFramework.ProjectileSystems {
         Quaternion Rotation { get; }
         /// <summary>飛翔物の長さ</summary>
         float Distance { get; }
+        /// <summary>太さの割合(0～1)</summary>
+        float Thickness { get; }
+        /// <summary>実体化しているか</summary>
+        bool IsSolid { get; }
         /// <summary>衝突中か</summary>
         bool IsHitting { get; }
     }
