@@ -6,19 +6,19 @@ namespace SampleGame.Battle {
     /// <summary>
     /// バトル用の遠距離攻撃
     /// </summary>
-    public class BattleCustomBulletProjectileSignalEvent : BattleProjectileSignalEvent {
+    public class BattleSplineBulletProjectileSignalEvent : BattleProjectileSignalEvent {
         [Tooltip("飛翔体パラメータ")]
-        public CustomBulletProjectile.Context projectileContext;
+        public SplineBulletProjectile.Context projectileContext;
     }
 
     /// <summary>
-    /// BattleCustomBulletProjectileSignalEvent用のハンドラ
+    /// BattleSplineBulletProjectileSignalEvent用のハンドラ
     /// </summary>
-    public class BattleCustomBulletProjectileSignalEventHandler : BattleProjectileSignalEventHandler<BattleCustomBulletProjectileSignalEvent> {
+    public class BattleSplineBulletProjectileSignalEventHandler : BattleProjectileSignalEventHandler<BattleSplineBulletProjectileSignalEvent> {
         /// <summary>
         /// Projectileの取得
         /// </summary>
-        protected override IBulletProjectile GetProjectile(Transform baseTransform, BattleCustomBulletProjectileSignalEvent sequenceEvent) {
+        protected override IBulletProjectile GetProjectile(Transform baseTransform, BattleSplineBulletProjectileSignalEvent sequenceEvent) {
             var context = sequenceEvent.projectileContext;
             var startPoint = sequenceEvent.offsetPosition.Rand();
             var endPoint = GetTargetPoint();
@@ -26,7 +26,7 @@ namespace SampleGame.Battle {
                 startPoint = baseTransform.TransformPoint(startPoint);
             }
 
-            return new CustomBulletProjectile(startPoint, endPoint, context);
+            return new SplineBulletProjectile(startPoint, endPoint, context);
         }
 
         /// <summary>
@@ -34,8 +34,8 @@ namespace SampleGame.Battle {
         /// </summary>
         protected override void OnUpdatedTransform(IProjectile projectile, Vector3 position, Quaternion rotation) {
             // 追従先を更新
-            if (projectile is CustomBulletProjectile curveProjectile) {
-                curveProjectile.EndPoint = GetTargetPoint();
+            if (projectile is SplineBulletProjectile splineBulletProjectile) {
+                splineBulletProjectile.EndPoint = GetTargetPoint();
             }
         }
     }

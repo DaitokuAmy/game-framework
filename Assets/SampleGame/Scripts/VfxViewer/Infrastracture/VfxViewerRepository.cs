@@ -40,7 +40,7 @@ namespace SampleGame.VfxViewer {
         /// ActorSetupDataの読み込み
         /// </summary>
         public async UniTask<VfxViewerSetupData> LoadSetupDataAsync(CancellationToken ct) {
-            var setupData = await new VfxViewerSetupDataRequest()
+            var setupData = await new VfxViewerSetupGameRequest()
                 .LoadAsync(_assetManager, _unloadScope)
                 .ToUniTask(cancellationToken:ct);
             
@@ -66,7 +66,7 @@ namespace SampleGame.VfxViewer {
         /// ActorDataの読み込み
         /// </summary>
         public UniTask<PreviewVfxSetupData> LoadActorSetupDataAsync(string setupDataId, CancellationToken ct) {
-            return _actorSetupDataStorage.LoadAssetAsync(new PreviewVfxSetupDataRequest(setupDataId))
+            return _actorSetupDataStorage.LoadAssetAsync(new PreviewVfxSetupGameRequest(setupDataId))
                 .ToUniTask(cancellationToken:ct);
         }
     }

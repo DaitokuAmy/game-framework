@@ -61,10 +61,8 @@ MonoBehaviour:
     startPoint: {x: 0, y: 1, z: 1}
     endPoint: {x: 0, y: 0, z: 0}
     vibrationCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 2
         outSlope: 2
@@ -72,8 +70,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0
-      - serializedVersion: 3
-        time: 0.5
+      - time: 0.5
         value: 1
         inSlope: 0.06374543
         outSlope: 0.06374543
@@ -81,8 +78,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.108932376
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 0
         inSlope: -1.8593719
         outSlope: -1.8593719
@@ -96,10 +92,8 @@ MonoBehaviour:
     amplitude: 2
     frequency: 1
     depthCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 1.027974
         outSlope: 1.027974
@@ -107,8 +101,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.44
+      - time: 0.44
         value: 0.45230857
         inSlope: 1.0029973
         outSlope: 1.0029973
@@ -116,8 +109,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 1
         inSlope: 0.9780205
         outSlope: 0.9780205
@@ -129,7 +121,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     rollCurve:
-      serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -151,9 +142,9 @@ MonoBehaviour:
   m_Name: RepeatSequenceClipRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
-  active: 0
-  enterTime: 0.76666665
-  exitTime: 2.15
+  active: 1
+  enterTime: 0.6333333
+  exitTime: 2.05
   sequenceClips:
   - {fileID: 11400000, guid: 40b1b5d742a83a841a1ff859372df382, type: 2}
   count: 20
@@ -267,6 +258,24 @@ MonoBehaviour:
       useRandom: 1
       minValue: 0
       maxValue: 2
+    propulsion:
+      useRandom: 0
+      minValue: 0
+      maxValue: 0
+    propulsionCurve:
+      useRandom: 0
+      minValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      maxValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
     maxAcceleration:
       useRandom: 0
       minValue: 150
@@ -314,10 +323,8 @@ MonoBehaviour:
     startPoint: {x: 0, y: 1, z: 1}
     endPoint: {x: 0, y: 10, z: 10}
     vibrationCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 1
         inSlope: 0
         outSlope: 0
@@ -325,8 +332,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 1
         inSlope: 0
         outSlope: 0
@@ -340,10 +346,8 @@ MonoBehaviour:
     amplitude: 0.2
     frequency: 1
     depthCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 1.027974
         outSlope: 1.027974
@@ -351,8 +355,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.44
+      - time: 0.44
         value: 0.45230857
         inSlope: 1.0029973
         outSlope: 1.0029973
@@ -360,8 +363,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 1
         inSlope: 0.9780205
         outSlope: 0.9780205
@@ -373,10 +375,8 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     rollCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 5
         outSlope: 5
@@ -384,8 +384,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 5
         inSlope: 5
         outSlope: 5
@@ -431,6 +430,86 @@ MonoBehaviour:
     radius: 0
     maxDistance: 20
     tilt: 0
+--- !u!114 &-1516204521171520786
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95cbb980cadcbb346aa7dd57ecb8befb, type: 3}
+  m_Name: BattleSplineBulletProjectileSignalEvent
+  m_EditorClassIdentifier: 
+  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30B9\u30D7\u30E9\u30A4\u30F3)"
+  active: 0
+  time: 0.65
+  hitCount: 1
+  prefab: {fileID: 7681070998809717475, guid: 02941629df1c5b94297052baddcf3483, type: 3}
+  scale: 1
+  locatorName: Hand_C
+  offsetPosition:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  offsetAngles:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  emptyRange: 10
+  targetLocatorName: 
+  targetPositionOffset:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  projectileContext:
+    splinePrefab: {fileID: 9020935279185927201, guid: df0d3c67bba83c94f8c8935e6a979f2c, type: 3}
+    timeCurve:
+      useRandom: 0
+      minValue:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 0
+          inSlope: 1
+          outSlope: 1
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 1
+          outSlope: 1
+          tangentMode: 34
+          weightedMode: 0
+          inWeight: 0
+          outWeight: 0
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      maxValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    tilt:
+      useRandom: 0
+      minValue: -45
+      maxValue: 0
+    roll:
+      useRandom: 0
+      minValue: -90
+      maxValue: 45
+    duration:
+      useRandom: 0
+      minValue: 1
+      maxValue: 0
+    durationBaseMeter: 0
 --- !u!114 &-1026308857274177823
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -587,10 +666,8 @@ MonoBehaviour:
     startPoint: {x: 0, y: 1, z: 1}
     endPoint: {x: 0, y: 0, z: 0}
     vibrationCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 2
         outSlope: 2
@@ -598,8 +675,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0
-      - serializedVersion: 3
-        time: 0.5
+      - time: 0.5
         value: 1
         inSlope: 0.06374543
         outSlope: 0.06374543
@@ -607,8 +683,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.108932376
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 0
         inSlope: -1.8593719
         outSlope: -1.8593719
@@ -622,10 +697,8 @@ MonoBehaviour:
     amplitude: 1
     frequency: 2
     depthCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 1.027974
         outSlope: 1.027974
@@ -633,8 +706,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.44
+      - time: 0.44
         value: 0.45230857
         inSlope: 1.0029973
         outSlope: 1.0029973
@@ -642,8 +714,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 1
         inSlope: 0.9780205
         outSlope: 0.9780205
@@ -655,7 +726,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     rollCurve:
-      serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -677,7 +747,7 @@ MonoBehaviour:
   m_Name: BattleShotBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u5C04\u51FA)"
-  active: 1
+  active: 0
   time: 0.65
   hitCount: 1
   prefab: {fileID: 7681070998809717475, guid: 826e7461ffcb845a2b8402f11409e321, type: 3}
@@ -708,7 +778,7 @@ MonoBehaviour:
       maxValue: 0
     gravity: 0
     maxDistance: 1000
-    tilt:
+    roll:
       useRandom: 0
       minValue: 0
       maxValue: 0
@@ -774,6 +844,7 @@ MonoBehaviour:
   - {fileID: -5083351723732175732}
   - {fileID: 6456773790468593231}
   - {fileID: 8940707502685451561}
+  - {fileID: -1516204521171520786}
   - {fileID: -6869094386147863506}
 --- !u!114 &8058463315691965020
 MonoBehaviour:
@@ -843,10 +914,8 @@ MonoBehaviour:
     startPoint: {x: 0, y: 1, z: 1}
     endPoint: {x: 0, y: 0, z: 0}
     vibrationCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 2
         outSlope: 2
@@ -854,8 +923,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0
-      - serializedVersion: 3
-        time: 0.5
+      - time: 0.5
         value: 1
         inSlope: 0.06374543
         outSlope: 0.06374543
@@ -863,8 +931,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.108932376
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 0
         inSlope: -1.8593719
         outSlope: -1.8593719
@@ -878,10 +945,8 @@ MonoBehaviour:
     amplitude: 1
     frequency: 2
     depthCurve:
-      serializedVersion: 2
       m_Curve:
-      - serializedVersion: 3
-        time: 0
+      - time: 0
         value: 0
         inSlope: 1.027974
         outSlope: 1.027974
@@ -889,8 +954,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 0.44
+      - time: 0.44
         value: 0.45230857
         inSlope: 1.0029973
         outSlope: 1.0029973
@@ -898,8 +962,7 @@ MonoBehaviour:
         weightedMode: 0
         inWeight: 0.33333334
         outWeight: 0.33333334
-      - serializedVersion: 3
-        time: 1
+      - time: 1
         value: 1
         inSlope: 0.9780205
         outSlope: 0.9780205
@@ -911,7 +974,6 @@ MonoBehaviour:
       m_PostInfinity: 2
       m_RotationOrder: 4
     rollCurve:
-      serializedVersion: 2
       m_Curve: []
       m_PreInfinity: 2
       m_PostInfinity: 2
@@ -963,7 +1025,7 @@ MonoBehaviour:
     cor: 0.5
     radius: 0.1
     duration: 3
-    tilt: 0
+    roll: 0
 --- !u!114 &8940707502685451561
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1079,7 +1141,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    rollCurve:
+    tiltCurve:
       useRandom: 0
       minValue:
         serializedVersion: 2
@@ -1093,11 +1155,11 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    rollOffset:
+    tiltOffset:
       useRandom: 1
       minValue: -1
       maxValue: 1
-    tilt:
+    roll:
       useRandom: 0
       minValue: 0
       maxValue: 0

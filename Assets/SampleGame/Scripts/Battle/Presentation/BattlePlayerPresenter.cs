@@ -206,6 +206,7 @@ namespace SampleGame.Battle {
             var cameraManager = Services.Get<CameraManager>();
             var projectileObjectManager = Services.Get<ProjectileObjectManager>();
             var gimmickController = _actor.Body.GetController<GimmickController>();
+            var hitLayerMask = LayerMask.GetMask("Default");
             
             sequenceController.BindSignalEventHandler<BodyActiveGimmickSingleEvent, BodyActiveGimmickSingleEventHandler>(handler => {
                 handler.Setup(gimmickController);
@@ -228,26 +229,23 @@ namespace SampleGame.Battle {
             sequenceController.BindRangeEventHandler<RepeatSequenceClipRangeEvent, RepeatSequenceClipRangeEventHandler>(handler => {
                 handler.Setup((SequenceController)_actor.SequenceController);
             });
-            sequenceController.BindSignalEventHandler<BattleCurveProjectileSignalEvent, BattleCurveProjectileSignalEventHandler>(handler => {
-                handler.Setup(projectileObjectManager, this, _actor, -1, null);
+            sequenceController.BindSignalEventHandler<BattleSplineBulletProjectileSignalEvent, BattleSplineBulletProjectileSignalEventHandler>(handler => {
+                handler.Setup(projectileObjectManager, this, _actor, hitLayerMask, null);
             });
             sequenceController.BindSignalEventHandler<BattleHomingBulletProjectileSignalEvent, BattleHomingBulletProjectileSignalEventHandler>(handler => {
-                handler.Setup(projectileObjectManager, this, _actor, -1, null);
-            });
-            sequenceController.BindSignalEventHandler<BattleStraightProjectileSignalEvent, BattleStraightProjectileSignalEventHandler>(handler => {
-                handler.Setup(projectileObjectManager, this, _actor, -1, null);
+                handler.Setup(projectileObjectManager, this, _actor, hitLayerMask, null);
             });
             sequenceController.BindSignalEventHandler<BattleShotBulletProjectileSignalEvent, BattleShotBulletProjectileSignalEventHandler>(handler => {
-                handler.Setup(projectileObjectManager, this, _actor, -1, null);
+                handler.Setup(projectileObjectManager, this, _actor, hitLayerMask, null);
             });
             sequenceController.BindSignalEventHandler<BattleCustomBulletProjectileSignalEvent, BattleCustomBulletProjectileSignalEventHandler>(handler => {
-                handler.Setup(projectileObjectManager, this, _actor, -1, null);
+                handler.Setup(projectileObjectManager, this, _actor, hitLayerMask, null);
             });
             sequenceController.BindSignalEventHandler<BattleThrowableProjectileSignalEvent, BattleThrowableProjectileSignalEventHandler>(handler => {
-                handler.Setup(projectileObjectManager, this, _actor, -1, null);
+                handler.Setup(projectileObjectManager, this, _actor, hitLayerMask, null);
             });
             sequenceController.BindRangeEventHandler<BattleBeamProjectileRangeEvent, BattleBeamProjectileRangeEventHandler>(handler => {
-                handler.Setup(projectileObjectManager, this, _actor, -1, null);
+                handler.Setup(projectileObjectManager, this, _actor, hitLayerMask, null);
             });
 
             scope.OnExpired += () => sequenceController.ResetEventHandlers();

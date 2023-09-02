@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
@@ -25,8 +26,9 @@ namespace GameFramework.ProjectileSystems {
             public float radius;
             [Tooltip("終了時間")]
             public float duration;
+            [FormerlySerializedAs("tilt")]
             [Tooltip("オブジェクトの傾き")]
-            public float tilt;
+            public float roll;
         }
 
         private readonly Vector3 _startPoint;
@@ -36,12 +38,12 @@ namespace GameFramework.ProjectileSystems {
         private readonly float _cor;
         private readonly float _radius;
         private readonly float _duration;
-        private readonly float _tilt;
+        private readonly float _roll;
 
         private bool _stopped;
         private Vector3 _velocity;
         private float _timer;
-        private Quaternion _tiltRotation;
+        private Quaternion _rollRotation;
         private RaycastHit[] _raycastHits;
 
         // 座標
@@ -60,8 +62,8 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="cor">反発係数</param>
         /// <param name="radius">半径</param>
         /// <param name="duration">終了時間</param>
-        /// <param name="tilt">オブジェクトの傾き</param>
-        public ThrowableBulletProjectile(Vector3 startPoint, Vector3 startVelocity, float gravity, int reflectLayerMask, float cor, float radius, float duration, float tilt) {
+        /// <param name="roll">オブジェクトの傾き</param>
+        public ThrowableBulletProjectile(Vector3 startPoint, Vector3 startVelocity, float gravity, int reflectLayerMask, float cor, float radius, float duration, float roll) {
             _startPoint = startPoint;
             _startVelocity = startVelocity;
             _gravity = gravity;
@@ -69,7 +71,7 @@ namespace GameFramework.ProjectileSystems {
             _cor = Mathf.Max(0, cor);
             _radius = radius;
             _duration = duration;
-            _tilt = tilt;
+            _roll = roll;
 
             _raycastHits = new RaycastHit[4];
         }
@@ -79,16 +81,16 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="context">初期化パラメータ</param>
         public ThrowableBulletProjectile(Context context)
-            : this(context.startPoint, context.startVelocity, context.gravity, context.reflectLayerMask, context.cor, context.radius, context.duration, context.tilt) {
+            : this(context.startPoint, context.startVelocity, context.gravity, context.reflectLayerMask, context.cor, context.radius, context.duration, context.roll) {
         }
 
         /// <summary>
         /// 飛翔開始
         /// </summary>
         void IProjectile.Start() {
-            _tiltRotation = Quaternion.Euler(0.0f, 0.0f, _tilt);
+            _rollRotation = Quaternion.Euler(0.0f, 0.0f, _roll);
             Position = _startPoint;
-            Rotation = Quaternion.LookRotation(_startVelocity) * _tiltRotation;
+            Rotation = Quaternion.LookRotation(_startVelocity) * _rollRotation;
             _velocity = _startVelocity;
             _timer = _duration;
             _stopped = false;
@@ -158,7 +160,7 @@ namespace GameFramework.ProjectileSystems {
 
             // 向き更新
             if (deltaPos.sqrMagnitude > 0.000001f) {
-                Rotation = Quaternion.LookRotation(deltaPos) * _tiltRotation;
+                Rotation = Quaternion.LookRotation(deltaPos) * _rollRotation;
             }
             
             // 時間更新
