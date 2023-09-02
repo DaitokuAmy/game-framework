@@ -130,7 +130,7 @@ namespace GameFramework.ProjectileSystems {
             
             // 時間軸カーブ適用
             if (_timeCurve.minValue.keys.Length >= 2) {
-                ratio = _timeCurve.Evaluate(ratio);
+                ratio = Mathf.Clamp01(_timeCurve.Evaluate(ratio));
             }
 
             // ローカル位置を取得

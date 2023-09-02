@@ -27,6 +27,8 @@ namespace GameFramework.ProjectileSystems {
             [FormerlySerializedAs("rollOffset")]
             [Tooltip("傾きオフセット(-1～1)")]
             public MinMaxFloat tiltOffset;
+            [Tooltip("進捗する時間軸カーブ")]
+            public MinMaxAnimationCurve timeCurve;
             [FormerlySerializedAs("tilt")]
             [Tooltip("オブジェクトの傾き(角度)")]
             public MinMaxFloat roll;
@@ -43,6 +45,7 @@ namespace GameFramework.ProjectileSystems {
         private readonly MinMaxAnimationCurve _depthCurve;
         private readonly MinMaxAnimationCurve _tiltCurve;
         private readonly float _tiltOffset;
+        private readonly MinMaxAnimationCurve _timeCurve;
         private readonly Quaternion _roll;
         private readonly float _duration;
         
@@ -73,12 +76,13 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="depthCurve">奥行きカーブ(1でTargetPoint)</param>
         /// <param name="tiltCurve">ねじれカーブ(-1～1)</param>
         /// <param name="tiltOffset">ねじれオフセット</param>
+        /// <param name="timeCurve">時間軸カーブ</param>
         /// <param name="roll">傾き</param>
         /// <param name="duration">到達時間</param>
         /// <param name="durationBaseMeter">着弾想定時間の基準距離(0以下で無効)</param>
         public CustomBulletProjectile(Vector3 startPoint, Vector3 endPoint,
             MinMaxAnimationCurve vibrationCurve, MinMaxFloat amplitude, MinMaxFloat frequency,
-            MinMaxAnimationCurve depthCurve, MinMaxAnimationCurve tiltCurve, MinMaxFloat tiltOffset, MinMaxFloat roll, MinMaxFloat duration, float durationBaseMeter) {
+            MinMaxAnimationCurve depthCurve, MinMaxAnimationCurve tiltCurve, MinMaxFloat tiltOffset, MinMaxAnimationCurve timeCurve, MinMaxFloat roll, MinMaxFloat duration, float durationBaseMeter) {
             _startPoint = startPoint;
             _endPoint = endPoint;
             _vibrationCurve = vibrationCurve;
@@ -87,6 +91,7 @@ namespace GameFramework.ProjectileSystems {
             _depthCurve = depthCurve;
             _tiltCurve = tiltCurve;
             _tiltOffset = tiltOffset.Rand();
+            _timeCurve = timeCurve;
             _roll = Quaternion.Euler(0.0f, 0.0f, roll.Rand());
             _duration = duration.Rand();
             _duration = CalcDuration(startPoint, endPoint, duration.Rand(), durationBaseMeter);
@@ -95,6 +100,7 @@ namespace GameFramework.ProjectileSystems {
             _vibrationCurve.RandDefaultRatio();
             _depthCurve.RandDefaultRatio();
             _tiltCurve.RandDefaultRatio();
+            _timeCurve.RandDefaultRatio();
 
             Position = _startPoint;
             Rotation = Quaternion.LookRotation(_endPoint - _startPoint);
@@ -108,7 +114,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="context">初期化パラメータ</param>
         public CustomBulletProjectile(Vector3 startPoint, Vector3 endPoint, Context context)
             : this(startPoint, endPoint, context.vibrationCurve, context.amplitude, context.frequency,
-                context.depthCurve, context.tiltCurve, context.tiltOffset, context.roll, context.duration, context.durationBaseMeter) {
+                context.depthCurve, context.tiltCurve, context.tiltOffset, context.timeCurve, context.roll, context.duration, context.durationBaseMeter) {
         }
 
         /// <summary>
@@ -145,6 +151,11 @@ namespace GameFramework.ProjectileSystems {
             _timer -= deltaTime;
 
             var ratio = Mathf.Clamp01(1 - _timer / _duration);
+            
+            // 時間軸カーブ適用
+            if (_timeCurve.minValue.keys.Length >= 2) {
+                ratio = Mathf.Clamp01(_timeCurve.Evaluate(ratio));
+            }
 
             // 位置計算
             var vibration = _vibrationCurve.Evaluate(ratio * _frequency % 1.0f) * _amplitude;
