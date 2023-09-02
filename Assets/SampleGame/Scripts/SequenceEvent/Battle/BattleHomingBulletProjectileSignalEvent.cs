@@ -6,7 +6,7 @@ namespace SampleGame.Battle {
     /// <summary>
     /// バトル用の遠距離攻撃
     /// </summary>
-    public class BattleHomingBulletProjectileSignalEvent : BattleProjectileSignalEvent {
+    public class BattleHomingBulletProjectileSignalEvent : BattleBulletProjectileSignalEvent {
         [Space]
         [Header("Projectile Parameter")]
         [Tooltip("飛翔体パラメータ")]
@@ -36,7 +36,7 @@ namespace SampleGame.Battle {
         /// <summary>
         /// Transform更新時の処理
         /// </summary>
-        protected override void OnUpdatedTransform(IProjectile projectile, Vector3 position, Quaternion rotation) {
+        protected override void OnUpdatedTransform(IBulletProjectile projectile, Vector3 position, Quaternion rotation) {
             // 追従先を更新
             if (projectile is HomingBulletProjectile homingProjectile) {
                 homingProjectile.EndPoint = GetTargetPoint();

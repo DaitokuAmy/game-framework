@@ -6,7 +6,7 @@ namespace SampleGame.Battle {
     /// <summary>
     /// バトル用の遠距離攻撃
     /// </summary>
-    public class BattleCustomBulletProjectileSignalEvent : BattleProjectileSignalEvent {
+    public class BattleCustomBulletProjectileSignalEvent : BattleBulletProjectileSignalEvent {
         [Tooltip("飛翔体パラメータ")]
         public CustomBulletProjectile.Context projectileContext;
     }
@@ -32,7 +32,7 @@ namespace SampleGame.Battle {
         /// <summary>
         /// Transform更新時の処理
         /// </summary>
-        protected override void OnUpdatedTransform(IProjectile projectile, Vector3 position, Quaternion rotation) {
+        protected override void OnUpdatedTransform(IBulletProjectile projectile, Vector3 position, Quaternion rotation) {
             // 追従先を更新
             if (projectile is CustomBulletProjectile curveProjectile) {
                 curveProjectile.EndPoint = GetTargetPoint();

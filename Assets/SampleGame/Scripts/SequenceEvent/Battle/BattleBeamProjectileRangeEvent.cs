@@ -22,6 +22,12 @@ namespace SampleGame.Battle {
         public Vector3 relativePosition;
         [Tooltip("発生基点の向きオフセット")]
         public Vector3 relativeAngles;
+        [Tooltip("レイキャストでダメージを与えるか")]
+        public bool raycastDamage = true;
+        [Tooltip("着弾時のコリジョン半径")]
+        public float exitCollisionRadius = 0.0f;
+        [Tooltip("着弾時のコリジョン発生時間")]
+        public float exitCollisionDuration = 0.0f;
         [Tooltip("ビーム内容")]
         public BeamProjectile.Context context;
     }
@@ -30,8 +36,10 @@ namespace SampleGame.Battle {
     /// BattleProjectileRangeEventのハンドラ基底
     /// </summary>
     public class BattleBeamProjectileRangeEventHandler : RangeSequenceEventHandler<BattleBeamProjectileRangeEvent> {
+        private CollisionManager _collisionManager;
         private ProjectileObjectManager _projectileObjectManager;
-        private IRaycastCollisionListener _listener;
+        private ICollisionListener _collisionListener;
+        private IRaycastCollisionListener _raycastListener;
         private BattleCharacterActor _actor;
         private int _layerMask;
         private Func<RaycastHitResult, bool> _checkHitFunc;
@@ -41,9 +49,11 @@ namespace SampleGame.Battle {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(ProjectileObjectManager projectileObjectManager, IRaycastCollisionListener listener, BattleCharacterActor characterActor, int layerMask, Func<RaycastHitResult, bool> checkHitFunc) {
+        public void Setup(CollisionManager collisionManager, ProjectileObjectManager projectileObjectManager, ICollisionListener collisionListener, IRaycastCollisionListener raycastListener, BattleCharacterActor characterActor, int layerMask, Func<RaycastHitResult, bool> checkHitFunc) {
+            _collisionManager = collisionManager;
             _projectileObjectManager = projectileObjectManager;
-            _listener = listener;
+            _collisionListener = collisionListener;
+            _raycastListener = raycastListener;
             _actor = characterActor;
             _layerMask = layerMask;
             _checkHitFunc = checkHitFunc;
@@ -57,9 +67,15 @@ namespace SampleGame.Battle {
             var projectile = new BeamProjectile(baseTrans, sequenceEvent.relativePosition, Quaternion.Euler(sequenceEvent.relativeAngles), sequenceEvent.context);
 
             _handle = _projectileObjectManager.Play(
-                _listener, sequenceEvent.prefab, projectile, Vector3.one * sequenceEvent.scale, _layerMask,
-                sequenceEvent.hitCount, _actor.Body.LayeredTime,
-                null, _checkHitFunc);
+                _raycastListener, sequenceEvent.prefab, projectile, Vector3.one * sequenceEvent.scale, _layerMask,
+                sequenceEvent.hitCount, null, _actor.Body.LayeredTime,
+                _checkHitFunc, onExit: () => {
+                    // 着弾時にコリジョンを発生させる必要があれば発生
+                    if (sequenceEvent.exitCollisionRadius > float.Epsilon && sequenceEvent.exitCollisionDuration >= 0.0f) {
+                        _collisionManager.Register(_collisionListener, new SphereCollision(projectile.HeadPosition, sequenceEvent.exitCollisionRadius), _layerMask, null,
+                            sequenceEvent.exitCollisionDuration);
+                    }
+                });
         }
 
         /// <summary>
