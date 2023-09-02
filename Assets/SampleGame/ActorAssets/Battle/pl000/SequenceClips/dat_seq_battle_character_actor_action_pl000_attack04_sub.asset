@@ -166,6 +166,9 @@ MonoBehaviour:
     minValue: {x: -45, y: -45, z: -45}
     maxValue: {x: -45, y: 45, z: 45}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -176,24 +179,6 @@ MonoBehaviour:
       useRandom: 1
       minValue: 10
       maxValue: 20
-    propulsion:
-      useRandom: 0
-      minValue: 0
-      maxValue: 0
-    propulsionCurve:
-      useRandom: 0
-      minValue:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      maxValue:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
     maxAcceleration:
       useRandom: 0
       minValue: 100
@@ -304,6 +289,9 @@ MonoBehaviour:
     minValue: {x: -90, y: -90, z: 0}
     maxValue: {x: 90, y: 90, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -314,24 +302,6 @@ MonoBehaviour:
       useRandom: 1
       minValue: 0
       maxValue: 2
-    propulsion:
-      useRandom: 0
-      minValue: 0
-      maxValue: 0
-    propulsionCurve:
-      useRandom: 0
-      minValue:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      maxValue:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
     maxAcceleration:
       useRandom: 0
       minValue: 150
@@ -487,6 +457,9 @@ MonoBehaviour:
   locatorName: 
   relativePosition: {x: 0, y: 1, z: 1}
   relativeAngles: {x: 0, y: 0, z: 0}
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   context:
     startSpeed: 5
     endSpeed: 5
@@ -588,6 +561,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 50
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 1
@@ -595,6 +571,10 @@ MonoBehaviour:
     maxValue: {x: 2, y: 2, z: 2}
   projectileContext:
     splinePrefab: {fileID: 9020935279185927201, guid: df0d3c67bba83c94f8c8935e6a979f2c, type: 3}
+    splineScale:
+      useRandom: 0
+      minValue: 1
+      maxValue: 0
     timeCurve:
       useRandom: 0
       minValue:
@@ -788,6 +768,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -886,6 +869,9 @@ MonoBehaviour:
   locatorName: Hand_C
   relativePosition: {x: 0, y: 0, z: 0}
   relativeAngles: {x: 0, y: 0, z: 0}
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   context:
     startSpeed: 50
     endSpeed: 100
@@ -1037,6 +1023,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 50
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -1081,6 +1070,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -1186,6 +1178,20 @@ MonoBehaviour:
       useRandom: 1
       minValue: -1
       maxValue: 1
+    timeCurve:
+      useRandom: 0
+      minValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      maxValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
     roll:
       useRandom: 0
       minValue: 0

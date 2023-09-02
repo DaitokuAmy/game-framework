@@ -3,7 +3,6 @@ using System;
 using GameFramework.Core;
 using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.Splines;
 
 namespace GameFramework.ProjectileSystems {
@@ -18,9 +17,10 @@ namespace GameFramework.ProjectileSystems {
         public struct Context {
             [Tooltip("スプラインカーブを入れたPrefab")]
             public SplineContainer splinePrefab;
+            [Tooltip("スプラインカーブのXZスケール")]
+            public MinMaxFloat splineScale;
             [Tooltip("進捗する時間軸カーブ")]
             public MinMaxAnimationCurve timeCurve;
-            [FormerlySerializedAs("_roll")]
             [Tooltip("スプラインの傾き(角度)")]
             public MinMaxFloat tilt;
             [Tooltip("オブジェクトの傾き(角度)")]
@@ -33,6 +33,7 @@ namespace GameFramework.ProjectileSystems {
 
         private readonly Vector3 _startPoint;
         private readonly SplineContainer _splinePrefab;
+        private readonly float _splineScale;
         private readonly MinMaxAnimationCurve _timeCurve;
         private readonly Quaternion _tilt;
         private readonly Quaternion _roll;
@@ -60,16 +61,18 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="startPoint">開始座標</param>
         /// <param name="endPoint">終了座標</param>
         /// <param name="splinePrefab">スプラインを仕込んだPrefab</param>
+        /// <param name="splineScale">スプラインのXZスケール</param>
         /// <param name="timeCurve">時間軸カーブ</param>
         /// <param name="tilt">曲線の傾き</param>
         /// <param name="roll">オブジェクトの回転</param>
         /// <param name="duration">到達時間</param>
         /// <param name="durationBaseMeter">着弾想定時間の基準距離(0以下で無効)</param>
         public SplineBulletProjectile(Vector3 startPoint, Vector3 endPoint,
-            SplineContainer splinePrefab, MinMaxAnimationCurve timeCurve, MinMaxFloat tilt, MinMaxFloat roll, MinMaxFloat duration, float durationBaseMeter) {
+            SplineContainer splinePrefab, MinMaxFloat splineScale, MinMaxAnimationCurve timeCurve, MinMaxFloat tilt, MinMaxFloat roll, MinMaxFloat duration, float durationBaseMeter) {
             _startPoint = startPoint;
             _endPoint = endPoint;
             _splinePrefab = splinePrefab;
+            _splineScale = splineScale.Rand();
             _timeCurve = timeCurve;
             _tilt = Quaternion.Euler(0.0f, 0.0f, tilt.Rand());
             _roll = Quaternion.Euler(0.0f, 0.0f, roll.Rand());
@@ -90,7 +93,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="endPoint">ターゲット位置</param>
         /// <param name="context">初期化パラメータ</param>
         public SplineBulletProjectile(Vector3 startPoint, Vector3 endPoint, Context context)
-            : this(startPoint, endPoint, context.splinePrefab, context.timeCurve, context.tilt, context.roll, context.duration, context.durationBaseMeter) {
+            : this(startPoint, endPoint, context.splinePrefab, context.splineScale, context.timeCurve, context.tilt, context.roll, context.duration, context.durationBaseMeter) {
         }
 
         /// <summary>
@@ -100,6 +103,11 @@ namespace GameFramework.ProjectileSystems {
             var vector = _endPoint - _startPoint;
             Position = _startPoint;
             Rotation = Quaternion.LookRotation(vector);
+            
+            // todo: Prefabの中身を直接使うとキャッシュが更新されない事があるための対応
+            _splinePrefab.Spline.Closed = true;
+            _splinePrefab.Spline.Closed = false;
+            
             _splineDistance = _splinePrefab.Spline.EvaluatePosition(1.0f).z;
             _timer = _duration;
             _stopped = false;
@@ -140,9 +148,9 @@ namespace GameFramework.ProjectileSystems {
             var pivot = _startPoint;
             var scale = distance / _splineDistance;
             var rotation = Quaternion.FromToRotation(Vector3.forward, vector) * _tilt;
-            var position = rotation * (localPosition * new float3(1, 1, scale)) + pivot;
-            var tangent = rotation * (localTangent * new float3(1, 1, scale));
-            var upVector = rotation * (localUpVector * new float3(1, 1, scale));
+            var position = rotation * (localPosition * new float3(_splineScale, _splineScale, scale)) + pivot;
+            var tangent = rotation * (localTangent * new float3(_splineScale, _splineScale, scale));
+            var upVector = rotation * (localUpVector * new float3(_splineScale, _splineScale, scale));
 
             Position = position;
             Rotation = Quaternion.LookRotation(tangent, upVector) * _roll;
