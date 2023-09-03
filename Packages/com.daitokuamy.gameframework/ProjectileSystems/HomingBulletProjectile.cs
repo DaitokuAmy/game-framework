@@ -16,6 +16,8 @@ namespace GameFramework.ProjectileSystems {
             public MinMaxFloat startSpeed;
             [Tooltip("加速度の最大値(0以下で無効)")]
             public MinMaxFloat maxAcceleration;
+            [Tooltip("外れた後もホーミングし続けるか")]
+            public bool continueAcceleration;
             [Tooltip("最大飛翔距離")]
             public float maxDistance;
             [Tooltip("着弾想定時間")]
@@ -27,6 +29,7 @@ namespace GameFramework.ProjectileSystems {
         private readonly Vector3 _startPoint;
         private readonly float _startSpeed;
         private readonly float _maxAcceleration;
+        private readonly bool _continueAcceleration;
         private readonly float _maxDistance;
         private readonly float _duration;
 
@@ -57,13 +60,15 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="duration">着弾想定時間</param>
         /// <param name="durationBaseMeter">着弾想定時間の基準距離(0以下で無効)</param>
         /// <param name="maxAcceleration">最大加速度</param>
+        /// <param name="continueAcceleration">外れた後にも加速し続けるか</param>
         /// <param name="maxDistance">最大距離</param>
-        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat maxAcceleration, float maxDistance, MinMaxFloat duration, float durationBaseMeter) {
+        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat maxAcceleration, bool continueAcceleration, float maxDistance, MinMaxFloat duration, float durationBaseMeter) {
             _startPoint = startPoint;
             _endPoint = endPoint;
             _startSpeed = startSpeed.Rand();
             _duration = CalcDuration(startPoint, endPoint, duration.Rand(), durationBaseMeter);
             _maxAcceleration = maxAcceleration.Rand();
+            _continueAcceleration = continueAcceleration;
             _maxDistance = maxDistance;
 
             Position = _startPoint;
@@ -78,7 +83,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="endPoint">ターゲット座標</param>
         /// <param name="context">初期化用パラメータ</param>
         public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, Context context)
-            : this(startPoint, startRotation, endPoint, context.startSpeed, context.maxAcceleration, context.maxDistance,
+            : this(startPoint, startRotation, endPoint, context.startSpeed, context.maxAcceleration, context.continueAcceleration, context.maxDistance,
                 context.duration, context.durationBaseMeter) {
         }
 
@@ -109,6 +114,9 @@ namespace GameFramework.ProjectileSystems {
 
             if (_timer > 0.001f) {
                 acceleration += (targetVec - _velocity * _timer) * 2.0f / (_timer * _timer);
+            }
+            else if (_continueAcceleration && deltaTime > 0.001f) {
+                acceleration += (targetVec - _velocity * deltaTime) * 2.0f / (deltaTime * deltaTime);
             }
             
             // 加速度の最大値でクランプ

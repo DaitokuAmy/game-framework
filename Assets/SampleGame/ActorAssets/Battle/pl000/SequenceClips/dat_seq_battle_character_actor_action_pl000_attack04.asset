@@ -37,7 +37,7 @@ MonoBehaviour:
   m_Name: RepeatSequenceClipRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
-  active: 0
+  active: 1
   enterTime: 0.6333333
   exitTime: 2.05
   sequenceClips:
@@ -160,6 +160,7 @@ MonoBehaviour:
       useRandom: 0
       minValue: 150
       maxValue: 0
+    continueAcceleration: 0
     maxDistance: 500
     duration:
       useRandom: 0
@@ -179,7 +180,7 @@ MonoBehaviour:
   m_Name: BattleParticleBeamProjectileRangeEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0/\u7C92\u5B50"
-  active: 1
+  active: 0
   enterTime: 0.6333333
   exitTime: 2.05
   hitCount: -1

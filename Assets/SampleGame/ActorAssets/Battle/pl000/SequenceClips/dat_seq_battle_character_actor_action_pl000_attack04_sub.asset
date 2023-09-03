@@ -1,5 +1,57 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8678372185279543502
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb29687b4c84345489348c4ee1e99627, type: 3}
+  m_Name: BattleHomingBulletProjectileSignalEvent
+  m_EditorClassIdentifier: 
+  label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u30DB\u30FC\u30DF\u30F3\u30B0"
+  active: 1
+  time: 0
+  hitCount: 1
+  prefab: {fileID: 7681070998809717475, guid: 02941629df1c5b94297052baddcf3483, type: 3}
+  scale: 1
+  locatorName: Hand_C
+  offsetPosition:
+    useRandom: 0
+    minValue: {x: 0, y: 2, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  offsetAngles:
+    useRandom: 1
+    minValue: {x: -90, y: -90, z: 0}
+    maxValue: {x: 90, y: 90, z: 0}
+  emptyRange: 50
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
+  targetLocatorName: 
+  targetPositionOffset:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  projectileContext:
+    startSpeed:
+      useRandom: 0
+      minValue: 50
+      maxValue: 0
+    maxAcceleration:
+      useRandom: 0
+      minValue: 200
+      maxValue: 0
+    continueAcceleration: 1
+    maxDistance: 250
+    duration:
+      useRandom: 0
+      minValue: 0.5
+      maxValue: 0
+    durationBaseMeter: 100
 --- !u!114 &-8591742924472959636
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -183,6 +235,7 @@ MonoBehaviour:
       useRandom: 0
       minValue: 100
       maxValue: 0
+    continueAcceleration: 0
     maxDistance: 1000
     duration:
       useRandom: 0
@@ -306,6 +359,7 @@ MonoBehaviour:
       useRandom: 0
       minValue: 150
       maxValue: 0
+    continueAcceleration: 0
     maxDistance: 500
     duration:
       useRandom: 0
@@ -546,7 +600,7 @@ MonoBehaviour:
   m_Name: BattleSplineBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30B9\u30D7\u30E9\u30A4\u30F3)"
-  active: 1
+  active: 0
   time: 0
   hitCount: 1
   prefab: {fileID: 7681070998809717475, guid: 02941629df1c5b94297052baddcf3483, type: 3}
@@ -847,6 +901,7 @@ MonoBehaviour:
   sequenceEvents:
   - {fileID: 6456773790468593231}
   - {fileID: 2341497692869263609}
+  - {fileID: -8678372185279543502}
 --- !u!114 &8058463315691965020
 MonoBehaviour:
   m_ObjectHideFlags: 1
