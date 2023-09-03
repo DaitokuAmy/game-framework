@@ -375,6 +375,26 @@ MonoBehaviour:
     relativeAngles: {x: 0, y: 0, z: 0}
     constraintRotation: 0
     localScale: {x: 1, y: 1, z: 1}
+--- !u!114 &5465115746498185833
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53243bf93adae664fb76e4fc3e484848, type: 3}
+  m_Name: BodyAnimationGimmickRangeEvent
+  m_EditorClassIdentifier: 
+  label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30CB\u30E1\u30FC\u30B7\u30E7\u30F3"
+  active: 1
+  enterTime: 0.3
+  exitTime: 2.05
+  exitOnCanceled: 1
+  gimmickName: RedHair
+  playType: 1
+  reverse: 0
 --- !u!114 &6456773790468593231
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -489,6 +509,7 @@ MonoBehaviour:
   - {fileID: -1516204521171520786}
   - {fileID: -2527190478492333981}
   - {fileID: -6869094386147863506}
+  - {fileID: 5465115746498185833}
 --- !u!114 &8878967300115485079
 MonoBehaviour:
   m_ObjectHideFlags: 1

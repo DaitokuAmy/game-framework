@@ -15,11 +15,12 @@ namespace SampleGame.SequenceEvents {
     /// <summary>
     /// イベントハンドラ
     /// </summary>
-    public abstract class BodyChangeGimmickSingleEventHandler<T> : BodyGimmickSingleEventHandler<ChangeGimmick<T>, BodyChangeGimmickSingleEvent<T>> {
+    public abstract class BodyChangeGimmickSingleEventHandler<T, TEvent> : BodyGimmickSingleEventHandler<ChangeGimmick<T>, TEvent>
+        where TEvent : BodyChangeGimmickSingleEvent<T> {
         /// <summary>
         /// ギミック実行時処理
         /// </summary>
-        protected override void OnInvokeInternal(BodyChangeGimmickSingleEvent<T> sequenceEvent, ChangeGimmick<T>[] gimmicks) {
+        protected override void OnInvokeInternal(TEvent sequenceEvent, ChangeGimmick<T>[] gimmicks) {
             gimmicks.Change(sequenceEvent.target, sequenceEvent.duration);
         }
     }

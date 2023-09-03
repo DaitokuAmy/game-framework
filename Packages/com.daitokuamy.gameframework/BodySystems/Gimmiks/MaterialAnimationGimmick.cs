@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using GameFramework.RendererSystems;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace GameFramework.BodySystems {
         [SerializeField, Tooltip("制御プロパティ名")]
         private string _propertyName = "";
         [SerializeField, Tooltip("対象のMaterial")]
-        private RendererMaterial[] _targets;
+        private RendererMaterial[] _targets = Array.Empty<RendererMaterial>();
         [SerializeField, Tooltip("Materialの制御タイプ")]
         private MaterialInstance.ControlType _controlType = MaterialInstance.ControlType.Auto;
         [SerializeField, Tooltip("再生時間")]

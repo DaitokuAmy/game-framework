@@ -10,6 +10,6 @@ namespace SampleGame.SequenceEvents {
     /// <summary>
     /// イベントハンドラ
     /// </summary>
-    public class BodyVectorChangeGimmickSingleEventHandler : BodyChangeGimmickSingleEventHandler<Vector4> {
+    public class BodyVectorChangeGimmickSingleEventHandler : BodyChangeGimmickSingleEventHandler<Vector4, BodyVectorChangeGimmickSingleEvent> {
     }
 }

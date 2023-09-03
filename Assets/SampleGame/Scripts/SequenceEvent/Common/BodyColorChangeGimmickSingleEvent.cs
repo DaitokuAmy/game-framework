@@ -10,6 +10,6 @@ namespace SampleGame.SequenceEvents {
     /// <summary>
     /// イベントハンドラ
     /// </summary>
-    public class BodyColorChangeGimmickSingleEventHandler : BodyChangeGimmickSingleEventHandler<Color> {
+    public class BodyColorChangeGimmickSingleEventHandler : BodyChangeGimmickSingleEventHandler<Color, BodyColorChangeGimmickSingleEvent> {
     }
 }

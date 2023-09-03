@@ -237,6 +237,7 @@ namespace SampleGame.Battle {
                 handler.Setup((SequenceController)_actor.SequenceController);
             });
             sequenceController.BindBattleProjectileEvent(collisionManager, projectileObjectManager, this, this, _actor, hitLayerMask, null);
+            sequenceController.BindBodyGimmickEvent(_actor.Body);
 
             scope.OnExpired += () => sequenceController.ResetEventHandlers();
         }
