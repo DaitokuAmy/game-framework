@@ -85,3 +85,6 @@ MonoBehaviour:
   - fullName: SampleGame.SequenceEvents.RepeatSequenceClipRangeEvent
     label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
     color: {r: 1, g: 0.95, b: 1, a: 1}
+  - fullName: SampleGame.Battle.BattleSplineBulletProjectileSignalEvent
+    label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30B9\u30D7\u30E9\u30A4\u30F3)"
+    color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}

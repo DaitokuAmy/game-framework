@@ -40,7 +40,7 @@ namespace SampleGame.ModelViewer {
         /// ActorSetupDataの読み込み
         /// </summary>
         public async UniTask<ModelViewerSetupData> LoadSetupDataAsync(CancellationToken ct) {
-            var setupData = await new ModelViewerSetupDataRequest()
+            var setupData = await new ModelViewerSetupGameRequest()
                 .LoadAsync(_assetManager, _unloadScope)
                 .ToUniTask(cancellationToken:ct);
             

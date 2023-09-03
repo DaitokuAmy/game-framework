@@ -229,7 +229,7 @@ namespace SampleGame {
         private async UniTask<(BattlePlayerMasterData, BattleCharacterActorSetupData)> LoadPlayerMasterAsync(string playerId, IScope unloadScope, CancellationToken ct) {
             // マスター本体の読み込み
             var masterData =
-                await new BattlePlayerMasterDataAssetRequest(playerId)
+                await new BattlePlayerMasterGameAssetRequest(playerId)
                     .LoadAsync(unloadScope, ct);
 
             var setupData = default(BattleCharacterActorSetupData);

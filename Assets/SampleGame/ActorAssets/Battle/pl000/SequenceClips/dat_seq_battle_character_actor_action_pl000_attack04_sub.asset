@@ -166,6 +166,9 @@ MonoBehaviour:
     minValue: {x: -45, y: -45, z: -45}
     maxValue: {x: -45, y: 45, z: 45}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -286,6 +289,9 @@ MonoBehaviour:
     minValue: {x: -90, y: -90, z: 0}
     maxValue: {x: 90, y: 90, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -451,6 +457,9 @@ MonoBehaviour:
   locatorName: 
   relativePosition: {x: 0, y: 1, z: 1}
   relativeAngles: {x: 0, y: 0, z: 0}
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   context:
     startSpeed: 5
     endSpeed: 5
@@ -524,6 +533,75 @@ MonoBehaviour:
   tracks:
   - {fileID: 7952287914908441018}
   frameRate: 60
+--- !u!114 &2341497692869263609
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95cbb980cadcbb346aa7dd57ecb8befb, type: 3}
+  m_Name: BattleSplineBulletProjectileSignalEvent
+  m_EditorClassIdentifier: 
+  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30B9\u30D7\u30E9\u30A4\u30F3)"
+  active: 1
+  time: 0
+  hitCount: 1
+  prefab: {fileID: 7681070998809717475, guid: 02941629df1c5b94297052baddcf3483, type: 3}
+  scale: 1
+  locatorName: Hand_C
+  offsetPosition:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  offsetAngles:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  emptyRange: 50
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
+  targetLocatorName: 
+  targetPositionOffset:
+    useRandom: 1
+    minValue: {x: -2, y: -2, z: -2}
+    maxValue: {x: 2, y: 2, z: 2}
+  projectileContext:
+    splinePrefab: {fileID: 9020935279185927201, guid: df0d3c67bba83c94f8c8935e6a979f2c, type: 3}
+    splineScale:
+      useRandom: 0
+      minValue: 1
+      maxValue: 0
+    timeCurve:
+      useRandom: 0
+      minValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      maxValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    tilt:
+      useRandom: 1
+      minValue: -80
+      maxValue: 80
+    roll:
+      useRandom: 0
+      minValue: 0
+      maxValue: 0
+    duration:
+      useRandom: 1
+      minValue: 1
+      maxValue: 1.5
+    durationBaseMeter: 50
 --- !u!114 &4994005298439760526
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -675,7 +753,7 @@ MonoBehaviour:
   m_Name: BattleShotBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u5C04\u51FA)"
-  active: 1
+  active: 0
   time: 0
   hitCount: 1
   prefab: {fileID: 1035855108615972641, guid: 5ea6eb48b20d682418b1e9380e3db17f, type: 3}
@@ -690,6 +768,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -706,7 +787,7 @@ MonoBehaviour:
       maxValue: 0
     gravity: 0
     maxDistance: 1000
-    tilt:
+    roll:
       useRandom: 0
       minValue: 0
       maxValue: 0
@@ -765,6 +846,7 @@ MonoBehaviour:
   label: Track
   sequenceEvents:
   - {fileID: 6456773790468593231}
+  - {fileID: 2341497692869263609}
 --- !u!114 &8058463315691965020
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -787,6 +869,9 @@ MonoBehaviour:
   locatorName: Hand_C
   relativePosition: {x: 0, y: 0, z: 0}
   relativeAngles: {x: 0, y: 0, z: 0}
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   context:
     startSpeed: 50
     endSpeed: 100
@@ -938,6 +1023,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 50
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -953,7 +1041,7 @@ MonoBehaviour:
     cor: 0.5
     radius: 0.1
     duration: 3
-    tilt: 0
+    roll: 0
 --- !u!114 &8940707502685451561
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -982,6 +1070,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -1069,7 +1160,7 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    rollCurve:
+    tiltCurve:
       useRandom: 0
       minValue:
         serializedVersion: 2
@@ -1083,11 +1174,25 @@ MonoBehaviour:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    rollOffset:
+    tiltOffset:
       useRandom: 1
       minValue: -1
       maxValue: 1
-    tilt:
+    timeCurve:
+      useRandom: 0
+      minValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      maxValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+    roll:
       useRandom: 0
       minValue: 0
       maxValue: 0

@@ -90,12 +90,12 @@ namespace SampleGame {
     }
 
     /// <summary>
-    /// DataのAssetRequest基底
+    /// GameのAssetRequest基底
     /// </summary>
-    public abstract class DataAssetRequest<T> : AssetRequest<T>
+    public abstract class GameAssetRequest<T> : AssetRequest<T>
         where T : Object {
         protected sealed override string GetPath(string relativePath) {
-            return base.GetPath($"DataAssets/{relativePath}");
+            return base.GetPath($"GameAssets/{relativePath}");
         }
     }
 

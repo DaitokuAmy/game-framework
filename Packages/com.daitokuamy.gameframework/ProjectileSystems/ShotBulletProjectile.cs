@@ -1,6 +1,7 @@
 using System;
 using GameFramework.Core;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
@@ -20,8 +21,9 @@ namespace GameFramework.ProjectileSystems {
             public float gravity;
             [Tooltip("最大距離")]
             public float maxDistance;
-            [Tooltip("オブジェクトの傾き")]
-            public MinMaxFloat tilt;
+            [FormerlySerializedAs("tilt")]
+            [Tooltip("オブジェクトの傾き(角度)")]
+            public MinMaxFloat roll;
         }
 
         private readonly Vector3 _startPoint;
@@ -30,12 +32,12 @@ namespace GameFramework.ProjectileSystems {
         private readonly float _acceleration;
         private readonly float _gravity;
         private readonly float _maxDistance;
-        private readonly float _tilt;
+        private readonly float _roll;
 
         private bool _stopped;
         private Vector3 _velocity;
         private float _distance;
-        private Quaternion _tiltRotation;
+        private Quaternion _rollRotation;
 
         // 座標
         public Vector3 Position { get; private set; }
@@ -53,14 +55,14 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="gravity">重力加速度</param>
         /// <param name="maxDistance">最大飛翔距離</param>
         /// <param name="tilt">オブジェクトの傾き</param>
-        public ShotBulletProjectile(Vector3 startPoint, Quaternion startRotation, MinMaxFloat startSpeed, MinMaxFloat acceleration, float gravity, float maxDistance, MinMaxFloat tilt) {
+        public ShotBulletProjectile(Vector3 startPoint, Quaternion startRotation, MinMaxFloat startSpeed, MinMaxFloat acceleration, float gravity, float maxDistance, MinMaxFloat roll) {
             _startPoint = startPoint;
             _startRotation = startRotation;
             _startSpeed = startSpeed.Rand();
             _acceleration = acceleration.Rand();
             _gravity = gravity;
             _maxDistance = maxDistance;
-            _tilt = tilt.Rand();
+            _roll = roll.Rand();
 
             Position = _startPoint;
             Rotation = _startRotation;
@@ -73,16 +75,16 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="startRotation">向き</param>
         /// <param name="context">初期化パラメータ</param>
         public ShotBulletProjectile(Vector3 startPoint, Quaternion startRotation, Context context)
-            : this(startPoint, startRotation, context.startSpeed, context.acceleration, context.gravity, context.maxDistance, context.tilt) {
+            : this(startPoint, startRotation, context.startSpeed, context.acceleration, context.gravity, context.maxDistance, context.roll) {
         }
 
         /// <summary>
         /// 飛翔開始
         /// </summary>
         void IProjectile.Start() {
-            _tiltRotation = Quaternion.Euler(0.0f, 0.0f, _tilt);
+            _rollRotation = Quaternion.Euler(0.0f, 0.0f, _roll);
             Position = _startPoint;
-            Rotation = _startRotation * _tiltRotation;
+            Rotation = _startRotation * _rollRotation;
             _velocity = _startRotation * Vector3.forward * _startSpeed;
             _distance = 0.0f;
             _stopped = false;
@@ -114,7 +116,7 @@ namespace GameFramework.ProjectileSystems {
 
             // 向き更新
             if (deltaPos.sqrMagnitude > float.Epsilon) {
-                Rotation = Quaternion.LookRotation(deltaPos) * _tiltRotation;
+                Rotation = Quaternion.LookRotation(deltaPos) * _rollRotation;
             }
 
             // 距離更新

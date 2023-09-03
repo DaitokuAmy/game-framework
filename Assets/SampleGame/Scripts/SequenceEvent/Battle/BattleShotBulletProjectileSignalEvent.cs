@@ -6,7 +6,7 @@ namespace SampleGame.Battle {
     /// <summary>
     /// バトル用の遠距離攻撃
     /// </summary>
-    public class BattleShotBulletProjectileSignalEvent : BattleProjectileSignalEvent {
+    public class BattleShotBulletProjectileSignalEvent : BattleBulletProjectileSignalEvent {
         [Tooltip("飛翔体パラメータ")]
         public ShotBulletProjectile.Context projectileContext;
     }

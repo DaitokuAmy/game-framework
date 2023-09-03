@@ -2,10 +2,10 @@ namespace SampleGame.VfxViewer {
     /// <summary>
     /// VfxViewerSetupData読み込みリクエスト
     /// </summary>
-    public class VfxViewerSetupDataRequest : DataAssetRequest<VfxViewerSetupData> {
+    public class VfxViewerSetupGameRequest : GameAssetRequest<VfxViewerSetupData> {
         public override string Address { get; }
         
-        public VfxViewerSetupDataRequest() {
+        public VfxViewerSetupGameRequest() {
             Address = GetPath("VfxViewer/dat_vfx_viewer_setup.asset");
         }
     }
@@ -13,10 +13,10 @@ namespace SampleGame.VfxViewer {
     /// <summary>
     /// Preview用のVfxSetupData読み込みリクエスト
     /// </summary>
-    public class PreviewVfxSetupDataRequest : DataAssetRequest<PreviewVfxSetupData> {
+    public class PreviewVfxSetupGameRequest : GameAssetRequest<PreviewVfxSetupData> {
         public override string Address { get; }
         
-        public PreviewVfxSetupDataRequest(string assetKey) {
+        public PreviewVfxSetupGameRequest(string assetKey) {
             Address = GetPath($"VfxViewer/PreviewVfxSetupData/dat_preview_vfx_setup_{assetKey}.asset");
         }
     }

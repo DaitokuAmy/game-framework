@@ -2,10 +2,10 @@ namespace SampleGame.ModelViewer {
     /// <summary>
     /// ModelViewerSetupData読み込みリクエスト
     /// </summary>
-    public class ModelViewerSetupDataRequest : DataAssetRequest<ModelViewerSetupData> {
+    public class ModelViewerSetupGameRequest : GameAssetRequest<ModelViewerSetupData> {
         public override string Address { get; }
         
-        public ModelViewerSetupDataRequest() {
+        public ModelViewerSetupGameRequest() {
             Address = GetPath($"ModelViewer/dat_model_viewer_setup.asset");
         }
     }

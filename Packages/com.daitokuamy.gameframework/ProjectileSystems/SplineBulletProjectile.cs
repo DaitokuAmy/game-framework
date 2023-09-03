@@ -1,35 +1,28 @@
+#if USE_SPLINES
 using System;
 using GameFramework.Core;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.Splines;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
-    /// カスタムカーブ制御Projectile
+    /// スプライン制御Projectile
     /// </summary>
-    public class CustomBulletProjectile : IBulletProjectile {
+    public class SplineBulletProjectile : IBulletProjectile {
         /// <summary>
         /// 初期化用データ 
         /// </summary>
         [Serializable]
         public struct Context {
-            [Tooltip("振動カーブ(-1〜1)")]
-            public MinMaxAnimationCurve vibrationCurve;
-            [Tooltip("振動幅")]
-            public MinMaxFloat amplitude;
-            [Tooltip("周波数")]
-            public MinMaxFloat frequency;
-            [Tooltip("奥行きカーブ(Last=1)")]
-            public MinMaxAnimationCurve depthCurve;
-            [FormerlySerializedAs("rollCurve")]
-            [Tooltip("傾きカーブ(-1〜1)")]
-            public MinMaxAnimationCurve tiltCurve;
-            [FormerlySerializedAs("rollOffset")]
-            [Tooltip("傾きオフセット(-1～1)")]
-            public MinMaxFloat tiltOffset;
+            [Tooltip("スプラインカーブを入れたPrefab")]
+            public SplineContainer splinePrefab;
+            [Tooltip("スプラインカーブのXZスケール")]
+            public MinMaxFloat splineScale;
             [Tooltip("進捗する時間軸カーブ")]
             public MinMaxAnimationCurve timeCurve;
-            [FormerlySerializedAs("tilt")]
+            [Tooltip("スプラインの傾き(角度)")]
+            public MinMaxFloat tilt;
             [Tooltip("オブジェクトの傾き(角度)")]
             public MinMaxFloat roll;
             [Tooltip("到達時間")]
@@ -39,21 +32,18 @@ namespace GameFramework.ProjectileSystems {
         }
 
         private readonly Vector3 _startPoint;
-        private readonly MinMaxAnimationCurve _vibrationCurve;
-        private readonly float _amplitude;
-        private readonly float _frequency;
-        private readonly MinMaxAnimationCurve _depthCurve;
-        private readonly MinMaxAnimationCurve _tiltCurve;
-        private readonly float _tiltOffset;
+        private readonly SplineContainer _splinePrefab;
+        private readonly float _splineScale;
         private readonly MinMaxAnimationCurve _timeCurve;
+        private readonly Quaternion _tilt;
         private readonly Quaternion _roll;
         private readonly float _duration;
-        
+
         private Vector3 _endPoint;
 
+        private float _splineDistance;
         private bool _stopped;
         private float _timer;
-        private Vector3 _prevPosition;
 
         /// <summary>現在座標</summary>
         public Vector3 Position { get; private set; }
@@ -70,36 +60,26 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="startPoint">開始座標</param>
         /// <param name="endPoint">終了座標</param>
-        /// <param name="vibrationCurve">振動カーブ(-1～1)</param>
-        /// <param name="amplitude">振幅</param>
-        /// <param name="frequency">周波数</param>
-        /// <param name="depthCurve">奥行きカーブ(1でTargetPoint)</param>
-        /// <param name="tiltCurve">ねじれカーブ(-1～1)</param>
-        /// <param name="tiltOffset">ねじれオフセット</param>
+        /// <param name="splinePrefab">スプラインを仕込んだPrefab</param>
+        /// <param name="splineScale">スプラインのXZスケール</param>
         /// <param name="timeCurve">時間軸カーブ</param>
-        /// <param name="roll">傾き</param>
+        /// <param name="tilt">曲線の傾き</param>
+        /// <param name="roll">オブジェクトの回転</param>
         /// <param name="duration">到達時間</param>
         /// <param name="durationBaseMeter">着弾想定時間の基準距離(0以下で無効)</param>
-        public CustomBulletProjectile(Vector3 startPoint, Vector3 endPoint,
-            MinMaxAnimationCurve vibrationCurve, MinMaxFloat amplitude, MinMaxFloat frequency,
-            MinMaxAnimationCurve depthCurve, MinMaxAnimationCurve tiltCurve, MinMaxFloat tiltOffset, MinMaxAnimationCurve timeCurve, MinMaxFloat roll, MinMaxFloat duration, float durationBaseMeter) {
+        public SplineBulletProjectile(Vector3 startPoint, Vector3 endPoint,
+            SplineContainer splinePrefab, MinMaxFloat splineScale, MinMaxAnimationCurve timeCurve, MinMaxFloat tilt, MinMaxFloat roll, MinMaxFloat duration, float durationBaseMeter) {
             _startPoint = startPoint;
             _endPoint = endPoint;
-            _vibrationCurve = vibrationCurve;
-            _amplitude = amplitude.Rand();
-            _frequency = frequency.Rand();
-            _depthCurve = depthCurve;
-            _tiltCurve = tiltCurve;
-            _tiltOffset = tiltOffset.Rand();
+            _splinePrefab = splinePrefab;
+            _splineScale = splineScale.Rand();
             _timeCurve = timeCurve;
+            _tilt = Quaternion.Euler(0.0f, 0.0f, tilt.Rand());
             _roll = Quaternion.Euler(0.0f, 0.0f, roll.Rand());
             _duration = duration.Rand();
             _duration = CalcDuration(startPoint, endPoint, duration.Rand(), durationBaseMeter);
             
-            // Curveのランダム値を抽選
-            _vibrationCurve.RandDefaultRatio();
-            _depthCurve.RandDefaultRatio();
-            _tiltCurve.RandDefaultRatio();
+            // カーブの乱数初期化
             _timeCurve.RandDefaultRatio();
 
             Position = _startPoint;
@@ -112,9 +92,8 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="startPoint">始点</param>
         /// <param name="endPoint">ターゲット位置</param>
         /// <param name="context">初期化パラメータ</param>
-        public CustomBulletProjectile(Vector3 startPoint, Vector3 endPoint, Context context)
-            : this(startPoint, endPoint, context.vibrationCurve, context.amplitude, context.frequency,
-                context.depthCurve, context.tiltCurve, context.tiltOffset, context.timeCurve, context.roll, context.duration, context.durationBaseMeter) {
+        public SplineBulletProjectile(Vector3 startPoint, Vector3 endPoint, Context context)
+            : this(startPoint, endPoint, context.splinePrefab, context.splineScale, context.timeCurve, context.tilt, context.roll, context.duration, context.durationBaseMeter) {
         }
 
         /// <summary>
@@ -124,8 +103,13 @@ namespace GameFramework.ProjectileSystems {
             var vector = _endPoint - _startPoint;
             Position = _startPoint;
             Rotation = Quaternion.LookRotation(vector);
+            
+            // todo: Prefabの中身を直接使うとキャッシュが更新されない事があるための対応
+            _splinePrefab.Spline.Closed = true;
+            _splinePrefab.Spline.Closed = false;
+            
+            _splineDistance = _splinePrefab.Spline.EvaluatePosition(1.0f).z;
             _timer = _duration;
-            _prevPosition = _startPoint;
             _stopped = false;
         }
 
@@ -137,7 +121,7 @@ namespace GameFramework.ProjectileSystems {
             if (_stopped) {
                 return false;
             }
-            
+
             var vector = _endPoint - _startPoint;
             var distance = vector.magnitude;
 
@@ -157,21 +141,19 @@ namespace GameFramework.ProjectileSystems {
                 ratio = Mathf.Clamp01(_timeCurve.Evaluate(ratio));
             }
 
-            // 位置計算
-            var vibration = _vibrationCurve.Evaluate(ratio * _frequency % 1.0f) * _amplitude;
-            var depth = _depthCurve.Evaluate(ratio);
-            var roll = _tiltCurve.Evaluate(ratio) + _tiltOffset;
-            var forward = vector.normalized;
-            var right = Vector3.Cross(Vector3.up, forward).normalized;
-            var up = Vector3.Cross(forward, right);
-            var relativePos = Vector3.zero;
-            var radian = roll * Mathf.PI;
-            relativePos += vector * depth;
-            relativePos += up * (Mathf.Cos(radian) * vibration);
-            relativePos += right * (Mathf.Sin(radian) * vibration);
-            Position = _startPoint + relativePos;
-            Rotation = Quaternion.LookRotation(Position - _prevPosition, up) * _roll;
-            _prevPosition = Position;
+            // ローカル位置を取得
+            _splinePrefab.Spline.Evaluate(ratio, out var localPosition, out var localTangent, out var localUpVector);
+
+            // 進行方向に対する空間に変換
+            var pivot = _startPoint;
+            var scale = distance / _splineDistance;
+            var rotation = Quaternion.FromToRotation(Vector3.forward, vector) * _tilt;
+            var position = rotation * (localPosition * new float3(_splineScale, _splineScale, scale)) + pivot;
+            var tangent = rotation * (localTangent * new float3(_splineScale, _splineScale, scale));
+            var upVector = rotation * (localUpVector * new float3(_splineScale, _splineScale, scale));
+
+            Position = position;
+            Rotation = Quaternion.LookRotation(tangent, upVector) * _roll;
 
             return _timer > 0.0f;
         }
@@ -183,7 +165,7 @@ namespace GameFramework.ProjectileSystems {
             if (stopPosition != null) {
                 Position = stopPosition.Value;
             }
-            
+
             _stopped = true;
         }
 
@@ -194,9 +176,10 @@ namespace GameFramework.ProjectileSystems {
             if (durationBaseMeter <= float.Epsilon) {
                 return duration;
             }
-            
+
             var distance = (end - start).magnitude;
             return duration * (distance / durationBaseMeter);
         }
     }
 }
+#endif

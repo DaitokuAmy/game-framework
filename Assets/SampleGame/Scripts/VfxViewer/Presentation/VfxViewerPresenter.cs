@@ -68,13 +68,8 @@ namespace SampleGame.VfxViewer {
                     }
                     else if (setupData.vfxType == VfxType.Projectile) {
                         var context = settings.ProjectileContext;
-                        if (settings.StartPoint != null) {
-                            context.startPoint = settings.StartPoint.TransformPoint(context.startPoint);
-                            context.startVelocity = settings.StartPoint.TransformVector(context.startVelocity);
-                            context.acceleration = settings.StartPoint.TransformVector(context.acceleration);
-                        }
-
-                        var handle = projectileObjectManager.Play(setupData.prefab, new StraightBulletProjectile(settings.ProjectileContext), -1, 1);
+                        var startPoint = settings.StartPoint;
+                        var handle = projectileObjectManager.Play(setupData.prefab, new ShotBulletProjectile(startPoint.position, startPoint.rotation, context), -1, 1);
                         handle.ScopeTo(scope);
                     }
                 });
