@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
-    /// ビーム用Projectile
+    /// 粒子ビーム用Projectile
     /// </summary>
-    public class BeamProjectile : IBeamProjectile {
+    public class ParticleBeamProjectile : IBeamProjectile {
         /// <summary>
         /// 初期化用データ 
         /// </summary>
@@ -71,7 +71,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="radius">半径</param>
         /// <param name="maxDistance">最大距離</param>
         /// <param name="tilt">傾き</param>
-        public BeamProjectile(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, float headSpeed, float tailSpeed, int obstacleLayerMask, float radius, float maxDistance, float tilt) {
+        public ParticleBeamProjectile(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, float headSpeed, float tailSpeed, int obstacleLayerMask, float radius, float maxDistance, float tilt) {
             _baseTransform = baseTransform;
             _baseOffsetPosition = baseOffsetPosition;
             _baseOffsetRotation = baseOffsetRotation;
@@ -92,7 +92,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="baseOffsetPosition">基点となるTransformのオフセット座標</param>
         /// <param name="baseOffsetRotation">基点となるTransformのオフセット向き</param>
         /// <param name="context">初期化パラメータ</param>
-        public BeamProjectile(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, Context context)
+        public ParticleBeamProjectile(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, Context context)
             : this(baseTransform, baseOffsetPosition, baseOffsetRotation,
                 context.startSpeed,
                 context.endSpeed, 

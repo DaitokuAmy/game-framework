@@ -8,7 +8,7 @@ namespace SampleGame.Battle {
     /// <summary>
     /// バトル用のビーム攻撃イベント基底
     /// </summary>
-    public class BattleBeamProjectileRangeEvent : RangeSequenceEvent {
+    public abstract class BattleBeamProjectileRangeEvent : RangeSequenceEvent {
         [Header("Projectile")]
         [Tooltip("ヒット最大数")]
         public int hitCount = -1;
@@ -28,14 +28,13 @@ namespace SampleGame.Battle {
         public float exitCollisionRadius = 0.0f;
         [Tooltip("着弾時のコリジョン発生時間")]
         public float exitCollisionDuration = 0.0f;
-        [Tooltip("ビーム内容")]
-        public BeamProjectile.Context context;
     }
 
     /// <summary>
-    /// BattleProjectileRangeEventのハンドラ基底
+    /// BattleBeamProjectileRangeEventのハンドラ基底
     /// </summary>
-    public class BattleBeamProjectileRangeEventHandler : RangeSequenceEventHandler<BattleBeamProjectileRangeEvent> {
+    public abstract class BattleBeamProjectileRangeEventHandler<TEvent> : RangeSequenceEventHandler<TEvent>
+        where TEvent : BattleBeamProjectileRangeEvent {
         private CollisionManager _collisionManager;
         private ProjectileObjectManager _projectileObjectManager;
         private ICollisionListener _collisionListener;
@@ -62,9 +61,9 @@ namespace SampleGame.Battle {
         /// <summary>
         /// 開始処理
         /// </summary>
-        protected override void OnEnter(BattleBeamProjectileRangeEvent sequenceEvent) {
+        protected override void OnEnter(TEvent sequenceEvent) {
             var baseTrans = _actor.Body.Locators[sequenceEvent.locatorName];
-            var projectile = new BeamProjectile(baseTrans, sequenceEvent.relativePosition, Quaternion.Euler(sequenceEvent.relativeAngles), sequenceEvent.context);
+            var projectile = GetProjectile(baseTrans, sequenceEvent);
 
             _handle = _projectileObjectManager.Play(
                 _raycastListener, sequenceEvent.prefab, projectile, Vector3.one * sequenceEvent.scale, _layerMask,
@@ -81,15 +80,20 @@ namespace SampleGame.Battle {
         /// <summary>
         /// 停止処理
         /// </summary>
-        protected override void OnExit(BattleBeamProjectileRangeEvent sequenceEvent) {
+        protected override void OnExit(TEvent sequenceEvent) {
             _handle.Dispose();
         }
 
         /// <summary>
         /// キャンセル処理
         /// </summary>
-        protected override void OnCancel(BattleBeamProjectileRangeEvent sequenceEvent) {
+        protected override void OnCancel(TEvent sequenceEvent) {
             OnExit(sequenceEvent);
         }
+
+        /// <summary>
+        /// Projectileの取得
+        /// </summary>
+        protected abstract IBeamProjectile GetProjectile(Transform baseTransform, TEvent sequenceEvent);
     }
 }

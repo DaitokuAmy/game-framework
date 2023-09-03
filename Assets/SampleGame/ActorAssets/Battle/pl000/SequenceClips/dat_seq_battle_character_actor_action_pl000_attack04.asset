@@ -24,111 +24,6 @@ MonoBehaviour:
     relativeAngles: {x: 0, y: 0, z: 0}
     constraintRotation: 0
     localScale: {x: 1, y: 1, z: 1}
---- !u!114 &-7160375320166282517
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17b75d582c85145aa9d9f0433456c9f5, type: 3}
-  m_Name: BattleCurveProjectileSignalEvent
-  m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30AB\u30FC\u30D6)"
-  active: 1
-  time: 1.1166667
-  hitCount: 1
-  prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
-  scale: 1
-  locatorName: 
-  offsetPosition:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  offsetAngles:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  emptyRange: 10
-  targetLocatorName: 
-  targetPositionOffset:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  projectileContext:
-    startPoint: {x: 0, y: 1, z: 1}
-    endPoint: {x: 0, y: 0, z: 0}
-    vibrationCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 2
-        outSlope: 2
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - time: 0.5
-        value: 1
-        inSlope: 0.06374543
-        outSlope: 0.06374543
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.108932376
-      - time: 1
-        value: 0
-        inSlope: -1.8593719
-        outSlope: -1.8593719
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.07843149
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    amplitude: 2
-    frequency: 1
-    depthCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 1.027974
-        outSlope: 1.027974
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - time: 0.44
-        value: 0.45230857
-        inSlope: 1.0029973
-        outSlope: 1.0029973
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - time: 1
-        value: 1
-        inSlope: 0.9780205
-        outSlope: 0.9780205
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollCurve:
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollOffset: 0.5
-    tilt: 0
-    duration: 1
-    durationPerMeter: 0
 --- !u!114 &-6869094386147863506
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -142,7 +37,7 @@ MonoBehaviour:
   m_Name: RepeatSequenceClipRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
-  active: 1
+  active: 0
   enterTime: 0.6333333
   exitTime: 2.05
   sequenceClips:
@@ -248,6 +143,9 @@ MonoBehaviour:
     minValue: {x: -90, y: -90, z: 0}
     maxValue: {x: 90, y: 90, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -258,24 +156,6 @@ MonoBehaviour:
       useRandom: 1
       minValue: 0
       maxValue: 2
-    propulsion:
-      useRandom: 0
-      minValue: 0
-      maxValue: 0
-    propulsionCurve:
-      useRandom: 0
-      minValue:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
-      maxValue:
-        serializedVersion: 2
-        m_Curve: []
-        m_PreInfinity: 2
-        m_PostInfinity: 2
-        m_RotationOrder: 4
     maxAcceleration:
       useRandom: 0
       minValue: 150
@@ -286,7 +166,7 @@ MonoBehaviour:
       minValue: 2
       maxValue: 0
     durationBaseMeter: 50
---- !u!114 &-4678313882435369933
+--- !u!114 &-2527190478492333981
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -295,140 +175,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17b75d582c85145aa9d9f0433456c9f5, type: 3}
-  m_Name: BattleCurveProjectileSignalEvent
+  m_Script: {fileID: 11500000, guid: f02620b4031fbee449f78e1e3655d80f, type: 3}
+  m_Name: BattleParticleBeamProjectileRangeEvent
   m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30AB\u30FC\u30D6)"
-  active: 0
-  time: 0
-  hitCount: 1
-  prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
-  scale: 1
-  locatorName: 
-  offsetPosition:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  offsetAngles:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  emptyRange: 10
-  targetLocatorName: 
-  targetPositionOffset:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  projectileContext:
-    startPoint: {x: 0, y: 1, z: 1}
-    endPoint: {x: 0, y: 10, z: 10}
-    vibrationCurve:
-      m_Curve:
-      - time: 0
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - time: 1
-        value: 1
-        inSlope: 0
-        outSlope: 0
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    amplitude: 0.2
-    frequency: 1
-    depthCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 1.027974
-        outSlope: 1.027974
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - time: 0.44
-        value: 0.45230857
-        inSlope: 1.0029973
-        outSlope: 1.0029973
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - time: 1
-        value: 1
-        inSlope: 0.9780205
-        outSlope: 0.9780205
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 5
-        outSlope: 5
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - time: 1
-        value: 5
-        inSlope: 5
-        outSlope: 5
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollOffset: 0
-    tilt: 0
-    duration: 5
-    durationPerMeter: 0
---- !u!114 &-3957578327539346284
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e3c7909ff318194c8db5d062c7dd33c, type: 3}
-  m_Name: BattleBeamProjectileSignalEvent
-  m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30D3\u30FC\u30E0)"
+  label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0/\u7C92\u5B50"
   active: 1
-  enterTime: 0
-  exitTime: 0.5
+  enterTime: 0.6333333
+  exitTime: 2.05
   hitCount: -1
   prefab: {fileID: 1068142218427537299, guid: 9dd1418ae49020d42a63e9b96c9baaf6, type: 3}
-  scale: 1
-  locatorName: 
-  relativePosition: {x: 0, y: 1, z: 1}
+  scale: 5
+  locatorName: Hand_C
+  relativePosition: {x: 0, y: 0, z: 0}
   relativeAngles: {x: 0, y: 0, z: 0}
+  raycastDamage: 1
+  exitCollisionRadius: 5
+  exitCollisionDuration: 1
   context:
-    startSpeed: 5
-    endSpeed: 5
+    startSpeed: 100
+    endSpeed: 100
     obstacleLayerMask:
       serializedVersion: 2
       m_Bits: 1
-    radius: 0
-    maxDistance: 20
+    radius: 0.5
+    maxDistance: 100
     tilt: 0
 --- !u!114 &-1516204521171520786
 MonoBehaviour:
@@ -458,6 +228,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 10
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -465,6 +238,10 @@ MonoBehaviour:
     maxValue: {x: 0, y: 0, z: 0}
   projectileContext:
     splinePrefab: {fileID: 9020935279185927201, guid: df0d3c67bba83c94f8c8935e6a979f2c, type: 3}
+    splineScale:
+      useRandom: 0
+      minValue: 0
+      maxValue: 0
     timeCurve:
       useRandom: 0
       minValue:
@@ -523,8 +300,8 @@ MonoBehaviour:
   m_Name: BodyEffectRangeEvent
   m_EditorClassIdentifier: 
   label: "Body/\u30A8\u30D5\u30A7\u30AF\u30C8\u518D\u751F(Loop)"
-  active: 0
-  enterTime: 0.6166667
+  active: 1
+  enterTime: 0.6333333
   exitTime: 1.4333333
   positionLocator: Hand_C
   rotationLocator: Hand_C
@@ -574,37 +351,6 @@ MonoBehaviour:
   tracks:
   - {fileID: 7952287914908441018}
   frameRate: 60
---- !u!114 &2369820132901745488
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e3c7909ff318194c8db5d062c7dd33c, type: 3}
-  m_Name: BattleBeamProjectileRangeEvent
-  m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0\u653B\u6483"
-  active: 0
-  enterTime: 0.6166667
-  exitTime: 2.0833333
-  hitCount: -1
-  prefab: {fileID: 1068142218427537299, guid: 58fed2083325af04c99957e58e0c71b7, type: 3}
-  scale: 8
-  locatorName: Hand_C
-  relativePosition: {x: 0, y: 0, z: 0}
-  relativeAngles: {x: 0, y: 0, z: 0}
-  context:
-    startSpeed: 50
-    endSpeed: 100
-    obstacleLayerMask:
-      serializedVersion: 2
-      m_Bits: 1
-    radius: 0
-    maxDistance: 100
-    tilt: 0
 --- !u!114 &4994005298439760526
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -629,111 +375,6 @@ MonoBehaviour:
     relativeAngles: {x: 0, y: 0, z: 0}
     constraintRotation: 0
     localScale: {x: 1, y: 1, z: 1}
---- !u!114 &5466590565662381742
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17b75d582c85145aa9d9f0433456c9f5, type: 3}
-  m_Name: BattleCurveProjectileSignalEvent
-  m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30AB\u30FC\u30D6)"
-  active: 1
-  time: 0.4
-  hitCount: 1
-  prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
-  scale: 1
-  locatorName: 
-  offsetPosition:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  offsetAngles:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  emptyRange: 10
-  targetLocatorName: 
-  targetPositionOffset:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  projectileContext:
-    startPoint: {x: 0, y: 1, z: 1}
-    endPoint: {x: 0, y: 0, z: 0}
-    vibrationCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 2
-        outSlope: 2
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - time: 0.5
-        value: 1
-        inSlope: 0.06374543
-        outSlope: 0.06374543
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.108932376
-      - time: 1
-        value: 0
-        inSlope: -1.8593719
-        outSlope: -1.8593719
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.07843149
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    amplitude: 1
-    frequency: 2
-    depthCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 1.027974
-        outSlope: 1.027974
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - time: 0.44
-        value: 0.45230857
-        inSlope: 1.0029973
-        outSlope: 1.0029973
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - time: 1
-        value: 1
-        inSlope: 0.9780205
-        outSlope: 0.9780205
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollCurve:
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollOffset: -0.5
-    tilt: 0
-    duration: 1
-    durationPerMeter: 0
 --- !u!114 &6456773790468593231
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -762,6 +403,9 @@ MonoBehaviour:
     minValue: {x: -1, y: -1, z: 0}
     maxValue: {x: 1, y: 1, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -838,150 +482,13 @@ MonoBehaviour:
   sequenceEvents:
   - {fileID: -8591742924472959636}
   - {fileID: -1026308857274177823}
-  - {fileID: 8058463315691965020}
-  - {fileID: 2369820132901745488}
   - {fileID: 8878967300115485079}
   - {fileID: -5083351723732175732}
   - {fileID: 6456773790468593231}
   - {fileID: 8940707502685451561}
   - {fileID: -1516204521171520786}
+  - {fileID: -2527190478492333981}
   - {fileID: -6869094386147863506}
---- !u!114 &8058463315691965020
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e3c7909ff318194c8db5d062c7dd33c, type: 3}
-  m_Name: BattleBeamProjectileRangeEvent
-  m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0\u653B\u6483"
-  active: 0
-  enterTime: 0.6166667
-  exitTime: 2.0833333
-  hitCount: -1
-  prefab: {fileID: 1068142218427537299, guid: 9dd1418ae49020d42a63e9b96c9baaf6, type: 3}
-  scale: 8
-  locatorName: Hand_C
-  relativePosition: {x: 0, y: 0, z: 0}
-  relativeAngles: {x: 0, y: 0, z: 0}
-  context:
-    startSpeed: 50
-    endSpeed: 100
-    obstacleLayerMask:
-      serializedVersion: 2
-      m_Bits: 1
-    radius: 0
-    maxDistance: 100
-    tilt: 0
---- !u!114 &8658480393531781096
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17b75d582c85145aa9d9f0433456c9f5, type: 3}
-  m_Name: BattleCurveProjectileSignalEvent
-  m_EditorClassIdentifier: 
-  label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30AB\u30FC\u30D6)"
-  active: 1
-  time: 0.4
-  hitCount: 1
-  prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
-  scale: 1
-  locatorName: 
-  offsetPosition:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  offsetAngles:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  emptyRange: 10
-  targetLocatorName: 
-  targetPositionOffset:
-    useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
-    maxValue: {x: 0, y: 0, z: 0}
-  projectileContext:
-    startPoint: {x: 0, y: 1, z: 1}
-    endPoint: {x: 0, y: 0, z: 0}
-    vibrationCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 2
-        outSlope: 2
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0
-      - time: 0.5
-        value: 1
-        inSlope: 0.06374543
-        outSlope: 0.06374543
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.108932376
-      - time: 1
-        value: 0
-        inSlope: -1.8593719
-        outSlope: -1.8593719
-        tangentMode: 0
-        weightedMode: 0
-        inWeight: 0.07843149
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    amplitude: 1
-    frequency: 2
-    depthCurve:
-      m_Curve:
-      - time: 0
-        value: 0
-        inSlope: 1.027974
-        outSlope: 1.027974
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0
-        outWeight: 0.33333334
-      - time: 0.44
-        value: 0.45230857
-        inSlope: 1.0029973
-        outSlope: 1.0029973
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0.33333334
-      - time: 1
-        value: 1
-        inSlope: 0.9780205
-        outSlope: 0.9780205
-        tangentMode: 34
-        weightedMode: 0
-        inWeight: 0.33333334
-        outWeight: 0
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollCurve:
-      m_Curve: []
-      m_PreInfinity: 2
-      m_PostInfinity: 2
-      m_RotationOrder: 4
-    rollOffset: 0.5
-    tilt: 0
-    duration: 1
-    durationPerMeter: 0
 --- !u!114 &8878967300115485079
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1010,6 +517,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 50
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -1054,6 +564,9 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
   targetLocatorName: 
   targetPositionOffset:
     useRandom: 0
@@ -1159,6 +672,20 @@ MonoBehaviour:
       useRandom: 1
       minValue: -1
       maxValue: 1
+    timeCurve:
+      useRandom: 0
+      minValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      maxValue:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
     roll:
       useRandom: 0
       minValue: 0

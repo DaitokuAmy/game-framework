@@ -33,7 +33,7 @@ namespace SampleGame {
                 handler.Setup(collisionManager, projectileObjectManager, collisionListener, raycastCollisionListener, actor, targetLayerMask, checkHitFunc);
             });
             
-            self.BindRangeEventHandler<BattleBeamProjectileRangeEvent, BattleBeamProjectileRangeEventHandler>(handler => {
+            self.BindRangeEventHandler<BattleParticleBeamProjectileRangeEvent, BattleParticleBeamProjectileRangeEventHandler>(handler => {
                 handler.Setup(collisionManager, projectileObjectManager, collisionListener, raycastCollisionListener, actor, targetLayerMask, checkHitFunc);
             });
         }

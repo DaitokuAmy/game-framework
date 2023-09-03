@@ -47,44 +47,53 @@ MonoBehaviour:
     label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0\u653B\u6483"
     color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
   - fullName: SampleGame.Battle.BattleCustomBulletProjectileSignalEvent
-    label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30AB\u30B9\u30BF\u30E0)"
+    label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u30AB\u30B9\u30BF\u30E0"
     color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
   - fullName: SampleGame.Battle.BattleHomingBulletProjectileSignalEvent
-    label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30DB\u30FC\u30DF\u30F3\u30B0)"
+    label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u30DB\u30FC\u30DF\u30F3\u30B0"
     color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
   - fullName: SampleGame.Battle.BattleShotBulletProjectileSignalEvent
-    label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u5C04\u51FA)"
+    label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u5C04\u51FA"
     color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyActiveGimmickRangeEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyActiveGimmickRangeEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30AF\u30C6\u30A3\u30D6\u5316"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyActiveGimmickSingleEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyActiveGimmickSingleEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30AF\u30C6\u30A3\u30D6\u5316"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyAnimationGimmickRangeEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyAnimationGimmickRangeEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30CB\u30E1\u30FC\u30B7\u30E7\u30F3"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyAnimationGimmickSingleEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyAnimationGimmickSingleEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30CB\u30E1\u30FC\u30B7\u30E7\u30F3"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyColorChangeGimmickSingleEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyColorChangeGimmickSingleEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u8272\u5909\u66F4"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyFloatChangeGimmickSingleEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyFloatChangeGimmickSingleEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u5024\u5909\u66F4"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyHdrColorChangeGimmickSingleEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyHdrColorChangeGimmickSingleEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u8272(HDR)\u5909\u66F4"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyInvokeGimmickSingleEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyInvokeGimmickSingleEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u5B9F\u884C"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.BodyStateGimmickSingleEvent
-    label: "Body/\u30AE\u30DF\u30C3\u30AF/BodyStateGimmickSingleEvent"
-    color: {r: 0, g: 0, b: 0, a: 0}
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30B9\u30C6\u30FC\u30C8\u5909\u66F4"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
   - fullName: SampleGame.SequenceEvents.RepeatSequenceClipRangeEvent
     label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
-    color: {r: 1, g: 0.95, b: 1, a: 1}
+    color: {r: 0.5019608, g: 0.6098693, b: 1, a: 1}
   - fullName: SampleGame.Battle.BattleSplineBulletProjectileSignalEvent
-    label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u30B9\u30D7\u30E9\u30A4\u30F3)"
+    label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u30B9\u30D7\u30E9\u30A4\u30F3"
     color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
+  - fullName: SampleGame.Battle.BattleParticleBeamProjectileRangeEvent
+    label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0/\u7C92\u5B50"
+    color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
+  - fullName: SampleGame.Battle.BattleThrowableBulletProjectileSignalEvent
+    label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u6295\u64F2"
+    color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}
+  - fullName: SampleGame.SequenceEvents.BodyVectorChangeGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30D9\u30AF\u30C8\u30EB\u5909\u66F4"
+    color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
