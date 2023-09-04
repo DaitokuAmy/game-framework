@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using ActionSequencer;
 using GameFramework.ActorSystems;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -9,14 +11,19 @@ namespace SampleGame {
     /// ActorAction再生制御用クラス(TriggerState)
     /// </summary>
     public class TriggerStateActorActionResolver : ActorActionResolver<TriggerStateActorAction> {
+        private readonly SequenceController _sequenceController;
+        private readonly List<SequenceHandle> _sequenceHandles = new();
+        
         private AnimatorControllerPlayable _playable;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="playable">AnimatorControllerを制御しているPlayable</param>
-        public TriggerStateActorActionResolver(AnimatorControllerPlayable playable) {
+        /// <param name="sequenceController">シーケンス再生用</param>
+        public TriggerStateActorActionResolver(AnimatorControllerPlayable playable, SequenceController sequenceController) {
             _playable = playable;
+            _sequenceController = sequenceController;
         }
 
         /// <summary>
@@ -34,10 +41,15 @@ namespace SampleGame {
                 _playable.SetInteger(action.indexPropertyName, action.index);
             }
 
+            // シーケンス再生
+            foreach (var clip in action.sequenceClips) {
+                _sequenceHandles.Add(_sequenceController.Play(clip));
+            }
+
             // 最後のStateが流れ切るのを待つ
             var enteredLastState = false;
             while (true) {
-                var stateInfo = _playable.GetCurrentAnimatorStateInfo(0);
+                var stateInfo = _playable.GetCurrentAnimatorStateInfo(action.layerIndex);
 
                 // LastStateに入っているか
                 if (stateInfo.IsName(action.lastStateName)) {
@@ -53,6 +65,17 @@ namespace SampleGame {
                 
                 yield return null;
             }
+        }
+
+        /// <summary>
+        /// キャンセル処理
+        /// </summary>
+        protected override void CancelActionInternal() {
+            foreach (var handle in _sequenceHandles) {
+                _sequenceController.Stop(handle);
+            }
+
+            _sequenceHandles.Clear();
         }
     }
 }

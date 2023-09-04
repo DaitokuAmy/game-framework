@@ -9,6 +9,8 @@ namespace SampleGame {
     /// </summary>
     [Serializable]
     public class TriggerStateActorAction : IActorAction {
+        [Tooltip("AnimatorControllerのLayerIndex")]
+        public int layerIndex = 0;
         [Tooltip("トリガーに使うプロパティ名")]
         public string triggerPropertyName = "OnAction";
         [Tooltip("分岐用Indexのプロパティ名(未指定可)")]

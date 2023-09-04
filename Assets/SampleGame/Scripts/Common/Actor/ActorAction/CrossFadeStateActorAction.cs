@@ -9,6 +9,8 @@ namespace SampleGame {
     /// </summary>
     [Serializable]
     public class CrossFadeStateActorAction : IActorAction {
+        [Tooltip("AnimatorControllerのLayerIndex")]
+        public int layerIndex = 0;
         [Tooltip("遷移先のステート名")]
         public string firstStateName = "First";
         [Tooltip("ブレンド時間")]
