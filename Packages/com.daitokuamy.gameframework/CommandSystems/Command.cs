@@ -1,3 +1,4 @@
+using System;
 using GameFramework.Core;
 
 namespace GameFramework.CommandSystems {
@@ -19,6 +20,9 @@ namespace GameFramework.CommandSystems {
         public virtual bool BlockStandbyOthers => false;
         /// <summary>実行中のCommandが無くなるまでスタンバイし続けるか</summary>
         public virtual bool WaitExecutionOthers => false;
+        
+        /// <summary>例外</summary>
+        public Exception Exception { get; private set; }
 
         /// <summary>
         /// 初期化処理
@@ -30,8 +34,8 @@ namespace GameFramework.CommandSystems {
 
             _initializeScope = new DisposableScope();
             _manager = manager;
-            InitializeInternal(_initializeScope);
             _currentState = CommandState.Standby;
+            InitializeInternal(_initializeScope);
         }
 
         /// <summary>
@@ -48,8 +52,8 @@ namespace GameFramework.CommandSystems {
             }
             
             _startScope = new DisposableScope();
-            StartInternal(_startScope);
             _currentState = CommandState.Executing;
+            StartInternal(_startScope);
             return true;
         }
 
@@ -144,6 +148,23 @@ namespace GameFramework.CommandSystems {
         /// 廃棄時処理
         /// </summary>
         protected virtual void DestroyInternal() {
+        }
+
+        /// <summary>
+        /// キャンセル
+        /// </summary>
+        /// <param name="exception">設定しておく例外</param>
+        protected void Cancel(Exception exception) {
+            if (_currentState != CommandState.Executing) {
+                return;
+            }
+            
+            if (exception == null) {
+                exception = new OperationCanceledException(GetType().Name);
+            }
+
+            Exception = exception;
+            ((ICommand)this).Destroy();
         }
 
         /// <summary>

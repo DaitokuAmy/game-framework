@@ -14,8 +14,8 @@ namespace GameFramework.CommandSystems {
         
         /// <summary>現在の値</summary>
         object IEnumerator.Current => CurrentState;
-        /// <summary>例外(未使用)</summary>
-        Exception IProcess.Exception => null;
+        /// <summary>例外</summary>
+        Exception IProcess.Exception => _command?.Exception;
         
         /// <summary>有効なハンドルか</summary>
         public bool IsValid => _command != null;

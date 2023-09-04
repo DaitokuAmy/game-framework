@@ -1,3 +1,5 @@
+using System;
+
 namespace GameFramework.CommandSystems {
     /// <summary>
     /// コマンド用インターフェース
@@ -11,6 +13,8 @@ namespace GameFramework.CommandSystems {
         bool WaitExecutionOthers { get; }
         /// <summary>現在のステート</summary>
         CommandState CurrentState { get; }
+        /// <summary>キャンセル終了した場合の例外</summary>
+        Exception Exception { get; }
         
         /// <summary>
         /// 初期化処理
