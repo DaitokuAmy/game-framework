@@ -22,7 +22,7 @@ namespace GameFramework.CommandSystems {
         /// <summary>現在のコマンド状態</summary>
         public CommandState CurrentState => _command?.CurrentState ?? CommandState.Invalid;
         /// <summary>完了しているか</summary>
-        public bool IsDone => !IsValid || (CurrentState > CommandState.Invalid && CurrentState < CommandState.Destroyed);
+        public bool IsDone => !IsValid || (CurrentState <= CommandState.Invalid || CurrentState >= CommandState.Destroyed);
 
         /// <summary>
         /// コンストラクタ
