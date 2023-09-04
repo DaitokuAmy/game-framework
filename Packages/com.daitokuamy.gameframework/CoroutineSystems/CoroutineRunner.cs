@@ -13,7 +13,7 @@ namespace GameFramework.CoroutineSystems {
         private class CoroutineInfo {
             public Coroutine coroutine;
             public IDisposable disposable;
-            
+
             public event Action<Exception> OnError;
             public event Action OnCanceled;
             public event Action OnCompleted;
@@ -21,7 +21,7 @@ namespace GameFramework.CoroutineSystems {
             private bool _isCanceled;
             private Exception _exception;
             private bool _isCompleted;
-            
+
             private bool IsDone => _isCanceled || _exception != null || _isCompleted;
 
             /// <summary>
@@ -31,16 +31,16 @@ namespace GameFramework.CoroutineSystems {
                 if (IsDone) {
                     return;
                 }
-                
+
                 var onCompletedInternal = OnCompleted;
-                
+
                 _isCompleted = true;
                 OnCanceled = null;
                 OnError = null;
                 OnCompleted = null;
                 disposable?.Dispose();
                 disposable = null;
-                
+
                 onCompletedInternal?.Invoke();
             }
 
@@ -51,19 +51,19 @@ namespace GameFramework.CoroutineSystems {
                 if (IsDone) {
                     return;
                 }
-                
+
                 var onCanceledInternal = OnCanceled;
-                
+
                 _isCanceled = true;
                 OnCanceled = null;
                 OnError = null;
                 OnCompleted = null;
                 disposable?.Dispose();
                 disposable = null;
-                
+
                 onCanceledInternal?.Invoke();
             }
-            
+
             /// <summary>
             /// 例外処理
             /// </summary>
@@ -72,7 +72,7 @@ namespace GameFramework.CoroutineSystems {
                 if (IsDone) {
                     return;
                 }
-                
+
                 var onErrorInternal = OnError;
 
                 _exception = error;
@@ -81,7 +81,7 @@ namespace GameFramework.CoroutineSystems {
                 OnCompleted = null;
                 disposable?.Dispose();
                 disposable = null;
-                
+
                 onErrorInternal?.Invoke(error);
             }
         }
@@ -110,7 +110,7 @@ namespace GameFramework.CoroutineSystems {
             var coroutineInfo = new CoroutineInfo {
                 coroutine = new Coroutine(enumerator)
             };
-            
+
             // イベント登録
             coroutineInfo.OnCompleted += onCompleted;
             coroutineInfo.OnCanceled += onCanceled;
@@ -120,7 +120,7 @@ namespace GameFramework.CoroutineSystems {
                 coroutineInfo.Cancel();
                 return coroutineInfo.coroutine;
             }
-            
+
             // キャンセルの監視
             coroutineInfo.disposable = cancellationToken.Register(() => coroutineInfo.Cancel());
 
@@ -163,7 +163,7 @@ namespace GameFramework.CoroutineSystems {
         public void StopAllCoroutines() {
             // 降順にキャンセルしていく
             for (var i = _coroutineInfos.Count - 1; i >= 0; i--) {
-                var info = _coroutineInfos[i];// キャンセル処理
+                var info = _coroutineInfos[i]; // キャンセル処理
                 info.Cancel();
             }
 
@@ -189,7 +189,7 @@ namespace GameFramework.CoroutineSystems {
             for (var i = 0; i < _coroutineInfos.Count; i++) {
                 var coroutineInfo = _coroutineInfos[i];
                 var coroutine = coroutineInfo.coroutine;
-                
+
                 try {
                     if (!((IEnumerator)coroutine).MoveNext()) {
                         // 完了通知
@@ -206,7 +206,12 @@ namespace GameFramework.CoroutineSystems {
 
             // 降順でインスタンスクリア
             for (var i = _cachedRemoveIndices.Count - 1; i >= 0; i--) {
-                _coroutineInfos.RemoveAt(_cachedRemoveIndices[i]);
+                var removeIndex = _cachedRemoveIndices[i];
+                if (removeIndex < 0 || removeIndex >= _coroutineInfos.Count) {
+                    continue;
+                }
+
+                _coroutineInfos.RemoveAt(removeIndex);
             }
         }
     }
