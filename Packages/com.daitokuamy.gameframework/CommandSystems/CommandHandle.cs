@@ -12,8 +12,8 @@ namespace GameFramework.CommandSystems {
 
         private readonly ICommand _command;
         
-        /// <summary>現在の値</summary>
-        object IEnumerator.Current => CurrentState;
+        /// <summary>現在の値(未使用)</summary>
+        object IEnumerator.Current => null;
         /// <summary>例外</summary>
         Exception IProcess.Exception => _command?.Exception;
         
