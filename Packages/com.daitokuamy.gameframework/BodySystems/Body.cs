@@ -133,7 +133,7 @@ namespace GameFramework.BodySystems {
 
             _disposed = true;
 
-            OnExpired?.Invoke();
+            OnExpired?.InvokeDescending();
             OnExpired = null;
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();

@@ -224,7 +224,7 @@ namespace GameFramework.ModelSystems {
         private void OnDeleted() {
             OnDeletedInternal();
             Id = default;
-            OnExpired?.Invoke();
+            OnExpired?.InvokeDescending();
             OnExpired = null;
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();

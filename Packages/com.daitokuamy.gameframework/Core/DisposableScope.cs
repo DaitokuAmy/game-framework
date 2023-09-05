@@ -7,7 +7,7 @@ namespace GameFramework.Core {
     /// </summary>
     public class DisposableScope : IScope, IDisposable {
         private CancellationTokenSource _cancellationTokenSource = new();
-        
+
         // 廃棄済みか
         public bool Disposed { get; private set; }
         // キャンセルハンドリング用トークン
@@ -23,8 +23,8 @@ namespace GameFramework.Core {
             if (Disposed) {
                 return;
             }
-
-            OnExpired?.Invoke();
+            
+            OnExpired?.InvokeDescending();
             OnExpired = null;
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
@@ -39,7 +39,7 @@ namespace GameFramework.Core {
             }
 
             Disposed = true;
-            OnExpired?.Invoke();
+            OnExpired?.InvokeDescending();
             OnExpired = null;
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();

@@ -34,7 +34,7 @@ namespace GameFramework.ActorSystems {
             _activeScope = null;
             _attachScope.Dispose();
             _attachScope = null;
-            OnExpired?.Invoke();
+            OnExpired?.InvokeDescending();
             OnExpired = null;
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();

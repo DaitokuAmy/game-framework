@@ -40,7 +40,7 @@ namespace GameFramework.LogicSystems {
             Deactivate();
 
             DisposeInternal();
-            OnExpired?.Invoke();
+            OnExpired?.InvokeDescending();
             OnExpired = null;
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
