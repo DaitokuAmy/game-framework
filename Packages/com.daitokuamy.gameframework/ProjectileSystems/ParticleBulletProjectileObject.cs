@@ -17,6 +17,16 @@ namespace GameFramework.ProjectileSystems {
         private ParticleSystem _exitParticle;
 
         /// <summary>
+        /// 再生速度の変更
+        /// </summary>
+        /// <param name="speed">1.0を基準とした速度</param>
+        protected override void SetSpeedInternal(float speed) {
+            SetSpeedParticle(_baseParticle, speed);
+            SetSpeedParticle(_hitParticle, speed);
+            SetSpeedParticle(_exitParticle, speed);
+        }
+
+        /// <summary>
         /// 飛翔開始処理
         /// </summary>
         protected override void StartProjectileInternal() {
@@ -89,6 +99,18 @@ namespace GameFramework.ProjectileSystems {
             }
 
             return particle.IsAlive(true);
+        }
+
+        /// <summary>
+        /// Particleの速度変更
+        /// </summary>
+        private void SetSpeedParticle(ParticleSystem particle, float speed) {
+            if (particle == null) {
+                return;
+            }
+
+            var main = particle.main;
+            main.simulationSpeed = speed;
         }
     }
 }

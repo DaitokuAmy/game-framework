@@ -52,19 +52,27 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         private abstract class PlayingInfo {
             // TimeScale変更用LayeredTime
-            private readonly LayeredTime _layeredTime;
+            private LayeredTime _layeredTime;
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
             public PlayingInfo(LayeredTime layeredTime) {
                 _layeredTime = layeredTime;
+                if (_layeredTime != null) {
+                    _layeredTime.OnChangedTimeScale += OnChangedTimeScale;
+                }
             }
 
             /// <summary>
             /// Poolへの返却
             /// </summary>
             public void Release() {
+                if (_layeredTime != null) {
+                    _layeredTime.OnChangedTimeScale -= OnChangedTimeScale;
+                    _layeredTime = null;
+                }
+
                 ReleaseInternal();
             }
 
@@ -77,6 +85,7 @@ namespace GameFramework.ProjectileSystems {
                 return UpdateInternal(deltaTime);
             }
 
+            protected abstract void OnChangedTimeScale(float timeScale);
             protected abstract void ReleaseInternal();
             protected abstract bool UpdateInternal(float deltaTime);
         }
@@ -95,6 +104,13 @@ namespace GameFramework.ProjectileSystems {
                 : base(layeredTime) {
                 _pool = pool;
                 _projectileObject = projectileObject;
+            }
+
+            /// <summary>
+            /// TimeScaleの変更通知
+            /// </summary>
+            protected override void OnChangedTimeScale(float timeScale) {
+                _projectileObject.SetSpeed(timeScale);
             }
 
             /// <summary>
@@ -127,6 +143,13 @@ namespace GameFramework.ProjectileSystems {
                 : base(layeredTime) {
                 _pool = pool;
                 _projectileObject = projectileObject;
+            }
+
+            /// <summary>
+            /// TimeScaleの変更通知
+            /// </summary>
+            protected override void OnChangedTimeScale(float timeScale) {
+                _projectileObject.SetSpeed(timeScale);
             }
 
             /// <summary>

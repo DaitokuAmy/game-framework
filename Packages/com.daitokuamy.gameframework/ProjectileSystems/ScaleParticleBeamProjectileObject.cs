@@ -21,6 +21,18 @@ namespace GameFramework.ProjectileSystems {
         private ParticleSystem _hitParticle;
         [SerializeField, Tooltip("先端の終了時パーティクル(OneShot)")]
         private ParticleSystem _exitHeadParticle;
+
+        /// <summary>
+        /// 再生速度の変更
+        /// </summary>
+        /// <param name="speed">1.0を基準とした速度</param>
+        protected override void SetSpeedInternal(float speed) {
+            SetSpeedParticle(_headParticle, speed);
+            SetSpeedParticle(_tailParticle, speed);
+            SetSpeedParticle(_collisionParticle, speed);
+            SetSpeedParticle(_hitParticle, speed);
+            SetSpeedParticle(_exitHeadParticle, speed);
+        }
         
         /// <summary>
         /// 飛翔開始処理
@@ -129,6 +141,18 @@ namespace GameFramework.ProjectileSystems {
             }
 
             return particle.IsAlive(true);
+        }
+
+        /// <summary>
+        /// Particleの速度変更
+        /// </summary>
+        private void SetSpeedParticle(ParticleSystem particle, float speed) {
+            if (particle == null) {
+                return;
+            }
+
+            var main = particle.main;
+            main.simulationSpeed = speed;
         }
     }
 }

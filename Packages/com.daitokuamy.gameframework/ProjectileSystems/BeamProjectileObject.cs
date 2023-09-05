@@ -20,6 +20,12 @@ namespace GameFramework.ProjectileSystems {
         float RaycastRadius { get; }
 
         /// <summary>
+        /// 再生速度の変更
+        /// </summary>
+        /// <param name="speed">1.0を基準とした速度</param>
+        void SetSpeed(float speed);
+
+        /// <summary>
         /// アクティブ状態の切り替え
         /// </summary>
         /// <param name="active">アクティブか</param>
@@ -88,6 +94,14 @@ namespace GameFramework.ProjectileSystems {
             }
 
             Destroy(gameObject);
+        }
+
+        /// <summary>
+        /// 再生速度の変更
+        /// </summary>
+        /// <param name="speed">1.0を基準とした速度</param>
+        void IBeamProjectileObject.SetSpeed(float speed) {
+            SetSpeedInternal(speed);
         }
 
         /// <summary>
@@ -170,6 +184,13 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="result">当たり結果</param>
         void IBeamProjectileObject.OnHitCollision(RaycastHitResult result) {
             OnHitCollision(result);
+        }
+
+        /// <summary>
+        /// 再生速度の変更
+        /// </summary>
+        /// <param name="speed">1.0を基準とした速度</param>
+        protected virtual void SetSpeedInternal(float speed) {
         }
 
         /// <summary>
