@@ -168,6 +168,16 @@ namespace GameFramework.BodySystems {
         }
 
         /// <summary>
+        /// レイヤーの設定（管理対象のRenderer全て）
+        /// </summary>
+        /// <param name="layer">設定するレイヤー</param>
+        public void SetLayer(int layer) {
+            foreach (var renderer in _renderers) {
+                renderer.gameObject.layer = layer;
+            }
+        }
+
+        /// <summary>
         /// 内部で保持しているRendererの更新
         /// </summary>
         private void RefreshRenderers() {
