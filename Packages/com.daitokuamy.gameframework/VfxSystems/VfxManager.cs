@@ -181,7 +181,7 @@ namespace GameFramework.VfxSystems {
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public PlayingInfo(ObjectInfo objectInfo, Context context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, bool autoDispose) {
+            public PlayingInfo(ObjectInfo objectInfo, Context context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, int layer, bool autoDispose) {
                 ObjectInfo = objectInfo;
                 _context = context;
                 _positionRoot = positionRoot;
@@ -189,6 +189,21 @@ namespace GameFramework.VfxSystems {
                 _layeredTime = layeredTime;
                 _autoDispose = autoDispose;
                 _transformDirty = true;
+
+                void SetLayer(Transform trans, int layer) {
+                    if (trans == null) {
+                        return;
+                    }
+
+                    trans.gameObject.layer = layer;
+                    
+                    foreach (Transform child in trans) {
+                        SetLayer(child, layer);
+                    }
+                }
+
+                // 再帰的にレイヤー設定
+                SetLayer(objectInfo.root.transform, layer);
 
                 if (layeredTime != null) {
                     layeredTime.OnChangedTimeScale += OnChangedTimeScale;
@@ -448,6 +463,9 @@ namespace GameFramework.VfxSystems {
         // 変数領域確保用のParticleSystemリスト
         private List<ParticleSystem> _workParticleSystems = new();
 
+        /// <summary>デフォルト指定のLayer</summary>
+        public int DefaultLayer { get; set; } = 0;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -472,9 +490,10 @@ namespace GameFramework.VfxSystems {
         /// <param name="positionRoot">座標決定の基準にするTransform</param>
         /// <param name="rotationRoot">回転決定の基準にするTransform</param>
         /// <param name="layeredTime">再生速度をコントロールするためのLayeredTime</param>
-        public Handle Get(Context context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null) {
+        /// <param name="layer">指定するLayer</param>
+        public Handle Get(Context context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null, int layer = -1) {
             // 再生情報の生成
-            var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, false);
+            var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, layer, false);
             // Handle化して返却
             return new Handle(playingInfo);
         }
@@ -486,9 +505,10 @@ namespace GameFramework.VfxSystems {
         /// <param name="positionRoot">座標決定の基準にするTransform</param>
         /// <param name="rotationRoot">回転決定の基準にするTransform</param>
         /// <param name="layeredTime">再生速度をコントロールするためのLayeredTime</param>
-        public Handle Play(Context context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null) {
+        /// <param name="layer">指定するLayer</param>
+        public Handle Play(Context context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null, int layer = -1) {
             // 再生情報の生成
-            var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, true);
+            var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, layer, true);
             // 再生
             playingInfo?.Play();
             // Handle化して返却
@@ -557,15 +577,21 @@ namespace GameFramework.VfxSystems {
         /// <param name="rotationRoot">回転決定の基準にするTransform</param>
         /// <param name="layeredTime">再生速度をコントロールするためのLayeredTime</param>
         /// <param name="autoDispose">再生完了時に自動で廃棄するか</param>
-        private PlayingInfo CreatePlayingInfo(Context context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, bool autoDispose) {
+        /// <param name="layer">レイヤー</param>
+        private PlayingInfo CreatePlayingInfo(Context context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, int layer, bool autoDispose) {
             // Instance生成
             var objectInfo = GetObjectInfo(context.prefab);
             if (objectInfo == null) {
                 return null;
             }
 
+            // 未指定のLayerの場合はDefault値を使用
+            if (layer < 0) {
+                layer = DefaultLayer;
+            }
+
             // 再生情報の構築
-            var playingInfo = new PlayingInfo(objectInfo, context, positionRoot, rotationRoot, layeredTime, autoDispose);
+            var playingInfo = new PlayingInfo(objectInfo, context, positionRoot, rotationRoot, layeredTime, layer, autoDispose);
             playingInfo.Stop(true, false);
             _playingInfos.Add(playingInfo);
 

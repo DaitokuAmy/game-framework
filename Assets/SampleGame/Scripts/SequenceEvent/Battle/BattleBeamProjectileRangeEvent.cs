@@ -67,7 +67,7 @@ namespace SampleGame.Battle {
 
             _handle = _projectileObjectManager.Play(
                 _raycastListener, sequenceEvent.prefab, projectile, Vector3.one * sequenceEvent.scale, _layerMask,
-                sequenceEvent.hitCount, null, _actor.Body.LayeredTime,
+                sequenceEvent.hitCount, null, _actor.Body.LayeredTime, -1,
                 _checkHitFunc, onExit: () => {
                     // 着弾時にコリジョンを発生させる必要があれば発生
                     if (sequenceEvent.exitCollisionRadius > float.Epsilon && sequenceEvent.exitCollisionDuration >= 0.0f) {

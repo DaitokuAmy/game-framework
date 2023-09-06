@@ -9,6 +9,9 @@ namespace GameFramework.ProjectileSystems {
     /// 飛翔体オブジェクト用インターフェース
     /// </summary>
     public interface IBulletProjectileObject : IDisposable {
+        /// <summary>Transformへの参照</summary>
+        Transform transform { get; }
+        
         /// <summary>
         /// 再生中か
         /// </summary>

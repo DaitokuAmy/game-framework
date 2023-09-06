@@ -9,6 +9,9 @@ namespace GameFramework.ProjectileSystems {
     /// ビームオブジェクト用インターフェース
     /// </summary>
     public interface IBeamProjectileObject : IDisposable {
+        /// <summary>Transform参照</summary>
+        Transform transform { get; }
+        
         /// <summary>
         /// 再生中か
         /// </summary>

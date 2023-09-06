@@ -88,6 +88,20 @@ namespace GameFramework.ProjectileSystems {
             protected abstract void OnChangedTimeScale(float timeScale);
             protected abstract void ReleaseInternal();
             protected abstract bool UpdateInternal(float deltaTime);
+
+            /// <summary>
+            /// Layerの再帰的な設定
+            /// </summary>
+            protected void SetLayer(Transform trans, int layer) {
+                if (trans == null) {
+                    return;
+                }
+
+                trans.gameObject.layer = layer;
+                foreach (Transform child in trans) {
+                    SetLayer(child, layer);
+                }
+            }
         }
 
         /// <summary>
@@ -100,10 +114,11 @@ namespace GameFramework.ProjectileSystems {
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public BulletPlayingInfo(ObjectPool<IBulletProjectileObject> pool, IBulletProjectileObject projectileObject, LayeredTime layeredTime)
+            public BulletPlayingInfo(ObjectPool<IBulletProjectileObject> pool, IBulletProjectileObject projectileObject, LayeredTime layeredTime, int layer)
                 : base(layeredTime) {
                 _pool = pool;
                 _projectileObject = projectileObject;
+                SetLayer(projectileObject.transform, layer);
             }
 
             /// <summary>
@@ -139,10 +154,11 @@ namespace GameFramework.ProjectileSystems {
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public BeamPlayingInfo(ObjectPool<IBeamProjectileObject> pool, IBeamProjectileObject projectileObject, LayeredTime layeredTime)
+            public BeamPlayingInfo(ObjectPool<IBeamProjectileObject> pool, IBeamProjectileObject projectileObject, LayeredTime layeredTime, int layer)
                 : base(layeredTime) {
                 _pool = pool;
                 _projectileObject = projectileObject;
+                SetLayer(projectileObject.transform, layer);
             }
 
             /// <summary>
@@ -183,6 +199,9 @@ namespace GameFramework.ProjectileSystems {
         // 再生中情報
         private List<PlayingInfo> _playingInfos = new();
 
+        /// <summary>デフォルト指定のLayer</summary>
+        public int DefaultLayer { get; set; } = 0;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -210,11 +229,12 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="hitCount">最大衝突回数(-1だと無限)</param>
         /// <param name="customData">当たり判定通知時に使うカスタムデータ</param>
         /// <param name="layeredTime">時間単位</param>
+        /// <param name="layer">指定するレイヤー</param>
         /// <param name="checkHitFunc">当たりとして有効かの判定関数</param>
         /// <param name="onUpdatedTransform">座標の更新通知</param>
         /// <param name="onExit">飛翔完了通知</param>
         public Handle Play(IRaycastCollisionListener listener, GameObject prefab, IBulletProjectile projectile, Vector3 scale,
-            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, Func<RaycastHitResult, bool> checkHitFunc = null,
+            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, int layer = -1, Func<RaycastHitResult, bool> checkHitFunc = null,
             Action<Vector3, Quaternion> onUpdatedTransform = null,
             Action onExit = null) {
             if (prefab == null) {
@@ -272,8 +292,12 @@ namespace GameFramework.ProjectileSystems {
                 }
             });
 
+            if (layer < 0) {
+                layer = DefaultLayer;
+            }
+
             // 再生情報として登録
-            _playingInfos.Add(new BulletPlayingInfo(pool, instance, layeredTime));
+            _playingInfos.Add(new BulletPlayingInfo(pool, instance, layeredTime, layer));
 
             // ハンドル化して返却
             return new Handle(projectileHandle);
@@ -289,14 +313,15 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="hitCount">最大衝突回数(-1だと無限)</param>
         /// <param name="customData">当たり判定通知時に使うカスタムデータ</param>
         /// <param name="layeredTime">時間単位</param>
+        /// <param name="layer">レイヤー指定</param>
         /// <param name="checkHitFunc">当たりとして有効かの判定関数</param>
         /// <param name="onUpdatedTransform">座標の更新通知</param>
         /// <param name="onExit">飛翔完了通知</param>
         public Handle Play(IRaycastCollisionListener listener, GameObject prefab, IBulletProjectile projectile,
-            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, Func<RaycastHitResult, bool> checkHitFunc = null,
+            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, int layer = -1, Func<RaycastHitResult, bool> checkHitFunc = null,
             Action<Vector3, Quaternion> onUpdatedTransform = null,
             Action onExit = null) {
-            return Play(listener, prefab, projectile, Vector3.one, hitLayerMask, hitCount, customData, layeredTime, checkHitFunc, onUpdatedTransform, onExit);
+            return Play(listener, prefab, projectile, Vector3.one, hitLayerMask, hitCount, customData, layeredTime, layer, checkHitFunc, onUpdatedTransform, onExit);
         }
 
         /// <summary>
@@ -309,18 +334,19 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="hitCount">最大衝突回数(-1だと無限)</param>
         /// <param name="customData">当たり判定通知時に使うカスタムデータ</param>
         /// <param name="layeredTime">時間単位</param>
+        /// <param name="layer">レイヤー指定</param>
         /// <param name="checkHitFunc">当たりとして有効かの判定関数</param>
         /// <param name="onHitRaycastCollision">当たり判定発生時通知</param>
         /// <param name="onUpdatedTransform">座標の更新通知</param>
         /// <param name="onExit">飛翔完了通知</param>
         public Handle Play(GameObject prefab, IBulletProjectile projectile, Vector3 scale,
-            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, Func<RaycastHitResult, bool> checkHitFunc = null,
+            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, int layer = -1, Func<RaycastHitResult, bool> checkHitFunc = null,
             Action<RaycastHitResult> onHitRaycastCollision = null,
             Action<Vector3, Quaternion> onUpdatedTransform = null,
             Action onExit = null) {
             var listener = new RaycastCollisionListener();
             listener.OnHitRaycastCollisionEvent += onHitRaycastCollision;
-            return Play(listener, prefab, projectile, scale, hitLayerMask, hitCount, customData, layeredTime, checkHitFunc,
+            return Play(listener, prefab, projectile, scale, hitLayerMask, hitCount, customData, layeredTime, layer, checkHitFunc,
                 onUpdatedTransform, onExit);
         }
 
@@ -333,16 +359,17 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="hitCount">最大衝突回数(-1だと無限)</param>
         /// <param name="customData">当たり判定通知時に使うカスタムデータ</param>
         /// <param name="layeredTime">時間単位</param>
+        /// <param name="layer">レイヤー指定</param>
         /// <param name="checkHitFunc">当たりとして有効かの判定関数</param>
         /// <param name="onHitRaycastCollision">当たり判定発生時通知</param>
         /// <param name="onUpdatedTransform">座標の更新通知</param>
         /// <param name="onExit">飛翔完了通知</param>
         public Handle Play(GameObject prefab, IBulletProjectile projectile,
-            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, Func<RaycastHitResult, bool> checkHitFunc = null,
+            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, int layer = -1, Func<RaycastHitResult, bool> checkHitFunc = null,
             Action<RaycastHitResult> onHitRaycastCollision = null,
             Action<Vector3, Quaternion> onUpdatedTransform = null,
             Action onExit = null) {
-            return Play(prefab, projectile, Vector3.one, hitLayerMask, hitCount, customData, layeredTime,
+            return Play(prefab, projectile, Vector3.one, hitLayerMask, hitCount, customData, layeredTime, layer,
                 checkHitFunc,
                 onHitRaycastCollision,
                 onUpdatedTransform, onExit);
@@ -359,11 +386,12 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="hitCount">最大衝突回数(-1だと無限)</param>
         /// <param name="customData">当たり判定通知時に使うカスタムデータ</param>
         /// <param name="layeredTime">時間単位</param>
+        /// <param name="layer">レイヤー指定</param>
         /// <param name="checkHitFunc">当たりとして有効かの判定関数</param>
         /// <param name="onUpdatedTransform">座標の更新通知</param>
         /// <param name="onExit">飛翔完了通知</param>
         public Handle Play(IRaycastCollisionListener listener, GameObject prefab, IBeamProjectile projectile, Vector3 scale,
-            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, Func<RaycastHitResult, bool> checkHitFunc = null,
+            int hitLayerMask, int hitCount = -1, object customData = null, LayeredTime layeredTime = null, int layer = -1, Func<RaycastHitResult, bool> checkHitFunc = null,
             Action<Vector3, Vector3, Quaternion> onUpdatedTransform = null,
             Action onExit = null) {
             if (prefab == null) {
@@ -415,8 +443,12 @@ namespace GameFramework.ProjectileSystems {
                 }
             });
 
+            if (layer < 0) {
+                layer = DefaultLayer;
+            }
+
             // 再生情報として登録
-            _playingInfos.Add(new BeamPlayingInfo(pool, instance, layeredTime));
+            _playingInfos.Add(new BeamPlayingInfo(pool, instance, layeredTime, layer));
 
             // ハンドル化して返却
             return new Handle(projectileHandle);
