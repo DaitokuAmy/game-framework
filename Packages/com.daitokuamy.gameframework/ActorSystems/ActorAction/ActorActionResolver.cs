@@ -1,5 +1,6 @@
 using System.Collections;
 using GameFramework.Core;
+using UnityEngine;
 
 namespace GameFramework.ActorSystems {
     /// <summary>
@@ -56,6 +57,8 @@ namespace GameFramework.ActorSystems {
         
         /// <summary>時間管理用</summary>
         protected LayeredTime LayeredTime { get; private set; }
+        /// <summary>変位時間</summary>
+        protected float DeltaTime => LayeredTime?.DeltaTime ?? Time.deltaTime;
 
         /// <summary>再生中か</summary>
         bool IActorActionResolver.IsPlaying => _isPlaying;
