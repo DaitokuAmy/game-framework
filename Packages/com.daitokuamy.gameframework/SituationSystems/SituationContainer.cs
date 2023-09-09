@@ -9,7 +9,19 @@ namespace GameFramework.SituationSystems {
     /// シチュエーション管理用クラス
     /// </summary>
     public class SituationContainer : IDisposable, ITransitionResolver {
-        // 遷移情報
+        /// <summary>
+        /// 遷移オプション
+        /// </summary>
+        public class TransitionOption {
+            /// <summary>スタックをリセットするか</summary>
+            public bool resetStack = false;
+            /// <summary>強制バック遷移</summary>
+            public bool forceBack = false;
+        }
+        
+        /// <summary>
+        /// 遷移情報
+        /// </summary>
         public class TransitionInfo {
             public SituationContainer container;
             public ISituation prev;
@@ -36,9 +48,10 @@ namespace GameFramework.SituationSystems {
         /// 遷移実行
         /// </summary>
         /// <param name="situation">遷移先のシチュエーション(nullの場合、全部閉じる)</param>
+        /// <param name="option">遷移オプション</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition(Situation situation, ITransition overrideTransition = null,
+        public TransitionHandle Transition(Situation situation, TransitionOption option, ITransition overrideTransition = null,
             params ITransitionEffect[] effects) {
             var nextName = situation != null ? situation.GetType().Name : "null";
 
@@ -81,7 +94,7 @@ namespace GameFramework.SituationSystems {
                 back = true;
             }
 
-            var prev = (ISituation)(_stack.Count > 0 ? _stack[_stack.Count - 1] : null);
+            var prev = (ISituation)Current;
             var next = (ISituation)situation;
 
             // 遷移の必要がなければキャンセル扱い
@@ -97,14 +110,26 @@ namespace GameFramework.SituationSystems {
                 return new TransitionHandle(
                     new Exception($"Cant transition. Situation:{nextName} Transition:{transition}"));
             }
-
+            
+            // Stackのリセット
+            if (option != null && option.resetStack) {
+                // 1つを残して他はRelease
+                for (var i = _stack.Count - 1; i > 0; i--) {
+                    ((ISituation)_stack[i]).Release(this);
+                    _stack.RemoveAt(i);
+                }
+                
+                // 残った1つもStackからクリア
+                _stack.Clear();
+            }
+            
             // リセットする場合
-            if (reset) {
+            if (reset && _stack.Count > 0) {
                 // Stackの最後を入れ直す
                 _stack[_stack.Count - 1] = situation;
             }
             // 戻る場合
-            else if (back) {
+            else if (back && _stack.Count > 0) {
                 // 現在のSituationをStackから除外
                 _stack.RemoveAt(_stack.Count - 1);
 
@@ -123,7 +148,7 @@ namespace GameFramework.SituationSystems {
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
                 container = this,
-                back = back,
+                back = back || (option != null && option.forceBack),
                 prev = prev,
                 next = next,
                 state = TransitionState.Standby,
@@ -151,9 +176,44 @@ namespace GameFramework.SituationSystems {
         /// 遷移実行
         /// </summary>
         /// <param name="situation">遷移先のシチュエーション(nullの場合、全部閉じる)</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition(Situation situation, ITransition overrideTransition, params ITransitionEffect[] effects) {
+            return Transition(situation, null, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="situation">遷移先のシチュエーション(nullの場合、全部閉じる)</param>
+        /// <param name="option">遷移オプション</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition(Situation situation, TransitionOption option, params ITransitionEffect[] effects) {
+            return Transition(situation, option, null, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="situation">遷移先のシチュエーション(nullの場合、全部閉じる)</param>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Transition(Situation situation, params ITransitionEffect[] effects) {
-            return Transition(situation, null, effects);
+            return Transition(situation, null, null, effects);
+        }
+
+        /// <summary>
+        /// 戻り遷移実行
+        /// </summary>
+        /// <param name="option">遷移オプション</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Back(TransitionOption option, ITransition overrideTransition, params ITransitionEffect[] effects) {
+            if (_stack.Count <= 0) {
+                return new TransitionHandle(new Exception("Not found stack."));
+            }
+
+            var next = _stack.Count > 1 ? _stack[_stack.Count - 2] : null;
+            return Transition(next, option, overrideTransition, effects);
         }
 
         /// <summary>
@@ -161,13 +221,17 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public TransitionHandle Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            if (_stack.Count <= 0) {
-                return new TransitionHandle(new Exception("Not found stack."));
-            }
+        public TransitionHandle Back(ITransition overrideTransition, params ITransitionEffect[] effects) {
+            return Back(null, overrideTransition, effects);
+        }
 
-            var next = _stack.Count > 1 ? _stack[_stack.Count - 2] : null;
-            return Transition(next, overrideTransition, effects);
+        /// <summary>
+        /// 戻り遷移実行
+        /// </summary>
+        /// <param name="option">遷移オプション</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Back(TransitionOption option, params ITransitionEffect[] effects) {
+            return Back(option, null, effects);
         }
 
         /// <summary>
@@ -175,7 +239,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Back(params ITransitionEffect[] effects) {
-            return Back(null, effects);
+            return Back(null, null, effects);
         }
 
         /// <summary>
@@ -204,6 +268,26 @@ namespace GameFramework.SituationSystems {
                     target.Release(this);
                 }
             }
+        }
+
+        /// <summary>
+        /// シチュエーションの除外
+        /// </summary>
+        /// <param name="situation">除外対象のSituation</param>
+        /// <param name="overrideTransition">戻る遷移が発生した時のための遷移情報</param>
+        /// <param name="effects">戻る遷移が発生した時のための遷移演出</param>
+        public void Remove(Situation situation, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // Currentだった場合は戻る
+            if (Current == situation) {
+                Back(null, overrideTransition, effects);
+                return;
+            }
+            
+            // Stackから除外
+            _stack.Remove(situation);
+            
+            // リリースする
+            ((ISituation)situation).Release(this);
         }
 
         /// <summary>
@@ -267,6 +351,10 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         public SituationContainer(Situation owner = null) {
             Owner = owner;
+
+            if (Owner != null) {
+                Owner.AddChildContainer(this);
+            }
         }
 
         /// <summary>
@@ -289,6 +377,11 @@ namespace GameFramework.SituationSystems {
 
             _coroutineRunner.Dispose();
             _transitionInfo = null;
+
+            if (Owner != null) {
+                Owner.RemoveChildContainer(this);
+                Owner = null;
+            }
         }
 
         /// <summary>

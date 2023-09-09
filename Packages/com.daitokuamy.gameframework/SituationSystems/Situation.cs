@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using GameFramework.Core;
 using UnityEngine;
 
@@ -24,6 +25,9 @@ namespace GameFramework.SituationSystems {
         private DisposableScope _animationScope;
         // アクティブスコープ
         private DisposableScope _activeScope;
+
+        // 子SituationContainerリスト
+        private List<SituationContainer> _childContainers = new();
 
         // 親のSituation
         public Situation Parent => ParentContainer?.Owner;
@@ -68,6 +72,24 @@ namespace GameFramework.SituationSystems {
             if (CurrentState == State.Active) {
                 ((ISituation)this).LateUpdate();
             }
+        }
+
+        /// <summary>
+        /// 子のSituationContainerの追加
+        /// </summary>
+        internal void AddChildContainer(SituationContainer container) {
+            if (_childContainers.Contains(container)) {
+                return;
+            }
+            
+            _childContainers.Add(container);
+        }
+
+        /// <summary>
+        /// 子のSituationContainerの削除
+        /// </summary>
+        internal void RemoveChildContainer(SituationContainer container) {
+            _childContainers.Remove(container);
         }
 
         /// <summary>
@@ -304,6 +326,10 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         void ISituation.SystemUpdate() {
             SystemUpdateInternal();
+
+            foreach (var container in _childContainers) {
+                container.Update();
+            }
         }
 
         /// <summary>
@@ -311,6 +337,10 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         void ISituation.SystemLateUpdate() {
             SystemLateUpdateInternal();
+
+            foreach (var container in _childContainers) {
+                container.LateUpdate();
+            }
         }
 
         /// <summary>

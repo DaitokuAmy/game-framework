@@ -17,8 +17,16 @@ namespace SampleGame {
     public class FieldSceneSituation : SceneSituation {
         // FieldScene内シチュエーション用コンテナ
         private SituationContainer _situationContainer;
+        // FieldScene内のシチュエーションツリー
+        private SituationTree _situationTree;
 
         protected override string SceneAssetPath => "field";
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public FieldSceneSituation() {
+        }
 
         /// <summary>
         /// 読み込み処理
@@ -60,6 +68,19 @@ namespace SampleGame {
             var bodyManager = new BodyManager();
             ServiceContainer.Set(bodyManager);
             bodyManager.RegisterTask(TaskOrder.Body);
+            
+            // 内部Situationの初期化
+            yield return SetupSubSituationRoutine(scope);
+        }
+
+        /// <summary>
+        /// 終了処理
+        /// </summary>
+        protected override void CleanupInternal(TransitionHandle handle) {
+            _situationContainer = null;
+            _situationTree = null;
+            
+            base.CleanupInternal(handle);
         }
 
         /// <summary>
@@ -89,6 +110,17 @@ namespace SampleGame {
             if (Input.GetKeyDown(KeyCode.B)) {
                 uIManager.GetWindow<FieldEquipmentUIWindow>().BackAsync(CancellationToken.None).Forget();
             }
+        }
+
+        /// <summary>
+        /// 内部シチュエーションの初期化
+        /// </summary>
+        private IEnumerator SetupSubSituationRoutine(IScope scope) {
+            _situationContainer = new SituationContainer(this).ScopeTo(scope);
+
+            var rootSituation = new FieldHudNodeSituation();
+            _situationTree = new SituationTree(_situationContainer, rootSituation).ScopeTo(scope);
+            yield return _situationTree.TransitionRoot();
         }
     }
 }
