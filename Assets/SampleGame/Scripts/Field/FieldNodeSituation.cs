@@ -1,4 +1,5 @@
 using System;
+using GameFramework.Core;
 using GameFramework.SituationSystems;
 namespace SampleGame {
     /// <summary>
@@ -26,7 +27,7 @@ namespace SampleGame {
         /// <summary>
         /// 遷移実行
         /// </summary>
-        protected TransitionHandle Transition<T>(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+        protected IProcess Transition<T>(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
             where T : Situation {
             if (_situationTree == null) {
                 return new TransitionHandle(new Exception("Situation tree is null."));
@@ -38,7 +39,7 @@ namespace SampleGame {
         /// <summary>
         /// 戻り遷移実行
         /// </summary>
-        protected TransitionHandle Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        protected IProcess Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             if (_situationTree == null) {
                 return new TransitionHandle(new Exception("Situation tree is null."));
             }

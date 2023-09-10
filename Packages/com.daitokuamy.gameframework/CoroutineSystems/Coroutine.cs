@@ -8,14 +8,18 @@ namespace GameFramework.CoroutineSystems {
     /// <summary>
     /// コルーチン本体
     /// </summary>
-    public class Coroutine : IEnumerator {
+    public class Coroutine : IProcess {
         private IEnumerator _enumerator;
         private Stack<object> _stack;
         private object _current;
+        private bool _isDone;
 
-        // 完了しているか
-        public bool IsDone { get; private set; }
-        // 現在の処理位置
+        /// <summary>完了しているか</summary>
+        public bool IsDone => _isDone || Exception != null;
+        /// <summary>エラー内容</summary>
+        public Exception Exception { get; private set; }
+        
+        /// <summary>現在の処理位置</summary>
         object IEnumerator.Current => _current;
 
         /// <summary>
@@ -35,7 +39,7 @@ namespace GameFramework.CoroutineSystems {
             _stack.Clear();
             _stack.Push(_enumerator);
             _current = null;
-            IsDone = false;
+            _isDone = false;
         }
 
         /// <summary>
@@ -55,7 +59,7 @@ namespace GameFramework.CoroutineSystems {
             void Done() {
                 _stack.Clear();
                 _current = null;
-                IsDone = true;
+                _isDone = true;
             }
 
             // スタックがなければ、完了
@@ -68,37 +72,43 @@ namespace GameFramework.CoroutineSystems {
             var peek = _stack.Peek();
             _current = peek;
 
-            if (peek == null) {
-                _stack.Pop();
-            }
-            else if (peek is IEnumerator enumerator) {
-                if (enumerator.MoveNext()) {
-                    _stack.Push(enumerator.Current);
-                }
-                else {
+            try {
+                if (peek == null) {
                     _stack.Pop();
                 }
+                else if (peek is IEnumerator enumerator) {
+                    if (enumerator.MoveNext()) {
+                        _stack.Push(enumerator.Current);
+                    }
+                    else {
+                        _stack.Pop();
+                    }
 
-                Update();
-            }
-            else if (peek is IEnumerable enumerable) {
-                _stack.Pop();
-                _stack.Push(enumerable.GetEnumerator());
-                Update();
-            }
-            else if (peek is AsyncOperation asyncOperation) {
-                if (asyncOperation.isDone) {
-                    _stack.Pop();
                     Update();
                 }
+                else if (peek is IEnumerable enumerable) {
+                    _stack.Pop();
+                    _stack.Push(enumerable.GetEnumerator());
+                    Update();
+                }
+                else if (peek is AsyncOperation asyncOperation) {
+                    if (asyncOperation.isDone) {
+                        _stack.Pop();
+                        Update();
+                    }
+                }
+                else if (peek is WaitForSeconds waitForSeconds) {
+                    _stack.Pop();
+                    _stack.Push(waitForSeconds.GetEnumerator());
+                    Update();
+                }
+                else {
+                    throw new NotSupportedException($"{peek.GetType()} is not supported.");
+                }
             }
-            else if (peek is WaitForSeconds waitForSeconds) {
-                _stack.Pop();
-                _stack.Push(waitForSeconds.GetEnumerator());
-                Update();
-            }
-            else {
-                throw new NotSupportedException($"{peek.GetType()} is not supported.");
+            catch (Exception exception) {
+                Exception = exception;
+                throw;
             }
         }
     }

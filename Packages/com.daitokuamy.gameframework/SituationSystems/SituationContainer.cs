@@ -243,6 +243,24 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// シチュエーションの事前登録
+        /// </summary>
+        /// <param name="situation">登録対象のシチュエーション</param>
+        public void PreRegister(Situation situation) {
+            var target = (ISituation)situation;
+            target.PreRegister(this);
+        }
+
+        /// <summary>
+        /// シチュエーションの事前登録解除
+        /// </summary>
+        /// <param name="situation">登録解除対象のシチュエーション</param>
+        public void PreUnregister(Situation situation) {
+            var target = (ISituation)situation;
+            target.PreUnregister(this);
+        }
+
+        /// <summary>
         /// シチュエーションのプリロード
         /// </summary>
         /// <param name="situation">プリロード対象のSituation</param>
@@ -363,9 +381,10 @@ namespace GameFramework.SituationSystems {
         public void Dispose() {
             DisposeInternal();
 
-            // PreLoad毎解放する
+            // PreLoad/PreRegister毎解放する
             void ForceRelease(ISituation situation) {
                 situation.UnPreLoad();
+                situation.PreUnregister(this);
                 situation.Release(this);
             }
 

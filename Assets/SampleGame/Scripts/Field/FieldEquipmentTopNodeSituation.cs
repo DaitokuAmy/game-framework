@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace SampleGame {
     /// <summary>
-    /// Field用のHudSituation
+    /// Field用のEquipmentTopNodeSituation
     /// </summary>
-    public class FieldHudNodeSituation : FieldNodeSituation {
+    public class FieldEquipmentTopNodeSituation : FieldNodeSituation {
         private SituationTree _situationTree;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public FieldHudNodeSituation() {
+        public FieldEquipmentTopNodeSituation() {
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace SampleGame {
             base.UpdateInternal();
 
             if (Input.GetKeyDown(KeyCode.P)) {
-                Transition<FieldEquipmentTopNodeSituation>();
+                Back();
             }
         }
     }

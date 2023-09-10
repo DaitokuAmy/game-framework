@@ -41,6 +41,24 @@ namespace GameFramework.Core {
         public event Action OnCompletedEvent;
         // キャンセル通知イベント
         public event Action<Exception> OnAbortedEvent;
+        
+        /// <summary>
+        /// 完了済みOperatorの生成
+        /// </summary>
+        public static AsyncOperator CreateCompletedOperator() {
+            var op = new AsyncOperator();
+            op.Completed();
+            return op;
+        }
+
+        /// <summary>
+        /// エラー済みOperatorの生成
+        /// </summary>
+        public static AsyncOperator CreateAbortedOperator(Exception exception) {
+            var op = new AsyncOperator();
+            op.Aborted(exception);
+            return op;
+        }
 
         /// <summary>
         /// ハンドルへの暗黙型変換
@@ -115,6 +133,24 @@ namespace GameFramework.Core {
         /// </summary>
         public static implicit operator AsyncOperationHandle<T>(AsyncOperator<T> source) {
             return source.GetHandle();
+        }
+        
+        /// <summary>
+        /// 完了済みOperatorの生成
+        /// </summary>
+        public static AsyncOperator<T> CreateCompletedOperator(T result) {
+            var op = new AsyncOperator<T>();
+            op.Completed(result);
+            return op;
+        }
+
+        /// <summary>
+        /// エラー済みOperatorの生成
+        /// </summary>
+        public static AsyncOperator<T> CreateAbortedOperator(Exception exception) {
+            var op = new AsyncOperator<T>();
+            op.Aborted(exception);
+            return op;
         }
 
         /// <summary>

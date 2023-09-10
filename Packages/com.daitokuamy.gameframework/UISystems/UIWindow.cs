@@ -11,6 +11,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// UIWindowクラス
     /// </summary>
+    [RequireComponent(typeof(CanvasGroup))]
     public abstract class UIWindow : MonoBehaviour, IUIWindow {
         // 制御対象のUIViewリスト
         private readonly List<IUIView> _uiViews = new();
@@ -28,6 +29,8 @@ namespace GameFramework.UISystems {
 
         /// <summary>更新時間用のTimeScale</summary>
         public float TimeScale { get; set; } = 1.0f;
+        /// <summary>CanvasGroupの参照</summary>
+        public CanvasGroup CanvasGroup { get; private set; }
 
         /// <summary>
         /// 初期化処理
@@ -41,6 +44,8 @@ namespace GameFramework.UISystems {
             _scope = new DisposableScope();
             _coroutineRunner = new CoroutineRunner();
             _dirtyChildren = true;
+
+            CanvasGroup = GetComponent<CanvasGroup>();
             
             // すでに含まれているViewを登録する
             var views = GetComponentsInChildren<IUIView>(true);

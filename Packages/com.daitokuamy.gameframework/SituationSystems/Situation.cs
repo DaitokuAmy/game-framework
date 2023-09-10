@@ -29,15 +29,17 @@ namespace GameFramework.SituationSystems {
         // 子SituationContainerリスト
         private List<SituationContainer> _childContainers = new();
 
-        // 親のSituation
+        /// <summary>親のSituation</summary>
         public Situation Parent => ParentContainer?.Owner;
-        // 登録されているContainer
+        /// <summary>登録されているContainer</summary>
         public SituationContainer ParentContainer { get; private set; }
-        // インスタンス管理用
+        /// <summary>インスタンス管理用</summary>
         public ServiceContainer ServiceContainer { get; private set; }
-        // 現在状態
+        /// <summary>現在状態</summary>
         public State CurrentState { get; private set; } = State.Invalid;
-        // プリロードされているか
+        /// <summary>コンテナ登録されているか</summary>
+        public bool PreRegistered { get; private set; } = false;
+        /// <summary>プリロードされているか</summary>
         public bool PreLoaded { get; private set; } = false;
 
         /// <summary>
@@ -235,6 +237,10 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
+            if (PreLoaded) {
+                return;
+            }
+
             CurrentState = State.Standby;
             UnloadInternal(handle);
             _loadScope.Dispose();
@@ -281,11 +287,51 @@ namespace GameFramework.SituationSystems {
             if (CurrentState == State.Loaded) {
                 situation.Unload(handle);
             }
+            
+            // PreRegisterはここで終わり
+            if (PreRegistered) {
+                return;
+            }
 
             ReleaseInternal(container);
 
             ParentContainer = null;
             CurrentState = State.Invalid;
+        }
+
+        /// <summary>
+        /// コンテナの事前登録
+        /// </summary>
+        /// <param name="container">登録するコンテナ</param>
+        void ISituation.PreRegister(SituationContainer container) {
+            if (PreRegistered) {
+                return;
+            }
+
+            var situation = (ISituation)this;
+            PreRegistered = true;
+            
+            situation.Standby(container);
+        }
+
+        /// <summary>
+        /// コンテナの事前登録解除
+        /// </summary>
+        /// <param name="container">登録するコンテナ</param>
+        void ISituation.PreUnregister(SituationContainer container) {
+            if (!PreRegistered) {
+                return;
+            }
+
+            var situation = (ISituation)this;
+            PreRegistered = false;
+
+            // 稼働中ならReleaseは呼ばない
+            if (CurrentState >= State.Loaded) {
+                return;
+            }
+            
+            situation.Release(container);
         }
 
         /// <summary>

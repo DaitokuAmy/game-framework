@@ -190,17 +190,17 @@ namespace GameFramework.CoroutineSystems {
                 var coroutineInfo = _coroutineInfos[i];
                 var coroutine = coroutineInfo.coroutine;
 
-                try {
-                    if (!((IEnumerator)coroutine).MoveNext()) {
+                if (!((IEnumerator)coroutine).MoveNext()) {
+                    if (coroutine.Exception != null) {
+                        // エラー終了通知
+                        coroutineInfo.Abort(coroutine.Exception);
+                        _cachedRemoveIndices.Add(i);
+                    }
+                    else {
                         // 完了通知
                         coroutineInfo.Complete();
                         _cachedRemoveIndices.Add(i);
                     }
-                }
-                catch (Exception exception) {
-                    // エラー終了通知
-                    coroutineInfo.Abort(exception);
-                    _cachedRemoveIndices.Add(i);
                 }
             }
 

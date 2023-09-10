@@ -17,7 +17,9 @@ namespace GameFramework.SituationSystems {
     /// Release
     /// </summary>
     public interface ISituation {
-        // プリロードされているか
+        /// <summary>コンテナ登録されているか</summary>
+        bool PreRegistered { get; }
+        /// <summary>プリロードされているか</summary>
         bool PreLoaded { get; }
 
         /// <summary>
@@ -85,10 +87,22 @@ namespace GameFramework.SituationSystems {
         void Unload(TransitionHandle handle);
 
         /// <summary>
-        /// 登録解除処理
+        /// 解除処理
         /// </summary>
         /// <param name="container">登録されていたContainer</param>
         void Release(SituationContainer container);
+
+        /// <summary>
+        /// コンテナ事前登録
+        /// </summary>
+        /// <param name="container">事前登録するContainer</param>
+        void PreRegister(SituationContainer container);
+
+        /// <summary>
+        /// コンテナ事前登録解除
+        /// </summary>
+        /// <param name="container">事前登録されていたContainer</param>
+        void PreUnregister(SituationContainer container);
 
         /// <summary>
         /// プリロード処理

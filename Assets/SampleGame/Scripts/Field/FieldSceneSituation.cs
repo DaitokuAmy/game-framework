@@ -110,6 +110,8 @@ namespace SampleGame {
             if (Input.GetKeyDown(KeyCode.B)) {
                 uIManager.GetWindow<FieldEquipmentUIWindow>().BackAsync(CancellationToken.None).Forget();
             }
+            
+            _situationTree.Update();
         }
 
         /// <summary>
@@ -118,9 +120,13 @@ namespace SampleGame {
         private IEnumerator SetupSubSituationRoutine(IScope scope) {
             _situationContainer = new SituationContainer(this).ScopeTo(scope);
 
-            var rootSituation = new FieldHudNodeSituation();
-            _situationTree = new SituationTree(_situationContainer, rootSituation).ScopeTo(scope);
-            yield return _situationTree.TransitionRoot();
+            var hudNodeSituation = new FieldHudNodeSituation();
+            _situationTree = new SituationTree(hudNodeSituation, _situationContainer).ScopeTo(scope);
+            
+            var equipmentTopNodeSituation = new FieldEquipmentTopNodeSituation();
+            _situationTree.RootNode.Connect(equipmentTopNodeSituation, _situationContainer);
+                
+            yield return _situationTree.SetupAsync();
         }
     }
 }

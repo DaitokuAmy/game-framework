@@ -11,21 +11,29 @@ namespace GameFramework.SituationSystems {
 
         private SituationTree _tree;
         private Situation _situation;
+        private SituationContainer _container;
         private SituationTreeNode _parent;
 
         /// <summary>有効か</summary>
         public bool IsValid => _tree != null && _situation != null;
+        /// <summary>含有されているContainer</summary>
+        internal SituationContainer Container => _container;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="tree">SituationNode管理用ツリー</param>
         /// <param name="situation">遷移時に使うSituation</param>
+        /// <param name="container">所属するContainer</param>
         /// <param name="parent">接続親のNode</param>
-        internal SituationTreeNode(SituationTree tree, Situation situation, SituationTreeNode parent) {
+        internal SituationTreeNode(SituationTree tree, Situation situation, SituationContainer container, SituationTreeNode parent) {
             _tree = tree;
             _situation = situation;
+            _container = container;
             _parent = parent;
+            
+            // 事前登録しておく
+            container.PreRegister(_situation);
 
             if (_situation is INodeSituation nodeSituation) {
                 nodeSituation.OnRegisterTree(tree);
@@ -40,8 +48,11 @@ namespace GameFramework.SituationSystems {
                 return;
             }
             
+            // 事前登録解除
+            _container.PreUnregister(_situation);
+            
             // ContainerのStackにあった場合は除外
-            _tree.Container.Remove(_situation);
+            _container.Remove(_situation);
             
             // 親要素から参照を削除
             if (_parent != null) {
@@ -61,31 +72,34 @@ namespace GameFramework.SituationSystems {
 
             _parent = null;
             _children.Clear();
+            _container = null;
             _situation = null;
             _tree = null;
         }
 
         /// <summary>
-        /// シチュエーションノードの追加
+        /// シチュエーションノードの接続
         /// </summary>
         /// <param name="situation">追加するSituationのインスタンス</param>
-        public void AddNode(Situation situation) {
+        /// <param name="container">属するコンテナ(無ければ、同一Containerを使用)</param>
+        public SituationTreeNode Connect(Situation situation, SituationContainer container = null) {
             var type = situation.GetType();
             
             // 既に同じTypeがあった場合は何もしない
             if (_children.TryGetValue(type, out var node)) {
-                return;
+                return node;
             }
 
             // ノードの追加
-            node = new SituationTreeNode(_tree, situation, this);
+            node = new SituationTreeNode(_tree, situation, container ?? _container, this);
             _children.Add(type, node);
+            return node;
         }
 
         /// <summary>
-        /// シチュエーションノードの削除
+        /// シチュエーションノードの接続解除
         /// </summary>
-        public bool RemoveNode<T>()
+        public bool Disconnect<T>()
             where T : Situation {
             var type = typeof(T);
             
