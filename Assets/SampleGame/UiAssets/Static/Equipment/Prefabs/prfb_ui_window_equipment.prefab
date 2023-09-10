@@ -693,7 +693,7 @@ GameObject:
   - component: {fileID: 2864094241477730302}
   - component: {fileID: 7223890994249388800}
   m_Layer: 5
-  m_Name: prfb_ui_window_field_equipment
+  m_Name: prfb_ui_window_equipment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

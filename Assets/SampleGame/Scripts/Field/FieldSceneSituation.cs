@@ -15,8 +15,6 @@ namespace SampleGame {
     /// Field用のSituation
     /// </summary>
     public class FieldSceneSituation : SceneSituation {
-        // FieldScene内シチュエーション用コンテナ
-        private SituationContainer _situationContainer;
         // FieldScene内のシチュエーションツリー
         private SituationTree _situationTree;
 
@@ -70,14 +68,13 @@ namespace SampleGame {
             bodyManager.RegisterTask(TaskOrder.Body);
             
             // 内部Situationの初期化
-            yield return SetupSubSituationRoutine(scope);
+            yield return SetupSituationTreeRoutine(scope);
         }
 
         /// <summary>
         /// 終了処理
         /// </summary>
         protected override void CleanupInternal(TransitionHandle handle) {
-            _situationContainer = null;
             _situationTree = null;
             
             base.CleanupInternal(handle);
@@ -97,34 +94,25 @@ namespace SampleGame {
             if (Input.GetKeyDown(KeyCode.O)) {
                 uIManager.GetWindow<FieldHudUIWindow>().DailyDialogTestAsync().Forget();
             }
-
-            if (Input.GetKeyDown(KeyCode.Alpha0)) {
-                uIManager.GetWindow<FieldEquipmentUIWindow>().TransitionTopAsync(CancellationToken.None).Forget();
-            }
-            if (Input.GetKeyDown(KeyCode.Alpha1)) {
-                uIManager.GetWindow<FieldEquipmentUIWindow>().TransitionWeaponListAsync(CancellationToken.None).Forget();
-            }
-            if (Input.GetKeyDown(KeyCode.Alpha2)) {
-                uIManager.GetWindow<FieldEquipmentUIWindow>().TransitionArmorListAsync(CancellationToken.None).Forget();
-            }
-            if (Input.GetKeyDown(KeyCode.B)) {
-                uIManager.GetWindow<FieldEquipmentUIWindow>().BackAsync(CancellationToken.None).Forget();
-            }
             
             _situationTree.Update();
         }
 
         /// <summary>
-        /// 内部シチュエーションの初期化
+        /// 画面遷移用SituationTreeの初期化
         /// </summary>
-        private IEnumerator SetupSubSituationRoutine(IScope scope) {
-            _situationContainer = new SituationContainer(this).ScopeTo(scope);
+        private IEnumerator SetupSituationTreeRoutine(IScope scope) {
+            var rootContainer = new SituationContainer(this).ScopeTo(scope);
+
+            var equipmentSituation = new EquipmentSituation();
+            rootContainer.PreRegister(equipmentSituation);
+            var equipmentContainer = new SituationContainer(equipmentSituation);
 
             var hudNodeSituation = new FieldHudNodeSituation();
-            _situationTree = new SituationTree(hudNodeSituation, _situationContainer).ScopeTo(scope);
+            _situationTree = new SituationTree(hudNodeSituation, rootContainer).ScopeTo(scope);
             
-            var equipmentTopNodeSituation = new FieldEquipmentTopNodeSituation();
-            _situationTree.RootNode.Connect(equipmentTopNodeSituation, _situationContainer);
+            var equipmentTopNodeSituation = new EquipmentTopNodeSituation();
+            _situationTree.RootNode.Connect(equipmentTopNodeSituation, equipmentContainer);
                 
             yield return _situationTree.SetupAsync();
         }

@@ -12,7 +12,7 @@ namespace SampleGame {
     /// <summary>
     /// キャラアクター基底
     /// </summary>
-    public class CharacterActor : GameFramework.ActorSystems.Actor, IMovableActor {
+    public class CharacterActor : Actor, IMovableActor {
         private SequenceController _sequenceController;
         private CoroutineRunner _coroutineRunner;
 

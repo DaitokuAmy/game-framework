@@ -11,14 +11,12 @@ namespace GameFramework.PlayableSystems {
     public class MotionPlayer : IDisposable {
         // Playable情報
         private PlayableGraph _graph;
-
         // 再生速度
         private float _speed = 1.0f;
-
         // ルートコンポーネント
         private LayerMixerPlayableComponent _rootComponent;
 
-        /// <summary></summary>
+        /// <summary>再生に使うAnimator</summary>
         public Animator Animator { get; private set; }
         /// <summary>アニメーションの更新をSkipするフレーム数(0以上)</summary>
         public int SkipFrame { get; set; } = 0;

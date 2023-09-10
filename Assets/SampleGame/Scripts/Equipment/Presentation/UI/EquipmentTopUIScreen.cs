@@ -1,11 +1,11 @@
 using GameFramework.UISystems;
 using UnityEngine;
 
-namespace SampleGame.Field {
+namespace SampleGame.Equipment {
     /// <summary>
     /// 装備画面のトップ用UIScreen
     /// </summary>
-    public class FieldEquipmentTopUIScreen : UIScreen {
+    public class EquipmentTopUIScreen : UIScreen {
         [SerializeField, Tooltip("武器")]
         private WeaponUIView _weaponUIView;
         [SerializeField, Tooltip("頭防具")]

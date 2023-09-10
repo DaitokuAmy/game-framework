@@ -140,7 +140,7 @@ namespace GameFramework.SituationSystems {
                 }
             }
             // 進む場合
-            else {
+            else if (situation != null) {
                 // スタックに登録
                 _stack.Add(situation);
             }

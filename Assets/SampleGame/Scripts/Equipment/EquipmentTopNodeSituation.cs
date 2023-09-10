@@ -5,15 +5,15 @@ using UnityEngine;
 
 namespace SampleGame {
     /// <summary>
-    /// Field用のEquipmentTopNodeSituation
+    /// EquipmentTopNodeSituation
     /// </summary>
-    public class FieldEquipmentTopNodeSituation : FieldNodeSituation {
+    public class EquipmentTopNodeSituation : FieldNodeSituation {
         private SituationTree _situationTree;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public FieldEquipmentTopNodeSituation() {
+        public EquipmentTopNodeSituation() {
         }
 
         /// <summary>

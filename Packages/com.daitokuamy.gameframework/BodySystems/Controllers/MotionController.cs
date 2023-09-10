@@ -16,27 +16,27 @@ namespace GameFramework.BodySystems {
         // モーション再生用クラス
         private MotionPlayer _player;
 
-        // Animator
+        /// <summary>制御に使用しているAnimator</summary>
         public Animator Animator { get; private set; }
-        // モーション再生レイヤーハンドル
+        /// <summary>モーション再生ハンドル</summary>
         public MotionHandle Handle => _player.Handle;
 
-        // ルートスケール（座標）
+        /// <summary>ルートスケール（座標）</summary>
         public Vector3 RootPositionScale {
             get => _rootAnimationJobProvider.PositionScale;
             set => _rootAnimationJobProvider.PositionScale = value;
         }
-        // ルート速度オフセット
+        /// <summary>ルート速度オフセット</summary>
         public Vector3 RootVelocityOffset {
             get => _rootAnimationJobProvider.VelocityOffset;
             set => _rootAnimationJobProvider.VelocityOffset = value;
         }
-        // ルートスケール（回転）
+        /// <summary>ルートスケール（回転）</summary>
         public Vector3 RootAngleScale {
             get => _rootAnimationJobProvider.AngleScale;
             set => _rootAnimationJobProvider.AngleScale = value;
         }
-        // ルート角速度オフセット
+        /// <summary>ルート角速度オフセット</summary>
         public Vector3 RootAngularVelocityOffset {
             get => _rootAnimationJobProvider.AngularVelocityOffset;
             set => _rootAnimationJobProvider.AngularVelocityOffset = value;

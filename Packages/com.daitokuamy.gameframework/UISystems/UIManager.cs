@@ -7,6 +7,7 @@ using GameFramework.Core;
 using GameFramework.CoroutineSystems;
 using GameFramework.TaskSystems;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Coroutine = GameFramework.CoroutineSystems.Coroutine;
 using Object = UnityEngine.Object;
 
@@ -101,6 +102,7 @@ namespace GameFramework.UISystems {
             public override Exception Exception => assetHandle.Exception;
 
             public override void Release() {
+                SceneManager.UnloadSceneAsync(assetHandle.Scene);
                 assetHandle.Release();
             }
         }

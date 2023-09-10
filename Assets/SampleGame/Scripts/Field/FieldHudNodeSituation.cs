@@ -39,7 +39,7 @@ namespace SampleGame {
             base.UpdateInternal();
 
             if (Input.GetKeyDown(KeyCode.P)) {
-                Transition<FieldEquipmentTopNodeSituation>();
+                Transition<EquipmentTopNodeSituation>();
             }
         }
     }

@@ -4,11 +4,11 @@ using GameFramework.Core;
 using GameFramework.UISystems;
 using UnityEngine;
 
-namespace SampleGame.Field {
+namespace SampleGame.Equipment {
     /// <summary>
     /// 装備変更画面用のUIWindow
     /// </summary>
-    public class FieldEquipmentUIWindow : UIWindow {
+    public class EquipmentUIWindow : UIWindow {
         [SerializeField, Tooltip("戻るボタン")]
         private ButtonUIView _backButton;
         [SerializeField, Tooltip("ページ切り替え用コンテナ")]
