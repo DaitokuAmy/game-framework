@@ -58,7 +58,12 @@ namespace GameFramework.CommandSystems {
             }
 
             _standbyCommands.Add(command);
-            command.Initialize(this);
+            command.Initialize();
+            
+            // 実行中の優先度の低い物をキャンセル
+            if (command.AddedCancelLowPriorityOthers) {
+                CancelCommands(command.Priority - 1);
+            }
 
             // 待機上限に入っていた場合、優先度が低い物を除外            
             if (_maxStandbyCount >= 0 && _standbyCommands.Count > _maxStandbyCount) {
@@ -166,6 +171,11 @@ namespace GameFramework.CommandSystems {
                     _standbyCommands.RemoveAt(i);
                     _executingCommands.Add(command);
                     executingDirty = true;
+                    
+                    // 実行中の優先度の低い物をキャンセル
+                    if (command.ExecutedCancelLowPriorityOthers) {
+                        CancelCommands(command.Priority - 1);
+                    }
                 }
             }
             

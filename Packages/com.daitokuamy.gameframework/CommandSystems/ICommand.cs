@@ -11,6 +11,10 @@ namespace GameFramework.CommandSystems {
         bool BlockStandbyOthers { get; }
         /// <summary>実行中のCommandが無くなるまでスタンバイし続けるか</summary>
         bool WaitExecutionOthers { get; }
+        /// <summary>追加時に自身より優先度の低いコマンドをキャンセルするか</summary>
+        bool AddedCancelLowPriorityOthers { get; }
+        /// <summary>実行時に自身より優先度の低いコマンドをキャンセルするか</summary>
+        bool ExecutedCancelLowPriorityOthers { get; }
         /// <summary>現在のステート</summary>
         CommandState CurrentState { get; }
         /// <summary>キャンセル終了した場合の例外</summary>
@@ -19,8 +23,7 @@ namespace GameFramework.CommandSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        /// <param name="manager">Command実行を行うManager</param>
-        void Initialize(CommandManager manager);
+        void Initialize();
 
         /// <summary>
         /// 開始処理

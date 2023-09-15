@@ -6,7 +6,6 @@ namespace GameFramework.CommandSystems {
     /// コマンドクラス
     /// </summary>
     public abstract class Command : ICommand {
-        private CommandManager _manager;
         private CommandState _currentState = CommandState.Invalid;
         private DisposableScope _initializeScope;
         private DisposableScope _startScope;
@@ -20,6 +19,10 @@ namespace GameFramework.CommandSystems {
         public virtual bool BlockStandbyOthers => false;
         /// <summary>実行中のCommandが無くなるまでスタンバイし続けるか</summary>
         public virtual bool WaitExecutionOthers => false;
+        /// <summary>追加時に自身より優先度の低いコマンドをキャンセルするか</summary>
+        public virtual bool AddedCancelLowPriorityOthers => false;
+        /// <summary>実行時に自身より優先度の低いコマンドをキャンセルするか</summary>
+        public virtual bool ExecutedCancelLowPriorityOthers => false;
         
         /// <summary>例外</summary>
         public Exception Exception { get; private set; }
@@ -27,13 +30,12 @@ namespace GameFramework.CommandSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        void ICommand.Initialize(CommandManager manager) {
+        void ICommand.Initialize() {
             if (_currentState != CommandState.Invalid) {
                 return;
             }
 
             _initializeScope = new DisposableScope();
-            _manager = manager;
             _currentState = CommandState.Standby;
             InitializeInternal(_initializeScope);
         }
@@ -104,7 +106,6 @@ namespace GameFramework.CommandSystems {
             }
 
             DestroyInternal();
-            _manager = null;
             _currentState = CommandState.Destroyed;
         }
         
@@ -165,17 +166,6 @@ namespace GameFramework.CommandSystems {
 
             Exception = exception;
             ((ICommand)this).Destroy();
-        }
-
-        /// <summary>
-        /// 自分より優先度の低いCommandをキャンセルさせる
-        /// </summary>
-        protected void CancelLowPriorityCommands() {
-            if (_manager == null) {
-                return;
-            }
-            
-            _manager.CancelCommands(Priority);
         }
     }
 }
