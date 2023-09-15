@@ -167,7 +167,7 @@ namespace GameFramework.CommandSystems {
                 }
                 
                 // 実行開始
-                if (command.Start()) {
+                if (command.Start() && command.CurrentState == CommandState.Executing) {
                     _standbyCommands.RemoveAt(i);
                     _executingCommands.Add(command);
                     executingDirty = true;
