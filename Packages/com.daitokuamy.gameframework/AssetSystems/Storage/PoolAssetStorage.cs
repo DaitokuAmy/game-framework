@@ -58,7 +58,7 @@ namespace GameFramework.AssetSystems {
                 return cacheInfo.handle;
             }
 
-            // キャッシュがない場合、LoadingStatusObserverを使って読み込み
+            // キャッシュがない場合、読み込んでキャッシュ管理
             cacheInfo = new CacheInfo();
             cacheInfo.handle = LoadAssetAsyncInternal(request);
             _cacheInfos[address] = cacheInfo;
