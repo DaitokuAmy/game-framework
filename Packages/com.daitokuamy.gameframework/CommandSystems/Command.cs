@@ -64,6 +64,11 @@ namespace GameFramework.CommandSystems {
         /// </summary>
         /// <returns>trueを返すと継続</returns>
         bool ICommand.Update() {
+            if (_currentState == CommandState.Standby) {
+                StandbyUpdateInternal();
+                return false;
+            }
+            
             if (_currentState != CommandState.Executing) {
                 return false;
             }
@@ -129,6 +134,12 @@ namespace GameFramework.CommandSystems {
         /// </summary>
         /// <param name="scope">Finishで消えるScope</param>
         protected virtual void StartInternal(IScope scope) {
+        }
+
+        /// <summary>
+        /// 実行待機状態の更新処理
+        /// </summary>
+        protected virtual void StandbyUpdateInternal() {
         }
 
         /// <summary>
