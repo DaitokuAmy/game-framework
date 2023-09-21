@@ -255,9 +255,7 @@ namespace GameFramework.ProjectileSystems {
             instance.Start(projectile);
 
             // Raycastの生成
-            var raycastCollision = (IRaycastCollision)(instance.RaycastRadius > float.Epsilon
-                ? new SphereRaycastCollision(projectile.Position, projectile.Position, instance.RaycastRadius)
-                : new LineRaycastCollision(projectile.Position, projectile.Position));
+            var raycastCollision = default(IRaycastCollision);
             var collisionHandle = new CollisionHandle();
             var lastHitPoint = default(Vector3?);
 
@@ -276,6 +274,11 @@ namespace GameFramework.ProjectileSystems {
                 onExit?.Invoke();
             });
 
+            // Raycastの生成
+            raycastCollision = instance.RaycastRadius > float.Epsilon
+                ? new SphereRaycastCollision(projectile.Position, projectile.Position, instance.RaycastRadius)
+                : new LineRaycastCollision(projectile.Position, projectile.Position);
+            
             // コリジョン登録
             collisionHandle = _collisionManager.Register(raycastCollision, hitLayerMask, customData, result => {
                 if (checkHitFunc != null && !checkHitFunc.Invoke(result)) {
@@ -416,24 +419,30 @@ namespace GameFramework.ProjectileSystems {
             instance.SetLocalScale(scale);
             instance.Start(projectile);
 
-            // Raycastの生成
-            var raycastCollision = (IRaycastCollision)(instance.RaycastRadius > float.Epsilon
-                ? new SphereRaycastCollision(projectile.TailPosition, projectile.HeadPosition, instance.RaycastRadius)
-                : new LineRaycastCollision(projectile.TailPosition, projectile.HeadPosition));
+            // Raycast用データ
+            var raycastCollision = default(IRaycastCollision);
             var collisionHandle = new CollisionHandle();
 
             // Projectileを再生
             var projectileHandle = _projectilePlayer.Play(projectile, layeredTime, prj => {
                 instance.UpdateProjectile(prj);
-                raycastCollision.Start = prj.TailPosition;
-                raycastCollision.End = prj.HeadPosition;
-                raycastCollision.IsActive = prj.IsSolid;
+                if (raycastCollision != null) {
+                    raycastCollision.Start = prj.TailPosition;
+                    raycastCollision.End = prj.HeadPosition;
+                    raycastCollision.IsActive = prj.IsSolid;
+                }
+
                 onUpdatedTransform?.Invoke(prj.HeadPosition, prj.TailPosition, prj.Rotation);
             }, () => {
                 collisionHandle.Dispose();
                 instance.Exit();
                 onExit?.Invoke();
             });
+
+            // Raycastの生成
+            raycastCollision = instance.RaycastRadius > float.Epsilon
+                ? new SphereRaycastCollision(projectile.TailPosition, projectile.HeadPosition, instance.RaycastRadius)
+                : new LineRaycastCollision(projectile.TailPosition, projectile.HeadPosition);
 
             // コリジョン登録
             collisionHandle = _collisionManager.Register(raycastCollision, hitLayerMask, customData, result => {
