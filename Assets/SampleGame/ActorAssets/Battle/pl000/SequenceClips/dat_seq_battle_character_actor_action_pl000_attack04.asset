@@ -37,7 +37,7 @@ MonoBehaviour:
   m_Name: RepeatSequenceClipRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30EA\u30D4\u30FC\u30C8"
-  active: 1
+  active: 0
   enterTime: 0.6333333
   exitTime: 2.05
   sequenceClips:
@@ -524,19 +524,19 @@ MonoBehaviour:
   m_Name: BattleThrowableProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u9060\u8DDD\u96E2\u653B\u6483(\u6295\u64F2\u7269)"
-  active: 0
-  time: 0.65
+  active: 1
+  time: 0.73333335
   hitCount: 1
   prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
   scale: 1
-  locatorName: 
+  locatorName: Hand_C
   offsetPosition:
     useRandom: 0
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   offsetAngles:
     useRandom: 0
-    minValue: {x: 0, y: 0, z: 0}
+    minValue: {x: -10, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   emptyRange: 50
   raycastDamage: 1
@@ -548,15 +548,20 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   projectileContext:
-    startPoint: {x: 0, y: 1, z: 1}
-    startVelocity: {x: 0, y: 5, z: 5}
+    startSpeed:
+      useRandom: 1
+      minValue: 10
+      maxValue: 15
     gravity: 9.8
     reflectLayerMask:
       serializedVersion: 2
       m_Bits: 1
     cor: 0.5
     radius: 0.1
-    duration: 3
+    duration:
+      useRandom: 0
+      minValue: 3
+      maxValue: 0
     roll: 0
 --- !u!114 &8940707502685451561
 MonoBehaviour:

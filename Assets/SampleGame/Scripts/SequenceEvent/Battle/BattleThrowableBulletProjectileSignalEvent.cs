@@ -1,3 +1,4 @@
+using GameFramework.Core;
 using GameFramework.ProjectileSystems;
 using UnityEngine;
 
@@ -19,12 +20,14 @@ namespace SampleGame.Battle {
         /// </summary>
         protected override IBulletProjectile GetProjectile(Transform baseTransform, BattleThrowableBulletProjectileSignalEvent sequenceEvent) {
             var context = sequenceEvent.projectileContext;
+            var startPoint = sequenceEvent.offsetPosition.Rand();
+            var startRotation = Quaternion.Euler(sequenceEvent.offsetAngles.Rand());
             if (baseTransform != null) {
-                context.startPoint = baseTransform.TransformPoint(context.startPoint);
-                context.startVelocity = baseTransform.TransformVector(context.startVelocity);
+                startPoint = baseTransform.TransformPoint(startPoint);
+                startRotation = baseTransform.rotation * startRotation;
             }
 
-            return new ThrowableBulletProjectile(context);
+            return new ThrowableBulletProjectile(startPoint, startRotation, context);
         }
     }
 }

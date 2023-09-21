@@ -1,4 +1,5 @@
 using System;
+using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -12,10 +13,9 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         [Serializable]
         public struct Context {
-            [Tooltip("開始座標")]
-            public Vector3 startPoint;
-            [Tooltip("初速度")]
-            public Vector3 startVelocity;
+            [FormerlySerializedAs("startVelocity")]
+            [Tooltip("初速")]
+            public MinMaxFloat startSpeed;
             [Tooltip("重力加速度")]
             public float gravity;
             [Tooltip("反射するオブジェクトのレイヤーマスク")]
@@ -25,14 +25,14 @@ namespace GameFramework.ProjectileSystems {
             [Tooltip("半径")]
             public float radius;
             [Tooltip("終了時間")]
-            public float duration;
-            [FormerlySerializedAs("tilt")]
+            public MinMaxFloat duration;
             [Tooltip("オブジェクトの傾き")]
             public float roll;
         }
 
         private readonly Vector3 _startPoint;
-        private readonly Vector3 _startVelocity;
+        private readonly Quaternion _startRotation;
+        private readonly float _startSpeed;
         private readonly float _gravity;
         private readonly int _reflectLayerMask;
         private readonly float _cor;
@@ -56,21 +56,23 @@ namespace GameFramework.ProjectileSystems {
         /// コンストラクタ
         /// </summary>
         /// <param name="startPoint">始点</param>
-        /// <param name="startVelocity">初速度</param>
+        /// <param name="startRotation">向き</param>
+        /// <param name="startSpeed">初速</param>
         /// <param name="gravity">重力加速度</param>
         /// <param name="reflectLayerMask">反射対象のレイヤーマスク</param>
         /// <param name="cor">反発係数</param>
         /// <param name="radius">半径</param>
         /// <param name="duration">終了時間</param>
         /// <param name="roll">オブジェクトの傾き</param>
-        public ThrowableBulletProjectile(Vector3 startPoint, Vector3 startVelocity, float gravity, int reflectLayerMask, float cor, float radius, float duration, float roll) {
+        public ThrowableBulletProjectile(Vector3 startPoint, Quaternion startRotation, MinMaxFloat startSpeed, float gravity, int reflectLayerMask, float cor, float radius, MinMaxFloat duration, float roll) {
             _startPoint = startPoint;
-            _startVelocity = startVelocity;
+            _startRotation = startRotation;
+            _startSpeed = startSpeed.Rand();
             _gravity = gravity;
             _reflectLayerMask = reflectLayerMask;
             _cor = Mathf.Max(0, cor);
             _radius = radius;
-            _duration = duration;
+            _duration = duration.Rand();
             _roll = roll;
 
             _raycastHits = new RaycastHit[4];
@@ -79,9 +81,11 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
+        /// <param name="startPoint">始点</param>
+        /// <param name="startRotation">向き</param>
         /// <param name="context">初期化パラメータ</param>
-        public ThrowableBulletProjectile(Context context)
-            : this(context.startPoint, context.startVelocity, context.gravity, context.reflectLayerMask, context.cor, context.radius, context.duration, context.roll) {
+        public ThrowableBulletProjectile(Vector3 startPoint, Quaternion startRotation, Context context)
+            : this(startPoint, startRotation, context.startSpeed, context.gravity, context.reflectLayerMask, context.cor, context.radius, context.duration, context.roll) {
         }
 
         /// <summary>
@@ -90,8 +94,8 @@ namespace GameFramework.ProjectileSystems {
         void IProjectile.Start() {
             _rollRotation = Quaternion.Euler(0.0f, 0.0f, _roll);
             Position = _startPoint;
-            Rotation = Quaternion.LookRotation(_startVelocity) * _rollRotation;
-            _velocity = _startVelocity;
+            Rotation = _startRotation * _rollRotation;
+            _velocity = _startRotation * Vector3.forward * _startSpeed;
             _timer = _duration;
             _stopped = false;
         }
