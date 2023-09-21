@@ -286,9 +286,14 @@ namespace GameFramework.ProjectileSystems {
                 listener.OnHitRaycastCollision(result);
                 if (hitCount >= 0 && result.hitCount >= hitCount) {
                     // 着弾位置に移動してから廃棄する
-                    lastHitPoint = result.raycastHit.point;
-                    instance.SetPosition(lastHitPoint.Value);
-                    projectileHandle.Stop(lastHitPoint);
+                    if (result.raycastHit.distance > float.Epsilon) {
+                        lastHitPoint = result.raycastHit.point;
+                        instance.SetPosition(lastHitPoint.Value);
+                        projectileHandle.Stop(lastHitPoint);
+                    }
+                    else {
+                        projectileHandle.Stop();
+                    }
                 }
             });
 
