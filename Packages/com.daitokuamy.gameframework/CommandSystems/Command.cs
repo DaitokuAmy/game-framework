@@ -60,15 +60,22 @@ namespace GameFramework.CommandSystems {
         }
 
         /// <summary>
+        /// 待機中更新
+        /// </summary>
+        /// <returns>trueを返すと継続</returns>
+        bool ICommand.StandbyUpdate() {
+            if (_currentState != CommandState.Standby) {
+                return false;
+            }
+
+            return StandbyUpdateInternal();
+        }
+
+        /// <summary>
         /// 更新処理
         /// </summary>
         /// <returns>trueを返すと継続</returns>
         bool ICommand.Update() {
-            if (_currentState == CommandState.Standby) {
-                StandbyUpdateInternal();
-                return false;
-            }
-            
             if (_currentState != CommandState.Executing) {
                 return false;
             }
@@ -139,7 +146,8 @@ namespace GameFramework.CommandSystems {
         /// <summary>
         /// 実行待機状態の更新処理
         /// </summary>
-        protected virtual void StandbyUpdateInternal() {
+        protected virtual bool StandbyUpdateInternal() {
+            return true;
         }
 
         /// <summary>

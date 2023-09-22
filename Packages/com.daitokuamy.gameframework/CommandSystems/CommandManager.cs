@@ -155,6 +155,9 @@ namespace GameFramework.CommandSystems {
                     _standbyCommands.RemoveAt(i);
                     continue;
                 }
+                
+                // 待機中更新
+                command.StandbyUpdate();
 
                 // 実行状態に移せるか
                 if (command.Priority < blockPriority) {

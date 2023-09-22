@@ -26,6 +26,12 @@ namespace GameFramework.CommandSystems {
         void Initialize();
 
         /// <summary>
+        /// 待機中更新処理
+        /// </summary>
+        /// <returns>trueを返すと継続</returns>
+        bool StandbyUpdate();
+
+        /// <summary>
         /// 開始処理
         /// </summary>
         /// <returns>trueを返すと実行開始</returns>
