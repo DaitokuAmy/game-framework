@@ -17,6 +17,11 @@ namespace GameFramework.StateSystems {
         // スタック
         private readonly List<TKey> _stack = new();
 
+        // Stateのリセットフラグ
+        private bool _reset;
+        // Stackを使うか
+        private bool _useStack;
+
         // 状態変更通知(Prev > Next)
         public event Action<TKey, TKey> OnChangedState;
 
@@ -37,11 +42,16 @@ namespace GameFramework.StateSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(TKey invalidKey, params TState[] states) {
+        /// <param name="invalidKey">無効なNullキー</param>
+        /// <param name="useStack">スタック機能を使うか</param>
+        /// <param name="states">設定するState情報</param>
+        public void Setup(TKey invalidKey, bool useStack, params TState[] states) {
             Cleanup();
 
             InvalidKey = invalidKey;
             NextKey = invalidKey;
+
+            _useStack = useStack;
 
             foreach (var state in states) {
                 // 無効キーは登録しない
@@ -56,6 +66,15 @@ namespace GameFramework.StateSystems {
 
                 _states[state.Key] = state;
             }
+        }
+
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
+        /// <param name="invalidKey">無効なNullキー</param>
+        /// <param name="states">設定するState情報</param>
+        public void Setup(TKey invalidKey, params TState[] states) {
+            Setup(invalidKey, true, states);
         }
 
         /// <summary>
@@ -75,9 +94,15 @@ namespace GameFramework.StateSystems {
         /// </summary>
         /// <param name="key">Stateキー</param>
         /// <param name="immediate">即時変更するか</param>
-        public void Change(TKey key, bool immediate = false) {
+        /// <param name="force">同じStateだとしても遷移を行うか</param>
+        public void Change(TKey key, bool immediate = false, bool force = false) {
             if (key.Equals(NextKey)) {
-                return;
+                if (force) {
+                    _reset = true;
+                }
+                else {
+                    return;
+                }
             }
 
             // 遷移先登録
@@ -90,14 +115,22 @@ namespace GameFramework.StateSystems {
         }
 
         /// <summary>
+        /// Stateのリセット
+        /// </summary>
+        /// <param name="immediate">即時変更するか</param>
+        public void Reset(bool immediate = false) {
+            Change(CurrentKey, immediate, true);
+        }
+
+        /// <summary>
         /// Stateを戻る
         /// </summary>
         /// <param name="immediate"></param>
         public bool Back(bool immediate = false) {
-            if (_stack.Count <= 0) {
+            if (_stack.Count <= 0 || !_useStack) {
                 return false;
             }
-            
+
             // ひとつ前を遷移先にする
             var nextKey = _stack.Count > 1 ? _stack[_stack.Count - 2] : InvalidKey;
             Change(nextKey, immediate);
@@ -121,19 +154,22 @@ namespace GameFramework.StateSystems {
         public void Update(float deltaTime) {
             var state = default(TState);
             var currentKey = CurrentKey;
-            
+
             // 遷移
-            if (!NextKey.Equals(currentKey)) {
+            if (!NextKey.Equals(currentKey) || _reset) {
+                var reset = _reset;
+                _reset = false;
+
                 // スタックに含まれていた物だった場合はそこまでのスタックをクリア
                 var backIndex = _stack.IndexOf(NextKey);
-                var back = backIndex >= 0;
-                
+                var back = !_reset && backIndex >= 0;
+
                 // 現在のステートを終了
                 if (_states.TryGetValue(currentKey, out state)) {
                     state.OnExit(NextKey, back);
                     _scope.Clear();
                 }
-                
+
                 // スタックをクリア
                 if (back) {
                     for (var i = _stack.Count - 1; i >= backIndex; i--) {
@@ -145,7 +181,10 @@ namespace GameFramework.StateSystems {
                 var prevKey = currentKey;
                 currentKey = NextKey;
                 if (_states.TryGetValue(currentKey, out state)) {
-                    _stack.Add(currentKey);
+                    if (!reset && _useStack) {
+                        _stack.Add(currentKey);
+                    }
+
                     state.OnEnter(prevKey, back, _scope);
                 }
                 else {

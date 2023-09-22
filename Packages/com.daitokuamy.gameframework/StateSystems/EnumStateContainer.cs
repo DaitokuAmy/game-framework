@@ -61,7 +61,7 @@ namespace GameFramework.StateSystems {
         /// <summary>
         /// 初期化処理(enum用)
         /// </summary>
-        public void SetupFromEnum(TKey invalidKey) {
+        public void SetupFromEnum(TKey invalidKey, bool useStack = true) {
             var states = new List<EnumState>();
             foreach (TKey key in Enum.GetValues(typeof(TKey))) {
                 if (key.Equals(invalidKey)) {
@@ -71,7 +71,7 @@ namespace GameFramework.StateSystems {
                 states.Add(new EnumState(key));
             }
 
-            Setup(invalidKey, states.ToArray());
+            Setup(invalidKey, useStack, states.ToArray());
         }
 
         /// <summary>
