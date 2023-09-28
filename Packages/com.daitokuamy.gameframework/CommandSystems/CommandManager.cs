@@ -92,7 +92,7 @@ namespace GameFramework.CommandSystems {
         }
 
         /// <summary>
-        /// 実行中コマンドのクリア
+        /// コマンドのクリア
         /// </summary>
         public void ClearCommands() {
             // 実行中のコマンドを強制終了
@@ -104,7 +104,9 @@ namespace GameFramework.CommandSystems {
             for (var i = _standbyCommands.Count - 1; i >= 0; i--) {
                 _standbyCommands[i].Destroy();
             }
-
+            
+            _executingCommands.Clear();
+            _standbyCommands.Clear();
             _standbyDirty = false;
         }
 
@@ -121,6 +123,7 @@ namespace GameFramework.CommandSystems {
                 }
                 
                 _executingCommands[i].Destroy();
+                _executingCommands.RemoveAt(i);
                 OnRemovedCommandAction?.Invoke(command);
             }
             
@@ -132,11 +135,9 @@ namespace GameFramework.CommandSystems {
                 }
                 
                 _standbyCommands[i].Destroy();
+                _standbyCommands.RemoveAt(i);
                 OnRemovedCommandAction?.Invoke(command);
             }
-            
-            _executingCommands.Clear();
-            _standbyCommands.Clear();
         }
 
         /// <summary>
