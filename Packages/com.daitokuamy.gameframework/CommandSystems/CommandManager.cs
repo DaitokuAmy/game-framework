@@ -123,8 +123,6 @@ namespace GameFramework.CommandSystems {
                 }
                 
                 _executingCommands[i].Destroy();
-                _executingCommands.RemoveAt(i);
-                OnRemovedCommandAction?.Invoke(command);
             }
             
             // 実行待機中のコマンドを強制終了
@@ -135,8 +133,6 @@ namespace GameFramework.CommandSystems {
                 }
                 
                 _standbyCommands[i].Destroy();
-                _standbyCommands.RemoveAt(i);
-                OnRemovedCommandAction?.Invoke(command);
             }
         }
 
