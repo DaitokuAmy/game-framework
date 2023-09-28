@@ -2,7 +2,8 @@
     "name": "GameFramework.CommandSystems",
     "rootNamespace": "",
     "references": [
-        "GUID:afebead123e02784da390b52d3e15019"
+        "GUID:afebead123e02784da390b52d3e15019",
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,6 +12,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.neuecc.unirx",
+            "expression": "",
+            "define": "USE_UNI_RX"
+        }
+    ],
     "noEngineReferences": false
 }
