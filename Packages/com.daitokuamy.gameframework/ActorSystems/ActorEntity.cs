@@ -8,10 +8,13 @@ namespace GameFramework.ActorSystems {
     /// </summary>
     public class ActorEntity : IDisposable {
         // 次の生成するEntityのID
-        private static int _nextId = 1;
+        private static int s_nextId = 1;
 
-        // Entity拡張用Component
-        private Dictionary<Type, IComponent> _components = new Dictionary<Type, IComponent>();
+        // コンポーネントリスト
+        private List<IComponent> _components = new();
+        // コンポーネント取得用
+        private Dictionary<Type, IComponent> _componentDict = new();
+
         // EntityのID
         public int Id { get; private set; }
         // Active状態
@@ -21,7 +24,7 @@ namespace GameFramework.ActorSystems {
         /// コンストラクタ
         /// </summary>
         public ActorEntity(bool active = true) {
-            Id = _nextId++;
+            Id = s_nextId++;
             IsActive = active;
         }
 
@@ -37,12 +40,12 @@ namespace GameFramework.ActorSystems {
             IsActive = active;
 
             // ComponentのActive状態変更
-            foreach (var pair in _components) {
+            foreach (var component in _components) {
                 if (active) {
-                    pair.Value.Activate();
+                    component.Activate();
                 }
                 else {
-                    pair.Value.Deactivate();
+                    component.Deactivate();
                 }
             }
         }
@@ -53,7 +56,7 @@ namespace GameFramework.ActorSystems {
         /// <param name="type">取得する型</param>
         public Component GetComponent(Type type) {
             // 型一致での検索
-            if (!_components.TryGetValue(type, out var component)) {
+            if (!_componentDict.TryGetValue(type, out var component)) {
                 return null;
             }
 
@@ -78,7 +81,7 @@ namespace GameFramework.ActorSystems {
                 return null;
             }
 
-            if (_components.ContainsKey(type)) {
+            if (_componentDict.ContainsKey(type)) {
                 Debug.LogError($"Already exists entity component. [{type.Name}]");
                 return null;
             }
@@ -90,7 +93,8 @@ namespace GameFramework.ActorSystems {
             }
 
             var component = (IComponent)constructor.Invoke(Array.Empty<object>());
-            _components[type] = component;
+            _components.Add(component);
+            _componentDict[type] = component;
             component.Attached(this);
             if (IsActive) {
                 component.Activate();
@@ -132,7 +136,8 @@ namespace GameFramework.ActorSystems {
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            foreach (var component in _components.Values) {
+            for (var i = _components.Count - 1; i >= 0; i--) {
+                var component = _components[i];
                 if (IsActive) {
                     component.Deactivate();
                 }
@@ -142,6 +147,7 @@ namespace GameFramework.ActorSystems {
             }
 
             _components.Clear();
+            _componentDict.Clear();
         }
     }
 }
