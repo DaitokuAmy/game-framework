@@ -180,6 +180,9 @@ namespace GameFramework.ActorSystems {
         private PlayingInfo _playingInfo;
         private bool _disposed;
 
+        /// <summary>アクション再生中か</summary>
+        public bool IsPlaying => _playingInfo != null;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
