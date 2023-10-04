@@ -18,7 +18,8 @@ namespace GameFramework.CollisionSystems {
         /// </summary>
         /// <param name="layerMask">当たり判定の対象とするLayerMask</param>
         /// <param name="newHitResults">新しくヒットしたRaycastHit結果格納用リスト</param>
-        bool Tick(int layerMask, List<RaycastHit> newHitResults);
+        /// <param name="workRaycastBuffer">判定時のAlloc抑制用バッファ</param>
+        bool Tick(int layerMask, List<RaycastHit> newHitResults, RaycastHit[] workRaycastBuffer);
 
         /// <summary>
         /// 現在のEndをStartにして、Endを進める

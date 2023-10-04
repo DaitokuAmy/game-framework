@@ -28,6 +28,10 @@ namespace GameFramework.CollisionSystems {
         /// <param name="hitResults">判定格納用配列</param>
         /// <returns>衝突有効数</returns>
         protected override int HitCheck(int layerMask, Collider[] hitResults) {
+            if (Physics.CheckSphere(Center, Radius, layerMask)) {
+                
+            }
+            
             return Physics.OverlapSphereNonAlloc(Center, Radius, hitResults, layerMask);
         }
 

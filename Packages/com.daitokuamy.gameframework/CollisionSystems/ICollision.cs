@@ -16,7 +16,8 @@ namespace GameFramework.CollisionSystems {
         /// </summary>
         /// <param name="layerMask">当たり判定の対象とするLayerMask</param>
         /// <param name="newColliderResults">新しくヒットしたCollider結果格納用リスト</param>
-        bool Tick(int layerMask, List<Collider> newColliderResults);
+        /// <param name="collisionBuffer">当たり判定のAlloc軽減用固定バッファ</param>
+        bool Tick(int layerMask, List<Collider> newColliderResults, Collider[] collisionBuffer);
 
         /// <summary>
         /// 衝突履歴のクリア

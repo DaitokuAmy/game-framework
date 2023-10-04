@@ -52,6 +52,11 @@ namespace GameFramework.CollisionSystems {
 
             bool ICollisionInfo.IsValid => !destroy && collision != null;
         }
+        
+        // Collision判定時のワーク領域
+        private int _collisionResultBufferSize = 0;
+        private Collider[] _workCollisionBuffer = Array.Empty<Collider>();
+        private RaycastHit[] _workRaycastBuffer = Array.Empty<RaycastHit>();
 
         // 更新モード
         private UpdateMode _updateMode;
@@ -63,17 +68,34 @@ namespace GameFramework.CollisionSystems {
         private List<RaycastCollisionInfo> _raycastCollisionInfos = new List<RaycastCollisionInfo>();
 
         // 結果格納用ワーク
-        private List<Collider> _workResults = new List<Collider>();
+        private List<Collider> _workCollisionResults = new List<Collider>();
         private List<RaycastHit> _workRaycastResults = new List<RaycastHit>();
+        
+        /// <summary>当たり判定時の結果格納用バッファサイズ</summary>
+        public int CollisionResultBufferSize {
+            get => _collisionResultBufferSize;
+            set {
+                var max = Mathf.Max(0, value);
+                if (_collisionResultBufferSize == max) {
+                    return;
+                }
+
+                _collisionResultBufferSize = max;
+                _workCollisionBuffer = new Collider[_collisionResultBufferSize];
+                _workRaycastBuffer = new RaycastHit[_collisionResultBufferSize];
+            }
+        }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="updateMode">更新モード</param>
         /// <param name="layeredTime">時間軸用</param>
-        public CollisionManager(UpdateMode updateMode = UpdateMode.LateUpdate, LayeredTime layeredTime = null) {
+        /// <param name="collisionResultBufferSize">当たり判定検出時の固定バッファーサイズ</param>
+        public CollisionManager(UpdateMode updateMode = UpdateMode.LateUpdate, LayeredTime layeredTime = null, int collisionResultBufferSize = 32) {
             _updateMode = updateMode;
             _layeredTime = layeredTime;
+            CollisionResultBufferSize = collisionResultBufferSize;
         }
 
         /// <summary>
@@ -264,7 +286,7 @@ namespace GameFramework.CollisionSystems {
             var hitResult = new HitResult();
             for (var i = 0; i < _collisionInfos.Count; i++) {
                 var info = _collisionInfos[i];
-                _workResults.Clear();
+                _workCollisionResults.Clear();
                 
                 // 自動削除Timerを更新
                 if (info.timer >= 0.0f) {
@@ -273,14 +295,14 @@ namespace GameFramework.CollisionSystems {
                 }
 
                 // ヒット判定
-                if (!info.collision.Tick(info.layerMask, _workResults)) {
+                if (!info.collision.Tick(info.layerMask, _workCollisionResults, _workCollisionBuffer)) {
                     continue;
                 }
 
                 // 衝突が発生していたら通知する
                 hitResult.center = info.collision.Center;
                 hitResult.customData = info.customData;
-                foreach (var result in _workResults) {
+                foreach (var result in _workCollisionResults) {
                     hitResult.collider = result;
                     info.listener?.OnHitCollision(hitResult);
                 }
@@ -316,7 +338,7 @@ namespace GameFramework.CollisionSystems {
                 }
 
                 // ヒット判定
-                if (!info.collision.Tick(info.layerMask, _workRaycastResults)) {
+                if (!info.collision.Tick(info.layerMask, _workRaycastResults, _workRaycastBuffer)) {
                     continue;
                 }
 

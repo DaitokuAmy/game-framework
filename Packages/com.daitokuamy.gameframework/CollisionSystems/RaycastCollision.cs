@@ -6,12 +6,6 @@ namespace GameFramework.CollisionSystems {
     /// レイキャストコリジョンクラスの基底
     /// </summary>
     public abstract class RaycastCollision : IRaycastCollision {
-        // 結果格納最大数
-        private const int ResultCountMax = 8;
-
-        // 当たり判定受け取り用の配列
-        private static readonly RaycastHit[] s_workResults = new RaycastHit[ResultCountMax];
-
         // 衝突済みのCollider
         private readonly List<Collider> _hitColliders = new List<Collider>();
 
@@ -51,19 +45,19 @@ namespace GameFramework.CollisionSystems {
         /// <summary>
         /// 更新処理
         /// </summary>
-        bool IRaycastCollision.Tick(int layerMask, List<RaycastHit> newHitResults) {
+        bool IRaycastCollision.Tick(int layerMask, List<RaycastHit> newHitResults, RaycastHit[] workRaycastBuffer) {
             if (!IsActive) {
                 return false;
             }
             
-            var count = HitCheck(layerMask, s_workResults);
+            var count = HitCheck(layerMask, workRaycastBuffer);
             if (count <= 0) {
                 return false;
             }
 
             // ヒストリー分は除外して結果を作成
             for (var i = 0; i < count; i++) {
-                var result = s_workResults[i];
+                var result = workRaycastBuffer[i];
                 if (_hitColliders.Contains(result.collider)) {
                     continue;
                 }
