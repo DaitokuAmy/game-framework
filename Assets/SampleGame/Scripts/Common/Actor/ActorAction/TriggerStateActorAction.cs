@@ -19,6 +19,8 @@ namespace SampleGame {
         public int index = 0;
         [Tooltip("最後のステート名")]
         public string lastStateName = "Last";
+        [Tooltip("最後のステートタグ")]
+        public string lastTag = "";
         [Tooltip("シーケンスクリップ情報")]
         public SequenceClip[] sequenceClips;
 

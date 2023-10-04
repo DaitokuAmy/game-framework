@@ -17,6 +17,8 @@ namespace SampleGame {
         public float inBlend = 0.1f;
         [Tooltip("最後のステート名")]
         public string lastStateName = "Last";
+        [Tooltip("最後のステートタグ")]
+        public string lastTag = "";
         [Tooltip("シーケンスクリップ情報")]
         public SequenceClip[] sequenceClips;
 

@@ -44,22 +44,50 @@ namespace SampleGame {
             }
 
             // 最後のStateが流れ切るのを待つ
-            var enteredLastState = false;
+            var enteredLast = false;
             while (true) {
                 var stateInfo = _playable.GetCurrentAnimatorStateInfo(action.layerIndex);
+                var nextStateInfo = _playable.GetNextAnimatorStateInfo(action.layerIndex);
 
-                // LastStateに入っているか
-                if (stateInfo.IsName(action.lastStateName)) {
-                    enteredLastState = true;
-                    if (stateInfo.normalizedTime >= 1.0f) {
-                        break;
+                // Tag判定
+                if (!string.IsNullOrEmpty(action.lastTag)) {
+                    if (nextStateInfo.fullPathHash != 0) {
+                        if (nextStateInfo.IsTag(action.lastTag)) {
+                            enteredLast = true;
+                        }
+                        else if (enteredLast) {
+                            break;
+                        }
+                    }
+                    else {
+                        if (stateInfo.IsTag(action.lastTag)) {
+                            enteredLast = true;
+                        }
+                        else if (enteredLast) {
+                            break;
+                        }
                     }
                 }
-                // 既にLastStateに入った状態から移ったか
-                else if (enteredLastState) {
-                    break;
+                // StateName判定
+                else if (!string.IsNullOrEmpty(action.lastStateName)) {
+                    if (nextStateInfo.fullPathHash != 0) {
+                        if (nextStateInfo.IsName(action.lastStateName)) {
+                            enteredLast = true;
+                        }
+                        else if (enteredLast) {
+                            break;
+                        }
+                    }
+                    else {
+                        if (stateInfo.IsName(action.lastStateName)) {
+                            enteredLast = true;
+                        }
+                        else if (enteredLast) {
+                            break;
+                        }
+                    }
                 }
-                
+
                 yield return null;
             }
         }
