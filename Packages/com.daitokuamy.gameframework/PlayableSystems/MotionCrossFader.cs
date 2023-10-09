@@ -150,6 +150,7 @@ namespace GameFramework.PlayableSystems {
             // 未初期化だった場合は、初期化
             if (component != null && !component.IsInitialized) {
                 component.Initialize(_graph);
+                component.SetSpeed((float)Playable.GetSpeed());
             }
 
             // Graphの更新
@@ -185,6 +186,10 @@ namespace GameFramework.PlayableSystems {
             Playable.SetSpeed(speed);
             
             // コンポーネント更新
+            if (_currentPlayingInfo.component != null) {
+                _currentPlayingInfo.component.SetSpeed(speed);
+            }
+            
             for (var i = 0; i < _outPlayingInfos.Count; i++) {
                 _outPlayingInfos[i].component.SetSpeed(speed);
             }
