@@ -37,9 +37,5 @@ namespace GameFramework.PlayableSystems {
         protected override void DisposeInternal() {
             _controller = null;
         }
-
-        protected override void SetSpeedInternal(float speed) {
-            Debug.Log($"SetSpeed!! {speed}");
-        }
     }
 }
