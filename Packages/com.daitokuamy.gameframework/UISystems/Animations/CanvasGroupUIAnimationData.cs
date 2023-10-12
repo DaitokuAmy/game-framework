@@ -5,6 +5,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// CanvasGroupを操作するシンプルなUIAnimation
     /// </summary>
+    [CreateAssetMenu(fileName = "ui_animation_canvas_group.asset", menuName = "GameFramework/UI Animation/Canvas Group")]
     public class CanvasGroupUIAnimationData : UIAnimationData<CanvasGroupUIAnimationData, CanvasGroupUIAnimationData.Animation> {
         /// <summary>
         /// 再生実行用のAnimationクラス

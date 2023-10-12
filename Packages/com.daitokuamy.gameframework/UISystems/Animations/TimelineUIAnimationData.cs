@@ -6,6 +6,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// UIAnimationをScriptableObjectベースで制御するための基底
     /// </summary>
+    [CreateAssetMenu(fileName = "ui_animation_timeline.asset", menuName = "GameFramework/UI Animation/Timeline")]
     public class TimelineUIAnimationData : UIAnimationData<TimelineUIAnimationData, TimelineUIAnimationData.Animation> {
         /// <summary>
         /// 再生実行用のAnimationクラス
