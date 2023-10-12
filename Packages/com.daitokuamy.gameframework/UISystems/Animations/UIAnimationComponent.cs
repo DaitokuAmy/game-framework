@@ -5,10 +5,16 @@ namespace GameFramework.UISystems {
     /// UIAnimationを再生するためのComponent
     /// </summary>
     public abstract class UIAnimationComponent : MonoBehaviour, IUIAnimation {
+        [SerializeField, Tooltip("表示名")]
+        private string _label = "";
+        
         private bool _initialized;
         
         /// <summary>トータル時間</summary>
         public abstract float Duration { get; }
+
+        /// <summary>表示名</summary>
+        public string Label => _label;
 
         /// <summary>
         /// 時間の設定
