@@ -55,7 +55,7 @@ namespace SampleGame {
         /// <summary>
         /// キャンセル処理
         /// </summary>
-        protected override void CancelActionInternal() {
+        protected override void CancelActionInternal(ClipActorAction action) {
             foreach (var handle in _sequenceHandles) {
                 _sequenceController.Stop(handle);
             }

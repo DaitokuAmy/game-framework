@@ -98,7 +98,7 @@ namespace SampleGame {
         /// <summary>
         /// キャンセル処理
         /// </summary>
-        protected override void CancelActionInternal() {
+        protected override void CancelActionInternal(TriggerStateActorAction action) {
             foreach (var handle in _sequenceHandles) {
                 _sequenceController.Stop(handle);
             }

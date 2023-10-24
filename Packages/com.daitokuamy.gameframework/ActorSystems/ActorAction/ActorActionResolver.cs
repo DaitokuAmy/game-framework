@@ -54,6 +54,7 @@ namespace GameFramework.ActorSystems {
         where TActorAction : class, IActorAction {
         private bool _initialized;
         private bool _isPlaying;
+        private TActorAction _currentAction;
         
         /// <summary>時間管理用</summary>
         protected LayeredTime LayeredTime { get; private set; }
@@ -100,18 +101,20 @@ namespace GameFramework.ActorSystems {
             }
 
             _isPlaying = true;
+            _currentAction = rawAction as TActorAction;
         }
 
         /// <summary>
         /// Actionの再生ルーチン
         /// </summary>
         IEnumerator IActorActionResolver.PlayActionRoutine(IActorAction rawAction, object[] args) {
-            var action = rawAction as TActorAction;
-            if (action != null) {
+            _currentAction = rawAction as TActorAction;
+            if (_currentAction != null) {
                 // Actionの再生
-                yield return PlayActionRoutineInternal(action, args);
+                yield return PlayActionRoutineInternal(_currentAction, args);
             }
             
+            _currentAction = null;
             _isPlaying = false;
         }
 
@@ -134,9 +137,11 @@ namespace GameFramework.ActorSystems {
                 return;
             }
 
+            var currentAction = _currentAction;
+            _currentAction = null;
             _isPlaying = false;
 
-            CancelActionInternal();
+            CancelActionInternal(currentAction);
         }
 
         /// <summary>
@@ -156,7 +161,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// アクションのキャンセル処理
         /// </summary>
-        protected virtual void CancelActionInternal() {
+        protected virtual void CancelActionInternal(TActorAction action) {
         }
     }
 }

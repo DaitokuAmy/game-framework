@@ -92,12 +92,16 @@ namespace SampleGame {
         /// <summary>
         /// キャンセル処理
         /// </summary>
-        protected override void CancelActionInternal() {
+        protected override void CancelActionInternal(SequentialClipActorAction action) {
             foreach (var handle in _sequenceHandles) {
                 _sequenceController.Stop(handle);
             }
 
             _sequenceHandles.Clear();
+
+            foreach (var clip in action.cancelSequenceClips) {
+                _sequenceController.Play(clip);
+            }
         }
 
         /// <summary>
