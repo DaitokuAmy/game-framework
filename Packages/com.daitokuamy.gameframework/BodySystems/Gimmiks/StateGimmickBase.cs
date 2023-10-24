@@ -32,14 +32,15 @@ namespace GameFramework.BodySystems {
         /// ステートの変更
         /// </summary>
         /// <param name="stateName">ステート名</param>
-        public sealed override void Change(string stateName) {
+        /// <param name="immediate">即時遷移するか</param>
+        public sealed override void Change(string stateName, bool immediate = false) {
             if (stateName == CurrentStateName) {
                 return;
             }
 
             var prev = FindStateInfo(CurrentStateName);
             var current = FindStateInfo(stateName);
-            ChangeState(prev, current);
+            ChangeState(prev, current, immediate);
             SetCurrentStateName(stateName);
         }
 
@@ -59,7 +60,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="prev">変更前のステート</param>
         /// <param name="current">変更後のステート</param>
-        protected abstract void ChangeState(T prev, T current);
+        /// <param name="immediate">即時遷移するか</param>
+        protected abstract void ChangeState(T prev, T current, bool immediate);
 
         /// <summary>
         /// ステートの検索

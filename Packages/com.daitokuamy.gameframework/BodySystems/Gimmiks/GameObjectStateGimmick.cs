@@ -45,7 +45,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="prev">変更前のステート</param>
         /// <param name="current">変更後のステート</param>
-        protected override void ChangeState(StateInfo prev, StateInfo current) {
+        /// <param name="immediate">即時遷移するか</param>
+        protected override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
             foreach (var target in _allTargets) {
                 target.SetActive(current != null && current.activeTargets.Contains(target));
             }

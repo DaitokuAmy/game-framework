@@ -83,13 +83,14 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="prev">変更前のステート</param>
         /// <param name="current">変更後のステート</param>
-        protected override void ChangeState(StateInfo prev, StateInfo current) {
-            _blendTimer = _currentIndex >= 0 ? _blendDuration : 0.0f;
+        /// <param name="immediate">即時遷移するか</param>
+        protected override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
+            _blendTimer = !immediate && _currentIndex >= 0 ? _blendDuration : 0.0f;
 
             if (_stateInfoToInputIndices.TryGetValue(current, out var index)) {
                 _currentIndex = index;
                 if (!current.clip.isLooping) {
-                    _mixerPlayable.GetInput(index).SetTime(0.0f);
+                    _mixerPlayable.GetInput(index).SetTime(immediate ? current.clip.length : 0.0f);
                 }
             }
             else {

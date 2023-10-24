@@ -56,10 +56,11 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="prev">変更前のステート</param>
         /// <param name="current">変更後のステート</param>
-        protected sealed override void ChangeState(StateInfo prev, StateInfo current) {
+        /// <param name="immediate">即時遷移するか</param>
+        protected sealed override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
             if (current != null) {
                 _targetValue = current.materialValue;
-                _timer = prev != null ? _blendDuration : 0.0f;
+                _timer = !immediate && prev != null ? _blendDuration : 0.0f;
             }
         }
 

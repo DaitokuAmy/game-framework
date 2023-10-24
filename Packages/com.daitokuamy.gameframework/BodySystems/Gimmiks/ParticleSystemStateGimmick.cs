@@ -38,14 +38,15 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="prev">変更前のステート</param>
         /// <param name="current">変更後のステート</param>
-        protected override void ChangeState(StateInfo prev, StateInfo current) {
+        /// <param name="immediate">即時遷移するか</param>
+        protected override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
             if (prev != null) {
                 foreach (var ps in prev.activeParticleSystems) {
                     if (ps == null) {
                         continue;
                     }
                     
-                    ps.Stop(true);
+                    ps.Stop(true, immediate ? ParticleSystemStopBehavior.StopEmittingAndClear : ParticleSystemStopBehavior.StopEmitting);
                 }
             }
             

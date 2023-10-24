@@ -17,14 +17,15 @@ namespace GameFramework.BodySystems {
         /// 初期化後処理
         /// </summary>
         protected override void PostInitializeInternal() {
-            Change(_defaultState);
+            Change(_defaultState, true);
         }
 
         /// <summary>
         /// ステートの変更
         /// </summary>
         /// <param name="stateName">ステート名</param>
-        public abstract void Change(string stateName);
+        /// <param name="immediate">即時遷移するか</param>
+        public abstract void Change(string stateName, bool immediate = false);
 
         /// <summary>
         /// 現在のステート名変更

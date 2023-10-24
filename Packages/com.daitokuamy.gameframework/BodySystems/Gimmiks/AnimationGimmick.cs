@@ -29,6 +29,7 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// 再生
         /// </summary>
+        /// <param name="reverse">反転再生するか</param>
         public void Play(bool reverse = false) {
             _playing = true;
             _reverse = reverse;
@@ -38,6 +39,7 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// 再開
         /// </summary>
+        /// <param name="reverse">反転再生するか</param>
         public void Resume(bool reverse = false) {
             _playing = true;
             _reverse = reverse;

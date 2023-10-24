@@ -6,6 +6,8 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// ActiveGimmickを取得
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
         public static ActiveGimmick[] GetActiveGimmicks(this GimmickController source, string key) {
             return source.GetGimmicks<ActiveGimmick>(key);
         }
@@ -13,6 +15,7 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// Activate操作
         /// </summary>
+        /// <param name="source">操作対象</param>
         public static void Activate(this ActiveGimmick[] source) {
             foreach (var gimmick in source) {
                 gimmick.Activate();
@@ -22,6 +25,7 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// Deactivate操作
         /// </summary>
+        /// <param name="source">操作対象</param>
         public static void Deactivate(this ActiveGimmick[] source) {
             foreach (var gimmick in source) {
                 gimmick.Deactivate();
@@ -31,6 +35,8 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// AnimationGimmickを取得
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
         public static AnimationGimmick[] GetAnimationGimmicks(this GimmickController source, string key) {
             return source.GetGimmicks<AnimationGimmick>(key);
         }
@@ -38,6 +44,8 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// Play操作
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="reverse">反転再生するか</param>
         public static void Play(this AnimationGimmick[] source, bool reverse = false) {
             foreach (var gimmick in source) {
                 gimmick.Play(reverse);
@@ -47,6 +55,8 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// Resume操作
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="reverse">反転再生するか</param>
         public static void Resume(this AnimationGimmick[] source, bool reverse = false) {
             foreach (var gimmick in source) {
                 gimmick.Resume(reverse);
@@ -56,6 +66,8 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// InvokeGimmickを取得
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
         public static InvokeGimmick[] GetInvokeGimmicks(this GimmickController source, string key) {
             return source.GetGimmicks<InvokeGimmick>(key);
         }
@@ -63,6 +75,7 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// Invoke操作
         /// </summary>
+        /// <param name="source">操作対象</param>
         public static void Invoke(this InvokeGimmick[] source) {
             foreach (var gimmick in source) {
                 gimmick.Invoke();
@@ -72,6 +85,8 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// ChangeGimmickを取得
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
         public static ChangeGimmick<T>[] GetChangeGimmicks<T>(this GimmickController source, string key) {
             return source.GetGimmicks<ChangeGimmick<T>>(key);
         }
@@ -79,6 +94,9 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// Change操作
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="val">設定する値</param>
+        /// <param name="duration">反映にかける時間</param>
         public static void Change<T>(this ChangeGimmick<T>[] source, T val, float duration = 0.0f) {
             foreach (var gimmick in source) {
                 gimmick.Change(val, duration);
@@ -88,6 +106,8 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// StateGimmickを取得
         /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
         public static StateGimmick[] GetStateGimmicks(this GimmickController source, string key) {
             return source.GetGimmicks<StateGimmick>(key);
         }
@@ -95,9 +115,12 @@ namespace GameFramework.BodySystems {
         /// <summary>
         /// Change操作
         /// </summary>
-        public static void Change(this StateGimmick[] source, string stateName) {
+        /// <param name="source">操作対象</param>
+        /// <param name="stateName">ステート名</param>
+        /// <param name="immediate">即時遷移するか</param>
+        public static void Change(this StateGimmick[] source, string stateName, bool immediate = false) {
             foreach (var gimmick in source) {
-                gimmick.Change(stateName);
+                gimmick.Change(stateName, immediate);
             }
         }
     }
