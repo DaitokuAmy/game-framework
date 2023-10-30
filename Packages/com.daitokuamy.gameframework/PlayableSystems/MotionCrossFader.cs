@@ -146,10 +146,14 @@ namespace GameFramework.PlayableSystems {
             _currentPlayingInfo.component = component;
             _currentPlayingInfo.time = 0.0f;
             _currentPlayingInfo.blendTimer = blendDuration;
-
-            // 未初期化だった場合は、初期化
-            if (component != null && !component.IsInitialized) {
-                component.Initialize(_graph);
+            
+            if (component != null) {
+                // 未初期化だった場合は、初期化
+                if (!component.IsInitialized) {
+                    component.Initialize(_graph);
+                }
+                
+                // Speedの適用
                 component.SetSpeed((float)Playable.GetSpeed());
             }
 

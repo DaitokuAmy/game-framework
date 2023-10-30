@@ -39,13 +39,26 @@ namespace GameFramework.UISystems {
                 return;
             }
 
+            if (window == null) {
+                Debug.LogError($"Not found window instance. [{this.name}]");
+                return;
+            }
+            
+            Window = window;
+            RectTransform = (RectTransform)transform;
+
+            // Awakeがコールされていない場合はInitializeを実行しない
+            if (!_awaked) {
+                return;
+            }
+
             _initialized = true;
             _scope = new DisposableScope();
             _coroutineRunner = new CoroutineRunner();
-            RectTransform = (RectTransform)transform;
-            Window = window;
 
             InitializeInternal(_scope);
+            
+            Window.RegisterView(this);
         }
 
         /// <summary>
@@ -53,6 +66,10 @@ namespace GameFramework.UISystems {
         /// </summary>
         void IUIView.Start() {
             if (_disposed || _started) {
+                return;
+            }
+
+            if (!_initialized) {
                 return;
             }
 
@@ -67,6 +84,10 @@ namespace GameFramework.UISystems {
         void IDisposable.Dispose() {
             if (!_initialized || _disposed) {
                 return;
+            }
+            
+            if (Window != null) {
+                Window.UnregisterView(this);
             }
 
             DisposeInternal();
@@ -110,21 +131,6 @@ namespace GameFramework.UISystems {
             }
 
             return (T)views[0];
-        }
-
-        /// <summary>
-        /// 管理化に入れたUIViewを削除する
-        /// </summary>
-        protected void DestroyView(UIView child) {
-            if (child == null) {
-                return;
-            }
-
-            if (child.Window != null) {
-                child.Window.UnregisterView(child);
-            }
-            
-            Destroy(child.gameObject);
         }
 
         /// <summary>
@@ -179,20 +185,18 @@ namespace GameFramework.UISystems {
         /// </summary>
         private void Awake() {
             _awaked = true;
+            
+            // Initializeの後に呼び出されている可能性があるため、初期化を改めて実行
+            if (Window != null) {
+                var view = (IUIView)this;
+                view.Initialize(Window);
+            }
         }
 
         /// <summary>
         /// 廃棄時処理
         /// </summary>
         private void OnDestroy() {
-            if (Window != null) {
-                // todo:Awakeが走らない状態で登録されるUIViewがあるため、一旦ここでさらえておく
-                var components = GetComponentsInChildren<UIView>(true);
-                foreach (var component in components) {
-                    Window.UnregisterView(component);
-                }
-            }
-
             ((IDisposable)this).Dispose();
         }
     }

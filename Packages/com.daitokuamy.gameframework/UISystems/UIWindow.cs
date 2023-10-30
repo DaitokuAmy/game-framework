@@ -50,7 +50,7 @@ namespace GameFramework.UISystems {
             // すでに含まれているViewを登録する
             var views = GetComponentsInChildren<IUIView>(true);
             foreach (var view in views) {
-                RegisterView(view);
+                view.Initialize(this);
             }
 
             InitializeInternal(_scope);
@@ -67,7 +67,8 @@ namespace GameFramework.UISystems {
             DisposeInternal();
 
             _disposed = true;
-            foreach (var view in _uiViews) {
+            for (var i = _uiViews.Count - 1; i >= 0; i--) {
+                var view = _uiViews[i];
                 view.Dispose();
             }
 
@@ -116,8 +117,7 @@ namespace GameFramework.UISystems {
             if (_uiViews.Contains(view)) {
                 return;
             }
-
-            view.Initialize(this);
+            
             _uiViews.Add(view);
             _dirtyChildren = true;
         }
