@@ -53,6 +53,7 @@ namespace GameFramework.UISystems {
             }
 
             _initialized = true;
+            
             _scope = new DisposableScope();
             _coroutineRunner = new CoroutineRunner();
 
@@ -90,9 +91,10 @@ namespace GameFramework.UISystems {
                 Window.UnregisterView(this);
             }
 
-            DisposeInternal();
-
             _disposed = true;
+
+            DisposeInternal();
+            
             _coroutineRunner.Dispose();
             _scope.Dispose();
         }

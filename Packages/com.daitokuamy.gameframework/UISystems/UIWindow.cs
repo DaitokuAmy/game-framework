@@ -126,9 +126,7 @@ namespace GameFramework.UISystems {
         /// Viewの登録解除
         /// </summary>
         internal void UnregisterView(IUIView view) {
-            if (_uiViews.Remove(view)) {
-                view.Dispose();
-            }
+            _uiViews.Remove(view);
         }
 
         /// <summary>
