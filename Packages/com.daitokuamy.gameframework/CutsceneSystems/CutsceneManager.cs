@@ -346,6 +346,15 @@ namespace GameFramework.CutsceneSystems {
         }
 
         /// <summary>
+        /// シーンタイプのカットシーンを初期化(非アクティブ化)
+        /// </summary>
+        /// <param name="scene">再生対象のScene</param>
+        public void Setup(Scene scene) {
+            var playingInfo = CreatePlayingInfo(scene, null, false);
+            playingInfo.Dispose();
+        }
+
+        /// <summary>
         /// インスタンスの取得(再生はコールせずに自分でハンドリングする)
         /// ※使用が終わった場合、HandleをDisposeしてください
         /// </summary>
