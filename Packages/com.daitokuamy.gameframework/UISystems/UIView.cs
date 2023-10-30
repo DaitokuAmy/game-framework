@@ -127,7 +127,7 @@ namespace GameFramework.UISystems {
             var instance = Instantiate(origin.gameObject, parent, worldPositionSpace);
             var views = instance.GetComponentsInChildren<UIView>(true);
             foreach (var view in views) {
-                Window.RegisterView(view);
+                ((IUIView)view).Initialize(Window);
             }
 
             return (T)views[0];
