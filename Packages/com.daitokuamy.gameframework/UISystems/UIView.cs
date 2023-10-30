@@ -189,10 +189,6 @@ namespace GameFramework.UISystems {
                 // todo:Awakeが走らない状態で登録されるUIViewがあるため、一旦ここでさらえておく
                 var components = GetComponentsInChildren<UIView>(true);
                 foreach (var component in components) {
-                    if (component._awaked) {
-                        continue;
-                    }
-                    
                     Window.UnregisterView(component);
                 }
             }
