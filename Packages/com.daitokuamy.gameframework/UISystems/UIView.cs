@@ -11,6 +11,8 @@ namespace GameFramework.UISystems {
     /// UIViewクラス
     /// </summary>
     public class UIView : MonoBehaviour, IUIView {
+        // Awakeフラグ
+        private bool _awaked = false;
         // 初期化済みフラグ
         private bool _initialized = false;
         // 開始済みフラグ
@@ -111,6 +113,21 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// 管理化に入れたUIViewを削除する
+        /// </summary>
+        protected void DestroyView(UIView child) {
+            if (child == null) {
+                return;
+            }
+
+            if (child.Window != null) {
+                child.Window.UnregisterView(child);
+            }
+            
+            Destroy(child.gameObject);
+        }
+
+        /// <summary>
         /// 独自コルーチンの開始
         /// </summary>
         protected Coroutine StartCoroutine(IEnumerator enumerator, Action onCompleted = null,
@@ -158,11 +175,26 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// 生成時処理
+        /// </summary>
+        private void Awake() {
+            _awaked = true;
+        }
+
+        /// <summary>
         /// 廃棄時処理
         /// </summary>
         private void OnDestroy() {
             if (Window != null) {
-                Window.UnregisterView(this);
+                // todo:Awakeが走らない状態で登録されるUIViewがあるため、一旦ここでさらえておく
+                var components = GetComponentsInChildren<UIView>(true);
+                foreach (var component in components) {
+                    if (component._awaked) {
+                        continue;
+                    }
+                    
+                    Window.UnregisterView(component);
+                }
             }
 
             ((IDisposable)this).Dispose();
