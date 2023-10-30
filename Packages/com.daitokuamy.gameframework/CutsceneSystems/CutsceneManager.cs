@@ -350,8 +350,7 @@ namespace GameFramework.CutsceneSystems {
         /// </summary>
         /// <param name="scene">再生対象のScene</param>
         public void Setup(Scene scene) {
-            var playingInfo = CreatePlayingInfo(scene, null, false);
-            playingInfo.Dispose();
+            GetCutsceneInfo(scene);
         }
 
         /// <summary>
