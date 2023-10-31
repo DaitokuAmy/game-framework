@@ -22,7 +22,7 @@ namespace GameFramework.CoroutineSystems {
             private Exception _exception;
             private bool _isCompleted;
 
-            private bool IsDone => _isCanceled || _exception != null || _isCompleted;
+            public bool IsDone => _isCanceled || _exception != null || _isCompleted;
 
             /// <summary>
             /// 完了処理
@@ -189,6 +189,12 @@ namespace GameFramework.CoroutineSystems {
             for (var i = 0; i < _coroutineInfos.Count; i++) {
                 var coroutineInfo = _coroutineInfos[i];
                 var coroutine = coroutineInfo.coroutine;
+
+                // すでに完了しているCoroutineの場合はそのまま除外
+                if (coroutineInfo.IsDone) {
+                    _cachedRemoveIndices.Add(i);
+                    continue;
+                }
 
                 if (!((IEnumerator)coroutine).MoveNext()) {
                     if (coroutine.Exception != null) {
