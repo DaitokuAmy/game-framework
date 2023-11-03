@@ -52,6 +52,10 @@ namespace GameFramework.StateSystems {
             NextKey = invalidKey;
 
             _useStack = useStack;
+            if (!_useStack) {
+                // Stackを使わない場合、StackをCurrentKeyとして使用
+                _stack.Add(InvalidKey);
+            }
 
             foreach (var state in states) {
                 // 無効キーは登録しない
@@ -181,15 +185,25 @@ namespace GameFramework.StateSystems {
                 var prevKey = currentKey;
                 currentKey = NextKey;
                 if (_states.TryGetValue(currentKey, out state)) {
-                    if (!reset && _useStack) {
-                        _stack.Add(currentKey);
+                    if (!reset) {
+                        if (_useStack) {
+                            _stack.Add(currentKey);
+                        }
+                        else {
+                            _stack[0] = currentKey;
+                        }
                     }
 
                     state.OnEnter(prevKey, back, _scope);
                 }
                 else {
                     // 遷移先がInvalidKeyの場合、Stackを全部削除
-                    _stack.Clear();
+                    if (_useStack) {
+                        _stack.Clear();
+                    }
+                    else {
+                        _stack[0] = InvalidKey;
+                    }
                 }
 
                 OnChangedState?.Invoke(prevKey, currentKey);
