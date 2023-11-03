@@ -11,8 +11,8 @@ namespace GameFramework.CommandSystems {
         private DisposableScope _startScope;
 
         /// <summary>現在状態</summary>
-        CommandState ICommand.CurrentState => _currentState;
-
+        public CommandState CurrentState => _currentState;
+        
         /// <summary>優先順位(0以上, 高いほうが優先度高)</summary>
         public virtual int Priority => 0;
         /// <summary>スタンバイ中の他Commandの実行をBlockするか</summary>
