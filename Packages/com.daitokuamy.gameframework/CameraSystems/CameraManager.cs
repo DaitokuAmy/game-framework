@@ -386,8 +386,6 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="prefab">CameraGroupを含むPrefab</param>
         public void RegisterCameraGroup(GameObject prefab) {
-            Initialize();
-            
             if (prefab == null) {
                 Debug.LogError("Camera group prefab is null");
                 return;
@@ -415,9 +413,19 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// カメラグループの登録解除
         /// </summary>
-        public void UnregisterCameraGroup(GameObject prefab) {
-            Initialize();
+        public void UnregisterCameraGroup(CameraGroup cameraGroupPrefab) {
+            if (cameraGroupPrefab == null) {
+                Debug.LogError("Camera group prefab is null");
+                return;
+            }
             
+            UnregisterCameraGroup(cameraGroupPrefab.Key);
+        }
+
+        /// <summary>
+        /// カメラグループの登録解除
+        /// </summary>
+        public void UnregisterCameraGroup(GameObject prefab) {
             if (prefab == null) {
                 Debug.LogError("Camera group prefab is null");
                 return;
