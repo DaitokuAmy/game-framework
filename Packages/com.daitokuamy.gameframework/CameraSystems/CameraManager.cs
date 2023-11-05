@@ -134,6 +134,7 @@ namespace GameFramework.CameraSystems {
         /// カメラグループ情報
         /// </summary>
         private class CameraGroupInfo {
+            public GameObject prefab;
             public CameraGroup cameraGroup;
             public Dictionary<string, CameraHandler> handlers = new();
         }
@@ -349,19 +350,12 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// CameraGroupの登録
         /// </summary>
-        /// <param name="cameraGroupPrefab">CameraGroupを含むPrefab</param>
-        public void RegisterCameraGroup(CameraGroup cameraGroupPrefab) {
+        /// <param name="cameraGroup">登録するCameraGroup(Prefabではない)</param>
+        public void RegisterCameraGroup(CameraGroup cameraGroup) {
             Initialize();
             
-            if (cameraGroupPrefab == null) {
-                Debug.LogError("Camera group prefab is null");
-                return;
-            }
-            
-            var cameraGroup = Instantiate(cameraGroupPrefab, _virtualCameraRoot.transform, false);
-            if (cameraGroup == null || cameraGroup.CameraRoot == null) {
-                Destroy(cameraGroup.gameObject);
-                Debug.LogError($"Invalid camera group. [{cameraGroup.name}]");
+            if (cameraGroup == null) {
+                Debug.LogError("Camera group is null");
                 return;
             }
             
@@ -372,6 +366,7 @@ namespace GameFramework.CameraSystems {
             }
             
             // 登録処理
+            cameraGroup.gameObject.SetActive(true);
             cameraGroup.name = cameraGroup.Key;
             var groupInfo = new CameraGroupInfo();
             groupInfo.cameraGroup = cameraGroup;
@@ -385,14 +380,22 @@ namespace GameFramework.CameraSystems {
         /// CameraGroupの登録
         /// </summary>
         /// <param name="prefab">CameraGroupを含むPrefab</param>
-        public void RegisterCameraGroup(GameObject prefab) {
+        public void RegisterCameraGroupPrefab(GameObject prefab) {
             if (prefab == null) {
                 Debug.LogError("Camera group prefab is null");
                 return;
             }
 
-            var cameraGroupPrefab = prefab.GetComponent<CameraGroup>();
-            RegisterCameraGroup(cameraGroupPrefab);
+            var gameObj = Instantiate(prefab, _virtualCameraRoot.transform, false);
+            var cameraGroup = gameObj.GetComponent<CameraGroup>();
+            if (cameraGroup == null || cameraGroup.CameraRoot == null) {
+                Destroy(cameraGroup.gameObject);
+                Debug.LogError($"Invalid camera group. [{cameraGroup.name}]");
+                return;
+            }
+            
+            // CameraGroupの登録
+            RegisterCameraGroup(cameraGroup);
         }
 
         /// <summary>
@@ -404,7 +407,12 @@ namespace GameFramework.CameraSystems {
             if (_cameraGroupInfos.TryGetValue(key, out var info)) {
                 ClearCameraHandlersInternal(info.handlers);
                 if (info.cameraGroup != null) {
-                    Destroy(info.cameraGroup.gameObject);
+                    if (info.prefab != null) {
+                        Destroy(info.cameraGroup.gameObject);
+                    }
+                    else {
+                        info.cameraGroup.gameObject.SetActive(false);
+                    }
                 }
                 _cameraGroupInfos.Remove(key);
             }
@@ -413,13 +421,13 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// カメラグループの登録解除
         /// </summary>
-        public void UnregisterCameraGroup(CameraGroup cameraGroupPrefab) {
-            if (cameraGroupPrefab == null) {
+        public void UnregisterCameraGroup(CameraGroup cameraGroup) {
+            if (cameraGroup == null) {
                 Debug.LogError("Camera group prefab is null");
                 return;
             }
             
-            UnregisterCameraGroup(cameraGroupPrefab.Key);
+            UnregisterCameraGroup(cameraGroup.Key);
         }
 
         /// <summary>

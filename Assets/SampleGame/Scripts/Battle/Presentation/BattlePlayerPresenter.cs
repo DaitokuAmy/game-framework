@@ -69,7 +69,7 @@ namespace SampleGame.Battle {
             
             // Camera登録
             if (_model.ActorModel.SetupData.cameraGroupPrefab != null) {
-                cameraManager.RegisterCameraGroup(_model.ActorModel.SetupData.cameraGroupPrefab);
+                cameraManager.RegisterCameraGroupPrefab(_model.ActorModel.SetupData.cameraGroupPrefab);
             }
             
             // SequenceEvent登録
