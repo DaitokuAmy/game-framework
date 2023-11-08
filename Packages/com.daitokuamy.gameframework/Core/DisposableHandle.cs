@@ -42,6 +42,7 @@ namespace GameFramework.Core {
             }
             
             _content.Dispose();
+            _content = null;
         }
     }
 }
