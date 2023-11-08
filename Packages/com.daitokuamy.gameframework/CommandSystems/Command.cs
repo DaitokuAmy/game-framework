@@ -175,7 +175,7 @@ namespace GameFramework.CommandSystems {
         /// </summary>
         /// <param name="exception">設定しておく例外</param>
         protected void Cancel(Exception exception = null) {
-            if (_currentState != CommandState.Executing) {
+            if (_currentState != CommandState.Standby && _currentState != CommandState.Executing) {
                 return;
             }
             
