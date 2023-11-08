@@ -15,6 +15,9 @@ namespace GameFramework.Core {
     /// Disposableを管理するHandle
     /// </summary>
     public struct DisposableHandle : IDisposable {
+        /// <summary>無効なハンドル</summary>
+        public static readonly DisposableHandle Empty = new();
+        
         /// <summary>有効なハンドルか</summary>
         public bool IsValid => _content?.IsValid ?? false;
         /// <summary>廃棄済みか</summary>
