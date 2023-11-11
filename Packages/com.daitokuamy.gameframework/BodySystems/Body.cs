@@ -25,6 +25,7 @@ namespace GameFramework.BodySystems {
 
         // 標準利用されるControllerのキャッシュ
         private LocatorController _locatorController;
+        private PropertyController _propertyController;
         private ParentController _parentController;
         private MeshController _meshController;
 
@@ -259,6 +260,76 @@ namespace GameFramework.BodySystems {
         }
 
         /// <summary>
+        /// Floatパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="defaultValue">見つからなかったときの値</param>
+        public float GetFloatProperty(string key, float defaultValue = 0.0f) {
+            return _propertyController.GetFloatProperty(key, defaultValue);
+        }
+
+        /// <summary>
+        /// Intパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="defaultValue">見つからなかったときの値</param>
+        public int GetIntProperty(string key, int defaultValue = 0) {
+            return _propertyController.GetIntProperty(key, defaultValue);
+        }
+
+        /// <summary>
+        /// Vectorパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="defaultValue">見つからなかったときの値</param>
+        public Vector4 GetVectorProperty(string key, Vector4 defaultValue) {
+            return _propertyController.GetVectorProperty(key, defaultValue);
+        }
+
+        /// <summary>
+        /// Vectorパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        public Vector4 GetVectorProperty(string key) {
+            return GetVectorProperty(key, Vector4.zero);
+        }
+
+        /// <summary>
+        /// Colorパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="defaultValue">見つからなかったときの値</param>
+        public Color GetColorProperty(string key, Color defaultValue) {
+            return _propertyController.GetColorProperty(key, defaultValue);
+        }
+
+        /// <summary>
+        /// Colorパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        public Color GetColorProperty(string key) {
+            return GetColorProperty(key, Color.white);
+        }
+
+        /// <summary>
+        /// Stringパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="defaultValue">見つからなかったときの値</param>
+        public string GetStringProperty(string key, string defaultValue = "") {
+            return _propertyController.GetStringProperty(key, defaultValue);
+        }
+
+        /// <summary>
+        /// Objectパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="defaultValue">見つからなかったときの値</param>
+        public UnityEngine.Object GetObjectProperty(string key, UnityEngine.Object defaultValue = null) {
+            return _propertyController.GetObjectProperty(key, defaultValue);
+        }
+
+        /// <summary>
         /// 初期化処理
         /// </summary>
         void IBody.Initialize() {
@@ -271,6 +342,7 @@ namespace GameFramework.BodySystems {
             }
 
             _locatorController = GetController<LocatorController>();
+            _propertyController = GetController<PropertyController>();
             _parentController = GetController<ParentController>();
             _meshController = GetController<MeshController>();
         }
