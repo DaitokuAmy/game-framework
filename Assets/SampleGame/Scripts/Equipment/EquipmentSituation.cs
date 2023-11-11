@@ -24,6 +24,7 @@ namespace SampleGame {
             var uIManager = Services.Get<UIManager>();
             var uiLoadHandle = uIManager.LoadSceneAsync("ui_equipment");
             uiLoadHandle.ScopeTo(scope);
+            yield return uiLoadHandle;
         }
     }
 }

@@ -8,7 +8,7 @@ namespace SampleGame {
     /// Field用のHudSituation
     /// </summary>
     public class FieldHudNodeSituation : FieldNodeSituation {
-        private SituationTree _situationTree;
+        private SituationFlow _situationFlow;
         
         /// <summary>
         /// コンストラクタ

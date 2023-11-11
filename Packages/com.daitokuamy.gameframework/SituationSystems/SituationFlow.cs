@@ -7,27 +7,26 @@ using UnityEngine;
 
 namespace GameFramework.SituationSystems {
     /// <summary>
-    /// シチュエーション遷移情報格納用ツリー
+    /// シチュエーション遷移情報
     /// </summary>
-    public class SituationTree : IDisposable {
-        private readonly Dictionary<Type, SituationTreeNode> _fallbackNodes = new();
+    public class SituationFlow : IDisposable {
+        private readonly Dictionary<Type, SituationFlowNode> _fallbackNodes = new();
         private CoroutineRunner _coroutineRunner;
 
         /// <summary>ルートとなるNode</summary>
-        public SituationTreeNode RootNode { get; }
-        /// <summary>遷移用コンテナ</summary>
-        public SituationContainer RootContainer { get; }
+        public SituationFlowNode RootNode { get; }
         /// <summary>現在のNode</summary>
-        public SituationTreeNode CurrentNode { get; private set; }
+        public SituationFlowNode CurrentNode { get; private set; }
+        
+        /// <summary>遷移用コンテナ</summary>
+        private SituationContainer RootContainer => RootNode.Container;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="rootSituation">RootとなるSituation</param>
-        /// <param name="rootContainer">RootSituationを管理するためのContainer</param>
-        public SituationTree(Situation rootSituation, SituationContainer rootContainer) {
-            RootContainer = rootContainer;
-            RootNode = new SituationTreeNode(this, rootSituation, RootContainer, null);
+        public SituationFlow(Situation rootSituation) {
+            RootNode = new SituationFlowNode(this, rootSituation, null);
             SetFallbackNode(RootNode);
             _coroutineRunner = new CoroutineRunner();
         }
@@ -61,7 +60,7 @@ namespace GameFramework.SituationSystems {
         public IProcess SetupAsync(Action<Situation> onSetup = null) {
             CurrentNode = RootNode;
             
-            var situation = RootNode.GetSituation();
+            var situation = RootNode.Situation;
             onSetup?.Invoke(situation);
             return RootContainer.Transition(situation,
                 new SituationContainer.TransitionOption {
@@ -103,9 +102,9 @@ namespace GameFramework.SituationSystems {
             CurrentNode = nextNode;
 
             // 遷移実行
-            var situation = CurrentNode.GetSituation();
+            var situation = CurrentNode.Situation;
             onSetup?.Invoke(situation);
-            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, false));
+            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, false, overrideTransition, effects));
         }
 
         /// <summary>
@@ -134,18 +133,18 @@ namespace GameFramework.SituationSystems {
             CurrentNode = parentNode;
 
             // 遷移実行
-            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, true));
+            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, true, overrideTransition, effects));
         }
 
         /// <summary>
         /// FallbackNodeの設定
         /// </summary>
-        public void SetFallbackNode(SituationTreeNode node) {
+        public void SetFallbackNode(SituationFlowNode node) {
             if (node == null) {
                 return;
             }
 
-            var situation = node.GetSituation();
+            var situation = node.Situation;
             if (situation == null) {
                 return;
             }
@@ -172,8 +171,8 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 遷移先のNodeを取得
         /// </summary>
-        private SituationTreeNode GetNextNode(Type type) {
-            var nextNode = default(SituationTreeNode);
+        private SituationFlowNode GetNextNode(Type type) {
+            var nextNode = default(SituationFlowNode);
 
             // 現在のNodeの接続先にあればそこに遷移
             if (CurrentNode != null) {
@@ -200,7 +199,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="prevNode"></param>
         /// <param name="nextNode"></param>
         /// <param name="back">戻り遷移か</param>
-        private IEnumerator TransitionNodeRoutine(SituationTreeNode prevNode, SituationTreeNode nextNode, bool back) {
+        private IEnumerator TransitionNodeRoutine(SituationFlowNode prevNode, SituationFlowNode nextNode, bool back, ITransition overrideTransition, ITransitionEffect[] effects) {
             if (prevNode == null) {
                 Debug.LogError("Failed prevNode. prevNode is null.");
                 yield break;
@@ -223,7 +222,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 遷移先NodeとContainerと同じContainerになるまで親をさかのぼる
-            var targetSituation = nextNode.GetSituation();
+            var targetSituation = nextNode.Situation;
             var baseContainer = prevNode.Container;
             var situations = new List<Situation>();
             while (!FindContainer(targetSituation, baseContainer, situations)) {
@@ -245,7 +244,7 @@ namespace GameFramework.SituationSystems {
                     new SituationContainer.TransitionOption {
                         forceBack = back,
                         resetStack = true
-                    });
+                    }, overrideTransition, effects);
             }
         }
     }

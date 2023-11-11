@@ -16,7 +16,7 @@ namespace SampleGame {
     /// </summary>
     public class FieldSceneSituation : SceneSituation {
         // FieldScene内のシチュエーションツリー
-        private SituationTree _situationTree;
+        private SituationFlow _situationFlow;
 
         protected override string SceneAssetPath => "field";
 
@@ -75,7 +75,7 @@ namespace SampleGame {
         /// 終了処理
         /// </summary>
         protected override void CleanupInternal(TransitionHandle handle) {
-            _situationTree = null;
+            _situationFlow = null;
             
             base.CleanupInternal(handle);
         }
@@ -95,7 +95,7 @@ namespace SampleGame {
                 uIManager.GetWindow<FieldHudUIWindow>().DailyDialogTestAsync().Forget();
             }
             
-            _situationTree.Update();
+            _situationFlow.Update();
         }
 
         /// <summary>
@@ -109,12 +109,14 @@ namespace SampleGame {
             var equipmentContainer = new SituationContainer(equipmentSituation);
 
             var hudNodeSituation = new FieldHudNodeSituation();
-            _situationTree = new SituationTree(hudNodeSituation, rootContainer).ScopeTo(scope);
+            rootContainer.PreRegister(hudNodeSituation);
+            _situationFlow = new SituationFlow(hudNodeSituation).ScopeTo(scope);
             
             var equipmentTopNodeSituation = new EquipmentTopNodeSituation();
-            _situationTree.RootNode.Connect(equipmentTopNodeSituation, equipmentContainer);
+            equipmentContainer.PreRegister(equipmentTopNodeSituation);
+            _situationFlow.RootNode.Connect(equipmentTopNodeSituation);
                 
-            yield return _situationTree.SetupAsync();
+            yield return _situationFlow.SetupAsync();
         }
     }
 }

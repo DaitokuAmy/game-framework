@@ -6,37 +6,33 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション遷移情報格納用ツリー用ノード
     /// </summary>
-    public class SituationTreeNode : IDisposable {
-        private readonly Dictionary<Type, SituationTreeNode> _children = new();
+    public class SituationFlowNode : IDisposable {
+        private readonly Dictionary<Type, SituationFlowNode> _children = new();
 
-        private SituationTree _tree;
+        private SituationFlow _flow;
         private Situation _situation;
-        private SituationContainer _container;
-        private SituationTreeNode _parent;
+        private SituationFlowNode _parent;
 
         /// <summary>有効か</summary>
-        public bool IsValid => _tree != null && _situation != null;
-        /// <summary>含有されているContainer</summary>
-        internal SituationContainer Container => _container;
+        public bool IsValid => _flow != null && _situation != null;
+        /// <summary>実行対象のSituation</summary>
+        internal Situation Situation => _situation;
+        /// <summary>Situationが含まれているContainer</summary>
+        internal SituationContainer Container => _situation.ParentContainer;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="tree">SituationNode管理用ツリー</param>
+        /// <param name="flow">SituationNode管理用ツリー</param>
         /// <param name="situation">遷移時に使うSituation</param>
-        /// <param name="container">所属するContainer</param>
         /// <param name="parent">接続親のNode</param>
-        internal SituationTreeNode(SituationTree tree, Situation situation, SituationContainer container, SituationTreeNode parent) {
-            _tree = tree;
+        internal SituationFlowNode(SituationFlow flow, Situation situation, SituationFlowNode parent) {
+            _flow = flow;
             _situation = situation;
-            _container = container;
             _parent = parent;
-            
-            // 事前登録しておく
-            container.PreRegister(_situation);
 
             if (_situation is INodeSituation nodeSituation) {
-                nodeSituation.OnRegisterTree(tree);
+                nodeSituation.OnRegisterTree(flow);
             }
         }
 
@@ -47,12 +43,6 @@ namespace GameFramework.SituationSystems {
             if (!IsValid) {
                 return;
             }
-            
-            // 事前登録解除
-            _container.PreUnregister(_situation);
-            
-            // ContainerのStackにあった場合は除外
-            _container.Remove(_situation);
             
             // 親要素から参照を削除
             if (_parent != null) {
@@ -67,22 +57,20 @@ namespace GameFramework.SituationSystems {
 
             // 登録解除通知
             if (_situation is INodeSituation nodeSituation) {
-                nodeSituation.OnUnregisterTree(_tree);
+                nodeSituation.OnUnregisterTree(_flow);
             }
 
             _parent = null;
             _children.Clear();
-            _container = null;
             _situation = null;
-            _tree = null;
+            _flow = null;
         }
 
         /// <summary>
         /// シチュエーションノードの接続
         /// </summary>
         /// <param name="situation">追加するSituationのインスタンス</param>
-        /// <param name="container">属するコンテナ(無ければ、同一Containerを使用)</param>
-        public SituationTreeNode Connect(Situation situation, SituationContainer container = null) {
+        public SituationFlowNode Connect(Situation situation) {
             var type = situation.GetType();
             
             // 既に同じTypeがあった場合は何もしない
@@ -91,7 +79,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // ノードの追加
-            node = new SituationTreeNode(_tree, situation, container ?? _container, this);
+            node = new SituationFlowNode(_flow, situation, this);
             _children.Add(type, node);
             return node;
         }
@@ -114,24 +102,16 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 遷移に使用するSituationを取得
-        /// </summary>
-        /// <returns></returns>
-        internal Situation GetSituation() {
-            return _situation;
-        }
-
-        /// <summary>
         /// 親のNodeを取得
         /// </summary>
-        internal SituationTreeNode GetParent() {
+        internal SituationFlowNode GetParent() {
             return _parent;
         }
 
         /// <summary>
         /// 該当の型の子Nodeを取得
         /// </summary>
-        internal SituationTreeNode TryGetChild(Type type) {
+        internal SituationFlowNode TryGetChild(Type type) {
             if (!_children.TryGetValue(type, out var child)) {
                 return null;
             }
