@@ -141,6 +141,7 @@ namespace GameFramework.BodySystems {
         /// <param name="gameObject">制御対象のGameObject</param>
         private void BuildDefault(IBody body, GameObject gameObject) {
             body.AddController(new LocatorController());
+            body.AddController(new PropertyController());
             body.AddController(new ParentController());
             body.AddController(new MaterialController());
             body.AddController(new MeshController());

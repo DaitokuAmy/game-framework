@@ -2689,6 +2689,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
       insertIndex: -1
       addedObject: {fileID: 5035031343292014199}
+    - targetCorrespondingSourceObject: {fileID: 100326, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 457568923850684154}
   m_SourcePrefab: {fileID: 100100000, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}
 --- !u!4 &6551939409918923777 stripped
 Transform:
@@ -3850,6 +3853,28 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &457568923850684154
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6551939409919215813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aedf8d356d21bc84db33c2811a993e71, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _floatPropertyInfos:
+  - key: Height
+    value: 1
+  _intPropertyInfos: []
+  _vectorPropertyInfos: []
+  _colorPropertyInfos:
+  - key: Thema
+    value: {r: 1, g: 0, b: 0, a: 1}
+  _stringPropertyInfos: []
+  _objectPropertyInfos: []
 --- !u!137 &6551939409930781837 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 13700014, guid: 8f0565f23a2b58541a475bd3c1393052, type: 3}

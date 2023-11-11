@@ -20,6 +20,12 @@ namespace SampleGame.ModelViewer.Editor {
             private const float FoldoutHeight = 300;
 
             private Body _body;
+            private FoldoutList<string> _floatPropertyFoldoutList;
+            private FoldoutList<string> _intPropertyFoldoutList;
+            private FoldoutList<string> _vectorPropertyFoldoutList;
+            private FoldoutList<string> _colorPropertyFoldoutList;
+            private FoldoutList<string> _stringPropertyFoldoutList;
+            private FoldoutList<string> _objectPropertyFoldoutList;
             private FoldoutList<string> _locatorFoldoutList;
             private FoldoutList<string> _materialFoldoutList;
             private FoldoutList<string> _gimmickFoldoutList;
@@ -34,9 +40,15 @@ namespace SampleGame.ModelViewer.Editor {
             /// 初期化処理
             /// </summary>
             protected override void InitializeInternal(IScope scope) {
-                _locatorFoldoutList = new FoldoutList<string>("Locator Controller");
-                _materialFoldoutList = new FoldoutList<string>("Material Controller");
-                _gimmickFoldoutList = new FoldoutList<string>("Gimmick Controller");
+                _floatPropertyFoldoutList = new FoldoutList<string>("Float Property", useScroll:false);
+                _intPropertyFoldoutList = new FoldoutList<string>("Int Property", useScroll:false);
+                _vectorPropertyFoldoutList = new FoldoutList<string>("Vector Property", useScroll:false);
+                _colorPropertyFoldoutList = new FoldoutList<string>("Color Property", useScroll:false);
+                _stringPropertyFoldoutList = new FoldoutList<string>("String Property", useScroll:false);
+                _objectPropertyFoldoutList = new FoldoutList<string>("Object Property", useScroll:false);
+                _locatorFoldoutList = new FoldoutList<string>("Locator Controller", useScroll:false);
+                _materialFoldoutList = new FoldoutList<string>("Material Controller", useScroll:false);
+                _gimmickFoldoutList = new FoldoutList<string>("Gimmick Controller", useScroll:false);
 
                 var entityManager = Services.Get<ActorManager>();
                 entityManager.PreviewActor
@@ -52,6 +64,17 @@ namespace SampleGame.ModelViewer.Editor {
                     return;
                 }
 
+                // Property
+                var propertyController = _body.GetController<PropertyController>();
+                if (propertyController != null) {
+                    _floatPropertyFoldoutList.OnGUI(propertyController.GetFloatKeys(), (key, _) => { EditorGUILayout.FloatField(key, propertyController.GetFloatProperty(key)); });
+                    _intPropertyFoldoutList.OnGUI(propertyController.GetIntKeys(), (key, _) => { EditorGUILayout.IntField(key, propertyController.GetIntProperty(key)); });
+                    _vectorPropertyFoldoutList.OnGUI(propertyController.GetVectorKeys(), (key, _) => { EditorGUILayout.Vector4Field(key, propertyController.GetVectorProperty(key)); });
+                    _colorPropertyFoldoutList.OnGUI(propertyController.GetColorKeys(), (key, _) => { EditorGUILayout.ColorField(key, propertyController.GetColorProperty(key)); });
+                    _stringPropertyFoldoutList.OnGUI(propertyController.GetStringKeys(), (key, _) => { EditorGUILayout.LabelField(key, propertyController.GetStringProperty(key)); });
+                    _objectPropertyFoldoutList.OnGUI(propertyController.GetObjectKeys(), (key, _) => { EditorGUILayout.ObjectField(key, propertyController.GetObjectProperty(key), typeof(Object), false); });
+                }
+
                 // Locator
                 var locatorController = _body.GetController<LocatorController>();
                 if (locatorController != null) {
@@ -62,7 +85,7 @@ namespace SampleGame.ModelViewer.Editor {
                         EditorGUILayout.LabelField("Position", locator.position.ToString());
                         EditorGUILayout.LabelField("Angles", locator.transform.eulerAngles.ToString());
                         EditorGUI.indentLevel--;
-                    }, GUILayout.Height(FoldoutHeight));
+                    });
                 }
 
                 // Gimmick
@@ -204,7 +227,7 @@ namespace SampleGame.ModelViewer.Editor {
                         DrawChangeGimmick<Vector4>(key);
                         DrawStateGimmick(key);
                         EditorGUI.indentLevel--;
-                    }, GUILayout.Height(FoldoutHeight));
+                    });
                 }
 
                 // Material
@@ -222,7 +245,7 @@ namespace SampleGame.ModelViewer.Editor {
                         }
 
                         EditorGUI.indentLevel--;
-                    }, GUILayout.Height(FoldoutHeight));
+                    });
                 }
             }
         }

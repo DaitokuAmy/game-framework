@@ -15,8 +15,8 @@ namespace GameFramework.BodySystems {
             public Transform transform;
         }
 
-        [SerializeField, Tooltip("Locatlr情報")]
-        private LocatorInfo[] _locatorInfos = new LocatorInfo[0];
+        [SerializeField, Tooltip("Locator情報")]
+        private LocatorInfo[] _locatorInfos = Array.Empty<LocatorInfo>();
 
         // ロケーター情報
         private Dictionary<string, Transform> _locators;

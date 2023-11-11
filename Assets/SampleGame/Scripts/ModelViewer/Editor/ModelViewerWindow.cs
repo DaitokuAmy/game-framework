@@ -76,14 +76,16 @@ namespace SampleGame.ModelViewer.Editor {
         private class FoldoutList<T> {
             private readonly string _label;
             private bool _open;
+            private bool _useScroll;
             private Vector2 _scroll;
             
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public FoldoutList(string label, bool defaultOpen = true) {
+            public FoldoutList(string label, bool defaultOpen = true, bool useScroll = true) {
                 _label = label;
                 _open = defaultOpen;
+                _useScroll = useScroll;
             }
             
             /// <summary>
@@ -96,12 +98,21 @@ namespace SampleGame.ModelViewer.Editor {
                 _open = EditorGUILayout.ToggleLeft(_label, _open, EditorStyles.boldLabel);
                 if (_open) {
                     // 項目描画
-                    using (var scope = new EditorGUILayout.ScrollViewScope(_scroll, "Box", options)) {
-                        for (var i = 0; i < items.Count; i++) {
-                            onGUIElement.Invoke(items[i], i);
-                        }
+                    if (_useScroll) {
+                        using (var scope = new EditorGUILayout.ScrollViewScope(_scroll, "Box", options)) {
+                            for (var i = 0; i < items.Count; i++) {
+                                onGUIElement.Invoke(items[i], i);
+                            }
 
-                        _scroll = scope.scrollPosition;
+                            _scroll = scope.scrollPosition;
+                        }
+                    }
+                    else {
+                        using (new EditorGUILayout.VerticalScope("Box", options)) {
+                            for (var i = 0; i < items.Count; i++) {
+                                onGUIElement.Invoke(items[i], i);
+                            }
+                        }
                     }
                 }
             }
