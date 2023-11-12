@@ -13,60 +13,49 @@ namespace SampleGame {
     /// EquipmentTopNodeSituation
     /// </summary>
     public class EquipmentTopNodeSituation : FieldNodeSituation {
-        private SituationFlow _situationFlow;
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public EquipmentTopNodeSituation() {
-        }
-
-        /// <summary>
-        /// 読み込み処理
-        /// </summary>
-        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
-            yield return base.LoadRoutineInternal(handle, scope);
-            Debug.Log($"Load completed {GetType().Name}");
-        }
-
         /// <summary>
         /// 初期化処理
         /// </summary>
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
-            Debug.Log($"Setup completed {GetType().Name}");
 
             var window = Services.Get<UIManager>().GetWindow<EquipmentUIWindow>();
-            window.BackButton.OnClickSubject
-                .TakeUntil(scope)
-                .Subscribe(_ => Back());
-            
-            window.TransitionTopAsync(CancellationToken.None).Forget();
+            window.ChangeTopAsync(CancellationToken.None).Forget();
         }
 
         /// <summary>
-        /// 更新処理
+        /// アクティブ時処理
         /// </summary>
-        protected override void UpdateInternal() {
-            base.UpdateInternal();
+        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+            base.ActivateInternal(handle, scope);
+            var uiManager = Services.Get<UIManager>();
+            var window = uiManager.GetWindow<EquipmentUIWindow>();
+            
+            // 戻る
+            window.BackButton.OnClickSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => Back());
 
-            var window = Services.Get<UIManager>().GetWindow<EquipmentUIWindow>();
-
-            if (Input.GetKeyDown(KeyCode.P)) {
-                Back();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Alpha1)) {
-                window.TransitionTopAsync(CancellationToken.None).Forget();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Alpha2)) {
-                window.TransitionArmorListAsync(CancellationToken.None).Forget();
-            }
-
-            if (Input.GetKeyDown(KeyCode.Alpha3)) {
-                window.TransitionWeaponListAsync(CancellationToken.None).Forget();
-            }
+            // 各種画面遷移
+            window.TopScreen.WeaponUIView.OnClickSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => Transition<EquipmentWeaponListNodeSituation>());
+            
+            window.TopScreen.HelmArmorUIView.OnClickSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
+            
+            window.TopScreen.BodyArmorUIView.OnClickSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
+            
+            window.TopScreen.ArmsArmorUIView.OnClickSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
+            
+            window.TopScreen.LegsArmorUIView.OnClickSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
         }
     }
 }

@@ -4,7 +4,7 @@ using GameFramework.Core;
 
 namespace GameFramework.UISystems {
     /// <summary>
-    /// 重ね合わせてScreenを開いていくコンテナ
+    /// 重ね合わせて開いていくUIScreenのコンテナ
     /// </summary>
     public class UIModalContainer : UIScreenContainer {
         private string _currentKey;
@@ -15,17 +15,17 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="childKey">遷移予定のChildを表すキー</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Push(string childKey, bool immediate = false) {
-            var op = new AsyncOperator();
+        public AsyncOperationHandle<UIScreen> Push(string childKey, bool immediate = false) {
+            var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 
             if (nextChildScreen == null) {
-                op.Completed();
+                op.Completed(null);
                 return op;
             }
 
             if (_currentKey == childKey) {
-                op.Completed();
+                op.Completed(nextChildScreen.uiScreen);
                 return op;
             }
             
@@ -37,7 +37,7 @@ namespace GameFramework.UISystems {
 
             // 遷移処理
             var prevUIScreen = FindChild(_currentKey)?.uiScreen;
-            var nextUIScreen = nextChildScreen?.uiScreen;
+            var nextUIScreen = nextChildScreen.uiScreen;
             _currentKey = childKey;
             _stackKeys.Add(childKey);
 
@@ -52,7 +52,7 @@ namespace GameFramework.UISystems {
             }
             
             StartCoroutine(Routine(),
-                () => op.Completed(),
+                () => op.Completed(nextUIScreen),
                 () => op.Aborted(),
                 err => op.Aborted(err));
 
@@ -63,11 +63,11 @@ namespace GameFramework.UISystems {
         /// 一つ閉じる処理
         /// </summary>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Pop(bool immediate = false) {
-            var op = new AsyncOperator();
+        public AsyncOperationHandle<UIScreen> Pop(bool immediate = false) {
+            var op = new AsyncOperator<UIScreen>();
 
             if (string.IsNullOrEmpty(_currentKey)) {
-                op.Completed();
+                op.Completed(null);
                 return op;
             }
             
@@ -94,7 +94,7 @@ namespace GameFramework.UISystems {
             }
             
             StartCoroutine(Routine(),
-                () => op.Completed(),
+                () => op.Completed(nextUIScreen),
                 () => op.Aborted(),
                 err => op.Aborted(err));
 

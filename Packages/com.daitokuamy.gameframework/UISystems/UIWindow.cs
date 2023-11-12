@@ -15,6 +15,8 @@ namespace GameFramework.UISystems {
     public abstract class UIWindow : MonoBehaviour, IUIWindow {
         // 制御対象のUIViewリスト
         private readonly List<IUIView> _uiViews = new();
+        // 登録リクエストされたUIView
+        private readonly List<IUIView> _standbyUIViews = new();
 
         // 初期化済みフラグ
         private bool _initialized = false;
@@ -46,7 +48,7 @@ namespace GameFramework.UISystems {
             _dirtyChildren = true;
 
             CanvasGroup = GetComponent<CanvasGroup>();
-            
+
             // すでに含まれているViewを登録する
             var views = GetComponentsInChildren<IUIView>(true);
             foreach (var view in views) {
@@ -72,6 +74,13 @@ namespace GameFramework.UISystems {
                 view.Dispose();
             }
 
+            for (var i = _standbyUIViews.Count - 1; i >= 0; i--) {
+                var view = _standbyUIViews[i];
+                view.Dispose();
+            }
+
+            _uiViews.Clear();
+            _standbyUIViews.Clear();
             _coroutineRunner.Dispose();
             _scope.Dispose();
         }
@@ -114,11 +123,11 @@ namespace GameFramework.UISystems {
         /// Viewの登録
         /// </summary>
         internal void RegisterView(IUIView view) {
-            if (_uiViews.Contains(view)) {
+            if (_uiViews.Contains(view) || _standbyUIViews.Contains(view)) {
                 return;
             }
-            
-            _uiViews.Add(view);
+
+            _standbyUIViews.Add(view);
             _dirtyChildren = true;
         }
 
@@ -127,6 +136,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         internal void UnregisterView(IUIView view) {
             _uiViews.Remove(view);
+            _standbyUIViews.Remove(view);
         }
 
         /// <summary>
@@ -179,6 +189,13 @@ namespace GameFramework.UISystems {
             }
 
             _dirtyChildren = false;
+
+            // Standby状態になっているViewをUIViewに登録
+            foreach (var view in _standbyUIViews) {
+                _uiViews.Add(view);
+            }
+
+            _standbyUIViews.Clear();
 
             // 全部Start処理を実行する
             foreach (var view in _uiViews) {

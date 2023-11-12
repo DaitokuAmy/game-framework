@@ -43,6 +43,7 @@ namespace SampleGame {
             var uIManager = Services.Get<UIManager>();
             var uiLoadHandle = uIManager.LoadSceneAsync("ui_field");
             uiLoadHandle.ScopeTo(scope);
+            yield return uiLoadHandle;
         }
 
         /// <summary>
@@ -68,7 +69,7 @@ namespace SampleGame {
             bodyManager.RegisterTask(TaskOrder.Body);
             
             // 内部Situationの初期化
-            yield return SetupSituationTreeRoutine(scope);
+            yield return SetupSituationFlowRoutine(scope);
         }
 
         /// <summary>
@@ -91,31 +92,41 @@ namespace SampleGame {
             }
 
             var uIManager = Services.Get<UIManager>();
+            var hudWindow = uIManager.GetWindow<FieldHudUIWindow>();
             if (Input.GetKeyDown(KeyCode.O)) {
-                uIManager.GetWindow<FieldHudUIWindow>().DailyDialogTestAsync().Forget();
+                hudWindow.OpenDailyDialogAsync().Forget();
+            }
+
+            if (Input.GetKeyDown(KeyCode.C)) {
+                hudWindow.BackDialogAsync().Forget();
             }
             
             _situationFlow.Update();
         }
 
         /// <summary>
-        /// 画面遷移用SituationTreeの初期化
+        /// 画面遷移用SituationFlowの初期化
         /// </summary>
-        private IEnumerator SetupSituationTreeRoutine(IScope scope) {
-            var rootContainer = new SituationContainer(this).ScopeTo(scope);
-
-            var equipmentSituation = new EquipmentSituation();
-            rootContainer.PreRegister(equipmentSituation);
-            var equipmentContainer = new SituationContainer(equipmentSituation);
-
-            var hudNodeSituation = new FieldHudNodeSituation();
-            rootContainer.PreRegister(hudNodeSituation);
-            _situationFlow = new SituationFlow(hudNodeSituation).ScopeTo(scope);
+        private IEnumerator SetupSituationFlowRoutine(IScope scope) {
+            // SituationのHierarchy構造を構築
+            var rootContainer = new SituationContainer(this, false).ScopeTo(scope);
+            var equipment = new EquipmentSituation();
+            rootContainer.PreRegister(equipment);
+            var equipmentContainer = new SituationContainer(equipment, false);
+            var fieldHud = new FieldHudNodeSituation();
+            rootContainer.PreRegister(fieldHud);
+            var equipmentTop = new EquipmentTopNodeSituation();
+            equipmentContainer.PreRegister(equipmentTop);
+            var equipmentWeaponList = new EquipmentWeaponListNodeSituation();
+            equipmentContainer.PreRegister(equipmentWeaponList);
+            var equipmentArmorList = new EquipmentArmorListNodeSituation();
+            equipmentContainer.PreRegister(equipmentArmorList);
             
-            var equipmentTopNodeSituation = new EquipmentTopNodeSituation();
-            equipmentContainer.PreRegister(equipmentTopNodeSituation);
-            _situationFlow.RootNode.Connect(equipmentTopNodeSituation);
-                
+            // Situationの遷移関係を構築
+            _situationFlow = new SituationFlow(fieldHud).ScopeTo(scope);
+            var equipmentTopNode = _situationFlow.RootNode.Connect(equipmentTop);
+            equipmentTopNode.Connect(equipmentWeaponList);
+            equipmentTopNode.Connect(equipmentArmorList);
             yield return _situationFlow.SetupAsync();
         }
     }

@@ -4,7 +4,7 @@ using GameFramework.Core;
 
 namespace GameFramework.UISystems {
     /// <summary>
-    /// UIScreenコンテナクラス
+    /// 切り替えて遷移し続けるUIScreenのコンテナ
     /// </summary>
     public class UIPageContainer : UIScreenContainer {
         private string _currentKey;

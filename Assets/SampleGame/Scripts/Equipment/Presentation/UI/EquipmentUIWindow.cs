@@ -11,41 +11,55 @@ namespace SampleGame.Equipment {
     public class EquipmentUIWindow : UIWindow {
         [SerializeField, Tooltip("戻るボタン")]
         private ButtonUIView _backButton;
-        [SerializeField, Tooltip("ページ切り替え用コンテナ")]
-        private UIPageContainer _pageContainer;
+        [SerializeField, Tooltip("シート切り替え用コンテナ")]
+        private UISheetContainer _sheetContainer;
+        
+        [Header("ページスクリーン")]
+        [SerializeField, Tooltip("Top用スクリーン")]
+        private EquipmentTopUIScreen _topUIScreen;
+        [SerializeField, Tooltip("武器リスト用スクリーン")]
+        private EquipmentWeaponListUIScreen _weaponListUIScreen;
+        [SerializeField, Tooltip("防具リスト用スクリーン")]
+        private EquipmentArmorListUIScreen _armorListUIScreen;
 
         /// <summary>戻るボタン</summary>
         public ButtonUIView BackButton => _backButton;
+        /// <summary>トップ画面</summary>
+        public EquipmentTopUIScreen TopScreen => _topUIScreen;
+        /// <summary>武器リスト画面</summary>
+        public EquipmentWeaponListUIScreen WeaponScreen => _weaponListUIScreen;
+        /// <summary>防具リスト画面</summary>
+        public EquipmentArmorListUIScreen ArmorScreen => _armorListUIScreen;
 
         /// <summary>
         /// Top画面に遷移
         /// </summary>
-        public async UniTask TransitionTopAsync(CancellationToken ct) {
-            await _pageContainer.Transition("Top")
+        public async UniTask ChangeTopAsync(CancellationToken ct) {
+            await _sheetContainer.Change("Top", new CrossUiTransition())
                 .ToUniTask(cancellationToken:ct);
         }
 
         /// <summary>
         /// WeaponList画面に遷移
         /// </summary>
-        public async UniTask TransitionWeaponListAsync(CancellationToken ct) {
-            await _pageContainer.Transition("WeaponList")
+        public async UniTask ChangeWeaponListAsync(CancellationToken ct) {
+            await _sheetContainer.Change("WeaponList", new CrossUiTransition())
                 .ToUniTask(cancellationToken:ct);
         }
 
         /// <summary>
         /// ArmorList画面に遷移
         /// </summary>
-        public async UniTask TransitionArmorListAsync(CancellationToken ct) {
-            await _pageContainer.Transition("ArmorList")
+        public async UniTask ChangeArmorListAsync(CancellationToken ct) {
+            await _sheetContainer.Change("ArmorList", new CrossUiTransition())
                 .ToUniTask(cancellationToken:ct);
         }
 
         /// <summary>
         /// 画面を戻す
-        /// </summary
+        /// </summary>
         public async UniTask BackAsync(CancellationToken ct) {
-            await _pageContainer.Back()
+            await _sheetContainer.Clear()
                 .ToUniTask(cancellationToken: ct);
         }
     }

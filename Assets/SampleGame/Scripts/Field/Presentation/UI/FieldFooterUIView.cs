@@ -16,10 +16,10 @@ namespace SampleGame.Field {
         private ButtonUIView _questButton;
 
         /// <summary>装備ボタン押下通知</summary>
-        public IObservable<Unit> OnClickEquipmentButton => _equipmentButton.OnClickSubject;
+        public IObservable<Unit> OnClickEquipmentButtonSubject => _equipmentButton.OnClickSubject;
         /// <summary>ガチャボタン押下通知</summary>
-        public IObservable<Unit> OnClickGachaButton => _gachaButton.OnClickSubject;
+        public IObservable<Unit> OnClickGachaButtonSubject => _gachaButton.OnClickSubject;
         /// <summary>クエストボタン押下通知</summary>
-        public IObservable<Unit> OnClickQuestButton => _questButton.OnClickSubject;
+        public IObservable<Unit> OnClickQuestButtonSubject => _questButton.OnClickSubject;
     }
 }

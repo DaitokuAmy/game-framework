@@ -57,15 +57,12 @@ namespace GameFramework.SituationSystems {
         /// 初期化処理
         /// </summary>
         /// <param name="onSetup">初期化処理</param>
-        public IProcess SetupAsync(Action<Situation> onSetup = null) {
+        /// <param name="transitionEffects">遷移効果</param>
+        public IProcess SetupAsync(Action<Situation> onSetup = null, params ITransitionEffect[] transitionEffects) {
             CurrentNode = RootNode;
-            
             var situation = RootNode.Situation;
             onSetup?.Invoke(situation);
-            return RootContainer.Transition(situation,
-                new SituationContainer.TransitionOption {
-                    resetStack = true
-                });
+            return RootContainer.Transition(situation, transitionEffects);
         }
 
         /// <summary>
@@ -125,7 +122,7 @@ namespace GameFramework.SituationSystems {
 
             var parentNode = CurrentNode.GetParent();
             if (parentNode == null || !parentNode.IsValid) {
-                return RootContainer.Back(new SituationContainer.TransitionOption { resetStack = true, forceBack = true }, overrideTransition, effects);
+                return RootContainer.Back(new SituationContainer.TransitionOption { clearStack = true, forceBack = true }, overrideTransition, effects);
             }
 
             // 親Nodeがあればそこへ遷移
@@ -230,7 +227,7 @@ namespace GameFramework.SituationSystems {
                 yield return baseContainer.Transition(null,
                     new SituationContainer.TransitionOption {
                         forceBack = true,
-                        resetStack = true
+                        clearStack = true
                     });
                 
                 // 親のContainerを遷移対象してリトライ
@@ -243,7 +240,7 @@ namespace GameFramework.SituationSystems {
                 yield return situation.ParentContainer.Transition(situation,
                     new SituationContainer.TransitionOption {
                         forceBack = back,
-                        resetStack = true
+                        clearStack = true
                     }, overrideTransition, effects);
             }
         }

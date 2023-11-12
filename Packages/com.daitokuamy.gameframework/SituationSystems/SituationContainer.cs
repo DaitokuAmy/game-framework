@@ -13,12 +13,12 @@ namespace GameFramework.SituationSystems {
         /// 遷移オプション
         /// </summary>
         public class TransitionOption {
-            /// <summary>スタックをリセットするか</summary>
-            public bool resetStack = false;
+            /// <summary>スタックをクリアするか</summary>
+            public bool clearStack = false;
             /// <summary>強制バック遷移</summary>
             public bool forceBack = false;
         }
-        
+
         /// <summary>
         /// 遷移情報
         /// </summary>
@@ -33,16 +33,79 @@ namespace GameFramework.SituationSystems {
         }
 
         // 子シチュエーションスタック
-        private List<Situation> _stack = new List<Situation>();
+        private readonly List<Situation> _stack = new();
+        // コルーチン実行用
+        private readonly CoroutineRunner _coroutineRunner = new();
+
+        // スタックを利用するか
+        private bool _useStack;
         // 遷移中情報
         private TransitionInfo _transitionInfo;
-        // コルーチン実行用
-        private CoroutineRunner _coroutineRunner = new CoroutineRunner();
 
         // 持ち主のSituation
         public Situation Owner { get; private set; }
         // 現在のシチュエーション
         public Situation Current => _stack.Count > 0 ? _stack[_stack.Count - 1] : null;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public SituationContainer(Situation owner = null, bool useStack = true) {
+            Owner = owner;
+            _useStack = useStack;
+
+            if (Owner != null) {
+                Owner.AddChildContainer(this);
+            }
+        }
+
+        /// <summary>
+        /// 現在のシチュエーションを再構築する(遷移オプション使用不可 = クロス系の同時にライフサイクルが存在する物は使用不可)
+        /// </summary>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Reset(params ITransitionEffect[] effects) {
+            if (Current == null) {
+                return new TransitionHandle(new Exception($"Current situation is null"));
+            }
+            
+            var situationName = Current.GetType().Name;
+
+            if (_transitionInfo != null) {
+                return new TransitionHandle(new Exception($"In transit other. Situation:{situationName}"));
+            }
+
+            var prev = (ISituation)Current;
+            var next = (ISituation)Current;
+
+            // 遷移情報の取得
+            var transition = GetDefaultTransition();
+
+            // 遷移可能チェック
+            if (!CheckTransition(next, transition)) {
+                return new TransitionHandle(new Exception($"Cant transition. Situation:{situationName} Transition:{transition}"));
+            }
+
+            // 遷移情報を生成            
+            _transitionInfo = new TransitionInfo {
+                container = this,
+                back = false,
+                prev = prev,
+                next = next,
+                state = TransitionState.Standby,
+                effects = effects
+            };
+
+            // コルーチンの登録
+            _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => {
+                _transitionInfo = null;
+            });
+
+            // スタンバイ状態
+            _transitionInfo.next.Standby(this);
+
+            // ハンドルの返却
+            return new TransitionHandle(_transitionInfo);
+        }
 
         /// <summary>
         /// 遷移実行
@@ -51,8 +114,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="option">遷移オプション</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition(Situation situation, TransitionOption option, ITransition overrideTransition = null,
-            params ITransitionEffect[] effects) {
+        public TransitionHandle Transition(Situation situation, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             var nextName = situation != null ? situation.GetType().Name : "null";
 
             if (_transitionInfo != null) {
@@ -65,22 +127,24 @@ namespace GameFramework.SituationSystems {
             var reset = false;
 
             if (situation != null) {
-                for (var i = 0; i < _stack.Count; i++) {
-                    // 同じインスタンスは使いまわす
-                    if (_stack[i] == situation) {
-                        backIndex = i;
-                        back = true;
-                        break;
-                    }
-
-                    // 同じ型は置き換える
-                    if (_stack[i].GetType() == situation.GetType()) {
-                        // 同じSituationに遷移しなおす
-                        if (i == _stack.Count - 1) {
-                            reset = true;
+                // Stack利用する場合
+                if (_useStack) {
+                    for (var i = 0; i < _stack.Count; i++) {
+                        // 同じインスタンスは使いまわす
+                        if (_stack[i] == situation) {
+                            backIndex = i;
+                            back = true;
                             break;
                         }
-                        else {
+
+                        // 同じ型は置き換える
+                        if (_stack[i].GetType() == situation.GetType()) {
+                            // 同じSituationに遷移しなおす
+                            if (i == _stack.Count - 1) {
+                                reset = true;
+                                break;
+                            }
+
                             var old = _stack[i];
                             ((ISituation)old).Release(this);
                             _stack[i] = situation;
@@ -110,39 +174,58 @@ namespace GameFramework.SituationSystems {
                 return new TransitionHandle(
                     new Exception($"Cant transition. Situation:{nextName} Transition:{transition}"));
             }
-            
+
             // Stackのリセット
-            if (option != null && option.resetStack) {
+            if (option != null && option.clearStack) {
                 // 1つを残して他はRelease
                 for (var i = _stack.Count - 1; i > 0; i--) {
                     ((ISituation)_stack[i]).Release(this);
                     _stack.RemoveAt(i);
                 }
-                
-                // 残った1つもStackからクリア
+
+                // 残った1つもStackからクリア（遷移時にReleaseするのでここではClearのみ）
                 _stack.Clear();
             }
-            
-            // リセットする場合
-            if (reset && _stack.Count > 0) {
-                // Stackの最後を入れ直す
-                _stack[_stack.Count - 1] = situation;
-            }
-            // 戻る場合
-            else if (back && _stack.Count > 0) {
-                // 現在のSituationをStackから除外
-                _stack.RemoveAt(_stack.Count - 1);
 
-                // 戻り先までの間にあるSituationをリリースして、Stackクリア
-                for (var i = _stack.Count - 1; i > backIndex; i--) {
-                    ((ISituation)_stack[i]).Release(this);
-                    _stack.RemoveAt(i);
+            // Stackを利用する場合
+            if (_useStack) {
+                // リセットする場合
+                if (reset && _stack.Count > 0) {
+                    // Stackの最後を入れ直す
+                    _stack[_stack.Count - 1] = situation;
+                }
+                // 戻る場合
+                else if (back && _stack.Count > 0) {
+                    // 現在のSituationをStackから除外
+                    _stack.RemoveAt(_stack.Count - 1);
+
+                    // 戻り先までの間にあるSituationをリリースして、Stackクリア
+                    for (var i = _stack.Count - 1; i > backIndex; i--) {
+                        ((ISituation)_stack[i]).Release(this);
+                        _stack.RemoveAt(i);
+                    }
+                }
+                // 進む場合
+                else if (situation != null) {
+                    // スタックに登録
+                    _stack.Add(situation);
                 }
             }
-            // 進む場合
-            else if (situation != null) {
-                // スタックに登録
-                _stack.Add(situation);
+            // Stackを利用しない場合
+            else {
+                // 遷移先が有効な場合はStackの先頭に入れる
+                if (situation != null) {
+                    if (_stack.Count <= 0) {
+                        _stack.Add(situation);
+                    }
+                    else {
+                        _stack[_stack.Count - 1] = situation;
+                    }
+                }
+                // 空の遷移であればStackを空にする
+                else {
+                    _stack.Clear();
+                }
             }
 
             // 遷移情報を生成            
@@ -300,10 +383,10 @@ namespace GameFramework.SituationSystems {
                 Back(null, overrideTransition, effects);
                 return;
             }
-            
+
             // Stackから除外
             _stack.Remove(situation);
-            
+
             // リリースする
             ((ISituation)situation).Release(this);
         }
@@ -361,17 +444,6 @@ namespace GameFramework.SituationSystems {
                 if (current != null) {
                     current.LateUpdate();
                 }
-            }
-        }
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public SituationContainer(Situation owner = null) {
-            Owner = owner;
-
-            if (Owner != null) {
-                Owner.AddChildContainer(this);
             }
         }
 

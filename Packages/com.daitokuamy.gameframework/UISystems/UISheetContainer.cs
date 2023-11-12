@@ -3,7 +3,7 @@ using GameFramework.Core;
 
 namespace GameFramework.UISystems {
     /// <summary>
-    /// スタック管理をしないただのScreenを切り替えるコンテナ
+    /// スタック管理をしないただ切り替えるだけのUIScreenのコンテナ
     /// </summary>
     public class UISheetContainer : UIScreenContainer {
         private string _currentKey;
@@ -15,12 +15,12 @@ namespace GameFramework.UISystems {
         /// <param name="transition">遷移方法</param>
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Change(string childKey, IUiTransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
-            var op = new AsyncOperator();
+        public AsyncOperationHandle<UIScreen> Change(string childKey, IUiTransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
+            var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 
             if (_currentKey == childKey) {
-                op.Completed();
+                op.Completed(nextChildScreen.uiScreen);
                 return op;
             }
 
@@ -37,7 +37,7 @@ namespace GameFramework.UISystems {
             _currentKey = childKey;
             
             StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, transitionType, immediate),
-                () => op.Completed(),
+                () => op.Completed(nextUIScreen),
                 () => op.Aborted(),
                 err => op.Aborted(err));
 
@@ -51,7 +51,20 @@ namespace GameFramework.UISystems {
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
         public AsyncOperationHandle Clear(IUiTransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
-            return Change(null, transition, transitionType, immediate);
+            var op = new AsyncOperator();
+            var handle = Change(null, transition, transitionType, immediate);
+            if (handle.IsError) {
+                op.Aborted(handle.Exception);
+                return op;
+            }
+
+            if (handle.IsDone) {
+                op.Completed();
+                return op;
+            }
+            
+            handle.ListenTo(_ => op.Completed(), ex => op.Aborted(ex));
+            return op;
         }
 
         /// <summary>

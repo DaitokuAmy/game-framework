@@ -84,6 +84,7 @@ namespace SampleGame {
             var uIManager = Services.Get<UIManager>();
             var uiLoadHandle = uIManager.LoadSceneAsync("ui_battle");
             uiLoadHandle.ScopeTo(scope);
+            yield return uiLoadHandle;
         }
 
         /// <summary>
@@ -166,6 +167,21 @@ namespace SampleGame {
         }
 
         /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+            base.ActivateInternal(handle, scope);
+            
+            // Backボタン監視
+            var window = Services.Get<UIManager>().GetWindow<BattleHudUIWindow>();
+            window.Button.OnClickAsObservable()
+                .TakeUntil(scope)
+                .Subscribe(_ => {
+                    ParentContainer.Back();
+                });
+        }
+
+        /// <summary>
         /// 更新処理
         /// </summary>
         protected override void UpdateInternal() {
@@ -176,8 +192,13 @@ namespace SampleGame {
                 return;
             }
 
+            if (Input.GetKeyDown(KeyCode.Q)) {
+                ParentContainer.Back();
+                return;
+            }
+
             if (Input.GetKeyDown(KeyCode.R)) {
-                ParentContainer.Transition(new BattleSceneSituation());
+                ParentContainer.Reset();
                 return;
             }
 

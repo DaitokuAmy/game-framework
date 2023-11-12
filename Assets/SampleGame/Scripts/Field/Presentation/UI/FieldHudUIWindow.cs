@@ -27,11 +27,16 @@ namespace SampleGame.Field {
         /// <summary>
         /// デイリーダイアログを開く
         /// </summary>
-        public async UniTask DailyDialogTestAsync() {
-            await _modalContainer.Push("Daily")
+        public UniTask<UIScreen> OpenDailyDialogAsync() {
+            return _modalContainer.Push("Daily")
                 .ToUniTask();
-            await UniTask.WaitUntil(() => Input.GetKeyDown(KeyCode.C));
-            await _modalContainer.Pop()
+        }
+
+        /// <summary>
+        /// ダイアログを一つ閉じる
+        /// </summary>
+        public UniTask BackDialogAsync() {
+            return _modalContainer.Pop()
                 .ToUniTask();
         }
     }
