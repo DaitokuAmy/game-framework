@@ -299,7 +299,7 @@ namespace GameFramework.ActorSystems {
 
             // Actionの再生
             foundResolver.PrePlayAction(action, args);
-            var coroutine = new Coroutine(foundResolver.PlayActionRoutine(action, args));
+            var coroutine = new Coroutine(foundResolver.PlayActionRoutine(args));
             _playingInfo = new PlayingInfo(action, foundResolver, coroutine, () => onFinishAction?.Invoke(action));
             return new Handle(_playingInfo);
         }

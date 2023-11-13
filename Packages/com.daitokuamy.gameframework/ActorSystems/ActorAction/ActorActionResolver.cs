@@ -34,7 +34,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// Actionの再生ルーチン
         /// </summary>
-        IEnumerator PlayActionRoutine(IActorAction rawAction, object[] args);
+        IEnumerator PlayActionRoutine(object[] args);
 
         /// <summary>
         /// Actionの遷移
@@ -102,13 +102,13 @@ namespace GameFramework.ActorSystems {
 
             _isPlaying = true;
             _currentAction = rawAction as TActorAction;
+            StartInternal(_currentAction, args);
         }
 
         /// <summary>
         /// Actionの再生ルーチン
         /// </summary>
-        IEnumerator IActorActionResolver.PlayActionRoutine(IActorAction rawAction, object[] args) {
-            _currentAction = rawAction as TActorAction;
+        IEnumerator IActorActionResolver.PlayActionRoutine(object[] args) {
             if (_currentAction != null) {
                 // Actionの再生
                 yield return PlayActionRoutineInternal(_currentAction, args);
@@ -142,6 +142,12 @@ namespace GameFramework.ActorSystems {
             _isPlaying = false;
 
             CancelActionInternal(currentAction);
+        }
+
+        /// <summary>
+        /// 開始処理(Playの瞬間実行される)
+        /// </summary>
+        protected virtual void StartInternal(TActorAction action, object[] args) {
         }
 
         /// <summary>
