@@ -351,7 +351,8 @@ namespace GameFramework.CameraSystems {
         /// CameraGroupの登録
         /// </summary>
         /// <param name="cameraGroup">登録するCameraGroup(Prefabではない)</param>
-        public void RegisterCameraGroup(CameraGroup cameraGroup) {
+        /// <param name="overrideGroupKey">上書き用登録する際のキー</param>
+        public void RegisterCameraGroup(CameraGroup cameraGroup, string overrideGroupKey = null) {
             Initialize();
             
             if (cameraGroup == null) {
@@ -359,18 +360,20 @@ namespace GameFramework.CameraSystems {
                 return;
             }
             
+            var groupKey = string.IsNullOrEmpty(overrideGroupKey) ? cameraGroup.Key : overrideGroupKey;
+            
             // カメラグループの登録
-            if (_cameraGroupInfos.ContainsKey(cameraGroup.Key)) {
+            if (_cameraGroupInfos.ContainsKey(groupKey)) {
                 // すでにあった場合は登録解除して上書き
-                UnregisterCameraGroup(cameraGroup.Key);
+                UnregisterCameraGroup(groupKey);
             }
             
             // 登録処理
             cameraGroup.gameObject.SetActive(true);
-            cameraGroup.name = cameraGroup.Key;
+            cameraGroup.name = groupKey;
             var groupInfo = new CameraGroupInfo();
             groupInfo.cameraGroup = cameraGroup;
-            _cameraGroupInfos[cameraGroup.Key] = groupInfo;
+            _cameraGroupInfos[groupKey] = groupInfo;
             
             // CameraHandlerの生成
             CreateCameraHandlersInternal(groupInfo.handlers, cameraGroup.CameraRoot.transform);
