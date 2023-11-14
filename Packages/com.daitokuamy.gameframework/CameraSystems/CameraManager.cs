@@ -383,7 +383,8 @@ namespace GameFramework.CameraSystems {
         /// CameraGroupの登録
         /// </summary>
         /// <param name="prefab">CameraGroupを含むPrefab</param>
-        public void RegisterCameraGroupPrefab(GameObject prefab) {
+        /// <param name="overrideGroupKey">上書き用登録する際のキー</param>
+        public void RegisterCameraGroupPrefab(GameObject prefab, string overrideGroupKey = null) {
             if (prefab == null) {
                 Debug.LogError("Camera group prefab is null");
                 return;
@@ -398,7 +399,7 @@ namespace GameFramework.CameraSystems {
             }
             
             // CameraGroupの登録
-            RegisterCameraGroup(cameraGroup);
+            RegisterCameraGroup(cameraGroup, overrideGroupKey);
         }
 
         /// <summary>
