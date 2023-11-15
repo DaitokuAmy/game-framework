@@ -30,6 +30,7 @@ namespace GameFramework.CameraSystems {
             _camera.enabled = false;
             _target.m_Lens.NearClipPlane = _camera.nearClipPlane;
             _target.m_Lens.FarClipPlane = _camera.farClipPlane;
+            _target.m_Lens.GateFit = _camera.gateFit;
 
             if (_camera.orthographic) {
                 _target.m_Lens.Orthographic = true;
