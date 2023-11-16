@@ -36,6 +36,8 @@ namespace GameFramework.SituationSystems {
         private readonly List<Situation> _stack = new();
         // コルーチン実行用
         private readonly CoroutineRunner _coroutineRunner = new();
+        // プリロードしているSituationリスト
+        private readonly List<Situation> _preloadSituations = new();
 
         // スタックを利用するか
         private bool _useStack;
@@ -349,7 +351,8 @@ namespace GameFramework.SituationSystems {
         /// <param name="situation">プリロード対象のSituation</param>
         public void PreLoad(Situation situation) {
             var target = (ISituation)situation;
-            if (!target.PreLoaded) {
+            if (target.PreLoadState == PreLoadState.None) {
+                _preloadSituations.Add(situation);
                 target.Standby(this);
                 _coroutineRunner.StartCoroutine(target.PreLoadRoutine());
             }
@@ -361,13 +364,15 @@ namespace GameFramework.SituationSystems {
         /// <param name="situation">プリロード解除対象のSituation</param>
         public void UnPreLoad(Situation situation) {
             var target = (ISituation)situation;
-            if (target.PreLoaded) {
+            if (target.PreLoadState != PreLoadState.None) {
                 target.UnPreLoad();
 
                 // StackになければReleaseする
                 if (!_stack.Contains(situation)) {
                     target.Release(this);
                 }
+
+                _preloadSituations.Remove(situation);
             }
         }
 
@@ -458,6 +463,12 @@ namespace GameFramework.SituationSystems {
                 situation.UnPreLoad();
                 situation.PreUnregister(this);
                 situation.Release(this);
+            }
+            
+            // PreLoad状態の物をUnPreLoad
+            var preloadSituations = _preloadSituations.ToArray();
+            foreach (var situation in preloadSituations) {
+                UnPreLoad(situation);
             }
 
             // Stackの中身を全部クリア
@@ -583,7 +594,7 @@ namespace GameFramework.SituationSystems {
             }
 
             var handle = new TransitionHandle(_transitionInfo);
-            yield return _transitionInfo.next.LoadRoutine(handle);
+            yield return _transitionInfo.next.LoadRoutine(handle, false);
             yield return _transitionInfo.next.SetupRoutine(handle);
         }
 

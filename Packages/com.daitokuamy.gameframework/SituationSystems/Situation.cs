@@ -12,6 +12,7 @@ namespace GameFramework.SituationSystems {
         public enum State {
             Invalid = -1,
             Standby, // 待機状態
+            Loading, // 読み込み中
             Loaded, // 読み込み済
             SetupFinished, // 初期化済
             Active, // アクティブ中
@@ -39,8 +40,8 @@ namespace GameFramework.SituationSystems {
         public State CurrentState { get; private set; } = State.Invalid;
         /// <summary>コンテナ登録されているか</summary>
         public bool PreRegistered { get; private set; } = false;
-        /// <summary>プリロードされているか</summary>
-        public bool PreLoaded { get; private set; } = false;
+        /// <summary>プリロード状態</summary>
+        public PreLoadState PreLoadState { get; private set; } = PreLoadState.None;
 
         /// <summary>
         /// 更新処理
@@ -121,13 +122,13 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 読み込み処理
         /// </summary>
-        IEnumerator ISituation.LoadRoutine(TransitionHandle handle) {
+        IEnumerator ISituation.LoadRoutine(TransitionHandle handle, bool preload) {
             if (CurrentState >= State.Loaded) {
                 yield break;
             }
 
             // PreLoadしている場合、Loadedになるのを待つ
-            if (PreLoaded) {
+            if (!preload && PreLoadState != PreLoadState.None) {
                 while (CurrentState < State.Loaded) {
                     yield return null;
                 }
@@ -137,6 +138,7 @@ namespace GameFramework.SituationSystems {
 
             _loadScope = new DisposableScope();
             ServiceContainer = new ServiceContainer(Parent?.ServiceContainer ?? Services.Instance);
+            CurrentState = State.Loading;
             yield return LoadRoutineInternal(handle, _loadScope);
             CurrentState = State.Loaded;
         }
@@ -237,7 +239,7 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
-            if (PreLoaded) {
+            if (PreLoadState != PreLoadState.None) {
                 return;
             }
 
@@ -280,7 +282,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // PreLoadはここで終わり
-            if (PreLoaded) {
+            if (PreLoadState != PreLoadState.None) {
                 return;
             }
 
@@ -338,26 +340,26 @@ namespace GameFramework.SituationSystems {
         /// プリロード処理
         /// </summary>
         IEnumerator ISituation.PreLoadRoutine() {
-            if (PreLoaded) {
+            if (PreLoadState != PreLoadState.None) {
                 yield break;
             }
 
+            PreLoadState = PreLoadState.PreLoading;
             var situation = (ISituation)this;
-            PreLoaded = true;
-
-            yield return situation.LoadRoutine(new TransitionHandle());
+            yield return situation.LoadRoutine(new TransitionHandle(), true);
+            PreLoadState = PreLoadState.PreLoaded;
         }
 
         /// <summary>
         /// プリロード解除処理
         /// </summary>
         void ISituation.UnPreLoad() {
-            if (!PreLoaded) {
+            if (PreLoadState == PreLoadState.None) {
                 return;
             }
 
             var situation = (ISituation)this;
-            PreLoaded = false;
+            PreLoadState = PreLoadState.None;
 
             // 稼働中ならUnloadは呼ばない
             if (CurrentState >= State.SetupFinished) {

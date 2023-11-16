@@ -19,8 +19,8 @@ namespace GameFramework.SituationSystems {
     public interface ISituation {
         /// <summary>コンテナ登録されているか</summary>
         bool PreRegistered { get; }
-        /// <summary>プリロードされているか</summary>
-        bool PreLoaded { get; }
+        /// <summary>プリロード状態</summary>
+        PreLoadState PreLoadState { get; }
 
         /// <summary>
         /// 待機処理
@@ -32,7 +32,8 @@ namespace GameFramework.SituationSystems {
         /// 読み込み処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        IEnumerator LoadRoutine(TransitionHandle handle);
+        /// <param name="preload">事前読みか</param>
+        IEnumerator LoadRoutine(TransitionHandle handle, bool preload);
 
         /// <summary>
         /// 初期化処理
