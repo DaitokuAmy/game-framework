@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework.Core;
 using GameFramework.CoroutineSystems;
 
 namespace GameFramework.SituationSystems {
@@ -349,13 +350,25 @@ namespace GameFramework.SituationSystems {
         /// シチュエーションのプリロード
         /// </summary>
         /// <param name="situation">プリロード対象のSituation</param>
-        public void PreLoad(Situation situation) {
+        public AsyncOperationHandle PreLoadAsync(Situation situation) {
             var target = (ISituation)situation;
+            var asyncOp = new AsyncOperator();
             if (target.PreLoadState == PreLoadState.None) {
                 _preloadSituations.Add(situation);
                 target.Standby(this);
-                _coroutineRunner.StartCoroutine(target.PreLoadRoutine());
+                _coroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => {
+                    asyncOp.Completed();
+                }, () => {
+                    asyncOp.Aborted();
+                }, ex => {
+                    asyncOp.Aborted(ex);
+                });
             }
+            else {
+                asyncOp.Completed();
+            }
+
+            return asyncOp;
         }
 
         /// <summary>

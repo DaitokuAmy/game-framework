@@ -14,8 +14,8 @@ namespace SampleGame.SituationSample {
             _rootContainer = new SituationContainer();
             SituationA = new SampleSituationA();
             SituationB = new SampleSituationB();
-            _rootContainer.PreLoad(SituationA);
-            _rootContainer.PreLoad(SituationB);
+            _rootContainer.PreLoadAsync(SituationA);
+            _rootContainer.PreLoadAsync(SituationB);
             _rootContainer.Transition(SituationA);
         }
 
