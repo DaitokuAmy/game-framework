@@ -20,7 +20,7 @@ namespace GameFramework.UISystems {
             var nextChildScreen = FindChild(childKey);
 
             if (_currentKey == childKey) {
-                op.Completed(nextChildScreen.uiScreen);
+                op.Completed(nextChildScreen?.uiScreen);
                 return op;
             }
 
