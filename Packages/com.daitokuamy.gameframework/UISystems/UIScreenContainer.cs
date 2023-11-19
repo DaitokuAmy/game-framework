@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using GameFramework.Core;
 using UnityEngine;
@@ -24,6 +25,22 @@ namespace GameFramework.UISystems {
         private List<ChildScreen> _childScreens = new();
 
         private Dictionary<string, ChildScreen> _cachedChildScreens = new();
+
+        /// <summary>
+        /// 開く処理
+        /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public new AnimationHandle OpenAsync(TransitionType transitionType, bool immediate) {
+            return base.OpenAsync(transitionType, immediate);
+        }
+
+        /// <summary>
+        /// 閉じる処理
+        /// </summary>
+        [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
+        public new AnimationHandle CloseAsync(TransitionType transitionType, bool immediate) {
+            return base.CloseAsync(transitionType, immediate);
+        }
 
         /// <summary>
         /// 子要素の追加
