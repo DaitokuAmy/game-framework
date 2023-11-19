@@ -208,7 +208,7 @@ namespace GameFramework.Core {
         private readonly Exception _exception;
 
         // 完了しているか
-        public bool IsDone => _asyncOperator == null || _asyncOperator.IsDone;
+        public bool IsDone => _asyncOperator == null || _asyncOperator.IsDone || IsError;
         // エラー終了か
         public bool IsError => Exception != null;
         // キャンセル時のエラー
@@ -280,7 +280,7 @@ namespace GameFramework.Core {
         // 結果
         public T Result => _asyncOperator != null ? _asyncOperator.Result : default;
         // 完了しているか
-        public bool IsDone => _asyncOperator == null || _asyncOperator.IsDone;
+        public bool IsDone => _asyncOperator == null || _asyncOperator.IsDone || IsError;
         // エラー終了か
         public bool IsError => Exception != null;
         // キャンセル時のエラー
