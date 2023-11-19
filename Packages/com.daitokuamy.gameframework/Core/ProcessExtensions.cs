@@ -7,9 +7,28 @@ using Cysharp.Threading.Tasks;
 
 namespace GameFramework.Core {
     /// <summary>
+    /// IProcess用のユーティリティ
+    /// </summary>
+    public static class Process {
+        /// <summary>
+        /// IProcessの合成
+        /// </summary>
+        public static IProcess Merge(params IProcess[] processes) {
+            return processes.Merge();
+        }
+        
+        /// <summary>
+        /// IProcessの合成
+        /// </summary>
+        public static IProcess Merge(IEnumerable<IProcess> processes) {
+            return processes.Merge();
+        }
+    }
+    
+    /// <summary>
     /// IProcess用の拡張メソッド
     /// </summary>
-    public static class ProcessExtensions {
+    public static class ProcessExtensions {        
         /// <summary>
         /// IProcessの合成
         /// </summary>
