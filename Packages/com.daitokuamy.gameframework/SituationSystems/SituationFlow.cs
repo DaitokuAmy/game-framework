@@ -17,6 +17,8 @@ namespace GameFramework.SituationSystems {
         public SituationFlowNode RootNode { get; }
         /// <summary>現在のNode</summary>
         public SituationFlowNode CurrentNode { get; private set; }
+        /// <summary>トランジション中か</summary>
+        public bool IsTransitioning { get; private set; }
         
         /// <summary>遷移用コンテナ</summary>
         private SituationContainer RootContainer => RootNode.Container;
@@ -85,6 +87,11 @@ namespace GameFramework.SituationSystems {
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 既に遷移中なら失敗
+            if (IsTransitioning) {
+                return AsyncOperationHandle.CanceledHandle;
+            }
+            
             // 同じ型なら何もしない
             if (CurrentNode != null && CurrentNode.Situation.GetType() == type) {
                 return AsyncOperationHandle.CompletedHandle;
@@ -98,6 +105,9 @@ namespace GameFramework.SituationSystems {
                 Debug.LogException(exception);
                 return AsyncOperator.CreateAbortedOperator(exception).GetHandle();
             }
+            
+            // 遷移中フラグをON
+            IsTransitioning = true;
 
             // 現在のNodeを置き換えて遷移する
             var prevNode = CurrentNode;
@@ -106,7 +116,10 @@ namespace GameFramework.SituationSystems {
             // 遷移実行
             var situation = CurrentNode.Situation;
             onSetup?.Invoke(situation);
-            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, false, overrideTransition, effects));
+            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, false, overrideTransition, effects),
+                () => IsTransitioning = false,
+                () => IsTransitioning = false,
+                ex => IsTransitioning = false);
         }
 
         /// <summary>
@@ -129,13 +142,19 @@ namespace GameFramework.SituationSystems {
             if (parentNode == null || !parentNode.IsValid) {
                 return RootContainer.Back(new SituationContainer.TransitionOption { clearStack = true, forceBack = true }, overrideTransition, effects);
             }
+            
+            // 遷移中フラグをON
+            IsTransitioning = true;
 
             // 親Nodeがあればそこへ遷移
             var prevNode = CurrentNode;
             CurrentNode = parentNode;
 
             // 遷移実行
-            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, true, overrideTransition, effects));
+            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, true, overrideTransition, effects),
+                () => IsTransitioning = false,
+                () => IsTransitioning = false,
+                ex => IsTransitioning = false);
         }
 
         /// <summary>
