@@ -22,7 +22,7 @@ namespace GameFramework.Core {
         /// <summary>完了しているか</summary>
         bool IAsyncStatusProvider.IsDone => _onCheckIsDone?.Invoke() ?? true;
         /// <summary>エラー状態</summary>
-        Exception IAsyncStatusProvider.Exception => _onCheckException?.Invoke() ?? new InvalidOperationException();
+        Exception IAsyncStatusProvider.Exception => _onCheckException?.Invoke();
 
         /// <summary>
         /// コンストラクタ

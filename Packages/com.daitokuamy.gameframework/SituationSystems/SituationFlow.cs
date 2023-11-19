@@ -85,6 +85,11 @@ namespace GameFramework.SituationSystems {
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 同じ型なら何もしない
+            if (CurrentNode != null && CurrentNode.Situation.GetType() == type) {
+                return AsyncOperationHandle.CompletedHandle;
+            }
+            
             // 遷移先Nodeの取得
             var nextNode = GetNextNode(type);
 
