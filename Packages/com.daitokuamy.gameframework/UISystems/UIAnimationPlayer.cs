@@ -28,7 +28,7 @@ namespace GameFramework.UISystems {
             /// <summary>未使用</summary>
             Exception IProcess.Exception => null;
             /// <summary>完了チェック</summary>
-            bool IProcess.IsDone => IsFinished;
+            bool IProcess.IsDone => _playingInfo == null || IsFinished;
 
             /// <summary>
             /// アニメーションスキップ
