@@ -109,18 +109,18 @@ namespace SampleGame {
         /// </summary>
         private IEnumerator SetupSituationFlowRoutine(IScope scope) {
             // SituationのHierarchy構造を構築
-            var rootContainer = new SituationContainer(this, false).ScopeTo(scope);
+            CreateChildContainer(0, false);
             var equipment = new EquipmentSituation();
-            rootContainer.PreRegister(equipment);
-            var equipmentContainer = new SituationContainer(equipment, false);
+            equipment.CreateChildContainer(0, false);
+            RegisterChild(equipment);
             var fieldHud = new FieldHudNodeSituation();
-            rootContainer.PreRegister(fieldHud);
+            RegisterChild(fieldHud);
             var equipmentTop = new EquipmentTopNodeSituation();
-            equipmentContainer.PreRegister(equipmentTop);
+            equipment.RegisterChild(equipmentTop);
             var equipmentWeaponList = new EquipmentWeaponListNodeSituation();
-            equipmentContainer.PreRegister(equipmentWeaponList);
+            equipment.RegisterChild(equipmentWeaponList);
             var equipmentArmorList = new EquipmentArmorListNodeSituation();
-            equipmentContainer.PreRegister(equipmentArmorList);
+            equipment.RegisterChild(equipmentArmorList);
             
             // Situationの遷移関係を構築
             _situationFlow = new SituationFlow(fieldHud).ScopeTo(scope);

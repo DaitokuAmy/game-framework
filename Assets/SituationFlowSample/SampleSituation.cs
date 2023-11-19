@@ -3,8 +3,11 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using UnityEngine;
 
-namespace SampleGame.SituationSample {
-    public class SampleSituationB : Situation {
+namespace SituationFlowSample {
+    /// <summary>
+    /// サンプル用のSituation(Flowの末端にならない物扱い)
+    /// </summary>
+    public abstract class SampleSituation : Situation {
         /// <summary>
         /// 読み込み
         /// </summary>
@@ -24,21 +27,16 @@ namespace SampleGame.SituationSample {
         }
 
         /// <summary>
-        /// 更新処理
+        /// 解放処理
         /// </summary>
-        protected override void UpdateInternal() {
-            base.UpdateInternal();
-
-            if (Input.GetKeyDown(KeyCode.Space)) {
-                ParentContainer.Transition(Services.Get<SituationSample>().SituationA);
-            }
-        }
-
         protected override void CleanupInternal(TransitionHandle handle) {
             Debug.Log($"Cleanup. [{GetType().Name}]");
             base.CleanupInternal(handle);
         }
 
+        /// <summary>
+        /// アンロード処理
+        /// </summary>
         protected override void UnloadInternal(TransitionHandle handle) {
             Debug.Log($"Unload. [{GetType().Name}]");
             base.UnloadInternal(handle);

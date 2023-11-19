@@ -46,5 +46,16 @@ namespace GameFramework.SituationSystems {
             
             return _situationFlow.Back(overrideTransition, effects);
         }
+
+        /// <summary>
+        /// 遷移可能かチェック
+        /// </summary>
+        /// <param name="includeFallback">Fallback対象の型を含めるか</param>
+        /// <typeparam name="T">チェックする型</typeparam>
+        /// <returns>遷移可能か</returns>
+        protected bool CheckTransition<T>(bool includeFallback = true)
+            where T : Situation {
+            return _situationFlow.CheckTransition<T>(includeFallback);
+        }
     }
 }

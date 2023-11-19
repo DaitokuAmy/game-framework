@@ -27,13 +27,15 @@ namespace GameFramework.SituationSystems {
         // アクティブスコープ
         private DisposableScope _activeScope;
 
-        // 子SituationContainerリスト
-        private List<SituationContainer> _childContainers = new();
+        // 子SituationContainer
+        private Dictionary<int, SituationContainer> _childContainers = new();
 
         /// <summary>親のSituation</summary>
         public Situation Parent => ParentContainer?.Owner;
         /// <summary>登録されているContainer</summary>
         public SituationContainer ParentContainer { get; private set; }
+        /// <summary>子階層を登録するためのContainer</summary>
+        public SituationContainer ChildContainer { get; private set; }
         /// <summary>インスタンス管理用</summary>
         public ServiceContainer ServiceContainer { get; private set; }
         /// <summary>現在状態</summary>
@@ -42,58 +44,6 @@ namespace GameFramework.SituationSystems {
         public bool PreRegistered { get; private set; } = false;
         /// <summary>プリロード状態</summary>
         public PreLoadState PreLoadState { get; private set; } = PreLoadState.None;
-
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        public void Update() {
-            if (CurrentState == State.Invalid) {
-                return;
-            }
-
-            // Systemの更新
-            ((ISituation)this).SystemUpdate();
-
-            // UpdateはActive中のみ
-            if (CurrentState == State.Active) {
-                ((ISituation)this).Update();
-            }
-        }
-
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        public void LateUpdate() {
-            if (CurrentState == State.Invalid) {
-                return;
-            }
-
-            // Systemの更新
-            ((ISituation)this).SystemLateUpdate();
-
-            // LateUpdateはActive中のみ
-            if (CurrentState == State.Active) {
-                ((ISituation)this).LateUpdate();
-            }
-        }
-
-        /// <summary>
-        /// 子のSituationContainerの追加
-        /// </summary>
-        internal void AddChildContainer(SituationContainer container) {
-            if (_childContainers.Contains(container)) {
-                return;
-            }
-            
-            _childContainers.Add(container);
-        }
-
-        /// <summary>
-        /// 子のSituationContainerの削除
-        /// </summary>
-        internal void RemoveChildContainer(SituationContainer container) {
-            _childContainers.Remove(container);
-        }
 
         /// <summary>
         /// コンストラクタ
@@ -307,6 +257,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="container">登録するコンテナ</param>
         void ISituation.PreRegister(SituationContainer container) {
             if (PreRegistered) {
+                Debug.LogWarning($"Already pre register situation. [{GetType().Name}]");
                 return;
             }
 
@@ -375,8 +326,8 @@ namespace GameFramework.SituationSystems {
         void ISituation.SystemUpdate() {
             SystemUpdateInternal();
 
-            foreach (var container in _childContainers) {
-                container.Update();
+            foreach (var pair in _childContainers) {
+                pair.Value.Update();
             }
         }
 
@@ -386,8 +337,8 @@ namespace GameFramework.SituationSystems {
         void ISituation.SystemLateUpdate() {
             SystemLateUpdateInternal();
 
-            foreach (var container in _childContainers) {
-                container.LateUpdate();
+            foreach (var pair in _childContainers) {
+                pair.Value.LateUpdate();
             }
         }
 
@@ -492,6 +443,119 @@ namespace GameFramework.SituationSystems {
         /// Active以外も実行される後更新処理(内部用)
         /// </summary>
         protected virtual void SystemLateUpdateInternal() {
+        }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        public void Update() {
+            if (CurrentState == State.Invalid) {
+                return;
+            }
+
+            // Systemの更新
+            ((ISituation)this).SystemUpdate();
+
+            // UpdateはActive中のみ
+            if (CurrentState == State.Active) {
+                ((ISituation)this).Update();
+            }
+        }
+
+        /// <summary>
+        /// 後更新処理
+        /// </summary>
+        public void LateUpdate() {
+            if (CurrentState == State.Invalid) {
+                return;
+            }
+
+            // Systemの更新
+            ((ISituation)this).SystemLateUpdate();
+
+            // LateUpdateはActive中のみ
+            if (CurrentState == State.Active) {
+                ((ISituation)this).LateUpdate();
+            }
+        }
+
+        /// <summary>
+        /// 子Situationの追加
+        /// </summary>
+        /// <param name="containerIndex">ContainerのIndex</param>
+        /// <param name="situation">登録するSituation</param>
+        public void RegisterChild(int containerIndex, Situation situation) {
+            var container = GetChildContainer(containerIndex);
+            if (container == null) {
+                Debug.LogWarning($"Not found child container[{containerIndex}].");
+                return;
+            }
+            
+            container.PreRegister(situation);
+        }
+
+        /// <summary>
+        /// 子Situationの登録
+        /// </summary>
+        /// <param name="situation">登録するSituation</param>
+        public void RegisterChild(Situation situation) {
+            RegisterChild(0, situation);
+        }
+
+        /// <summary>
+        /// 子Situationの登録解除
+        /// </summary>
+        /// <param name="situation">登録解除するSituation</param>
+        public void UnRegisterChild(Situation situation) {
+            foreach (var container in _childContainers.Values) {
+                if (container.ContainsPreRegister(situation)) {
+                    container.PreUnregister(situation);
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 子を登録するためのContainerの取得
+        /// </summary>
+        public SituationContainer GetChildContainer(int index) {
+            if (_childContainers.TryGetValue(index, out var container)) {
+                return container;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 子を登録するためのContainerを生成
+        /// </summary>
+        public T CreateChildContainer<T>(int index, bool useStack = true)
+            where T : SituationContainer, new() {
+            if (_childContainers.TryGetValue(index, out var container)) {
+                container.Dispose();
+            }
+
+            container = new T();
+            container.InitializeInternal(this, useStack);
+            _childContainers.Add(index, container);
+            return (T)container;
+        }
+
+        /// <summary>
+        /// 子を登録するためのContainerを生成
+        /// </summary>
+        public SituationContainer CreateChildContainer(int index, bool useStack = true) {
+            return CreateChildContainer<SituationContainer>(index, useStack);
+        }
+
+        /// <summary>
+        /// 子のSituationContainerの削除
+        /// </summary>
+        public void DestroyChildContainer(int index) {
+            if (_childContainers.TryGetValue(index, out var container)) {
+                container.Dispose();
+                _childContainers.Remove(index);
+            }
         }
     }
 }

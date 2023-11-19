@@ -166,6 +166,35 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// 次の接続先に存在するタイプかチェック
+        /// </summary>
+        /// <param name="type">接続先の型</param>
+        /// <param name="includeFallback">fallbackに設定された物をチェックするか</param>
+        public bool CheckTransition(Type type, bool includeFallback = true) {
+            var nextNode = CurrentNode.TryGetChild(type);
+            if (nextNode != null) {
+                return true;
+            }
+
+            if (includeFallback) {
+                if (_fallbackNodes.TryGetValue(type, out var fallbackNode)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 次の接続先に存在するタイプかチェック
+        /// </summary>
+        /// <param name="includeFallback">fallbackに設定された物をチェックするか</param>
+        public bool CheckTransition<T>(bool includeFallback = true)
+            where T : Situation {
+            return CheckTransition(typeof(T));
+        }
+
+        /// <summary>
         /// 遷移先のNodeを取得
         /// </summary>
         private SituationFlowNode GetNextNode(Type type) {

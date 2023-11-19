@@ -2,7 +2,7 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using UnityEngine;
 
-namespace SampleGame.SituationSample {
+namespace SituationSample {
     public class SituationSample : MonoBehaviour {
         private SituationContainer _rootContainer;
     

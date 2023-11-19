@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
+using UnityEngine;
 
 namespace GameFramework.SituationSystems {
     /// <summary>
@@ -39,6 +40,8 @@ namespace GameFramework.SituationSystems {
         private readonly CoroutineRunner _coroutineRunner = new();
         // プリロードしているSituationリスト
         private readonly List<Situation> _preloadSituations = new();
+        // 事前登録しているSituationリスト
+        private readonly List<Situation> _preRegisterSituations = new();
 
         // スタックを利用するか
         private bool _useStack;
@@ -53,13 +56,23 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationContainer(Situation owner = null, bool useStack = true) {
+        public SituationContainer() {
+            InitializeInternal(null, true);
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public SituationContainer(Situation owner, bool useStack = true) {
+            InitializeInternal(owner, useStack);
+        }
+
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
+        internal void InitializeInternal(Situation owner, bool useStack) {
             Owner = owner;
             _useStack = useStack;
-
-            if (Owner != null) {
-                Owner.AddChildContainer(this);
-            }
         }
 
         /// <summary>
@@ -327,13 +340,37 @@ namespace GameFramework.SituationSystems {
         public TransitionHandle Back(params ITransitionEffect[] effects) {
             return Back(null, null, effects);
         }
+        
+        /// <summary>
+        /// シチュエーションが事前登録されているか
+        /// </summary>
+        /// <param name="situation">対象のシチュエーション</param>
+        public bool ContainsPreRegister(Situation situation) {
+            if (situation == null) {
+                Debug.LogError("Situation is null.");
+                return false;
+            }
+            
+            return _preRegisterSituations.Contains(situation);
+        }
 
         /// <summary>
         /// シチュエーションの事前登録
         /// </summary>
         /// <param name="situation">登録対象のシチュエーション</param>
         public void PreRegister(Situation situation) {
+            if (situation == null) {
+                Debug.LogError("Situation is null.");
+                return;
+            }
+            
+            if (_preRegisterSituations.Contains(situation)) {
+                Debug.LogWarning($"Already pre registered situation. [{situation.GetType().Name}]");
+                return;
+            }
+            
             var target = (ISituation)situation;
+            _preRegisterSituations.Add(situation);
             target.PreRegister(this);
         }
 
@@ -342,7 +379,18 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="situation">登録解除対象のシチュエーション</param>
         public void PreUnregister(Situation situation) {
+            if (situation == null) {
+                Debug.LogError("Situation is null.");
+                return;
+            }
+            
+            if (!_preRegisterSituations.Contains(situation)) {
+                Debug.LogWarning($"Not found pre registered situation. [{situation.GetType().Name}]");
+                return;
+            }
+            
             var target = (ISituation)situation;
+            _preloadSituations.Remove(situation);
             target.PreUnregister(this);
         }
 
@@ -492,11 +540,8 @@ namespace GameFramework.SituationSystems {
 
             _coroutineRunner.Dispose();
             _transitionInfo = null;
-
-            if (Owner != null) {
-                Owner.RemoveChildContainer(this);
-                Owner = null;
-            }
+            
+            Owner = null;
         }
 
         /// <summary>
