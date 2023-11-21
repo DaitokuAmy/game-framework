@@ -458,6 +458,18 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// シチュエーションの強制除外
+        /// </summary>
+        /// <param name="situation">除外対象のSituation</param>
+        public void ForceRemove(Situation situation) {
+            // Stackから除外
+            _stack.Remove(situation);
+
+            // リリースする
+            ((ISituation)situation).Release(this);
+        }
+
+        /// <summary>
         /// 更新処理
         /// </summary>
         public void Update() {

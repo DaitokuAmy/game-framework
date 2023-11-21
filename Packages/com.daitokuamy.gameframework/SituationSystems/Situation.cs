@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using GameFramework.Core;
 using UnityEngine;
@@ -6,7 +7,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション
     /// </summary>
-    public abstract class Situation : ISituation, ISituationContainerProvider {
+    public abstract class Situation : ISituation, ISituationContainerProvider, IDisposable {
         // 状態
         public enum State {
             Invalid = -1,
@@ -496,6 +497,23 @@ namespace GameFramework.SituationSystems {
         /// Active以外も実行される物理更新処理(内部用)
         /// </summary>
         protected virtual void SystemFixedUpdateInternal() {
+        }
+
+        /// <summary>
+        /// 廃棄処理
+        /// </summary>
+        public void Dispose() {
+            if (ParentContainer != null) {
+                if (PreLoadState != PreLoadState.None) {
+                    ParentContainer.UnPreLoad(this);
+                }
+                
+                if (PreRegistered) {
+                    ParentContainer.UnPreRegister(this);
+                }
+
+                ParentContainer?.ForceRemove(this);
+            }
         }
 
         /// <summary>
