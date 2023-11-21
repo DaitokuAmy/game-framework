@@ -4,31 +4,31 @@ using UnityEngine;
 
 namespace SituationSample {
     public class SituationSample : MonoBehaviour {
-        private SituationContainer _rootContainer;
+        private SituationRunner _situationRunner;
     
         public Situation SituationA { get; private set; }
         public Situation SituationB { get; private set; }
 
         private void Awake() {
             Services.Instance.Set(this);
-            _rootContainer = new SituationContainer();
+            _situationRunner = new SituationRunner();
             SituationA = new SampleSituationA();
             SituationB = new SampleSituationB();
-            _rootContainer.PreLoadAsync(SituationA);
-            _rootContainer.PreLoadAsync(SituationB);
-            _rootContainer.Transition(SituationA);
+            _situationRunner.Container.PreLoadAsync(SituationA);
+            _situationRunner.Container.PreLoadAsync(SituationB);
+            _situationRunner.Container.Transition(SituationA);
         }
 
         private void OnDestroy() {
-            _rootContainer.Dispose();
+            _situationRunner.Dispose();
         }
 
         private void Update() {
-            _rootContainer.Update();
+            _situationRunner.Update();
         }
 
         private void LateUpdate() {
-            _rootContainer.LateUpdate();
+            _situationRunner.LateUpdate();
         }
     }
 }

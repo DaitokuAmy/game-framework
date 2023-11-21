@@ -109,25 +109,24 @@ namespace SampleGame {
         /// </summary>
         private IEnumerator SetupSituationFlowRoutine(IScope scope) {
             // SituationのHierarchy構造を構築
-            CreateChildContainer(0, false);
-            var equipment = new EquipmentSituation();
-            equipment.CreateChildContainer(0, false);
-            RegisterChild(equipment);
             var fieldHud = new FieldHudNodeSituation();
-            RegisterChild(fieldHud);
+            fieldHud.SetParent(this);
+            var equipment = new EquipmentSituation();
+            equipment.SetParent(this);
             var equipmentTop = new EquipmentTopNodeSituation();
-            equipment.RegisterChild(equipmentTop);
+            equipmentTop.SetParent(equipment);
             var equipmentWeaponList = new EquipmentWeaponListNodeSituation();
-            equipment.RegisterChild(equipmentWeaponList);
+            equipmentWeaponList.SetParent(equipment);
             var equipmentArmorList = new EquipmentArmorListNodeSituation();
-            equipment.RegisterChild(equipmentArmorList);
+            equipmentArmorList.SetParent(equipment);
             
             // Situationの遷移関係を構築
             _situationFlow = new SituationFlow(fieldHud).ScopeTo(scope);
-            var equipmentTopNode = _situationFlow.RootNode.Connect(equipmentTop);
-            equipmentTopNode.Connect(equipmentWeaponList);
-            equipmentTopNode.Connect(equipmentArmorList);
-            yield return _situationFlow.SetupAsync();
+            var fieldHudNode = _situationFlow.RootNode;
+            var equipmentTopNode = fieldHudNode.Connect(equipmentTop);
+            var equipmentWeaponListNode = equipmentTopNode.Connect(equipmentWeaponList);
+            var equipmentArmorListNode = equipmentTopNode.Connect(equipmentArmorList);
+            yield return _situationFlow.Transition(fieldHudNode);
         }
     }
 }

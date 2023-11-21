@@ -10,7 +10,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション管理用クラス
     /// </summary>
-    public class SituationContainer : IDisposable, ITransitionResolver {
+    public sealed class SituationContainer : IDisposable, ITransitionResolver {
         /// <summary>
         /// 遷移オプション
         /// </summary>
@@ -63,7 +63,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationContainer(Situation owner, bool useStack = true) {
+        public SituationContainer(Situation owner, bool useStack) {
             InitializeInternal(owner, useStack);
         }
 
@@ -94,7 +94,7 @@ namespace GameFramework.SituationSystems {
             var next = (ISituation)Current;
 
             // 遷移情報の取得
-            var transition = GetDefaultTransition();
+            var transition = GetDefaultTransition(next);
 
             // 遷移可能チェック
             if (!CheckTransition(next, transition)) {
@@ -183,7 +183,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 遷移情報の取得
-            var transition = overrideTransition ?? GetDefaultTransition();
+            var transition = overrideTransition ?? GetDefaultTransition(next);
 
             // 遷移可能チェック
             if (!CheckTransition(next, transition)) {
@@ -378,7 +378,7 @@ namespace GameFramework.SituationSystems {
         /// シチュエーションの事前登録解除
         /// </summary>
         /// <param name="situation">登録解除対象のシチュエーション</param>
-        public void PreUnregister(Situation situation) {
+        public void UnPreRegister(Situation situation) {
             if (situation == null) {
                 Debug.LogError("Situation is null.");
                 return;
@@ -466,13 +466,8 @@ namespace GameFramework.SituationSystems {
 
             if (_transitionInfo != null) {
                 // 遷移中のシチュエーション更新
-                if (_transitionInfo.prev is Situation prev) {
-                    prev.Update();
-                }
-
-                if (_transitionInfo.next is Situation next) {
-                    next.Update();
-                }
+                _transitionInfo.prev?.Update();
+                _transitionInfo.next?.Update();
 
                 // エフェクト更新
                 if (_transitionInfo.effectActive) {
@@ -483,10 +478,8 @@ namespace GameFramework.SituationSystems {
             }
             // カレントシチュエーションの更新
             else {
-                var current = Current;
-                if (current != null) {
-                    current.Update();
-                }
+                var current = (ISituation)Current;
+                current?.Update();
             }
         }
 
@@ -496,20 +489,29 @@ namespace GameFramework.SituationSystems {
         public void LateUpdate() {
             // 遷移中のシチュエーション更新
             if (_transitionInfo != null) {
-                if (_transitionInfo.prev is Situation prev) {
-                    prev.LateUpdate();
-                }
-
-                if (_transitionInfo.next is Situation next) {
-                    next.LateUpdate();
-                }
+                _transitionInfo.prev?.LateUpdate();
+                _transitionInfo.next?.LateUpdate();
             }
             // カレントシチュエーションの更新
             else {
-                var current = (ISituation)Current;
-                if (current != null) {
-                    current.LateUpdate();
-                }
+                var current = (ISituation)Current; 
+                current?.LateUpdate();
+            }
+        }
+
+        /// <summary>
+        /// 物理更新処理
+        /// </summary>
+        public void FixedUpdate() {
+            // 遷移中のシチュエーション更新
+            if (_transitionInfo != null) {
+                _transitionInfo.prev?.FixedUpdate();
+                _transitionInfo.next?.FixedUpdate();
+            }
+            // カレントシチュエーションの更新
+            else {
+                var current = (ISituation)Current; 
+                current?.FixedUpdate();
             }
         }
 
@@ -517,8 +519,6 @@ namespace GameFramework.SituationSystems {
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            DisposeInternal();
-
             // PreLoad/PreRegister毎解放する
             void ForceRelease(ISituation situation) {
                 situation.UnPreLoad();
@@ -545,42 +545,30 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 廃棄時処理(Override用)
-        /// </summary>
-        protected virtual void DisposeInternal() {
-        }
-
-        /// <summary>
-        /// デフォルトの遷移を取得
-        /// </summary>
-        protected virtual ITransition GetDefaultTransition() {
-            return new OutInTransition();
-        }
-
-        /// <summary>
         /// 遷移チェック
         /// </summary>
-        private bool CheckTransition(ISituation childSituation, ITransition transition) {
+        private bool CheckTransition(ISituation nextTransition, ITransition transition) {
             if (transition == null) {
                 return false;
             }
 
             // null遷移は常に許可
-            if (childSituation == null) {
+            if (nextTransition == null) {
                 return true;
             }
 
-            return CheckTransitionInternal((Situation)childSituation, transition);
+            return nextTransition.CheckNextTransition((Situation)nextTransition, transition);
         }
 
         /// <summary>
         /// 遷移チェック
         /// </summary>
-        /// <param name="childSituation">遷移するの子シチュエーション</param>
-        /// <param name="transition">遷移処理</param>
-        /// <returns>遷移可能か</returns>
-        protected virtual bool CheckTransitionInternal(Situation childSituation, ITransition transition) {
-            return true;
+        private ITransition GetDefaultTransition(ISituation nextTransition) {
+            if (nextTransition == null) {
+                return new OutInTransition();
+            }
+
+            return nextTransition.GetDefaultNextTransition();
         }
 
         /// <summary>

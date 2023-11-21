@@ -56,18 +56,6 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 初期化処理
-        /// </summary>
-        /// <param name="onSetup">初期化処理</param>
-        /// <param name="transitionEffects">遷移効果</param>
-        public IProcess SetupAsync(Action<Situation> onSetup = null, params ITransitionEffect[] transitionEffects) {
-            CurrentNode = RootNode;
-            var situation = RootNode.Situation;
-            onSetup?.Invoke(situation);
-            return RootContainer.Transition(situation, transitionEffects);
-        }
-
-        /// <summary>
         /// 遷移実行
         /// </summary>
         /// <param name="onSetup">初期化処理</param>
@@ -86,12 +74,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            // 既に遷移中なら失敗
-            if (IsTransitioning) {
-                return AsyncOperationHandle.CanceledHandle;
-            }
-            
+        public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {            
             // 同じ型なら何もしない
             if (CurrentNode != null && CurrentNode.Situation.GetType() == type) {
                 return AsyncOperationHandle.CompletedHandle;
@@ -102,6 +85,34 @@ namespace GameFramework.SituationSystems {
 
             if (nextNode == null) {
                 var exception = new KeyNotFoundException($"Not found situation tree node. [{type.Name}]");
+                Debug.LogException(exception);
+                return AsyncOperator.CreateAbortedOperator(exception).GetHandle();
+            }
+
+            return Transition(nextNode, onSetup, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="nextNode">遷移先のNode</param>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public IProcess Transition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 既に遷移中なら失敗
+            if (IsTransitioning) {
+                return AsyncOperationHandle.CanceledHandle;
+            }
+            
+            // 同じ場所なら何もしない
+            if (nextNode == CurrentNode) {
+                return AsyncOperationHandle.CompletedHandle;
+            }
+
+            // NextNodeがない
+            if (nextNode == null) {
+                var exception = new KeyNotFoundException($"Next node is null.");
                 Debug.LogException(exception);
                 return AsyncOperator.CreateAbortedOperator(exception).GetHandle();
             }
@@ -250,11 +261,6 @@ namespace GameFramework.SituationSystems {
         /// <param name="nextNode"></param>
         /// <param name="back">戻り遷移か</param>
         private IEnumerator TransitionNodeRoutine(SituationFlowNode prevNode, SituationFlowNode nextNode, bool back, ITransition overrideTransition, ITransitionEffect[] effects) {
-            if (prevNode == null) {
-                Debug.LogError("Failed prevNode. prevNode is null.");
-                yield break;
-            }
-            
             // 該当Situationのコンテナ階層にターゲットのコンテナがあるかを探す
             bool FindContainer(Situation situation, SituationContainer container, List<Situation> transitionSituations) {
                 if (situation == null || situation.ParentContainer == null) {
@@ -271,21 +277,31 @@ namespace GameFramework.SituationSystems {
                 return result;
             }
 
-            // 遷移先NodeとContainerと同じContainerになるまで親をさかのぼる
             var targetSituation = nextNode.Situation;
-            var baseContainer = prevNode.Container;
+            var baseContainer = prevNode?.Container;
             var situations = new List<Situation>();
-            while (!FindContainer(targetSituation, baseContainer, situations)) {
-                // 現階層を閉じる
-                yield return baseContainer.Transition(null,
-                    new SituationContainer.TransitionOption {
-                        forceBack = true,
-                        clearStack = true
-                    });
+            // 遷移元がなければ、開く必要のあるシチュエーションをリスト化
+            if (baseContainer == null) {
+                var target = targetSituation;
+                while (target?.ParentContainer != null && target.ParentContainer.Current != target) {
+                    situations.Insert(0, target);
+                    target = target.ParentContainer?.Owner;
+                }
+            }
+            // 遷移元があれば、遷移元と遷移先の共通Containerまでさかのぼる
+            else {
+                while (!FindContainer(targetSituation, baseContainer, situations)) {
+                    // 現階層を閉じる
+                    yield return baseContainer.Transition(null,
+                        new SituationContainer.TransitionOption {
+                            forceBack = true,
+                            clearStack = true
+                        });
                 
-                // 親のContainerを遷移対象してリトライ
-                baseContainer = baseContainer.Owner.ParentContainer;
-                situations.Clear();
+                    // 親のContainerを遷移対象してリトライ
+                    baseContainer = baseContainer.Owner.ParentContainer;
+                    situations.Clear();
+                }
             }
             
             // 遷移を行う

@@ -64,6 +64,11 @@ namespace GameFramework.SituationSystems {
         void LateUpdate();
 
         /// <summary>
+        /// 物理更新
+        /// </summary>
+        void FixedUpdate();
+
+        /// <summary>
         /// ディアクティブ化された時の処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
@@ -116,13 +121,16 @@ namespace GameFramework.SituationSystems {
         void UnPreLoad();
 
         /// <summary>
-        /// Active中以外でも処理される更新
+        /// 次に遷移する際のデフォルト遷移方法を取得
         /// </summary>
-        void SystemUpdate();
+        ITransition GetDefaultNextTransition();
 
         /// <summary>
-        /// Active中以外でも処理される後更新
+        /// 遷移可能かチェック
         /// </summary>
-        void SystemLateUpdate();
+        /// <param name="nextTransition">遷移するの子シチュエーション</param>
+        /// <param name="transition">遷移処理</param>
+        /// <returns>遷移可能か</returns>
+        bool CheckNextTransition(Situation nextTransition, ITransition transition);
     }
 }

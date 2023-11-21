@@ -17,7 +17,7 @@ namespace SampleGame {
         private ServiceContainerInstaller _globalObject;
 
         private TaskRunner _taskRunner;
-        private SceneSituationContainer _sceneSituationContainer;
+        private SituationRunner _situationRunner;
 
         /// <summary>
         /// リブート処理
@@ -25,10 +25,10 @@ namespace SampleGame {
         /// <param name="args">リブート時に渡された引数</param>
         protected override IEnumerator RebootRoutineInternal(object[] args) {
             // Scene用のContainerの作成しなおし
-            _sceneSituationContainer.Dispose();
-            _taskRunner.Unregister(_sceneSituationContainer);
-            _sceneSituationContainer = new SceneSituationContainer();
-            _taskRunner.Register(_sceneSituationContainer);
+            _situationRunner.Dispose();
+            _taskRunner.Unregister(_situationRunner);
+            _situationRunner = new SituationRunner(true);
+            _taskRunner.Register(_situationRunner);
 
             // 開始用シーンの読み込み
             var startSituation = default(SceneSituation);
@@ -41,7 +41,7 @@ namespace SampleGame {
                 startSituation = new LoginSceneSituation(new TitleSceneSituation());
             }
 
-            var handle = _sceneSituationContainer.Transition(startSituation);
+            var handle = _situationRunner.Container.Transition(startSituation);
             yield return handle;
         }
 
@@ -67,8 +67,8 @@ namespace SampleGame {
                 new ResourcesAssetProvider());
             Services.Instance.Set(assetManager);
             
-            _sceneSituationContainer = new SceneSituationContainer();
-            _sceneSituationContainer.RegisterTask(TaskOrder.Scene);
+            _situationRunner = new SituationRunner(true);
+            _situationRunner.RegisterTask(TaskOrder.Scene);
             
             var environmentManager = new EnvironmentManager(new EnvironmentResolver());
             environmentManager.RegisterTask(TaskOrder.PostSystem);
@@ -98,7 +98,7 @@ namespace SampleGame {
             yield return Addressables.InitializeAsync();
 
             // 初期シチュエーションに遷移
-            var handle = _sceneSituationContainer.Transition(startSituation);
+            var handle = _situationRunner.Container.Transition(startSituation);
             yield return handle;
         }
 
