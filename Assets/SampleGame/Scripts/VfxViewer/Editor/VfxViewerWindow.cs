@@ -193,7 +193,7 @@ namespace SampleGame.VfxViewer.Editor {
         /// GUI描画
         /// </summary>
         private void OnGUI() {
-            if (!Application.isPlaying) {
+            if (!UnityEngine.Application.isPlaying) {
                 EditorGUILayout.HelpBox("Playing Mode Only", MessageType.Error);
                 ClearPanels();
 
@@ -268,7 +268,7 @@ namespace SampleGame.VfxViewer.Editor {
         /// VfxViewerシーンの再生
         /// </summary>
         private void PlayScene() {
-            if (Application.isPlaying) {
+            if (UnityEngine.Application.isPlaying) {
                 return;
             }
             

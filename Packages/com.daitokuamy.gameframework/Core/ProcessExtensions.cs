@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 #if USE_UNI_TASK
@@ -52,6 +53,14 @@ namespace GameFramework.Core {
                 return null;
             });
 
+            return handle;
+        }
+
+        /// <summary>
+        /// IProcessの型キャスト
+        /// </summary>
+        public static IProcess<T2> Cast<T1, T2>(this IProcess<T1> source) {
+            var handle = (AsyncStatusHandle<T2>)new AsyncStatusProvider<T2>(() => source.IsDone, () => source.Exception, () => (T2)Convert.ChangeType(source.Result, typeof(T2)));
             return handle;
         }
         

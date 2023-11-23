@@ -4,13 +4,13 @@ namespace GameFramework.SituationSystems {
     /// </summary>
     public interface INodeSituation {
         /// <summary>
-        /// Treeへの登録通知
+        /// SituationFlowへの登録通知
         /// </summary>
-        void OnRegisterTree(SituationFlow flow);
+        void OnRegisterFlow(SituationFlow flow);
 
         /// <summary>
-        /// Treeからの登録解除通知
+        /// SituationFlowからの登録解除通知
         /// </summary>
-        void OnUnregisterTree(SituationFlow flow);
+        void OnUnregisterFlow(SituationFlow flow);
     }
 }

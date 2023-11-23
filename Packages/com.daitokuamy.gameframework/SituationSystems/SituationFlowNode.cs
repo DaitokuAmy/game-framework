@@ -32,7 +32,7 @@ namespace GameFramework.SituationSystems {
             _parent = parent;
 
             if (_situation is INodeSituation nodeSituation) {
-                nodeSituation.OnRegisterTree(flow);
+                nodeSituation.OnRegisterFlow(flow);
             }
         }
 
@@ -57,7 +57,7 @@ namespace GameFramework.SituationSystems {
 
             // 登録解除通知
             if (_situation is INodeSituation nodeSituation) {
-                nodeSituation.OnUnregisterTree(_flow);
+                nodeSituation.OnUnregisterFlow(_flow);
             }
 
             _parent = null;

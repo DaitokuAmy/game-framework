@@ -59,7 +59,7 @@ namespace SampleGame {
             }
 
             // 非再生中はActiveになった瞬間に反映
-            if (!Application.isPlaying) {
+            if (!UnityEngine.Application.isPlaying) {
                 ApplyEnvironment();
                 return;
             }

@@ -11,14 +11,14 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// Tree登録通知
         /// </summary>
-        void INodeSituation.OnRegisterTree(SituationFlow flow) {
+        void INodeSituation.OnRegisterFlow(SituationFlow flow) {
             _situationFlow = flow;
         }
 
         /// <summary>
         /// Tree登録解除通知
         /// </summary>
-        void INodeSituation.OnUnregisterTree(SituationFlow flow) {
+        void INodeSituation.OnUnregisterFlow(SituationFlow flow) {
             if (flow == _situationFlow) {
                 _situationFlow = null;
             }

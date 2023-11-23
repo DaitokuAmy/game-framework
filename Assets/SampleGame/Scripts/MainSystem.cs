@@ -50,7 +50,7 @@ namespace SampleGame {
         /// </summary>
         protected override IEnumerator StartRoutineInternal(object[] args) {
             // FPS設定
-            Application.targetFrameRate = 30;
+            UnityEngine.Application.targetFrameRate = 30;
             
             // GlobalObjectを初期化
             DontDestroyOnLoad(_globalObject.gameObject);
