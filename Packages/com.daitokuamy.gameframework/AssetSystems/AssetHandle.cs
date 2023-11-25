@@ -3,7 +3,7 @@ using System.Collections;
 using GameFramework.Core;
 using Object = UnityEngine.Object;
 
-namespace GameFramework.AssetSystems {
+namespace GameFramework.AssetSystems {    
     /// <summary>
     /// アセット用ハンドル
     /// </summary>

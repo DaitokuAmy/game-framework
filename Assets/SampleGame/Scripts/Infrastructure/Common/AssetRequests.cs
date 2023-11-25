@@ -3,15 +3,31 @@ using Object = UnityEngine.Object;
 
 namespace SampleGame.Infrastructure.Common {
     /// <summary>
-    /// Master用のAssetRequest
+    /// AssetProviderのタイプ
     /// </summary>
-    internal abstract class MasterAssetRequest<T> : GameFramework.AssetSystems.AssetRequest<T>
+    public enum AssetProviderType {
+        AssetDatabase,
+        Resources,
+    }
+    
+    /// <summary>
+    /// AssetRequest
+    /// </summary>
+    internal abstract class AssetRequest<T> : GameFramework.AssetSystems.AssetRequest<T>
         where T : Object {
         public override int[] ProviderIndices => new[] { (int)AssetProviderType.AssetDatabase };
-        public override string Address => $"Assets/SampleGame/MasterData/{RelativePath}";
+        public override string Address => $"Assets/SampleGame/{RelativePath}";
 
         /// <summary>相対パス</summary>
         protected string RelativePath { get; set; } = "";
+    }
+    
+    /// <summary>
+    /// Master用のAssetRequest
+    /// </summary>
+    internal abstract class MasterAssetRequest<T> : AssetRequest<T>
+        where T : Object {
+        public override string Address => $"Assets/SampleGame/MasterData/{RelativePath}";
     }
 
     /// <summary>

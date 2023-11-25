@@ -17,14 +17,6 @@ namespace SampleGame {
         Effect,
         PostSystem,
     }
-    
-    /// <summary>
-    /// AssetProviderのタイプ
-    /// </summary>
-    public enum AssetProviderType {
-        AssetDatabase,
-        Resources,
-    }
 
     /// <summary>
     /// 攻撃タイプ

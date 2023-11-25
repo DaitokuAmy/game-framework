@@ -17,5 +17,13 @@ namespace SampleGame.Domain.Equipment {
         /// </summary>
         protected WeaponModel(int id) : base(id) {
         }
+
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
+        /// <param name="masterData">マスターデータ</param>
+        public void Setup(IWeaponMasterData masterData) {
+            MasterData = masterData;
+        }
     }
 }

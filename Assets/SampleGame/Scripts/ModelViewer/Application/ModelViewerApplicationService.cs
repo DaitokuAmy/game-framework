@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework.AssetSystems;
 
 namespace SampleGame.ModelViewer {
     /// <summary>

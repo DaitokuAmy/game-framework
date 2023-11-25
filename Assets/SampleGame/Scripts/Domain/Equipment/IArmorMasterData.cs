@@ -1,3 +1,5 @@
+using SampleGame.Domain.Common;
+
 namespace SampleGame.Domain.Equipment {
     /// <summary>
     /// 防具用データ

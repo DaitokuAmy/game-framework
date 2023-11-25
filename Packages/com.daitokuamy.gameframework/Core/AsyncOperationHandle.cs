@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace GameFramework.Core {
     /// <summary>
@@ -41,7 +43,7 @@ namespace GameFramework.Core {
         public event Action OnCompletedEvent;
         // キャンセル通知イベント
         public event Action<Exception> OnAbortedEvent;
-        
+
         /// <summary>
         /// 完了済みOperatorの生成
         /// </summary>
@@ -134,7 +136,7 @@ namespace GameFramework.Core {
         public static implicit operator AsyncOperationHandle<T>(AsyncOperator<T> source) {
             return source.GetHandle();
         }
-        
+
         /// <summary>
         /// 完了済みOperatorの生成
         /// </summary>
@@ -252,6 +254,14 @@ namespace GameFramework.Core {
         /// <param name="onError">エラー時通知</param>
         public void ListenTo(Action onCompleted, Action<Exception> onError = null) {
             if (_asyncOperator == null || _asyncOperator.IsDone) {
+                var exception = Exception;
+                if (exception != null) {
+                    onError?.Invoke(exception);
+                }
+                else {
+                    onCompleted?.Invoke();
+                }
+                
                 return;
             }
 
@@ -273,7 +283,7 @@ namespace GameFramework.Core {
         public static readonly AsyncOperationHandle<T> CanceledHandle = new();
         /// <summary>完了済みHandle</summary>
         public static readonly AsyncOperationHandle<T> CompletedHandle = new();
-        
+
         private readonly AsyncOperator<T> _asyncOperator;
         private readonly Exception _exception;
 
@@ -324,6 +334,14 @@ namespace GameFramework.Core {
         /// <param name="onError">エラー時通知</param>
         public void ListenTo(Action<T> onCompleted, Action<Exception> onError = null) {
             if (_asyncOperator == null || _asyncOperator.IsDone) {
+                var exception = Exception;
+                if (exception != null) {
+                    onError?.Invoke(exception);
+                }
+                else {
+                    onCompleted?.Invoke(Result);
+                }
+
                 return;
             }
 
@@ -334,6 +352,87 @@ namespace GameFramework.Core {
             if (onError != null) {
                 _asyncOperator.OnAbortedEvent += onError;
             }
+        }
+    }
+
+    /// <summary>
+    /// AsyncOperationHandle用のAwaiter
+    /// </summary>
+    public readonly struct AsyncOperationHandleAwaiter : INotifyCompletion {
+        private readonly AsyncOperationHandle _handle;
+
+        /// <summary>完了しているか</summary>
+        public bool IsCompleted {
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _handle.IsDone;
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AsyncOperationHandleAwaiter(AsyncOperationHandle handle) {
+            _handle = handle;
+        }
+        
+        /// <summary>
+        /// Await開始時の処理
+        /// </summary>
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void OnCompleted(Action continuation) {
+            _handle.ListenTo(continuation);
+        }
+
+        /// <summary>
+        /// 結果の取得
+        /// </summary>
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void GetResult() {
+        }
+    }
+
+    /// <summary>
+    /// AsyncOperationHandle用のAwaiter
+    /// </summary>
+    public readonly struct AsyncOperationHandleAwaiter<T> : INotifyCompletion {
+        private readonly AsyncOperationHandle<T> _handle;
+
+        /// <summary>完了しているか</summary>
+        public bool IsCompleted {
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _handle.IsDone;
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public AsyncOperationHandleAwaiter(AsyncOperationHandle<T> handle) {
+            _handle = handle;
+        }
+        
+        /// <summary>
+        /// Await開始時の処理
+        /// </summary>
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void OnCompleted(Action continuation) {
+            _handle.ListenTo(_ => continuation());
+        }
+
+        /// <summary>
+        /// 結果の取得
+        /// </summary>
+        [DebuggerHidden]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T GetResult() {
+            return _handle.Result;
         }
     }
 }
