@@ -7,6 +7,10 @@ namespace SampleGame.Domain.Common {
     public interface IReadOnlyPlayerModel {
         /// <summary>マスターデータ参照</summary>
         IPlayerMasterData MasterData { get; }
+        /// <summary>名前</summary>
+        string Name { get; }
+        /// <summary>Prefabのアセットキー</summary>
+        string PrefabAssetKey { get; }
     }
     
     /// <summary>
@@ -15,6 +19,10 @@ namespace SampleGame.Domain.Common {
     public class PlayerModel : AutoIdModel<PlayerModel>, IReadOnlyPlayerModel {
         /// <summary>マスターデータ参照</summary>
         public IPlayerMasterData MasterData { get; private set; }
+        /// <summary>名前</summary>
+        public string Name => MasterData?.Name ?? "";
+        /// <summary>Prefabのアセットキー</summary>
+        public string PrefabAssetKey => MasterData?.PrefabAssetKey ?? "";
         
         /// <summary>
         /// コンストラクタ

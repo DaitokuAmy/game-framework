@@ -1,5 +1,6 @@
 using GameFramework.Core;
 using GameFramework.ModelSystems;
+using SampleGame.Domain.Battle;
 
 namespace SampleGame.Battle {
     /// <summary>
