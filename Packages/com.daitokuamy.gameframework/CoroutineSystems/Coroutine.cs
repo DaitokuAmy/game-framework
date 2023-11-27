@@ -43,10 +43,19 @@ namespace GameFramework.CoroutineSystems {
         }
 
         /// <summary>
-        /// コルーチン進行
+        /// IEnumeratorのコルーチン処理(更新しない)
         /// </summary>
         /// <returns>次の処理があるか？</returns>
         bool IEnumerator.MoveNext() {
+            // Unity経由などでCoroutine実行されてしまう可能性があるため更新はしない
+            return !IsDone;
+        }
+
+        /// <summary>
+        /// CoroutineRunner用のコルーチン実行処理(更新あり)
+        /// </summary>
+        /// <returns>次の処理があるか？</returns>
+        public bool MoveNext() {
             Update();
             return !IsDone;
         }
@@ -75,6 +84,16 @@ namespace GameFramework.CoroutineSystems {
             try {
                 if (peek == null) {
                     _stack.Pop();
+                }
+                else if (peek is Coroutine coroutine) {
+                    if (coroutine.MoveNext()) {
+                        _stack.Push(coroutine._current);
+                    }
+                    else {
+                        _stack.Pop();
+                    }
+
+                    Update();
                 }
                 else if (peek is IEnumerator enumerator) {
                     if (enumerator.MoveNext()) {

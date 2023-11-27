@@ -55,8 +55,7 @@ namespace GameFramework.CoroutineSystems {
                 if (coroutine == null) {
                     continue;
                 }
-
-                if (!((IEnumerator)coroutine).MoveNext()) {
+                if (!coroutine.MoveNext()) {
                     _coroutines[i] = null;
                 }
                 else {

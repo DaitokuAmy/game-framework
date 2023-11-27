@@ -196,7 +196,7 @@ namespace GameFramework.CoroutineSystems {
                     continue;
                 }
 
-                if (!((IEnumerator)coroutine).MoveNext()) {
+                if (!coroutine.MoveNext()) {
                     if (coroutine.Exception != null) {
                         // エラー終了通知
                         coroutineInfo.Abort(coroutine.Exception);
