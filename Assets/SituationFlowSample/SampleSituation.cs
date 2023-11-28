@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SituationFlowSample {
     /// <summary>
-    /// サンプル用のSituation(Flowの末端にならない物扱い)
+    /// サンプル用のSituation
     /// </summary>
     public abstract class SampleSituation : Situation {
         /// <summary>

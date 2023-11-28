@@ -26,10 +26,8 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="rootSituation">RootとなるSituation</param>
-        public SituationFlow(Situation rootSituation) {
-            RootNode = new SituationFlowNode(this, rootSituation, null);
-            SetFallbackNode(RootNode);
+        public SituationFlow() {
+            RootNode = new SituationFlowNode(this, null, null);
             _coroutineRunner = new CoroutineRunner();
         }
 
@@ -144,8 +142,8 @@ namespace GameFramework.SituationSystems {
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
             }
 
-            if (CurrentNode == RootNode) {
-                Debug.LogWarning("Root node is not back.");
+            if (CurrentNode == RootNode || CurrentNode.GetParent() == RootNode) {
+                Debug.LogWarning("Current situation is not back.");
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
             }
 
