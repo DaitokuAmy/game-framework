@@ -64,7 +64,6 @@ namespace GameFramework.BodySystems {
         /// 更新処理
         /// </summary>
         protected override void UpdateInternal(float deltaTime) {
-            Body.LayeredTime.OnChangedTimeScale -= OnChangedTimeScale;
             _player.Update();
         }
 
@@ -72,6 +71,7 @@ namespace GameFramework.BodySystems {
         /// 廃棄時処理
         /// </summary>
         protected override void DisposeInternal() {
+            Body.LayeredTime.OnChangedTimeScale -= OnChangedTimeScale;
             _player.Dispose();
         }
 
@@ -87,6 +87,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         public void SetSpeed(float speed) {
             _localSpeed = Mathf.Max(0, speed);
+            ApplySpeed();
         }
 
         /// <summary>
