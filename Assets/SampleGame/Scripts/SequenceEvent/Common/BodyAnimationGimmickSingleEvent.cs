@@ -15,6 +15,8 @@ namespace SampleGame.SequenceEvents {
         public PlayType playType = PlayType.Play;
         [Tooltip("反転再生か")]
         public bool reverse;
+        [Tooltip("即時遷移か")]
+        public bool immediate = false;
     }
 
     /// <summary>
@@ -27,10 +29,15 @@ namespace SampleGame.SequenceEvents {
         protected override void OnInvokeInternal(BodyAnimationGimmickSingleEvent sequenceEvent, AnimationGimmick[] gimmicks) {
             switch (sequenceEvent.playType) {
                 case BodyAnimationGimmickSingleEvent.PlayType.Play:
-                    gimmicks.Play(sequenceEvent.reverse);
+                    gimmicks.Play(sequenceEvent.reverse, sequenceEvent.immediate);
                     break;
                 case BodyAnimationGimmickSingleEvent.PlayType.Resume:
-                    gimmicks.Resume(sequenceEvent.reverse);
+                    if (sequenceEvent.immediate) {
+                        gimmicks.Play(sequenceEvent.reverse, sequenceEvent.immediate);
+                    }
+                    else {
+                        gimmicks.Resume(sequenceEvent.reverse);
+                    }
                     break;
             }
         }
