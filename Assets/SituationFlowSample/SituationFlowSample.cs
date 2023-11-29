@@ -34,6 +34,11 @@ namespace SituationFlowSample {
             var situationA2 = new SampleNodeSituationA2();
             situationA2.SetParent(situationA);
             
+            // PreLoad
+            situationA.PreLoadAsync();
+            situationA1.PreLoadAsync();
+            situationA2.PreLoadAsync();
+            
             // シチュエーションBの依存的な階層構造構築
             // SituationB
             //   SituationB1

@@ -48,30 +48,19 @@ namespace GameFramework.SituationSystems {
         // 遷移中情報
         private TransitionInfo _transitionInfo;
 
-        // 持ち主のSituation
+        /// <summary>持ち主のSituation</summary>
         public Situation Owner { get; private set; }
-        // 現在のシチュエーション
+        /// <summary>現在のシチュエーション</summary>
         public Situation Current => _stack.Count > 0 ? _stack[_stack.Count - 1] : null;
+        /// <summary>PreLoad用のコルーチンランナー</summary>
+        internal CoroutineRunner RootCoroutineRunner { get; private set; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationContainer() {
-            InitializeInternal(null, true);
-        }
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public SituationContainer(Situation owner, bool useStack) {
-            InitializeInternal(owner, useStack);
-        }
-
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
-        internal void InitializeInternal(Situation owner, bool useStack) {
+        public SituationContainer(Situation owner, CoroutineRunner rootCoroutineRunner, bool useStack) {
             Owner = owner;
+            RootCoroutineRunner = rootCoroutineRunner;
             _useStack = useStack;
         }
 
@@ -492,7 +481,7 @@ namespace GameFramework.SituationSystems {
             if (target.PreLoadState == PreLoadState.None) {
                 _preloadSituations.Add(situation);
                 target.Standby(this);
-                _coroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => {
+                RootCoroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => {
                     asyncOp.Completed();
                 }, () => {
                     asyncOp.Aborted();

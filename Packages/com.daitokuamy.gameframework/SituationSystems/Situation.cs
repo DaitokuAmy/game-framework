@@ -26,6 +26,8 @@ namespace GameFramework.SituationSystems {
         private DisposableScope _animationScope;
         // アクティブスコープ
         private DisposableScope _activeScope;
+        // スタックを利用するか
+        private bool _useStack;
 
         /// <summary>インターフェース用の子コンテナ返却プロパティ</summary>
         SituationContainer ISituationContainerProvider.Container => ChildContainer;
@@ -51,7 +53,7 @@ namespace GameFramework.SituationSystems {
         /// コンストラクタ
         /// </summary>
         protected Situation(bool useStack = false) {
-            ChildContainer = new SituationContainer(this, useStack);
+            _useStack = useStack;
         }
 
         /// <summary>
@@ -69,6 +71,7 @@ namespace GameFramework.SituationSystems {
 
             CurrentState = State.Standby;
             ParentContainer = container;
+            ChildContainer = new SituationContainer(this, ParentContainer.RootCoroutineRunner, _useStack);
             StandbyInternal(Parent);
         }
 
@@ -149,7 +152,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 子コンテナの更新
-            ChildContainer.Update();
+            ChildContainer?.Update();
         }
 
         /// <summary>
@@ -169,7 +172,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 子コンテナの更新
-            ChildContainer.LateUpdate();
+            ChildContainer?.LateUpdate();
         }
 
         /// <summary>
@@ -189,7 +192,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 子コンテナの更新
-            ChildContainer.FixedUpdate();
+            ChildContainer?.FixedUpdate();
         }
 
         /// <summary>
@@ -554,6 +557,30 @@ namespace GameFramework.SituationSystems {
 
             // コンテナに登録
             provider.Container.PreRegister(this);
+        }
+
+        /// <summary>
+        /// 事前読み込み
+        /// </summary>
+        public AsyncOperationHandle PreLoadAsync() {
+            var asyncOp = new AsyncOperator();
+            if (ParentContainer == null) {
+                asyncOp.Aborted(new Exception("Not found parent container."));
+                return asyncOp.GetHandle();
+            }
+
+            return ParentContainer.PreLoadAsync(this);
+        }
+
+        /// <summary>
+        /// 事前読み込み解除
+        /// </summary>
+        public void UnPreLoad() {
+            if (ParentContainer == null) {
+                return;
+            }
+
+            ParentContainer.UnPreLoad(this);
         }
 
         /// <summary>
