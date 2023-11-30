@@ -12,22 +12,21 @@ namespace GameFramework.SituationSystems {
     public class SituationFlow : IDisposable {
         private readonly Dictionary<Type, SituationFlowNode> _fallbackNodes = new();
         private CoroutineRunner _coroutineRunner;
+        private SituationFlowNode _rootNode;
 
-        /// <summary>ルートとなるNode</summary>
-        public SituationFlowNode RootNode { get; }
         /// <summary>現在のNode</summary>
         public SituationFlowNode CurrentNode { get; private set; }
         /// <summary>トランジション中か</summary>
         public bool IsTransitioning { get; private set; }
         
         /// <summary>遷移用コンテナ</summary>
-        private SituationContainer RootContainer => RootNode.Container;
+        private SituationContainer RootContainer => _rootNode.Container;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public SituationFlow() {
-            RootNode = new SituationFlowNode(this, null, null);
+            _rootNode = new SituationFlowNode(this, null, null);
             _coroutineRunner = new CoroutineRunner();
         }
 
@@ -35,7 +34,7 @@ namespace GameFramework.SituationSystems {
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
-            if (RootNode == null) {
+            if (_rootNode == null) {
                 return;
             }
             
@@ -43,7 +42,7 @@ namespace GameFramework.SituationSystems {
             _coroutineRunner.Dispose();
 
             // 各種Nodeの開放
-            RootNode.Dispose();
+            _rootNode.Dispose();
         }
 
         /// <summary>
@@ -51,6 +50,26 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         public void Update() {
             _coroutineRunner.Update();
+        }
+
+        /// <summary>
+        /// Rootに接続する
+        /// </summary>
+        /// <param name="situation">接続するSituation</param>
+        /// <returns>接続したSituationを保持するNode</returns>
+        public SituationFlowNode ConnectRoot(Situation situation) {
+            var node = _rootNode.Connect(situation);
+            SetFallbackNode(node);
+            return node;
+        }
+
+        /// <summary>
+        /// Rootから接続を解除する
+        /// </summary>
+        /// <returns>解除に成功したか</returns>
+        public bool DisconnectRoot<T>()
+            where T : Situation {
+            return _rootNode.Disconnect<T>();
         }
 
         /// <summary>
@@ -142,7 +161,7 @@ namespace GameFramework.SituationSystems {
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
             }
 
-            if (CurrentNode == RootNode || CurrentNode.GetParent() == RootNode) {
+            if (CurrentNode == _rootNode || CurrentNode.GetParent() == _rootNode) {
                 Debug.LogWarning("Current situation is not back.");
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
             }

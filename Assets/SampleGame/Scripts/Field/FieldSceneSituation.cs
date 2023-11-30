@@ -122,7 +122,7 @@ namespace SampleGame {
             
             // Situationの遷移関係を構築
             _situationFlow = new SituationFlow().ScopeTo(scope);
-            var fieldHudNode = _situationFlow.RootNode.Connect(fieldHud);
+            var fieldHudNode = _situationFlow.ConnectRoot(fieldHud);
             var equipmentTopNode = fieldHudNode.Connect(equipmentTop);
             var equipmentWeaponListNode = equipmentTopNode.Connect(equipmentWeaponList);
             var equipmentArmorListNode = equipmentTopNode.Connect(equipmentArmorList);
