@@ -127,12 +127,17 @@ namespace GameFramework.UISystems {
         protected T InstantiateView<T>(T origin, Transform parent, bool worldPositionSpace = false)
             where T : UIView {
             var instance = Instantiate(origin.gameObject, parent, worldPositionSpace);
-            var views = instance.GetComponentsInChildren<UIView>(true);
+            var views = instance.GetComponentsInChildren<T>(true);
             foreach (var view in views) {
                 ((IUIView)view).Initialize(Window);
             }
 
-            return (T)views[0];
+            if (views.Length <= 0) {
+                Debug.LogError($"Not found instantiate view component. [{typeof(T).Name}]");
+                return default;
+            }
+
+            return views[0];
         }
 
         /// <summary>
