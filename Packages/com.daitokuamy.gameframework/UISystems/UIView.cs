@@ -2,6 +2,7 @@ using GameFramework.CoroutineSystems;
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Threading;
 using GameFramework.Core;
 using Coroutine = GameFramework.CoroutineSystems.Coroutine;
@@ -127,17 +128,18 @@ namespace GameFramework.UISystems {
         protected T InstantiateView<T>(T origin, Transform parent, bool worldPositionSpace = false)
             where T : UIView {
             var instance = Instantiate(origin.gameObject, parent, worldPositionSpace);
-            var views = instance.GetComponentsInChildren<T>(true);
+            var views = instance.GetComponentsInChildren<UIView>(true);
             foreach (var view in views) {
                 ((IUIView)view).Initialize(Window);
             }
 
-            if (views.Length <= 0) {
+            var foundView = views.OfType<T>().FirstOrDefault();
+            if (foundView == null) {
                 Debug.LogError($"Not found instantiate view component. [{typeof(T).Name}]");
                 return default;
             }
 
-            return views[0];
+            return foundView;
         }
 
         /// <summary>
