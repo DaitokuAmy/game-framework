@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -37,11 +36,7 @@ namespace GameFramework.CutsceneSystems {
             else {
                 _playableDirector.timeUpdateMode = DirectorUpdateMode.Manual;
             }
-
-            if (_playableDirector.extrapolationMode == DirectorWrapMode.None) {
-                _playableDirector.extrapolationMode = DirectorWrapMode.Hold;
-            }
-
+            
             _playableDirector.playOnAwake = false;
 
             _scope = new DisposableScope();
@@ -134,21 +129,24 @@ namespace GameFramework.CutsceneSystems {
                 return;
             }
 
-            var loop = _playableDirector.extrapolationMode == DirectorWrapMode.Loop;
+            var wrapMode = _playableDirector.extrapolationMode;
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) {
                 var time = _playableDirector.time + deltaTime;
-                if (time >= _playableDirector.duration && !loop) {
+                if (time >= _playableDirector.duration && wrapMode != DirectorWrapMode.Loop) {
                     time = _playableDirector.duration;
-                    _isPlaying = false;
+                    _isPlaying = wrapMode == DirectorWrapMode.Hold;
                 }
 
                 _playableDirector.time = time;
                 _playableDirector.Evaluate();
             }
             else {
-                if (_playableDirector.time >= _playableDirector.duration && !loop) {
-                    _playableDirector.Stop();
-                    _isPlaying = false;
+                if (wrapMode == DirectorWrapMode.None) {
+                    if (_playableDirector.state != PlayState.Playing) {
+                        _playableDirector.time = _playableDirector.duration;
+                        _playableDirector.Stop();
+                        _isPlaying = false;
+                    }
                 }
             }
 

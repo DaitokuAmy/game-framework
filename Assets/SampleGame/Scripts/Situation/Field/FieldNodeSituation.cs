@@ -3,6 +3,6 @@ namespace SampleGame {
     /// <summary>
     /// Field用のNodeSituation
     /// </summary>
-    public abstract class FieldNodeSituation : NodeSituation {
+    public abstract class FieldNodeSituation : Situation {
     }
 }

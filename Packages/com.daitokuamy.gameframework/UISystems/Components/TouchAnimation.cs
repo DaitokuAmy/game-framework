@@ -7,6 +7,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// RectTransformのタッチに付与するアニメーション基底
     /// </summary>
+    [RequireComponent(typeof(RectTransform))]
     public abstract class TouchAnimation : MonoBehaviour, IPointerDownHandler, IPointerUpHandler {
         [SerializeField, Tooltip("制御対象のRectTransform")]
         private RectTransform _target;
@@ -25,7 +26,15 @@ namespace GameFramework.UISystems {
         /// <summary>TimeScale</summary>
         public float TimeScale { get; set; } = 1.0f;
         /// <summary>制御対象のボタン</summary>
-        public RectTransform Target => _target;
+        public RectTransform Target {
+            get {
+                if (_target == null) {
+                    _target = (RectTransform)transform;
+                }
+
+                return _target;
+            }
+        }
         /// <summary>更新タイプ</summary>
         public UpdateType UpdateType {
             get => _updateType;

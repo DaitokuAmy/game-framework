@@ -15,6 +15,8 @@ namespace GameFramework.BodySystems {
         private RootAnimationJobProvider _rootAnimationJobProvider;
         // モーション再生用クラス
         private MotionPlayer _player;
+        // 内部的に保持する速度
+        private float _localSpeed = 1.0f;
 
         /// <summary>制御に使用しているAnimator</summary>
         public Animator Animator { get; private set; }
@@ -54,8 +56,8 @@ namespace GameFramework.BodySystems {
             _player.JobConnector.SetProvider(_rootAnimationJobProvider);
 
             // TimeScale監視
-            Body.LayeredTime.OnChangedTimeScale += scale => { _player.SetSpeed(scale); };
-            _player.SetSpeed(Body.LayeredTime.TimeScale);
+            Body.LayeredTime.OnChangedTimeScale += OnChangedTimeScale;
+            ApplySpeed();
         }
 
         /// <summary>
@@ -69,6 +71,7 @@ namespace GameFramework.BodySystems {
         /// 廃棄時処理
         /// </summary>
         protected override void DisposeInternal() {
+            Body.LayeredTime.OnChangedTimeScale -= OnChangedTimeScale;
             _player.Dispose();
         }
 
@@ -83,7 +86,8 @@ namespace GameFramework.BodySystems {
         /// 再生速度の設定
         /// </summary>
         public void SetSpeed(float speed) {
-            _player.SetSpeed(speed);
+            _localSpeed = Mathf.Max(0, speed);
+            ApplySpeed();
         }
 
         /// <summary>
@@ -133,6 +137,20 @@ namespace GameFramework.BodySystems {
         /// </summary>
         private void OnValidate() {
             _player?.SetUpdateMode(_updateMode);
+        }
+
+        /// <summary>
+        /// 速度の反映
+        /// </summary>
+        private void ApplySpeed() {
+            _player.SetSpeed(_localSpeed * Body.LayeredTime.TimeScale);
+        }
+
+        /// <summary>
+        /// 時間の変更監視
+        /// </summary>
+        private void OnChangedTimeScale(float timeScale) {
+            ApplySpeed();
         }
     }
 }

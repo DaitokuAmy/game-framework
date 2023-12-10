@@ -41,37 +41,26 @@ namespace GameFramework.SituationSystems {
         // プリロードしているSituationリスト
         private readonly List<Situation> _preloadSituations = new();
         // 事前登録しているSituationリスト
-        private readonly List<Situation> _preRegisterSituations = new();
+        private readonly Dictionary<Type, Situation> _preRegisterSituations = new();
 
         // スタックを利用するか
         private bool _useStack;
         // 遷移中情報
         private TransitionInfo _transitionInfo;
 
-        // 持ち主のSituation
+        /// <summary>持ち主のSituation</summary>
         public Situation Owner { get; private set; }
-        // 現在のシチュエーション
+        /// <summary>現在のシチュエーション</summary>
         public Situation Current => _stack.Count > 0 ? _stack[_stack.Count - 1] : null;
+        /// <summary>PreLoad用のコルーチンランナー</summary>
+        internal CoroutineRunner RootCoroutineRunner { get; private set; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationContainer() {
-            InitializeInternal(null, true);
-        }
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public SituationContainer(Situation owner, bool useStack) {
-            InitializeInternal(owner, useStack);
-        }
-
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
-        internal void InitializeInternal(Situation owner, bool useStack) {
+        public SituationContainer(Situation owner, CoroutineRunner rootCoroutineRunner, bool useStack) {
             Owner = owner;
+            RootCoroutineRunner = rootCoroutineRunner;
             _useStack = useStack;
         }
 
@@ -301,6 +290,83 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// 遷移実行(PreRegisterした物用)
+        /// </summary>
+        /// <param name="onSetup">遷移対象のSituationの初期化処理記述用</param>
+        /// <param name="option">遷移オプション</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition<T>(Action<T> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+            where T : Situation {
+            var key = typeof(T);
+            if (!_preRegisterSituations.TryGetValue(key, out var situation)) {
+                return new TransitionHandle(new Exception($"Not found transition situation type. {key.Name}"));
+            }
+            
+            onSetup?.Invoke(situation as T);
+            return Transition(situation, option, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行(PreRegisterした物用)
+        /// </summary>
+        /// <param name="onSetup">遷移対象のSituationの初期化処理記述用</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition<T>(Action<T> onSetup, ITransition overrideTransition, params ITransitionEffect[] effects)
+            where T : Situation {
+            return Transition(onSetup, null, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行(PreRegisterした物用)
+        /// </summary>
+        /// <param name="onSetup">遷移対象のSituationの初期化処理記述用</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition<T>(Action<T> onSetup, params ITransitionEffect[] effects)
+            where T : Situation {
+            return Transition(onSetup, null, null, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行(PreRegisterした物用)
+        /// </summary>
+        /// <param name="type">Situationの型</param>
+        /// <param name="onSetup">遷移対象のSituationの初期化処理記述用</param>
+        /// <param name="option">遷移オプション</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition(Type type, Action<Situation> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            if (!_preRegisterSituations.TryGetValue(type, out var situation)) {
+                return new TransitionHandle(new Exception($"Not found transition situation type. {type.Name}"));
+            }
+            
+            onSetup?.Invoke(situation);
+            return Transition(situation, option, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行(PreRegisterした物用)
+        /// </summary>
+        /// <param name="type">Situationの型</param>
+        /// <param name="onSetup">遷移対象のSituationの初期化処理記述用</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition(Type type, Action<Situation> onSetup, ITransition overrideTransition, params ITransitionEffect[] effects) {
+            return Transition(type, onSetup, null, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行(PreRegisterした物用)
+        /// </summary>
+        /// <param name="type">Situationの型</param>
+        /// <param name="onSetup">遷移対象のSituationの初期化処理記述用</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition(Type type, Action<Situation> onSetup, params ITransitionEffect[] effects) {
+            return Transition(type, onSetup, null, null, effects);
+        }
+
+        /// <summary>
         /// 戻り遷移実行
         /// </summary>
         /// <param name="option">遷移オプション</param>
@@ -351,7 +417,16 @@ namespace GameFramework.SituationSystems {
                 return false;
             }
             
-            return _preRegisterSituations.Contains(situation);
+            return _preRegisterSituations.ContainsValue(situation);
+        }
+        
+        /// <summary>
+        /// シチュエーションが事前登録されているか
+        /// </summary>
+        public bool ContainsPreRegister<T>()
+            where T : Situation {
+            var type = typeof(T);
+            return _preRegisterSituations.ContainsKey(type);
         }
 
         /// <summary>
@@ -363,14 +438,16 @@ namespace GameFramework.SituationSystems {
                 Debug.LogError("Situation is null.");
                 return;
             }
+
+            var key = situation.GetType();
             
-            if (_preRegisterSituations.Contains(situation)) {
-                Debug.LogWarning($"Already pre registered situation. [{situation.GetType().Name}]");
+            if (_preRegisterSituations.ContainsKey(key)) {
+                Debug.LogWarning($"Already pre registered situation. [{key.Name}]");
                 return;
             }
             
             var target = (ISituation)situation;
-            _preRegisterSituations.Add(situation);
+            _preRegisterSituations.Add(key, situation);
             target.PreRegister(this);
         }
 
@@ -384,13 +461,13 @@ namespace GameFramework.SituationSystems {
                 return;
             }
             
-            if (!_preRegisterSituations.Contains(situation)) {
+            if (!_preRegisterSituations.ContainsValue(situation)) {
                 Debug.LogWarning($"Not found pre registered situation. [{situation.GetType().Name}]");
                 return;
             }
             
             var target = (ISituation)situation;
-            _preloadSituations.Remove(situation);
+            _preRegisterSituations.Remove(situation.GetType());
             target.PreUnregister(this);
         }
 
@@ -404,7 +481,7 @@ namespace GameFramework.SituationSystems {
             if (target.PreLoadState == PreLoadState.None) {
                 _preloadSituations.Add(situation);
                 target.Standby(this);
-                _coroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => {
+                RootCoroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => {
                     asyncOp.Completed();
                 }, () => {
                     asyncOp.Aborted();

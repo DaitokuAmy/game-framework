@@ -2,6 +2,7 @@ using GameFramework.CoroutineSystems;
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Threading;
 using GameFramework.Core;
 using Coroutine = GameFramework.CoroutineSystems.Coroutine;
@@ -132,7 +133,13 @@ namespace GameFramework.UISystems {
                 ((IUIView)view).Initialize(Window);
             }
 
-            return (T)views[0];
+            var foundView = views.OfType<T>().FirstOrDefault();
+            if (foundView == null) {
+                Debug.LogError($"Not found instantiate view component. [{typeof(T).Name}]");
+                return default;
+            }
+
+            return foundView;
         }
 
         /// <summary>

@@ -59,6 +59,7 @@ namespace SampleGame {
             
             self.BindRangeEventHandler<BodyActiveGimmickRangeEvent, BodyActiveGimmickRangeEventHandler>(handler => handler.Setup(gimmickController));
             self.BindRangeEventHandler<BodyAnimationGimmickRangeEvent, BodyAnimationGimmickRangeEventHandler>(handler => handler.Setup(gimmickController));
+            self.BindRangeEventHandler<BodyStateGimmickRangeEvent, BodyStateGimmickRangeEventHandler>(handler => handler.Setup(gimmickController));
         }
     }
 }

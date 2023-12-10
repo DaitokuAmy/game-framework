@@ -34,6 +34,11 @@ namespace SituationFlowSample {
             var situationA2 = new SampleNodeSituationA2();
             situationA2.SetParent(situationA);
             
+            // PreLoad
+            situationA.PreLoadAsync();
+            situationA1.PreLoadAsync();
+            situationA2.PreLoadAsync();
+            
             // シチュエーションBの依存的な階層構造構築
             // SituationB
             //   SituationB1
@@ -52,15 +57,15 @@ namespace SituationFlowSample {
             situationB22.SetParent(situationB2);
             
             // シチュエーションの遷移関係を構築
-            _situationFlow = new SituationFlow(situationA1);
-            var a1Node = _situationFlow.RootNode;
+            _situationFlow = new SituationFlow();
+            var a1Node = _situationFlow.ConnectRoot(situationA1);
             var a2Node = a1Node.Connect(situationA2); // A1 -> A2
             var b1Node = a2Node.Connect(situationB1); // A2 -> B1
             var b21Node = b1Node.Connect(situationB21); // B1 -> B21
             var b22Node = b1Node.Connect(situationB22); // B1 -> B22
             
             // Fallback
-            _situationFlow.SetFallbackNode(a1Node);
+            _situationFlow.SetFallbackNode(a2Node);
             _situationFlow.SetFallbackNode(b1Node);
             
             // 遷移

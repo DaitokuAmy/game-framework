@@ -9,7 +9,7 @@ namespace SituationFlowSample {
     /// <summary>
     /// サンプル用のNodeSituation(Flowの末端扱い)
     /// </summary>
-    public abstract class SampleNodeSituation : NodeSituation {
+    public abstract class SampleNodeSituation : Situation {
         // 遷移先候補
         private static readonly string[] TransitionItemNames = {
             "A1", "A2", "B1", "B21", "B22"

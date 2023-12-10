@@ -123,7 +123,7 @@ namespace GameFramework.ActorSystems {
 
                 try {
                     // コルーチン実行
-                    if (!((IEnumerator)_coroutine).MoveNext()) {
+                    if (!_coroutine.MoveNext()) {
                         FinishAction();
                         return false;
                     }

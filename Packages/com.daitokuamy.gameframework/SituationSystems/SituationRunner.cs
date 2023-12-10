@@ -1,4 +1,5 @@
 using System;
+using GameFramework.CoroutineSystems;
 using GameFramework.TaskSystems;
 
 namespace GameFramework.SituationSystems {
@@ -8,6 +9,7 @@ namespace GameFramework.SituationSystems {
     public class SituationRunner : ISituationContainerProvider, IFixedUpdatableTask, ILateUpdatableTask, ITaskEventHandler, IDisposable {
         private TaskRunner _taskRunner;
         private SituationContainer _rootContainer;
+        private CoroutineRunner _rootCoroutineRunner;
 
         // アクティブか
         bool ITask.IsActive => true;
@@ -23,7 +25,8 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="useStack">Stack機能を使うか</param>
         public SituationRunner(bool useStack = false) {
-            _rootContainer = new SituationContainer(null, useStack);
+            _rootCoroutineRunner = new CoroutineRunner();
+            _rootContainer = new SituationContainer(null, _rootCoroutineRunner, useStack);
         }
 
         /// <summary>
@@ -46,6 +49,7 @@ namespace GameFramework.SituationSystems {
         /// タスク更新
         /// </summary>
         public void Update() {
+            _rootCoroutineRunner.Update();
             _rootContainer.Update();
         }
 
@@ -67,6 +71,11 @@ namespace GameFramework.SituationSystems {
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
+            if (_rootCoroutineRunner != null) {
+                _rootCoroutineRunner.Dispose();
+                _rootCoroutineRunner = null;
+            }
+            
             if (_rootContainer != null) {
                 _rootContainer.Dispose();
                 _rootContainer = null;

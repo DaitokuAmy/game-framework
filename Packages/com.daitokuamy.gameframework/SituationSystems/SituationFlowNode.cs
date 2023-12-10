@@ -18,7 +18,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>実行対象のSituation</summary>
         internal Situation Situation => _situation;
         /// <summary>Situationが含まれているContainer</summary>
-        internal SituationContainer Container => _situation.ParentContainer;
+        internal SituationContainer Container => _situation?.ParentContainer;
 
         /// <summary>
         /// コンストラクタ

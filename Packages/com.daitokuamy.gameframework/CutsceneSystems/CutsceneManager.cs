@@ -151,7 +151,7 @@ namespace GameFramework.CutsceneSystems {
 
                 Stop(true);
                 if (_layeredTime != null) {
-                    _layeredTime.OnChangedTimeScale += OnChangedTimeScale;
+                    _layeredTime.OnChangedTimeScale -= OnChangedTimeScale;
                 }
 
                 Disposed = true;

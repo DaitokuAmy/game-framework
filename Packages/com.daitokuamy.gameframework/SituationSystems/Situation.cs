@@ -7,7 +7,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション
     /// </summary>
-    public abstract class Situation : ISituation, ISituationContainerProvider, IDisposable {
+    public abstract class Situation : ISituation, INodeSituation, ISituationContainerProvider, IDisposable {
         // 状態
         public enum State {
             Invalid = -1,
@@ -26,6 +26,8 @@ namespace GameFramework.SituationSystems {
         private DisposableScope _animationScope;
         // アクティブスコープ
         private DisposableScope _activeScope;
+        // スタックを利用するか
+        private bool _useStack;
 
         /// <summary>インターフェース用の子コンテナ返却プロパティ</summary>
         SituationContainer ISituationContainerProvider.Container => ChildContainer;
@@ -44,12 +46,14 @@ namespace GameFramework.SituationSystems {
         public bool PreRegistered { get; private set; } = false;
         /// <summary>プリロード状態</summary>
         public PreLoadState PreLoadState { get; private set; } = PreLoadState.None;
+        /// <summary>登録されているFlow</summary>
+        protected SituationFlow SituationFlow { get; private set; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         protected Situation(bool useStack = false) {
-            ChildContainer = new SituationContainer(this, useStack);
+            _useStack = useStack;
         }
 
         /// <summary>
@@ -67,6 +71,7 @@ namespace GameFramework.SituationSystems {
 
             CurrentState = State.Standby;
             ParentContainer = container;
+            ChildContainer = new SituationContainer(this, ParentContainer.RootCoroutineRunner, _useStack);
             StandbyInternal(Parent);
         }
 
@@ -147,7 +152,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 子コンテナの更新
-            ChildContainer.Update();
+            ChildContainer?.Update();
         }
 
         /// <summary>
@@ -167,7 +172,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 子コンテナの更新
-            ChildContainer.LateUpdate();
+            ChildContainer?.LateUpdate();
         }
 
         /// <summary>
@@ -187,7 +192,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // 子コンテナの更新
-            ChildContainer.FixedUpdate();
+            ChildContainer?.FixedUpdate();
         }
 
         /// <summary>
@@ -368,6 +373,22 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// Tree登録通知
+        /// </summary>
+        void INodeSituation.OnRegisterFlow(SituationFlow flow) {
+            SituationFlow = flow;
+        }
+
+        /// <summary>
+        /// Tree登録解除通知
+        /// </summary>
+        void INodeSituation.OnUnregisterFlow(SituationFlow flow) {
+            if (flow == SituationFlow) {
+                SituationFlow = null;
+            }
+        }
+
+        /// <summary>
         /// 遷移用のデフォルトTransition取得
         /// </summary>
         public virtual ITransition GetDefaultNextTransition() {
@@ -536,6 +557,103 @@ namespace GameFramework.SituationSystems {
 
             // コンテナに登録
             provider.Container.PreRegister(this);
+        }
+
+        /// <summary>
+        /// 事前読み込み
+        /// </summary>
+        public AsyncOperationHandle PreLoadAsync() {
+            var asyncOp = new AsyncOperator();
+            if (ParentContainer == null) {
+                asyncOp.Aborted(new Exception("Not found parent container."));
+                return asyncOp.GetHandle();
+            }
+
+            return ParentContainer.PreLoadAsync(this);
+        }
+
+        /// <summary>
+        /// 事前読み込み解除
+        /// </summary>
+        public void UnPreLoad() {
+            if (ParentContainer == null) {
+                return;
+            }
+
+            ParentContainer.UnPreLoad(this);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        protected IProcess Transition<T>(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+            where T : Situation {
+            if (SituationFlow == null) {
+                return ParentContainer.Transition<T>(onSetup, overrideTransition, effects);
+            }
+            
+            return SituationFlow.Transition<T>(onSetup, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="type">遷移先を表すSituatonのType</param>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            if (SituationFlow == null) {
+                return ParentContainer.Transition(type, onSetup, overrideTransition, effects);
+            }
+            
+            return SituationFlow.Transition(type, onSetup, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="nextNode">遷移先のNode</param>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public IProcess Transition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            if (SituationFlow == null) {
+                return new TransitionHandle(new Exception("Not found situation flow."));
+            }
+
+            return SituationFlow.Transition(nextNode, onSetup, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 戻り遷移実行
+        /// </summary>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        protected IProcess Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            if (SituationFlow == null) {
+                return ParentContainer.Back(overrideTransition, effects);
+            }
+            
+            return SituationFlow.Back(overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移可能かチェック
+        /// </summary>
+        /// <param name="includeFallback">Fallback対象の型を含めるか</param>
+        /// <typeparam name="T">チェックする型</typeparam>
+        /// <returns>遷移可能か</returns>
+        protected bool CheckTransition<T>(bool includeFallback = true)
+            where T : Situation {
+            if (SituationFlow == null) {
+                return ParentContainer.ContainsPreRegister<T>();
+            }
+            
+            return SituationFlow.CheckTransition<T>(includeFallback);
         }
     }
 }

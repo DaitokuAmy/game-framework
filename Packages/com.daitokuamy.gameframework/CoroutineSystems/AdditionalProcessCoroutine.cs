@@ -36,7 +36,7 @@ namespace GameFramework.CoroutineSystems {
         /// </summary>
         /// <returns>次の処理があるか？</returns>
         bool IEnumerator.MoveNext() {
-            if (((IEnumerator)_baseCoroutine).MoveNext()) {
+            if (_baseCoroutine.MoveNext()) {
                 _additionalFunc?.Invoke();
                 return true;
             }

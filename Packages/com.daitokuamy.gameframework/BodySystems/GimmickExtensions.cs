@@ -46,9 +46,10 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="reverse">反転再生するか</param>
-        public static void Play(this AnimationGimmick[] source, bool reverse = false) {
+        /// <param name="immediate">即時反映するか</param>
+        public static void Play(this AnimationGimmick[] source, bool reverse = false, bool immediate = false) {
             foreach (var gimmick in source) {
-                gimmick.Play(reverse);
+                gimmick.Play(reverse, immediate);
             }
         }
 

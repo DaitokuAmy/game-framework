@@ -30,10 +30,11 @@ namespace GameFramework.BodySystems {
         /// 再生
         /// </summary>
         /// <param name="reverse">反転再生するか</param>
-        public void Play(bool reverse = false) {
+        /// <param name="immediate">即時反映するか</param>
+        public void Play(bool reverse = false, bool immediate = false) {
             _playing = true;
             _reverse = reverse;
-            _time = reverse ? Duration : 0.0f;
+            _time = reverse ^ immediate ? Duration : 0.0f;
         }
 
         /// <summary>
