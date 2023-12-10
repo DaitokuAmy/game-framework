@@ -46,42 +46,42 @@ namespace SampleGame.Application.Common {
             tasks.Add(_playerMasterDataRepository.LoadPlayer(userPlayerDto.playerId)
                 .ToUniTask(cancellationToken: ct)
                 .ContinueWith(result => {
-                    var model = PlayerModel.Create(userPlayerDto.playerId);
+                    var model = PlayerModel.GetOrCreate(userPlayerDto.playerId);
                     model.Setup(result);
                     _userPlayerModel.SetPlayer(model);
                 }));
             tasks.Add(_equipmentMasterDataRepository.LoadWeapon(userPlayerDto.weaponId)
                 .ToUniTask(cancellationToken: ct)
                 .ContinueWith(result => {
-                    var model = EquipmentModel.Create<WeaponModel>(userPlayerDto.weaponId);
+                    var model = EquipmentModel.GetOrCreate<WeaponModel>(userPlayerDto.weaponId);
                     model.Setup(result);
                     _userPlayerModel.SetWeapon(model);
                 }));
             tasks.Add(_equipmentMasterDataRepository.LoadArmor(userPlayerDto.helmArmorId)
                 .ToUniTask(cancellationToken: ct)
                 .ContinueWith(result => {
-                    var model = EquipmentModel.Create<ArmorModel>(userPlayerDto.helmArmorId);
+                    var model = EquipmentModel.GetOrCreate<ArmorModel>(userPlayerDto.helmArmorId);
                     model.Setup(result);
                     _userPlayerModel.SetArmor(model);
                 }));
             tasks.Add(_equipmentMasterDataRepository.LoadArmor(userPlayerDto.bodyArmorId)
                 .ToUniTask(cancellationToken: ct)
                 .ContinueWith(result => {
-                    var model = EquipmentModel.Create<ArmorModel>(userPlayerDto.bodyArmorId);
+                    var model = EquipmentModel.GetOrCreate<ArmorModel>(userPlayerDto.bodyArmorId);
                     model.Setup(result);
                     _userPlayerModel.SetArmor(model);
                 }));
             tasks.Add(_equipmentMasterDataRepository.LoadArmor(userPlayerDto.armsArmorId)
                 .ToUniTask(cancellationToken: ct)
                 .ContinueWith(result => {
-                    var model = EquipmentModel.Create<ArmorModel>(userPlayerDto.armsArmorId);
+                    var model = EquipmentModel.GetOrCreate<ArmorModel>(userPlayerDto.armsArmorId);
                     model.Setup(result);
                     _userPlayerModel.SetArmor(model);
                 }));
             tasks.Add(_equipmentMasterDataRepository.LoadArmor(userPlayerDto.legsArmorId)
                 .ToUniTask(cancellationToken: ct)
                 .ContinueWith(result => {
-                    var model = EquipmentModel.Create<ArmorModel>(userPlayerDto.legsArmorId);
+                    var model = EquipmentModel.GetOrCreate<ArmorModel>(userPlayerDto.legsArmorId);
                     model.Setup(result);
                     _userPlayerModel.SetArmor(model);
                 }));

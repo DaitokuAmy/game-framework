@@ -115,7 +115,7 @@ namespace SampleGame {
             var actorSetupDataRepository = new ActorSetupDataRepository(assetManager).ScopeTo(scope);
             
             // Domain
-            var userPlayerModel = UserPlayerModel.Create();
+            var userPlayerModel = UserPlayerModel.Create().ScopeTo(scope);
             var battleModel = BattleModel.Create().ScopeTo(scope);
             
             // Application
