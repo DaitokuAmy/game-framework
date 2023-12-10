@@ -31,9 +31,9 @@ namespace SampleGame.Infrastructure.Battle {
         /// <summary>
         /// BattlePlayerMasterの読み込み
         /// </summary>
-        IProcess<IBattlePlayerMasterData> IBattlePlayerMasterDataRepository.LoadPlayer(int id) {
+        IProcess<IBattlePlayerMaster> IBattlePlayerMasterDataRepository.LoadPlayer(int id) {
             return new BattlePlayerMasterAssetRequest(id).LoadAsync(_assetManager, _unloadScope)
-                .Cast<BattlePlayerMasterData, IBattlePlayerMasterData>();
+                .Cast<BattlePlayerMasterData, IBattlePlayerMaster>();
         }
     }
 }

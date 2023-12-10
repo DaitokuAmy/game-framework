@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using GameFramework.CommandSystems;
 using GameFramework.Core;
 using GameFramework.ModelSystems;
-using SampleGame.Domain.Battle;
 using SampleGame.Domain.User;
-using UniRx;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -18,27 +18,26 @@ namespace SampleGame.Domain.Battle {
         /// <summary>UserPlayerModelへの参照</summary>
         IReadOnlyUserPlayerModel UserPlayerModel { get; }
         /// <summary>マスターデータへの参照</summary>
-        IBattlePlayerMasterData MasterData { get; }
+        IBattlePlayerMaster MasterData { get; }
         /// <summary>ステータス管理用モデルへの参照</summary>
-        IReadOnlyBattleCharacterStatusModel StatusModel { get; }
+        IReadOnlyBattleStatusModel StatusModel { get; }
+        /// <summary>スキルモデルリストへの参照</summary>
+        IReadOnlyList<IReadOnlyBattleSkillModel> SkillModels { get; }
         /// <summary>アクターモデルへの参照</summary>
         IReadOnlyBattleCharacterActorModel ActorModel { get; }
     }
-    
+
     /// <summary>
     /// バトル用プレイヤーモデル
     /// </summary>
     public class BattlePlayerModel : AutoIdModel<BattlePlayerModel>, IReadOnlyBattlePlayerModel {
         private UserPlayerModel _userPlayerModel;
-        private IBattlePlayerMasterData _masterData;
-        private BattleCharacterStatusModel _statusModel;
+        private IBattlePlayerMaster _masterData;
+        private BattleStatusModel _statusModel;
+        private BattleSkillModel[] _skillModels;
         private BattleCharacterActorModel _actorModel;
-        
-        private Subject<(BattlePlayerModel, int)> _onUpdatedHealthSubject = new();
-        private Subject<(BattlePlayerModel, int)> _onDamagedSubject = new();
-        private Subject<BattlePlayerModel> _onUpdatedSubject = new();
-        private Subject<BattlePlayerModel> _onDeadSubject = new();
-        private Subject<(BattlePlayerModel, string)> _onAttackSubject = new();
+
+        private CommandManager _commandManager;
 
         /// <summary>名前</summary>
         public string Name => UserPlayerModel.PlayerModel.Name;
@@ -47,34 +46,78 @@ namespace SampleGame.Domain.Battle {
         /// <summary>UserPlayerModelへの参照</summary>
         public IReadOnlyUserPlayerModel UserPlayerModel => _userPlayerModel;
         /// <summary>マスターデータへの参照</summary>
-        public IBattlePlayerMasterData MasterData => _masterData;
+        public IBattlePlayerMaster MasterData => _masterData;
         /// <summary>ステータス管理用モデルへの参照</summary>
-        public IReadOnlyBattleCharacterStatusModel StatusModel => _statusModel;
+        public IReadOnlyBattleStatusModel StatusModel => _statusModel;
+        /// <summary>スキルモデルリストへの参照</summary>
+        public IReadOnlyList<IReadOnlyBattleSkillModel> SkillModels => _skillModels;
         /// <summary>アクターモデルへの参照</summary>
         public IReadOnlyBattleCharacterActorModel ActorModel => _actorModel;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        private BattlePlayerModel(int id) : base(id) {
+        }
 
         /// <summary>
         /// 生成時処理
         /// </summary>
         protected override void OnCreatedInternal(IScope scope) {
+            _commandManager = new CommandManager().ScopeTo(scope);
             _actorModel = BattleCharacterActorModel.Create().ScopeTo(scope);
-            _statusModel = BattleCharacterStatusModel.Create().ScopeTo(scope);
+            _statusModel = BattleStatusModel.Create().ScopeTo(scope);
+        }
+
+        /// <summary>
+        /// 削除時処理
+        /// </summary>
+        protected override void OnDeletedInternal() {
+            Cleanup();
         }
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(UserPlayerModel userPlayerModel, IBattlePlayerMasterData masterData, BattleCharacterActorSetupData actorSetupData) {
+        public void Setup(UserPlayerModel userPlayerModel, IBattlePlayerMaster masterData, BattleCharacterActorSetupData actorSetupData) {
+            Cleanup();
+            
             _userPlayerModel = userPlayerModel;
             _masterData = masterData;
             _statusModel.Setup(masterData.HealthMax);
             _actorModel.Setup(actorSetupData);
+            _skillModels = new BattleSkillModel[masterData.SkillMasters.Count];
+            for (var i = 0; i < _skillModels.Length; i++) {
+                _skillModels[i] = BattleSkillModel.Create();
+                _skillModels[i].Setup(masterData.SkillMasters[i]);
+            }
         }
-        
+
         /// <summary>
-        /// コンストラクタ
+        /// 更新処理
         /// </summary>
-        private BattlePlayerModel(int id) : base(id) {
+        public void Update(float deltaTime) {
+            _commandManager.Update();
+        }
+
+        /// <summary>
+        /// コマンドの追加
+        /// </summary>
+        public CommandHandle AddCommand(ICommand command) {
+            return _commandManager.Add(command);
+        }
+
+        /// <summary>
+        /// 解放処理
+        /// </summary>
+        private void Cleanup() {
+            if (_skillModels != null) {
+                for (var i = 0; i < _skillModels.Length; i++) {
+                    _skillModels[i].Dispose();
+                }
+
+                _skillModels = null;
+            }
         }
     }
 }

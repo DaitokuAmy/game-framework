@@ -198,6 +198,10 @@ namespace SampleGame {
         /// </summary>
         protected override void UpdateInternal() {
             base.UpdateInternal();
+            
+            // サービス更新
+            var deltaTime = Time.deltaTime;
+            Services.Get<BattlePlayerAppService>().Update(deltaTime);
 
             if (Input.GetKeyDown(KeyCode.Space)) {
                 MainSystem.Instance.Reboot(new BattleSceneSituation());

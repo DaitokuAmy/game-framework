@@ -8,6 +8,6 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// BattlePlayerのマスターデータ読み込み
         /// </summary>
-        IProcess<IBattlePlayerMasterData> LoadPlayer(int id);
+        IProcess<IBattlePlayerMaster> LoadPlayer(int id);
     }
 }

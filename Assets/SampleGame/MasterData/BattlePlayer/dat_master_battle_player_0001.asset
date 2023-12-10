@@ -14,3 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   healthMax: 100
   actorSetupDataAssetKey: pl000
+  skillMasters:
+  - skillName: "\u30B9\u30AD\u30EBA"
+    actionKey: Attack01
+  - skillName: "\u30B9\u30AD\u30EBB"
+    actionKey: Attack02
+  - skillName: "\u30B9\u30AD\u30EBC"
+    actionKey: Attack03
+  - skillName: "\u30B9\u30AD\u30EBD"
+    actionKey: Attack04

@@ -58,20 +58,19 @@ namespace SampleGame.Presentation.Battle {
             BindSequenceEventHandlers(scope);
 
             //-- View反映系
+            _model.ActorModel.ActionSubject
+                .TakeUntil(scope)
+                .Subscribe(dto => {
+                    _actor.PlaySkillActionAsync(dto.actionKey, scope.Token)
+                        .AddHandle(dto.actionHandle);
+                });
 
             //-- 入力系
             // 攻撃
             input.AttackSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => {
-                    playerAppService.PlayGeneralAction(_model.Id, 0);
-                });
-
-            // ジャンプ
-            input.JumpSubject
-                .TakeUntil(scope)
-                .Subscribe(_ => {
-                    playerAppService.PlayJumpAction(_model.Id);
+                    playerAppService.ExecuteSkill(_model.Id, 0);
                 });
         }
 
@@ -94,7 +93,7 @@ namespace SampleGame.Presentation.Battle {
             var input = Services.Get<BattleInput>();
             var cameraManager = Services.Get<CameraManager>();
             var camera = cameraManager.OutputCamera;
-            var projectileObjectManager = Services.Get<ProjectileObjectManager>();
+            var playerAppService = Services.Get<BattlePlayerAppService>();
 
             // 移動
             var moveVector = input.MoveVector;
@@ -106,6 +105,13 @@ namespace SampleGame.Presentation.Battle {
             right.z = -forward.x;
             var moveDirection = forward * moveVector.y + right * moveVector.x;
             _actor.MoveDirection(moveDirection);
+            
+            // 攻撃
+            for (var i = 0; i < 10; i++) {
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i)) {
+                    playerAppService.ExecuteSkill(_model.Id, i);
+                }
+            }
         }
 
         /// <summary>

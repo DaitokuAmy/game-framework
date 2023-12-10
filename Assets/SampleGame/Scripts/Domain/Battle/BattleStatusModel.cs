@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
-    /// BattleCharacterStatusModelの読み取り専用インターフェース
+    /// BattleStatusModelの読み取り専用インターフェース
     /// </summary>
-    public interface IReadOnlyBattleCharacterStatusModel {
+    public interface IReadOnlyBattleStatusModel {
         /// <summary>最大体力</summary>
         int HealthMax { get; }
         /// <summary>現在体力</summary>
@@ -17,9 +17,9 @@ namespace SampleGame.Domain.Battle {
     }
     
     /// <summary>
-    /// バトル用キャラのステータスモデル
+    /// バトル用ステータスモデル
     /// </summary>
-    public class BattleCharacterStatusModel : AutoIdModel<BattleCharacterStatusModel>, IReadOnlyBattleCharacterStatusModel {
+    public class BattleStatusModel : AutoIdModel<BattleStatusModel>, IReadOnlyBattleStatusModel {
         private ReactiveProperty<int> _health;
         private ReactiveProperty<bool> _dead;
 
@@ -33,7 +33,7 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        private BattleCharacterStatusModel(int id) : base(id) {}
+        private BattleStatusModel(int id) : base(id) {}
 
         /// <summary>
         /// 生成時処理

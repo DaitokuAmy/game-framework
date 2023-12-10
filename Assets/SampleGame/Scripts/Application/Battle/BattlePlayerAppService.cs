@@ -29,6 +29,13 @@ namespace SampleGame.Application.Battle {
         }
 
         /// <summary>
+        /// 更新処理
+        /// </summary>
+        public void Update(float deltaTime) {
+            _battlePlayerModel.Update(deltaTime);
+        }
+
+        /// <summary>
         /// BattlePlayerの作成
         /// </summary>
         public async UniTask<int> CreateBattlePlayerAsync(UserPlayerModel userPlayerModel, int battlePlayerMasterId, CancellationToken ct) {
@@ -44,26 +51,17 @@ namespace SampleGame.Application.Battle {
         }
 
         /// <summary>
-        /// 汎用アクションの再生
+        /// スキル実行
         /// </summary>
         /// <param name="id">BattlePlayerModelのID</param>
-        /// <param name="actionIndex">アクションのIndex</param>
-        public void PlayGeneralAction(int id, int actionIndex) {
+        /// <param name="skillIndex">スキルのIndex</param>
+        public void ExecuteSkill(int id, int skillIndex) {
             var model = BattlePlayerModel.Get(id);
             if (model == null) {
                 return;
             }
-        }
 
-        /// <summary>
-        /// ジャンプの再生
-        /// </summary>
-        /// <param name="id">BattlePlayerModelのID</param>
-        public void PlayJumpAction(int id) {
-            var model = BattlePlayerModel.Get(id);
-            if (model == null) {
-                return;
-            }
+            model.AddCommand(new PlayerSkillCommand(model, skillIndex));
         }
 
         /// <summary>
@@ -88,7 +86,7 @@ namespace SampleGame.Application.Battle {
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            BattlePlayerModel.Reset();
+            _battlePlayerModel?.Dispose();
         }
     }
 }
