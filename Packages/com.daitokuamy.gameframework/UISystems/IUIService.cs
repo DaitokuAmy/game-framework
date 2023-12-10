@@ -2,9 +2,9 @@ using System;
 
 namespace GameFramework.UISystems {    
     /// <summary>
-    /// UIWindowインターフェース
+    /// UIServiceインターフェース
     /// </summary>
-    public interface IUIWindow : IDisposable {
+    public interface IUIService : IDisposable {
         /// <summary>
         /// 初期化処理
         /// </summary>

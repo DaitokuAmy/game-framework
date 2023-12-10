@@ -19,8 +19,8 @@ namespace SampleGame {
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
-            var window = Services.Get<UIManager>().GetWindow<EquipmentUIWindow>();
-            window.ChangeTopAsync(CancellationToken.None).Forget();
+            var uiService = Services.Get<UIManager>().GetService<EquipmentUIService>();
+            uiService.ChangeTopAsync(CancellationToken.None).Forget();
         }
 
         /// <summary>
@@ -29,31 +29,31 @@ namespace SampleGame {
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
             var uiManager = Services.Get<UIManager>();
-            var window = uiManager.GetWindow<EquipmentUIWindow>();
+            var uiService = uiManager.GetService<EquipmentUIService>();
             
             // 戻る
-            window.BackButton.OnClickSubject
+            uiService.BackButton.OnClickSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Back());
 
             // 各種画面遷移
-            window.TopScreen.WeaponUIView.OnClickSubject
+            uiService.TopScreen.WeaponUIView.OnClickSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Transition<EquipmentWeaponListNodeSituation>());
             
-            window.TopScreen.HelmArmorUIView.OnClickSubject
+            uiService.TopScreen.HelmArmorUIView.OnClickSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
             
-            window.TopScreen.BodyArmorUIView.OnClickSubject
+            uiService.TopScreen.BodyArmorUIView.OnClickSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
             
-            window.TopScreen.ArmsArmorUIView.OnClickSubject
+            uiService.TopScreen.ArmsArmorUIView.OnClickSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
             
-            window.TopScreen.LegsArmorUIView.OnClickSubject
+            uiService.TopScreen.LegsArmorUIView.OnClickSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
         }

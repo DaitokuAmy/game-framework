@@ -84,7 +84,7 @@ namespace GameFramework.UISystems {
             public string key;
             public bool initialized;
             public Coroutine coroutine;
-            public List<Type> windowTypes = new();
+            public List<Type> serviceTypes = new();
 
             public abstract bool IsDone { get; }
             public abstract Exception Exception { get; }
@@ -128,8 +128,8 @@ namespace GameFramework.UISystems {
         // 時間管理用
         private LayeredTime _layeredTime;
 
-        // UIWindow管理用
-        private Dictionary<Type, IUIWindow> _windows = new();
+        // UIService管理用
+        private Dictionary<Type, IUIService> _services = new();
         // シーン管理用
         private Dictionary<string, SceneInfo> _sceneInfos = new();
         // プレファブ管理用
@@ -166,8 +166,8 @@ namespace GameFramework.UISystems {
 
             _coroutineRunner.Update();
 
-            foreach (var window in _windows.Values) {
-                window.Update(deltaTime);
+            foreach (var service in _services.Values) {
+                service.Update(deltaTime);
             }
         }
 
@@ -176,8 +176,8 @@ namespace GameFramework.UISystems {
         /// </summary>
         protected override void LateUpdateInternal() {
             var deltaTime = _layeredTime?.DeltaTime ?? Time.deltaTime;
-            foreach (var window in _windows.Values) {
-                window.LateUpdate(deltaTime);
+            foreach (var service in _services.Values) {
+                service.LateUpdate(deltaTime);
             }
         }
 
@@ -226,17 +226,17 @@ namespace GameFramework.UISystems {
 
                 var scene = handle.Scene;
                 foreach (var obj in scene.GetRootGameObjects()) {
-                    var windows = obj.GetComponentsInChildren<IUIWindow>();
-                    foreach (var window in windows) {
-                        var windowType = window.GetType();
-                        if (_windows.ContainsKey(windowType)) {
-                            Debug.LogWarning($"Already exists window type. [{windowType}]");
+                    var services = obj.GetComponentsInChildren<IUIService>();
+                    foreach (var service in services) {
+                        var serviceType = service.GetType();
+                        if (_services.ContainsKey(serviceType)) {
+                            Debug.LogWarning($"Already exists service type. [{serviceType}]");
                             continue;
                         }
 
-                        sceneInfo.windowTypes.Add(windowType);
-                        _windows[windowType] = window;
-                        window.Initialize();
+                        sceneInfo.serviceTypes.Add(serviceType);
+                        _services[serviceType] = service;
+                        service.Initialize();
                     }
                 }
 
@@ -282,17 +282,17 @@ namespace GameFramework.UISystems {
 
                 var prefab = handle.Asset;
                 var instance = Object.Instantiate(prefab, _rootObject.transform, false);
-                var windows = instance.GetComponentsInChildren<IUIWindow>();
-                foreach (var window in windows) {
-                    var windowType = window.GetType();
-                    if (_windows.ContainsKey(windowType)) {
-                        Debug.LogWarning($"Already exists window type. [{windowType}]");
+                var services = instance.GetComponentsInChildren<IUIService>();
+                foreach (var service in services) {
+                    var serviceType = service.GetType();
+                    if (_services.ContainsKey(serviceType)) {
+                        Debug.LogWarning($"Already exists service type. [{serviceType}]");
                         continue;
                     }
 
-                    prefabInfo.windowTypes.Add(windowType);
-                    _windows[windowType] = window;
-                    window.Initialize();
+                    prefabInfo.serviceTypes.Add(serviceType);
+                    _services[serviceType] = service;
+                    service.Initialize();
                 }
 
                 prefabInfo.initialized = true;
@@ -313,15 +313,15 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
-        /// UIWindowの取得
+        /// UIServiceの取得
         /// </summary>
-        public T GetWindow<T>()
-            where T : UIWindow {
-            if (!_windows.TryGetValue(typeof(T), out var window)) {
+        public T GetService<T>()
+            where T : UIService {
+            if (!_services.TryGetValue(typeof(T), out var service)) {
                 return null;
             }
 
-            return (T)window;
+            return (T)service;
         }
 
         /// <summary>
@@ -346,9 +346,9 @@ namespace GameFramework.UISystems {
                 _coroutineRunner.StopCoroutine(assetInfo.coroutine);
             }
 
-            foreach (var windowType in assetInfo.windowTypes) {
-                _windows[windowType].Dispose();
-                _windows.Remove(windowType);
+            foreach (var serviceType in assetInfo.serviceTypes) {
+                _services[serviceType].Dispose();
+                _services.Remove(serviceType);
             }
 
             assetInfo.Release();

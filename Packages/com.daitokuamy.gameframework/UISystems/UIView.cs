@@ -29,23 +29,23 @@ namespace GameFramework.UISystems {
         public virtual bool IsActive => isActiveAndEnabled;
         /// <summary>RectTransform</summary>
         public RectTransform RectTransform { get; private set; }
-        /// <summary>所属しているUIWindowへの参照</summary>
-        protected UIWindow Window { get; private set; }
+        /// <summary>所属しているUIServiceへの参照</summary>
+        protected UIService Service { get; private set; }
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        void IUIView.Initialize(UIWindow window) {
+        void IUIView.Initialize(UIService service) {
             if (_disposed || _initialized) {
                 return;
             }
 
-            if (window == null) {
-                Debug.LogError($"Not found window instance. [{this.name}]");
+            if (service == null) {
+                Debug.LogError($"Not found service instance. [{this.name}]");
                 return;
             }
             
-            Window = window;
+            Service = service;
             RectTransform = (RectTransform)transform;
 
             // Awakeがコールされていない場合はInitializeを実行しない
@@ -60,7 +60,7 @@ namespace GameFramework.UISystems {
 
             InitializeInternal(_scope);
             
-            Window.RegisterView(this);
+            Service.RegisterView(this);
         }
 
         /// <summary>
@@ -88,8 +88,8 @@ namespace GameFramework.UISystems {
                 return;
             }
             
-            if (Window != null) {
-                Window.UnregisterView(this);
+            if (Service != null) {
+                Service.UnregisterView(this);
             }
 
             _disposed = true;
@@ -123,14 +123,14 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
-        /// UIViewが存在するWindow管理化としてUIViewを生成する
+        /// UIViewが存在するService管理化としてUIViewを生成する
         /// </summary>
         protected T InstantiateView<T>(T origin, Transform parent, bool worldPositionSpace = false)
             where T : UIView {
             var instance = Instantiate(origin.gameObject, parent, worldPositionSpace);
             var views = instance.GetComponentsInChildren<UIView>(true);
             foreach (var view in views) {
-                ((IUIView)view).Initialize(Window);
+                ((IUIView)view).Initialize(Service);
             }
 
             var foundView = views.OfType<T>().FirstOrDefault();
@@ -196,9 +196,9 @@ namespace GameFramework.UISystems {
             _awaked = true;
             
             // Initializeの後に呼び出されている可能性があるため、初期化を改めて実行
-            if (Window != null) {
+            if (Service != null) {
                 var view = (IUIView)this;
-                view.Initialize(Window);
+                view.Initialize(Service);
             }
         }
 

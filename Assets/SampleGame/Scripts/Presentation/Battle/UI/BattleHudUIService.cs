@@ -4,9 +4,9 @@ using UnityEngine.UI;
 
 namespace SampleGame.Battle {
     /// <summary>
-    /// BattleHud用のUIWindow
+    /// BattleHud用のUIService
     /// </summary>
-    public class BattleHudUIWindow : UIWindow {
+    public class BattleHudUIService : UIService {
         [SerializeField, Tooltip("テスト用ボタン")]
         private Button _button;
 

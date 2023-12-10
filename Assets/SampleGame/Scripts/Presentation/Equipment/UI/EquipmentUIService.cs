@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace SampleGame.Equipment {
     /// <summary>
-    /// 装備変更画面用のUIWindow
+    /// 装備変更画面用のUIService
     /// </summary>
-    public class EquipmentUIWindow : UIWindow {
+    public class EquipmentUIService : UIService {
         [SerializeField, Tooltip("戻るボタン")]
         private ButtonUIView _backButton;
         [SerializeField, Tooltip("シート切り替え用コンテナ")]

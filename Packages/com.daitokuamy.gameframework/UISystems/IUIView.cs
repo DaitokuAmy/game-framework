@@ -78,7 +78,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        void Initialize(UIWindow window);
+        void Initialize(UIService service);
         
         /// <summary>
         /// 開始処理

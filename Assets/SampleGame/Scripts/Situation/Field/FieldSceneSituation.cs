@@ -92,7 +92,7 @@ namespace SampleGame {
             }
 
             var uIManager = Services.Get<UIManager>();
-            var hudWindow = uIManager.GetWindow<FieldHudUIWindow>();
+            var hudWindow = uIManager.GetService<FieldHudUIService>();
             if (Input.GetKeyDown(KeyCode.O)) {
                 hudWindow.OpenDailyDialogAsync().Forget();
             }

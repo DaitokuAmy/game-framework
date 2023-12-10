@@ -9,10 +9,10 @@ using Coroutine = GameFramework.CoroutineSystems.Coroutine;
 
 namespace GameFramework.UISystems {
     /// <summary>
-    /// UIWindowクラス
+    /// UIServiceクラス
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
-    public abstract class UIWindow : MonoBehaviour, IUIWindow {
+    public abstract class UIService : MonoBehaviour, IUIService {
         // 制御対象のUIViewリスト
         private readonly List<IUIView> _uiViews = new();
         // 登録リクエストされたUIView
@@ -37,7 +37,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        void IUIWindow.Initialize() {
+        void IUIService.Initialize() {
             if (_disposed || _initialized) {
                 return;
             }
@@ -89,7 +89,7 @@ namespace GameFramework.UISystems {
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void IUIWindow.Update(float deltaTime) {
+        void IUIService.Update(float deltaTime) {
             RefreshUIViews();
 
             deltaTime *= TimeScale;
@@ -107,7 +107,7 @@ namespace GameFramework.UISystems {
         /// 後更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void IUIWindow.LateUpdate(float deltaTime) {
+        void IUIService.LateUpdate(float deltaTime) {
             RefreshUIViews();
 
             deltaTime *= TimeScale;

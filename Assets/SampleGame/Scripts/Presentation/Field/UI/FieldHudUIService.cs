@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace SampleGame.Field {
     /// <summary>
-    /// FieldHud用のUIWindow
+    /// FieldHud用のUIService
     /// </summary>
-    public class FieldHudUIWindow : UIWindow {
+    public class FieldHudUIService : UIService {
         [SerializeField, Tooltip("戻るボタン")]
         private ButtonUIView _backButton;
         [SerializeField, Tooltip("ヘッダー")]

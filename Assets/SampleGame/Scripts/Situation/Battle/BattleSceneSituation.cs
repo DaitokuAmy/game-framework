@@ -185,8 +185,8 @@ namespace SampleGame {
             base.ActivateInternal(handle, scope);
             
             // Backボタン監視
-            var window = Services.Get<UIManager>().GetWindow<BattleHudUIWindow>();
-            window.Button.OnClickAsObservable()
+            var uiService = Services.Get<UIManager>().GetService<BattleHudUIService>();
+            uiService.Button.OnClickAsObservable()
                 .TakeUntil(scope)
                 .Subscribe(_ => {
                     ParentContainer.Back();

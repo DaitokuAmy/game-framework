@@ -15,7 +15,7 @@ namespace SampleGame {
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
             var uiManager = Services.Get<UIManager>();
-            var hudWindow = uiManager.GetWindow<FieldHudUIWindow>();
+            var hudWindow = uiManager.GetService<FieldHudUIService>();
             
             // 装備画面への遷移
             hudWindow.FooterUIView.OnClickEquipmentButtonSubject

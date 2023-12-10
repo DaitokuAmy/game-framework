@@ -20,8 +20,8 @@ namespace SampleGame {
             yield return base.SetupRoutineInternal(handle, scope);
             
             var uiManager = Services.Get<UIManager>();
-            var window = uiManager.GetWindow<EquipmentUIWindow>();
-            window.ArmorScreen.Setup(10);
+            var uiService = uiManager.GetService<EquipmentUIService>();
+            uiService.ArmorScreen.Setup(10);
         }
         /// <summary>
         /// 開く処理
@@ -30,8 +30,8 @@ namespace SampleGame {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
             var uiManager = Services.Get<UIManager>();
-            var window = uiManager.GetWindow<EquipmentUIWindow>();
-            yield return window.ChangeArmorListAsync(CancellationToken.None).ToCoroutine();
+            var uiService = uiManager.GetService<EquipmentUIService>();
+            yield return uiService.ChangeArmorListAsync(CancellationToken.None).ToCoroutine();
         }
 
         /// <summary>
@@ -40,10 +40,10 @@ namespace SampleGame {
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
             var uiManager = Services.Get<UIManager>();
-            var window = uiManager.GetWindow<EquipmentUIWindow>();
+            var uiService = uiManager.GetService<EquipmentUIService>();
             
             // 戻る
-            window.BackButton.OnClickSubject
+            uiService.BackButton.OnClickSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Back());
         }
