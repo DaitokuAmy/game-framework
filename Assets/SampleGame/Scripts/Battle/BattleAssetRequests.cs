@@ -2,17 +2,6 @@ using UnityEngine.SceneManagement;
 
 namespace SampleGame.Battle {
     /// <summary>
-    /// BattlePlayerMasterDataのAssetRequest
-    /// </summary>
-    public class BattlePlayerMasterGameAssetRequest : GameAssetRequest<BattlePlayerMasterData> {
-        public override string Address { get; }
-        
-        public BattlePlayerMasterGameAssetRequest(string assetKey) {
-            Address = GetPath($"Battle/BattlePlayerMaster/dat_battle_player_master_{assetKey}.asset");
-        }
-    }
-
-    /// <summary>
     /// バトルイベントカットシーンの読み込みリクエスト
     /// </summary>
     public class BattleEventCutsceneAssetRequest : SceneAssetRequest {

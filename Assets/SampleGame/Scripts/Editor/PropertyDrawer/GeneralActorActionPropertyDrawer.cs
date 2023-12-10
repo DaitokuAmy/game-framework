@@ -1,6 +1,7 @@
 using System;
 using UnityEditor;
 using UnityEngine;
+using SampleGame.Domain.Common;
 
 namespace SampleGame.Editor {
     /// <summary>

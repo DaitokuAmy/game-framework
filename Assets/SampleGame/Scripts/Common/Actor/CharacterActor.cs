@@ -6,6 +6,7 @@ using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.CoroutineSystems;
 using GameFramework.ActorSystems;
+using SampleGame.Domain.Common;
 using UnityEngine;
 
 namespace SampleGame {

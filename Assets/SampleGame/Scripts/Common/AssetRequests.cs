@@ -2,6 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
+using SampleGame.Domain.Battle;
 using SampleGame.Infrastructure.Common;
 using UnityEngine;
 using UnityEngine.SceneManagement;
