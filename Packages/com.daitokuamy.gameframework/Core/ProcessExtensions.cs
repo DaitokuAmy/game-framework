@@ -59,8 +59,9 @@ namespace GameFramework.Core {
         /// <summary>
         /// IProcessの型キャスト
         /// </summary>
-        public static IProcess<T2> Cast<T1, T2>(this IProcess<T1> source) {
-            var handle = (AsyncStatusHandle<T2>)new AsyncStatusProvider<T2>(() => source.IsDone, () => source.Exception, () => (T2)Convert.ChangeType(source.Result, typeof(T2)));
+        public static IProcess<T2> Cast<T1, T2>(this IProcess<T1> source)
+            where T1 : T2 {
+            var handle = (AsyncStatusHandle<T2>)new AsyncStatusProvider<T2>(() => source.IsDone, () => source.Exception, () => source.Result);
             return handle;
         }
         

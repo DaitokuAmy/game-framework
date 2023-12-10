@@ -31,6 +31,14 @@ namespace SampleGame.Infrastructure.Common {
     }
 
     /// <summary>
+    /// ActorAssetのAssetRequest基底
+    /// </summary>
+    internal abstract class ActorAssetRequest<T> : AssetRequest<T>
+        where T : Object {
+        public override string Address => $"Assets/SampleGame/ActorAssets/{RelativePath}";
+    }
+
+    /// <summary>
     /// PlayerMasterData読み込み用リクエスト
     /// </summary>
     internal class PlayerMasterAssetRequest : MasterAssetRequest<PlayerMasterData> {

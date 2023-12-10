@@ -1,7 +1,7 @@
 using GameFramework.ModelSystems;
 using UniRx;
 
-namespace SampleGame.Battle {
+namespace SampleGame.Domain.Battle {
     /// <summary>
     /// バトル中のカメラアングル管理用モデル
     /// </summary>

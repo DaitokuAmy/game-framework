@@ -16,7 +16,7 @@ namespace SampleGame.Domain.Common {
     /// <summary>
     /// ユーザー操作対象のプレイヤーキャラモデル
     /// </summary>
-    public class PlayerModel : AutoIdModel<PlayerModel>, IReadOnlyPlayerModel {
+    public class PlayerModel : IdModel<int, PlayerModel>, IReadOnlyPlayerModel {
         /// <summary>マスターデータ参照</summary>
         public IPlayerMasterData MasterData { get; private set; }
         /// <summary>名前</summary>

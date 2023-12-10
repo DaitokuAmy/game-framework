@@ -7,15 +7,22 @@ using GameFramework.CameraSystems;
 using GameFramework.CollisionSystems;
 using GameFramework.Core;
 using GameFramework.ActorSystems;
+using GameFramework.AssetSystems;
 using GameFramework.CutsceneSystems;
 using GameFramework.ProjectileSystems;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using GameFramework.VfxSystems;
+using SampleGame.Application.Battle;
+using SampleGame.Application.Common;
 using UniRx;
 using UnityEngine;
 using SampleGame.Battle;
 using SampleGame.Domain.Battle;
+using SampleGame.Domain.User;
+using SampleGame.Infrastructure.Battle;
+using SampleGame.Infrastructure.Common;
+using SampleGame.Infrastructure.User;
 using UnityDebugMenu;
 using UnityEngine.SceneManagement;
 using Component = UnityEngine.Component;
@@ -98,24 +105,30 @@ namespace SampleGame {
 
             _layeredTime = new LayeredTime();
             _layeredTime.ScopeTo(scope);
-
-            // BattleModelの生成
-            var battleModel = BattleModel.Create()
-                .ScopeTo(scope);
-
-            // 読み込み処理
-            var playerMaster = default(BattlePlayerMasterData);
-            var playerActorSetup = default(BattleCharacterActorSetupData);
-            var uniTask = LoadPlayerMasterAsync("pl001", scope, ct)
-                .ContinueWith(tuple => {
-                    playerMaster = tuple.Item1;
-                    playerActorSetup = tuple.Item2;
-                });
-            yield return uniTask.ToCoroutine();
-
-            // PlayerModelの初期化
-            battleModel.PlayerModel.Update(playerMaster.name, playerMaster.assetKey, playerMaster.healthMax);
-            battleModel.PlayerModel.ActorModel.Setup(playerActorSetup);
+            
+            // Infrastructure
+            var assetManager = Services.Get<AssetManager>();
+            var userPlayerRepository = new PrefsUserPlayerRepository();
+            var playerMasterDataRepository = new PlayerMasterDataRepository(assetManager).ScopeTo(scope);
+            var equipmentMasterDataRepository = new EquipmentMasterDataRepository(assetManager).ScopeTo(scope);
+            var battlePlayerMasterDataRepository = new BattlePlayerMasterDataRepository(assetManager).ScopeTo(scope);
+            var actorSetupDataRepository = new ActorSetupDataRepository(assetManager).ScopeTo(scope);
+            
+            // Domain
+            var userPlayerModel = UserPlayerModel.Create();
+            var battleModel = BattleModel.Create().ScopeTo(scope);
+            
+            // Application
+            var userPlayerAppService = new UserPlayerAppService(userPlayerModel, userPlayerRepository, playerMasterDataRepository, equipmentMasterDataRepository).ScopeTo(scope);
+            var battlePlayerAppService = new BattlePlayerAppService(battlePlayerMasterDataRepository, actorSetupDataRepository).ScopeTo(scope);
+            ServiceContainer.Set(userPlayerAppService);
+            ServiceContainer.Set(battlePlayerAppService);
+            
+            // UserPlayerの読み込み
+            yield return userPlayerAppService.LoadUserPlayerAsync(scope.Token).ToCoroutine();
+            
+            // BattlePlayerの生成
+            yield return battlePlayerAppService.CreateBattlePlayerAsync(userPlayerModel, 1, scope.Token).ToCoroutine();
 
             // CameraManagerの初期化
             var cameraManager = Services.Get<CameraManager>();
@@ -151,12 +164,10 @@ namespace SampleGame {
 
             // PlayerEntityの生成
             _playerActorEntity = new ActorEntity();
-            yield return _playerActorEntity.SetupPlayerAsync(battleModel.PlayerModel, _layeredTime, scope, ct)
-                .ToCoroutine();
+            yield return _playerActorEntity.SetupPlayerAsync(battlePlayerAppService.PlayerModel, _layeredTime, scope, ct).ToCoroutine();
 
             // CameraTargetPoint制御用Logic追加
-            var cameraTargetPointLogic = new CameraTargetPointLogic(_playerActorEntity, battleModel.AngleModel)
-                .ScopeTo(scope);
+            var cameraTargetPointLogic = new CameraTargetPointLogic(_playerActorEntity, battleModel.AngleModel).ScopeTo(scope);
             cameraTargetPointLogic.RegisterTask(TaskOrder.Logic);
             cameraTargetPointLogic.Activate();
 
@@ -225,9 +236,6 @@ namespace SampleGame {
                 var cutsceneManager = Services.Get<CutsceneManager>();
                 cutsceneManager.Play(_cutsceneScene, _layeredTime);
             }
-
-            // BattleModel更新
-            BattleModel.Get().Update();
         }
 
         /// <summary>
@@ -244,26 +252,5 @@ namespace SampleGame {
 
             base.CleanupInternal(handle);
         }
-
-        /// <summary>
-        /// PlayerMasterの読み込み
-        /// </summary>
-        // private async UniTask<(BattlePlayerMasterData, BattleCharacterActorSetupData)> LoadPlayerMasterAsync(string playerId, IScope unloadScope, CancellationToken ct) {
-        //     // マスター本体の読み込み
-        //     var masterData =
-        //         await new BattlePlayerMasterGameAssetRequest(playerId)
-        //             .LoadAsync(unloadScope, ct);
-        //
-        //     var setupData = default(BattleCharacterActorSetupData);
-        //
-        //     var tasks = new List<UniTask>();
-        //     // Actor初期化用データ読み込み
-        //     tasks.Add(new BattleCharacterActorSetupDataAssetRequest(masterData.actorSetupDataId)
-        //         .LoadAsync(unloadScope, ct)
-        //         .ContinueWith(x => setupData = x));
-        //
-        //     await UniTask.WhenAll(tasks);
-        //     return (masterData, setupData);
-        // }
     }
 }

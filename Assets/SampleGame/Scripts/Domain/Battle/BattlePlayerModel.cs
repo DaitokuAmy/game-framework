@@ -11,7 +11,6 @@ namespace SampleGame.Domain.Battle {
     public interface IReadOnlyBattlePlayerModel {
         /// <summary>管理ID</summary>
         int Id { get; }
-        
         /// <summary>名前</summary>
         string Name { get; }
         /// <summary>Prefab用AssetKey</summary>
@@ -29,7 +28,7 @@ namespace SampleGame.Domain.Battle {
     /// <summary>
     /// バトル用プレイヤーモデル
     /// </summary>
-    public class BattlePlayerModel : AutoIdModel<BattlePlayerModel> {
+    public class BattlePlayerModel : AutoIdModel<BattlePlayerModel>, IReadOnlyBattlePlayerModel {
         private UserPlayerModel _userPlayerModel;
         private IBattlePlayerMasterData _masterData;
         private BattleCharacterStatusModel _statusModel;

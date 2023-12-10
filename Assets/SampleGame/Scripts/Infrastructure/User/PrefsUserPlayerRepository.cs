@@ -16,7 +16,14 @@ namespace SampleGame.Infrastructure.User {
         IProcess<UserPlayerDto> IUserPlayerRepository.LoadUserPlayer() {
             var op = new AsyncOperator<UserPlayerDto>();
             var json = PlayerPrefs.GetString(PrefsKey, "");
-            var dto = JsonUtility.FromJson<UserPlayerDto>(json);
+            var dto = !string.IsNullOrEmpty(json) ? JsonUtility.FromJson<UserPlayerDto>(json) : new UserPlayerDto {
+                playerId = 1,
+                helmArmorId = 1,
+                bodyArmorId = 2,
+                armsArmorId = 3,
+                legsArmorId = 4,
+                weaponId = 101,
+            };
             op.Completed(dto);
             return op.GetHandle();
         }

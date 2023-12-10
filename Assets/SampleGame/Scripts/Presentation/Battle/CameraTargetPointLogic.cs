@@ -2,6 +2,7 @@ using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.ActorSystems;
 using GameFramework.LogicSystems;
+using SampleGame.Domain.Battle;
 using UnityEngine;
 
 namespace SampleGame.Battle {

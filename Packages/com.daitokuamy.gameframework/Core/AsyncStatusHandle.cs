@@ -48,6 +48,13 @@ namespace GameFramework.Core {
         public static implicit operator AsyncStatusHandle(AsyncStatusProvider source) {
             return new AsyncStatusHandle(source);
         }
+
+        /// <summary>
+        /// ハンドルの取得
+        /// </summary>
+        public AsyncStatusHandle GetHandle() {
+            return new AsyncStatusHandle(this);
+        }
     }
 
     /// <summary>
@@ -81,6 +88,13 @@ namespace GameFramework.Core {
         /// </summary>
         public static implicit operator AsyncStatusHandle<T>(AsyncStatusProvider<T> source) {
             return new AsyncStatusHandle<T>(source);
+        }
+
+        /// <summary>
+        /// ハンドルの取得
+        /// </summary>
+        public AsyncStatusHandle<T> GetHandle() {
+            return new AsyncStatusHandle<T>(this);
         }
     }
 
