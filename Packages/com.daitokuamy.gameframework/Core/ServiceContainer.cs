@@ -8,6 +8,46 @@ namespace GameFramework.Core {
     /// インスタンス提供用のコンテナ
     /// </summary>
     public class ServiceContainer : IServiceContainer {
+        /// <summary>
+        /// Serviceの登録を廃棄するためのDisposable
+        /// </summary>
+        private class Disposable : IDisposable {
+            public static readonly Disposable Empty = new Disposable(null, null, -1);
+            
+            private IServiceContainer _container;
+            private Type _type;
+            private int _index;
+            
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            public Disposable(IServiceContainer container, Type type, int index) {
+                _container = container;
+                _type = type;
+                _index = index;
+            }
+
+            /// <summary>
+            /// 廃棄時処理
+            /// </summary>
+            public void Dispose() {
+                if (_container == null || _type == null) {
+                    return;
+                }
+
+                if (_index >= 0) {
+                    _container.Remove(_type, _index);
+                }
+                else {
+                    _container.Remove(_type);
+                }
+
+                _type = null;
+                _container = null;
+                _index = -1;
+            }
+        }
+        
         // 管理用サービス
         private Dictionary<Type, object> _services = new Dictionary<Type, object>();
         private Dictionary<Type, List<object>> _serviceLists = new Dictionary<Type, List<object>>();
@@ -53,35 +93,37 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="type">紐づけ用の型</param>
         /// <param name="service">登録するインスタンス</param>
-        public void Set<TClass>(Type type, TClass service)
+        public IDisposable Set<TClass>(Type type, TClass service)
             where TClass : class {
             if (_services.ContainsKey(type)) {
                 Debug.LogError($"Already set service. Type:{type}");
-                return;
+                return Disposable.Empty;
             }
 
             _services[type] = service;
             if (service is IDisposable disposable) {
                 _disposableServices.Add(disposable);
             }
+
+            return new Disposable(this, type, -1);
         }
 
         /// <summary>
         /// サービスの設定
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
-        public void Set<T, TClass>(TClass service)
+        public IDisposable Set<T, TClass>(TClass service)
             where TClass : class {
-            Set(typeof(T), service);
+            return Set(typeof(T), service);
         }
 
         /// <summary>
         /// サービスの設定
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
-        public void Set<TClass>(TClass service)
+        public IDisposable Set<TClass>(TClass service)
             where TClass : class {
-            Set(service.GetType(), service);
+            return Set(service.GetType(), service);
         }
 
         /// <summary>
@@ -90,7 +132,7 @@ namespace GameFramework.Core {
         /// <param name="type">紐づけ用の型</param>
         /// <param name="service">登録するインスタンス</param>
         /// <param name="index">インデックス</param>
-        public void Set<TClass>(Type type, TClass service, int index)
+        public IDisposable Set<TClass>(Type type, TClass service, int index)
             where TClass : class {
             if (!_serviceLists.TryGetValue(type, out var list)) {
                 list = new List<object>();
@@ -103,13 +145,15 @@ namespace GameFramework.Core {
 
             if (list[index] != null) {
                 Debug.LogError($"Already set service. Type:{type} Index:{index}");
-                return;
+                return Disposable.Empty;
             }
 
             list[index] = service;
             if (service is IDisposable disposable) {
                 _disposableServices.Add(disposable);
             }
+
+            return new Disposable(this, type, index);
         }
 
         /// <summary>
@@ -117,9 +161,9 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
         /// <param name="index">インデックス</param>
-        public void Set<T, TClass>(TClass service, int index)
+        public IDisposable Set<T, TClass>(TClass service, int index)
             where TClass : class {
-            Set(typeof(T), service, index);
+            return Set(typeof(T), service, index);
         }
 
         /// <summary>
@@ -127,9 +171,9 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
         /// <param name="index">インデックス</param>
-        public void Set<TClass>(TClass service, int index)
+        public IDisposable Set<TClass>(TClass service, int index)
             where TClass : class {
-            Set(service.GetType(), service, index);
+            return Set(service.GetType(), service, index);
         }
 
         /// <summary>

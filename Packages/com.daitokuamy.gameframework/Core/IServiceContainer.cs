@@ -15,21 +15,21 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="type">紐づけ用の型</param>
         /// <param name="service">登録するインスタンス</param>
-        void Set<TClass>(Type type, TClass service)
+        IDisposable Set<TClass>(Type type, TClass service)
             where TClass : class;
 
         /// <summary>
         /// サービスの設定
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
-        void Set<T, TClass>(TClass service)
+        IDisposable Set<T, TClass>(TClass service)
             where TClass : class;
 
         /// <summary>
         /// サービスの設定
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
-        void Set<TClass>(TClass service)
+        IDisposable Set<TClass>(TClass service)
             where TClass : class;
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
         /// <param name="index">インデックス</param>
-        void Set<T, TClass>(TClass service, int index)
+        IDisposable Set<T, TClass>(TClass service, int index)
             where TClass : class;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace GameFramework.Core {
         /// <param name="type">紐づけ用の型</param>
         /// <param name="service">登録するインスタンス</param>
         /// <param name="index">インデックス</param>
-        void Set<TClass>(Type type, TClass service, int index)
+        IDisposable Set<TClass>(Type type, TClass service, int index)
             where TClass : class;
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="service">登録するインスタンス</param>
         /// <param name="index">インデックス</param>
-        void Set<TClass>(TClass service, int index)
+        IDisposable Set<TClass>(TClass service, int index)
             where TClass : class;
 
         /// <summary>
