@@ -282,6 +282,9 @@ namespace GameFramework.SituationSystems {
             if (CurrentState == State.SetupFinished) {
                 situation.Cleanup(handle);
             }
+            
+            // 子要素をクリア
+            ChildContainer.Clear();
 
             // PreLoadはここで終わり
             if (PreLoadState != PreLoadState.None) {
@@ -299,6 +302,8 @@ namespace GameFramework.SituationSystems {
 
             ReleaseInternal(container);
 
+            ChildContainer.Dispose();
+            ChildContainer = null;
             ParentContainer = null;
             CurrentState = State.Invalid;
         }

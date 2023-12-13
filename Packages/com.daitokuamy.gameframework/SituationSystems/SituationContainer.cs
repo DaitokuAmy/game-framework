@@ -605,9 +605,9 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 廃棄時処理
+        /// 中身のクリア
         /// </summary>
-        public void Dispose() {
+        public void Clear() {
             // PreLoad/PreRegister毎解放する
             void ForceRelease(ISituation situation) {
                 situation.UnPreLoad();
@@ -626,10 +626,16 @@ namespace GameFramework.SituationSystems {
                 ForceRelease(_stack[_stack.Count - 1]);
                 _stack.RemoveAt(_stack.Count - 1);
             }
-
-            _coroutineRunner.Dispose();
-            _transitionInfo = null;
             
+            _coroutineRunner.StopAllCoroutines();
+            _transitionInfo = null;
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        public void Dispose() {
+            Clear();            
             Owner = null;
         }
 
