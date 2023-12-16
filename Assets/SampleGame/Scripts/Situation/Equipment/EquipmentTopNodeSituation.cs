@@ -12,15 +12,27 @@ namespace SampleGame {
     /// <summary>
     /// EquipmentTopNodeSituation
     /// </summary>
-    public class EquipmentTopNodeSituation : FieldNodeSituation {
+    public class EquipmentTopNodeSituation : FieldNodeSituation {        
         /// <summary>
-        /// 初期化処理
+        /// 開く処理
         /// </summary>
-        protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
-            yield return base.SetupRoutineInternal(handle, scope);
+        protected override IEnumerator OpenRoutineInternal(TransitionHandle handle, IScope animationScope) {
+            yield return base.OpenRoutineInternal(handle, animationScope);
 
-            var uiService = Services.Get<UIManager>().GetService<EquipmentUIService>();
-            uiService.ChangeTopAsync(CancellationToken.None).Forget();
+            var uiManager = Services.Get<UIManager>();
+            var uiService = uiManager.GetService<EquipmentUIService>();
+            yield return uiService.ChangeTopAsync(CancellationToken.None).ToCoroutine();
+        }
+
+        /// <summary>
+        /// 開く後処理
+        /// </summary>
+        protected override void PostOpenInternal(TransitionHandle handle, IScope scope) {
+            base.PostOpenInternal(handle, scope);
+            
+            var uiManager = Services.Get<UIManager>();
+            var uiService = uiManager.GetService<EquipmentUIService>();
+            uiService.ChangeTopImmediate();
         }
 
         /// <summary>
@@ -43,7 +55,7 @@ namespace SampleGame {
             
             uiService.TopScreen.HelmArmorUIView.OnClickSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>());
+                .Subscribe(_ => Transition<EquipmentArmorListNodeSituation>(overrideTransition:new OutInTransition(true, true)));
             
             uiService.TopScreen.BodyArmorUIView.OnClickSubject
                 .TakeUntil(scope)

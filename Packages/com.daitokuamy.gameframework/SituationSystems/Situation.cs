@@ -494,7 +494,6 @@ namespace GameFramework.SituationSystems {
         /// <param name="handle">遷移ハンドル</param>
         /// <param name="scope">スコープ(PreOpen～PostCloseまで)</param>
         protected virtual void PreOpenInternal(TransitionHandle handle, IScope scope) {
-            Debug.Log($"[PreOpen]{GetType().Name}");
         }
 
         /// <summary>
@@ -512,7 +511,6 @@ namespace GameFramework.SituationSystems {
         /// <param name="handle">遷移ハンドル</param>
         /// <param name="scope">スコープ(PreOpen～PostCloseまで)</param>
         protected virtual void PostOpenInternal(TransitionHandle handle, IScope scope) {
-            Debug.Log($"[PostOpen]{GetType().Name}");
         }
 
         /// <summary>
@@ -553,7 +551,6 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         protected virtual void PreCloseInternal(TransitionHandle handle) {
-            Debug.Log($"[PreClose]{GetType().Name}");
         }
 
         /// <summary>
@@ -570,7 +567,6 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         protected virtual void PostCloseInternal(TransitionHandle handle) {
-            Debug.Log($"[PostClose]{GetType().Name}");
         }
 
         /// <summary>

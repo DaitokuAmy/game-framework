@@ -40,6 +40,13 @@ namespace SampleGame.Equipment {
         }
 
         /// <summary>
+        /// Top画面に遷移
+        /// </summary>
+        public void ChangeTopImmediate() {
+            _sheetContainer.Change("Top", immediate:true);
+        }
+
+        /// <summary>
         /// WeaponList画面に遷移
         /// </summary>
         public async UniTask ChangeWeaponListAsync(CancellationToken ct) {
@@ -48,11 +55,25 @@ namespace SampleGame.Equipment {
         }
 
         /// <summary>
+        /// WeaponList画面に遷移
+        /// </summary>
+        public void ChangeWeaponListImmediate() {
+            _sheetContainer.Change("WeaponList", immediate:true);
+        }
+
+        /// <summary>
         /// ArmorList画面に遷移
         /// </summary>
         public async UniTask ChangeArmorListAsync(CancellationToken ct) {
             await _sheetContainer.Change("ArmorList", new CrossUiTransition())
                 .ToUniTask(cancellationToken:ct);
+        }
+
+        /// <summary>
+        /// ArmorList画面に遷移
+        /// </summary>
+        public void ChangeArmorListImmediate() {
+            _sheetContainer.Change("ArmorList", immediate:true);
         }
 
         /// <summary>

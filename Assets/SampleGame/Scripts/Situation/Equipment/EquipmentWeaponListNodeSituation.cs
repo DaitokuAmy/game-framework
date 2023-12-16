@@ -36,6 +36,17 @@ namespace SampleGame {
         }
 
         /// <summary>
+        /// 開く後処理
+        /// </summary>
+        protected override void PostOpenInternal(TransitionHandle handle, IScope scope) {
+            base.PostOpenInternal(handle, scope);
+            
+            var uiManager = Services.Get<UIManager>();
+            var uiService = uiManager.GetService<EquipmentUIService>();
+            uiService.ChangeWeaponListImmediate();
+        }
+
+        /// <summary>
         /// アクティブ時処理
         /// </summary>
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {

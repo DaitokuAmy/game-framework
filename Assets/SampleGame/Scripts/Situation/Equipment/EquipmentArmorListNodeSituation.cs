@@ -23,6 +23,7 @@ namespace SampleGame {
             var uiService = uiManager.GetService<EquipmentUIService>();
             uiService.ArmorScreen.Setup(10);
         }
+        
         /// <summary>
         /// 開く処理
         /// </summary>
@@ -32,6 +33,17 @@ namespace SampleGame {
             var uiManager = Services.Get<UIManager>();
             var uiService = uiManager.GetService<EquipmentUIService>();
             yield return uiService.ChangeArmorListAsync(CancellationToken.None).ToCoroutine();
+        }
+
+        /// <summary>
+        /// 開く後処理
+        /// </summary>
+        protected override void PostOpenInternal(TransitionHandle handle, IScope scope) {
+            base.PostOpenInternal(handle, scope);
+            
+            var uiManager = Services.Get<UIManager>();
+            var uiService = uiManager.GetService<EquipmentUIService>();
+            uiService.ChangeArmorListImmediate();
         }
 
         /// <summary>

@@ -702,7 +702,7 @@ namespace GameFramework.SituationSystems {
 
             var handle = new TransitionHandle(_transitionInfo);
             _transitionInfo.prev.PreClose(handle);
-            if (immediate) {
+            if (!immediate) {
                 yield return _transitionInfo.prev.CloseRoutine(handle);
             }
 
@@ -748,7 +748,7 @@ namespace GameFramework.SituationSystems {
 
             var handle = new TransitionHandle(_transitionInfo);
             _transitionInfo.next.PreOpen(handle);
-            if (immediate) {
+            if (!immediate) {
                 yield return _transitionInfo.next.OpenRoutine(handle);
             }
 
