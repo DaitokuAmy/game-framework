@@ -394,7 +394,9 @@ namespace GameFramework.SituationSystems {
                     }
                 }
                 else {
-                    transitionEffects = effects;
+                    if (last) {
+                        transitionEffects = effects;
+                    }
                 }
 
                 yield return situation.ParentContainer.Transition(situation,
