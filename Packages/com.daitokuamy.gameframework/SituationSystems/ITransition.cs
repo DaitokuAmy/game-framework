@@ -39,12 +39,14 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 遷移先のオープンコルーチン
         /// </summary>
-        IEnumerator OpenNextRoutine();
+        /// <param name="immediate">即時に開くか(PreOpen/PostOpenのみ)</param>
+        IEnumerator OpenNextRoutine(bool immediate = false);
 
         /// <summary>
         /// 遷移元のクローズコルーチン
         /// </summary>
-        IEnumerator ClosePrevRoutine();
+        /// <param name="immediate">即時に閉じる(PreClose/PostCloseのみ)</param>
+        IEnumerator ClosePrevRoutine(bool immediate = false);
 
         /// <summary>
         /// 遷移先のアクティベート

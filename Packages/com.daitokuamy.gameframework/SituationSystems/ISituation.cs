@@ -42,10 +42,22 @@ namespace GameFramework.SituationSystems {
         IEnumerator SetupRoutine(TransitionHandle handle);
 
         /// <summary>
+        /// 開く直前の処理
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        void PreOpen(TransitionHandle handle);
+
+        /// <summary>
         /// 開く処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         IEnumerator OpenRoutine(TransitionHandle handle);
+
+        /// <summary>
+        /// 開く直後の処理
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        void PostOpen(TransitionHandle handle);
 
         /// <summary>
         /// アクティブ化された時の処理
@@ -75,10 +87,22 @@ namespace GameFramework.SituationSystems {
         void Deactivate(TransitionHandle handle);
 
         /// <summary>
+        /// 閉じる直前の処理
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        void PreClose(TransitionHandle handle);
+
+        /// <summary>
         /// 閉じる処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         IEnumerator CloseRoutine(TransitionHandle handle);
+
+        /// <summary>
+        /// 閉じる直後の処理
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        void PostClose(TransitionHandle handle);
 
         /// <summary>
         /// 終了処理

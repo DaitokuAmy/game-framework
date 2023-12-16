@@ -72,7 +72,7 @@ namespace GameFramework.SituationSystems {
             if (Current == null) {
                 return new TransitionHandle(new Exception($"Current situation is null"));
             }
-            
+
             var situationName = Current.GetType().Name;
 
             if (_transitionInfo != null) {
@@ -101,9 +101,7 @@ namespace GameFramework.SituationSystems {
             };
 
             // コルーチンの登録
-            _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => {
-                _transitionInfo = null;
-            });
+            _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => { _transitionInfo = null; });
 
             // スタンバイ状態
             _transitionInfo.next.Standby(this);
@@ -302,7 +300,7 @@ namespace GameFramework.SituationSystems {
             if (!_preRegisterSituations.TryGetValue(key, out var situation)) {
                 return new TransitionHandle(new Exception($"Not found transition situation type. {key.Name}"));
             }
-            
+
             onSetup?.Invoke(situation as T);
             return Transition(situation, option, overrideTransition, effects);
         }
@@ -340,7 +338,7 @@ namespace GameFramework.SituationSystems {
             if (!_preRegisterSituations.TryGetValue(type, out var situation)) {
                 return new TransitionHandle(new Exception($"Not found transition situation type. {type.Name}"));
             }
-            
+
             onSetup?.Invoke(situation);
             return Transition(situation, option, overrideTransition, effects);
         }
@@ -406,7 +404,7 @@ namespace GameFramework.SituationSystems {
         public TransitionHandle Back(params ITransitionEffect[] effects) {
             return Back(null, null, effects);
         }
-        
+
         /// <summary>
         /// シチュエーションが事前登録されているか
         /// </summary>
@@ -416,10 +414,10 @@ namespace GameFramework.SituationSystems {
                 Debug.LogError("Situation is null.");
                 return false;
             }
-            
+
             return _preRegisterSituations.ContainsValue(situation);
         }
-        
+
         /// <summary>
         /// シチュエーションが事前登録されているか
         /// </summary>
@@ -440,12 +438,12 @@ namespace GameFramework.SituationSystems {
             }
 
             var key = situation.GetType();
-            
+
             if (_preRegisterSituations.ContainsKey(key)) {
                 Debug.LogWarning($"Already pre registered situation. [{key.Name}]");
                 return;
             }
-            
+
             var target = (ISituation)situation;
             _preRegisterSituations.Add(key, situation);
             target.PreRegister(this);
@@ -460,12 +458,12 @@ namespace GameFramework.SituationSystems {
                 Debug.LogError("Situation is null.");
                 return;
             }
-            
+
             if (!_preRegisterSituations.ContainsValue(situation)) {
                 Debug.LogWarning($"Not found pre registered situation. [{situation.GetType().Name}]");
                 return;
             }
-            
+
             var target = (ISituation)situation;
             _preRegisterSituations.Remove(situation.GetType());
             target.PreUnregister(this);
@@ -481,13 +479,7 @@ namespace GameFramework.SituationSystems {
             if (target.PreLoadState == PreLoadState.None) {
                 _preloadSituations.Add(situation);
                 target.Standby(this);
-                RootCoroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => {
-                    asyncOp.Completed();
-                }, () => {
-                    asyncOp.Aborted();
-                }, ex => {
-                    asyncOp.Aborted(ex);
-                });
+                RootCoroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => { asyncOp.Completed(); }, () => { asyncOp.Aborted(); }, ex => { asyncOp.Aborted(ex); });
             }
             else {
                 asyncOp.Completed();
@@ -583,7 +575,7 @@ namespace GameFramework.SituationSystems {
             }
             // カレントシチュエーションの更新
             else {
-                var current = (ISituation)Current; 
+                var current = (ISituation)Current;
                 current?.LateUpdate();
             }
         }
@@ -599,7 +591,7 @@ namespace GameFramework.SituationSystems {
             }
             // カレントシチュエーションの更新
             else {
-                var current = (ISituation)Current; 
+                var current = (ISituation)Current;
                 current?.FixedUpdate();
             }
         }
@@ -614,7 +606,7 @@ namespace GameFramework.SituationSystems {
                 situation.PreUnregister(this);
                 situation.Release(this);
             }
-            
+
             // PreLoad状態の物をUnPreLoad
             var preloadSituations = _preloadSituations.ToArray();
             foreach (var situation in preloadSituations) {
@@ -626,7 +618,7 @@ namespace GameFramework.SituationSystems {
                 ForceRelease(_stack[_stack.Count - 1]);
                 _stack.RemoveAt(_stack.Count - 1);
             }
-            
+
             _coroutineRunner.StopAllCoroutines();
             _transitionInfo = null;
         }
@@ -635,7 +627,7 @@ namespace GameFramework.SituationSystems {
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            Clear();            
+            Clear();
             Owner = null;
         }
 
@@ -703,12 +695,18 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 閉じるコルーチン
         /// </summary>
-        IEnumerator ITransitionResolver.ClosePrevRoutine() {
+        IEnumerator ITransitionResolver.ClosePrevRoutine(bool immediate) {
             if (_transitionInfo.prev == null) {
                 yield break;
             }
 
-            yield return _transitionInfo.prev.CloseRoutine(new TransitionHandle(_transitionInfo));
+            var handle = new TransitionHandle(_transitionInfo);
+            _transitionInfo.prev.PreClose(handle);
+            if (immediate) {
+                yield return _transitionInfo.prev.CloseRoutine(handle);
+            }
+
+            _transitionInfo.prev.PostClose(handle);
         }
 
         /// <summary>
@@ -742,13 +740,19 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 開くコルーチン
         /// </summary>
-        IEnumerator ITransitionResolver.OpenNextRoutine() {
+        IEnumerator ITransitionResolver.OpenNextRoutine(bool immediate) {
             _transitionInfo.state = TransitionState.Opening;
             if (_transitionInfo.next == null) {
                 yield break;
             }
 
-            yield return _transitionInfo.next.OpenRoutine(new TransitionHandle(_transitionInfo));
+            var handle = new TransitionHandle(_transitionInfo);
+            _transitionInfo.next.PreOpen(handle);
+            if (immediate) {
+                yield return _transitionInfo.next.OpenRoutine(handle);
+            }
+
+            _transitionInfo.next.PostOpen(handle);
         }
 
         /// <summary>

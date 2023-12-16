@@ -15,6 +15,7 @@ namespace GameFramework.SituationSystems {
             Loading, // 読み込み中
             Loaded, // 読み込み済
             SetupFinished, // 初期化済
+            Opening, // オープン中
             Active, // アクティブ中
         }
 
@@ -22,10 +23,12 @@ namespace GameFramework.SituationSystems {
         private DisposableScope _loadScope;
         // 初期化スコープ
         private DisposableScope _setupScope;
-        // アニメーションスコープ
-        private DisposableScope _animationScope;
+        // オープンスコープ
+        private DisposableScope _openScope;
         // アクティブスコープ
         private DisposableScope _activeScope;
+        // アニメーションスコープ
+        private DisposableScope _animationScope;
         // スタックを利用するか
         private bool _useStack;
 
@@ -113,6 +116,19 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// 開く直前の処理
+        /// </summary>
+        void ISituation.PreOpen(TransitionHandle handle) {
+            if (CurrentState >= State.Opening) {
+                return;
+            }
+            
+            _openScope = new DisposableScope();
+            PreOpenInternal(handle, _openScope);
+            CurrentState = State.Opening;
+        }
+
+        /// <summary>
         /// 開く処理
         /// </summary>
         IEnumerator ISituation.OpenRoutine(TransitionHandle handle) {
@@ -120,6 +136,13 @@ namespace GameFramework.SituationSystems {
             yield return OpenRoutineInternal(handle, _animationScope);
             _animationScope.Dispose();
             _animationScope = null;
+        }
+
+        /// <summary>
+        /// 開く直後の処理
+        /// </summary>
+        void ISituation.PostOpen(TransitionHandle handle) {
+            PostOpenInternal(handle, _openScope);
         }
 
         /// <summary>
@@ -199,14 +222,25 @@ namespace GameFramework.SituationSystems {
         /// 非アクティブ時処理
         /// </summary>
         void ISituation.Deactivate(TransitionHandle handle) {
-            if (CurrentState <= State.SetupFinished) {
+            if (CurrentState <= State.Opening) {
                 return;
             }
 
-            CurrentState = State.SetupFinished;
+            CurrentState = State.Opening;
             DeactivateInternal(handle);
             _activeScope.Dispose();
             _activeScope = null;
+        }
+
+        /// <summary>
+        /// 閉じる直前の処理
+        /// </summary>
+        void ISituation.PreClose(TransitionHandle handle) {
+            if (CurrentState <= State.SetupFinished) {
+                return;
+            }
+            
+            PreCloseInternal(handle);
         }
 
         /// <summary>
@@ -217,6 +251,20 @@ namespace GameFramework.SituationSystems {
             yield return CloseRoutineInternal(handle, _animationScope);
             _animationScope.Dispose();
             _animationScope = null;
+        }
+
+        /// <summary>
+        /// 閉じる直後の処理
+        /// </summary>
+        void ISituation.PostClose(TransitionHandle handle) {
+            if (CurrentState <= State.SetupFinished) {
+                return;
+            }
+            
+            CurrentState = State.SetupFinished;
+            PostCloseInternal(handle);
+            _openScope.Dispose();
+            _openScope = null;
         }
 
         /// <summary>
@@ -275,11 +323,16 @@ namespace GameFramework.SituationSystems {
             var handle = new TransitionHandle(info);
 
             var situation = (ISituation)this;
-            if (CurrentState == State.Active) {
+            if (CurrentState >= State.Opening) {
+                situation.PreClose(handle);
+                situation.PostClose(handle);
+            }
+            
+            if (CurrentState >= State.Active) {
                 situation.Deactivate(handle);
             }
 
-            if (CurrentState == State.SetupFinished) {
+            if (CurrentState >= State.SetupFinished) {
                 situation.Cleanup(handle);
             }
             
@@ -291,7 +344,7 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
-            if (CurrentState == State.Loaded) {
+            if (CurrentState >= State.Loaded) {
                 situation.Unload(handle);
             }
 
@@ -436,12 +489,30 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// 開く直前処理(内部用)
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        /// <param name="scope">スコープ(PreOpen～PostCloseまで)</param>
+        protected virtual void PreOpenInternal(TransitionHandle handle, IScope scope) {
+            Debug.Log($"[PreOpen]{GetType().Name}");
+        }
+
+        /// <summary>
         /// 開く処理(内部用)
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         /// <param name="animationScope">アニメーションキャンセル用スコープ(OpenRoutine中)</param>
         protected virtual IEnumerator OpenRoutineInternal(TransitionHandle handle, IScope animationScope) {
             yield break;
+        }
+
+        /// <summary>
+        /// 開く直後処理(内部用)
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        /// <param name="scope">スコープ(PreOpen～PostCloseまで)</param>
+        protected virtual void PostOpenInternal(TransitionHandle handle, IScope scope) {
+            Debug.Log($"[PostOpen]{GetType().Name}");
         }
 
         /// <summary>
@@ -478,12 +549,28 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// 閉じる直前処理(内部用)
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        protected virtual void PreCloseInternal(TransitionHandle handle) {
+            Debug.Log($"[PreClose]{GetType().Name}");
+        }
+
+        /// <summary>
         /// 閉じる処理(内部用)
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         /// <param name="animationScope">アニメーションキャンセル用スコープ(OpenRoutine中)</param>
         protected virtual IEnumerator CloseRoutineInternal(TransitionHandle handle, IScope animationScope) {
             yield break;
+        }
+
+        /// <summary>
+        /// 閉じる直後処理(内部用)
+        /// </summary>
+        /// <param name="handle">遷移ハンドル</param>
+        protected virtual void PostCloseInternal(TransitionHandle handle) {
+            Debug.Log($"[PostClose]{GetType().Name}");
         }
 
         /// <summary>

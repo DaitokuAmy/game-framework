@@ -6,6 +6,19 @@ namespace GameFramework.SituationSystems {
     /// 閉じてから開く遷移処理
     /// </summary>
     public class OutInTransition : ITransition {
+        private bool _closeImmediate;
+        private bool _openImmediate;
+        
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="closeImmediate">閉じるアニメーションを即時に行うか</param>
+        /// <param name="openImmediate">開くアニメーションを即時に行うか</param>
+        public OutInTransition(bool closeImmediate = false, bool openImmediate = false) {
+            _closeImmediate = closeImmediate;
+            _openImmediate = openImmediate;
+        }
+        
         /// <summary>
         /// 遷移処理
         /// </summary>
@@ -17,7 +30,13 @@ namespace GameFramework.SituationSystems {
             resolver.DeactivatePrev();
 
             // エフェクト開始＆閉じる
-            yield return new MergedCoroutine(resolver.EnterEffectRoutine(), resolver.ClosePrevRoutine());
+            if (_closeImmediate) {
+                yield return resolver.EnterEffectRoutine();
+                yield return resolver.ClosePrevRoutine(true);
+            }
+            else {
+                yield return new MergedCoroutine(resolver.EnterEffectRoutine(), resolver.ClosePrevRoutine());
+            }
 
             // 解放
             yield return resolver.UnloadPrevRoutine();
@@ -26,7 +45,13 @@ namespace GameFramework.SituationSystems {
             yield return resolver.LoadNextRoutine();
 
             // エフェクト終了＆開く
-            yield return new MergedCoroutine(resolver.ExitEffectRoutine(), resolver.OpenNextRoutine());
+            if (_openImmediate) {
+                yield return resolver.OpenNextRoutine(true);
+                yield return resolver.ExitEffectRoutine();
+            }
+            else {
+                yield return new MergedCoroutine(resolver.ExitEffectRoutine(), resolver.OpenNextRoutine());
+            }
 
             // アクティブ化
             resolver.ActivateNext();
