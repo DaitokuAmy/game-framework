@@ -65,12 +65,13 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="maxAcceleration">最大加速度</param>
         /// <param name="continueAcceleration">外れた後にも加速し続けるか</param>
         /// <param name="maxDistance">最大距離</param>
-        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat maxAcceleration, bool continueAcceleration, float maxDistance, MinMaxFloat duration, float durationBaseMeter) {
+        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat maxAcceleration, bool continueAcceleration, float maxDistance, MinMaxFloat duration, float durationBaseMeter, bool autoExit) {
             _startPoint = startPoint;
             _endPoint = endPoint;
             _startSpeed = startSpeed.Rand();
             _duration = CalcDuration(startPoint, endPoint, duration.Rand(), durationBaseMeter);
             _maxAcceleration = maxAcceleration.Rand();
+            _autoExit = autoExit;
             _continueAcceleration = continueAcceleration;
             _maxDistance = maxDistance;
 
@@ -87,7 +88,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="context">初期化用パラメータ</param>
         public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, Context context)
             : this(startPoint, startRotation, endPoint, context.startSpeed, context.maxAcceleration, context.continueAcceleration, context.maxDistance,
-                context.duration, context.durationBaseMeter) {
+                context.duration, context.durationBaseMeter, context.autoExit) {
         }
 
         /// <summary>
