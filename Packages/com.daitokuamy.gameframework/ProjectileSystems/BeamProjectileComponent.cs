@@ -47,6 +47,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// ビームオブジェクトの拡張用MonoBehaviour
     /// </summary>
+    [RequireComponent(typeof(BeamProjectileObject))]
     public abstract class BeamProjectileComponent : MonoBehaviour, IBeamProjectileComponent {
         /// <summary>使用中のProjectile</summary>
         protected IBeamProjectile Projectile { get; private set; }

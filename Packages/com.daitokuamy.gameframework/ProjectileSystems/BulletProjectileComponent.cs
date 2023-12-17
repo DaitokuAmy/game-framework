@@ -46,6 +46,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 飛翔体オブジェクトの挙動拡張用の基底MonoBehaviour
     /// </summary>
+    [RequireComponent(typeof(BulletProjectileObject))]
     public abstract class BulletProjectileComponent : MonoBehaviour, IBulletProjectileComponent {
         // 使用中のProjectile
         protected IProjectile Projectile { get; private set; }
