@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using GameFramework.CollisionSystems;
 using UnityEngine;
@@ -7,8 +6,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 拡大を使ったビームオブジェクト制御
     /// </summary>
-    [Obsolete("Use ScaleParticleBeamProjectileComponent")]
-    public class ScaleParticleBeamProjectileObject : BeamProjectileObject {
+    public class ScaleParticleBeamProjectileComponent : BeamProjectileObject {
         [SerializeField, Tooltip("拡縮可能なObject")]
         private GameObject _scalableObject;
         [SerializeField, Tooltip("拡縮可能ObjectのZ方向基準サイズ")]

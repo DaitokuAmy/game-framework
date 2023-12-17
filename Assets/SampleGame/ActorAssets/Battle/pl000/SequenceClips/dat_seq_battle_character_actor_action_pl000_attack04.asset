@@ -1,5 +1,57 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4751915230851904025
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14c7bc5331eac498f9f1f62696ae6954, type: 3}
+  m_Name: BattleThrowableBulletProjectileSignalEvent
+  m_EditorClassIdentifier: 
+  label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u6295\u64F2"
+  active: 1
+  time: 0.68333334
+  hitCount: 1
+  prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
+  scale: 1
+  locatorName: Hand_C
+  offsetPosition:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  offsetAngles:
+    useRandom: 0
+    minValue: {x: -30, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  emptyRange: 50
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
+  targetLocatorName: 
+  targetPositionOffset:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  projectileContext:
+    startSpeed:
+      useRandom: 0
+      minValue: 5
+      maxValue: 0
+    gravity: 9.8
+    reflectLayerMask:
+      serializedVersion: 2
+      m_Bits: 1
+    cor: 0.5
+    radius: 0.1
+    duration:
+      useRandom: 0
+      minValue: 2
+      maxValue: 0
+    roll: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28,4 +80,5 @@ MonoBehaviour:
   m_Name: SequenceTrack
   m_EditorClassIdentifier: 
   label: Track
-  sequenceEvents: []
+  sequenceEvents:
+  - {fileID: -4751915230851904025}

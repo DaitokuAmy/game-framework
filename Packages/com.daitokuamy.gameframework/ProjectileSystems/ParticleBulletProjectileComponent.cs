@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using GameFramework.CollisionSystems;
 using UnityEngine;
@@ -7,10 +6,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 飛翔体の実体制御用MonoBehaviour
     /// </summary>
-    [Obsolete("Use ParticleBulletProjectileComponent")]
-    public class ParticleBulletProjectileObject : BulletProjectileObject {
-        [SerializeField, Tooltip("飛翔中に表示されるGameObject")]
-        private GameObject _baseObject;
+    public class ParticleBulletProjectileComponent : BulletProjectileComponent {
         [SerializeField, Tooltip("飛翔中に再生するParticleSystem(Loop)")]
         private ParticleSystem _baseParticle;
         [SerializeField, Tooltip("ヒット時再生するParticleSystem(OneShot)")]
@@ -36,9 +32,6 @@ namespace GameFramework.ProjectileSystems {
             StopParticle(_exitParticle);
 
             PlayParticle(_baseParticle);
-            if (_baseObject != null) {
-                _baseObject.SetActive(true);
-            }
         }
 
         /// <summary>
@@ -47,9 +40,6 @@ namespace GameFramework.ProjectileSystems {
         protected override IEnumerator ExitProjectileRoutine() {
             StopParticle(_baseParticle);
             PlayParticle(_exitParticle);
-            if (_baseObject != null) {
-                _baseObject.SetActive(false);
-            }
 
             // Particleの再生が完了するまで待つ
             while (true) {
