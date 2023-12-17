@@ -22,6 +22,8 @@ namespace GameFramework.ProjectileSystems {
             public float maxDistance;
             [Tooltip("着弾想定時間")]
             public MinMaxFloat duration;
+            [Tooltip("着弾想定時間に到達すると自動で終了するか")]
+            public bool autoExit;
             [Tooltip("想定時間をスケールさせるための基準距離(0以下なら固定時間)")]
             public float durationBaseMeter;
         }
@@ -32,6 +34,7 @@ namespace GameFramework.ProjectileSystems {
         private readonly bool _continueAcceleration;
         private readonly float _maxDistance;
         private readonly float _duration;
+        private readonly bool _autoExit;
 
         private bool _stopped;
         private Vector3 _endPoint;
@@ -141,6 +144,11 @@ namespace GameFramework.ProjectileSystems {
             
             // Timer更新
             _timer -= deltaTime;
+            
+            // 時間切れ
+            if (_timer <= 0.0f && _autoExit) {
+                return false;
+            }
 
             return _distance < _maxDistance;
         }
