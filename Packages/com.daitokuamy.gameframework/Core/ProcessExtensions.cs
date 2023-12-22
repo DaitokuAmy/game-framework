@@ -37,6 +37,10 @@ namespace GameFramework.Core {
         public static IProcess Merge(this IEnumerable<IProcess> source) {
             var handle = (AsyncStatusHandle)new AsyncStatusProvider(() => {
                 foreach (var process in source) {
+                    if (process == null) {
+                        continue;
+                    }
+                    
                     if (!process.IsDone) {
                         return false;
                     }
@@ -45,6 +49,10 @@ namespace GameFramework.Core {
                 return true;
             }, () => {
                 foreach (var process in source) {
+                    if (process == null) {
+                        continue;
+                    }
+                    
                     if (process.Exception != null) {
                         return process.Exception;
                     }
