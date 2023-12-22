@@ -11,6 +11,8 @@ namespace GameFramework.VfxSystems.Editor {
         /// インスペクタ拡張
         /// </summary>
         public override void OnInspectorGUI() {
+            base.OnInspectorGUI();
+            
             var dispatcher = target as VfxManagerDispatcher;
             var vfxManger = dispatcher != null ? dispatcher.Manager : null;
 

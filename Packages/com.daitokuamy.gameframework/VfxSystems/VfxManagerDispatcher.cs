@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace GameFramework.VfxSystems {
@@ -5,6 +6,9 @@ namespace GameFramework.VfxSystems {
     /// VfxManagerに生成されるRootにつけるDispatcher
     /// </summary>
     public class VfxManagerDispatcher : MonoBehaviour {
+        [SerializeField, Tooltip("Poolを使わないフラグ")]
+        private bool _unusedPool;
+        
         // 参照先のVfxManager
         public VfxManager Manager { get; private set; }
 
@@ -13,6 +17,25 @@ namespace GameFramework.VfxSystems {
         /// </summary>
         public void Setup(VfxManager vfxManager) {
             Manager = vfxManager;
+            ApplyStatus();
+        }
+
+        /// <summary>
+        /// 値変化時
+        /// </summary>
+        private void OnValidate() {
+            ApplyStatus();
+        }
+
+        /// <summary>
+        /// Managerの状態に反映
+        /// </summary>
+        private void ApplyStatus() {
+            if (Manager == null) {
+                return;
+            }
+            
+            Manager.SetActivePool(!_unusedPool);
         }
     }
 }

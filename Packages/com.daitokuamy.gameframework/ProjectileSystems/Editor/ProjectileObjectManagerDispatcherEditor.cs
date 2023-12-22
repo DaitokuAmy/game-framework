@@ -11,6 +11,8 @@ namespace GameFramework.ProjectileSystems.Editor {
         /// インスペクタ拡張
         /// </summary>
         public override void OnInspectorGUI() {
+            base.OnInspectorGUI();
+            
             var dispatcher = target as ProjectileObjectManagerDispatcher;
             var manager = dispatcher != null ? dispatcher.Manager : null;
 

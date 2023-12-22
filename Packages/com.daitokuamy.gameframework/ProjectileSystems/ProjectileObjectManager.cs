@@ -48,6 +48,22 @@ namespace GameFramework.ProjectileSystems {
         }
 
         /// <summary>
+        /// プール用Objectの情報
+        /// </summary>
+        private class BulletObjectInfo {
+            public GameObject prefab;
+            public IBulletProjectileObject projectileObject;
+        }
+
+        /// <summary>
+        /// プール用Objectの情報
+        /// </summary>
+        private class BeamObjectInfo {
+            public GameObject prefab;
+            public IBeamProjectileObject projectileObject;
+        }
+
+        /// <summary>
         /// 再生中情報
         /// </summary>
         private abstract class PlayingInfo {
@@ -108,39 +124,39 @@ namespace GameFramework.ProjectileSystems {
         /// 再生中情報
         /// </summary>
         private class BulletPlayingInfo : PlayingInfo {
-            private readonly ObjectPool<IBulletProjectileObject> _pool;
-            private readonly IBulletProjectileObject _projectileObject;
+            private readonly ObjectPool<BulletObjectInfo> _pool;
+            private readonly BulletObjectInfo _objectInfo;
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public BulletPlayingInfo(ObjectPool<IBulletProjectileObject> pool, IBulletProjectileObject projectileObject, LayeredTime layeredTime, int layer)
+            public BulletPlayingInfo(ObjectPool<BulletObjectInfo> pool, BulletObjectInfo objectInfo, LayeredTime layeredTime, int layer)
                 : base(layeredTime) {
                 _pool = pool;
-                _projectileObject = projectileObject;
-                SetLayer(projectileObject.transform, layer);
+                _objectInfo = objectInfo;
+                SetLayer(objectInfo.projectileObject.transform, layer);
             }
 
             /// <summary>
             /// TimeScaleの変更通知
             /// </summary>
             protected override void OnChangedTimeScale(float timeScale) {
-                _projectileObject.SetSpeed(timeScale);
+                _objectInfo.projectileObject.SetSpeed(timeScale);
             }
 
             /// <summary>
             /// Poolへの返却
             /// </summary>
             protected override void ReleaseInternal() {
-                _pool.Release(_projectileObject);
+                _pool.Release(_objectInfo);
             }
 
             /// <summary>
             /// 更新処理
             /// </summary>
             protected override bool UpdateInternal(float deltaTime) {
-                _projectileObject.Update(deltaTime);
-                return _projectileObject.IsPlaying;
+                _objectInfo.projectileObject.Update(deltaTime);
+                return _objectInfo.projectileObject.IsPlaying;
             }
         }
 
@@ -148,41 +164,45 @@ namespace GameFramework.ProjectileSystems {
         /// 再生中情報
         /// </summary>
         private class BeamPlayingInfo : PlayingInfo {
-            private readonly ObjectPool<IBeamProjectileObject> _pool;
-            private readonly IBeamProjectileObject _projectileObject;
+            private readonly ObjectPool<BeamObjectInfo> _pool;
+            private readonly BeamObjectInfo _objectInfo;
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public BeamPlayingInfo(ObjectPool<IBeamProjectileObject> pool, IBeamProjectileObject projectileObject, LayeredTime layeredTime, int layer)
+            public BeamPlayingInfo(ObjectPool<BeamObjectInfo> pool, BeamObjectInfo objectInfo, LayeredTime layeredTime, int layer)
                 : base(layeredTime) {
                 _pool = pool;
-                _projectileObject = projectileObject;
-                SetLayer(projectileObject.transform, layer);
+                _objectInfo = objectInfo;
+                SetLayer(objectInfo.projectileObject.transform, layer);
             }
 
             /// <summary>
             /// TimeScaleの変更通知
             /// </summary>
             protected override void OnChangedTimeScale(float timeScale) {
-                _projectileObject.SetSpeed(timeScale);
+                _objectInfo.projectileObject.SetSpeed(timeScale);
             }
 
             /// <summary>
             /// Poolへの返却
             /// </summary>
             protected override void ReleaseInternal() {
-                _pool.Release(_projectileObject);
+                _pool.Release(_objectInfo);
             }
 
             /// <summary>
             /// 更新処理
             /// </summary>
             protected override bool UpdateInternal(float deltaTime) {
-                _projectileObject.Update(deltaTime);
-                return _projectileObject.IsPlaying;
+                _objectInfo.projectileObject.Update(deltaTime);
+                return _objectInfo.projectileObject.IsPlaying;
             }
         }
+
+        // Poolキャパシティ
+        private readonly int _poolDefaultCapacity;
+        private readonly int _poolMaxCapacity;
 
         // コリジョンマネージャ
         private CollisionManager _collisionManager;
@@ -194,10 +214,12 @@ namespace GameFramework.ProjectileSystems {
         // Projectile再生用Player
         private ProjectilePlayer _projectilePlayer;
         // ProjectileObjectPool管理用
-        private Dictionary<GameObject, ObjectPool<IBulletProjectileObject>> _bulletPools = new();
-        private Dictionary<GameObject, ObjectPool<IBeamProjectileObject>> _beamPools = new();
+        private Dictionary<GameObject, ObjectPool<BulletObjectInfo>> _bulletPools = new();
+        private Dictionary<GameObject, ObjectPool<BeamObjectInfo>> _beamPools = new();
         // 再生中情報
         private List<PlayingInfo> _playingInfos = new();
+        // Poolを有効にするフラグ
+        private bool _activePool = true;
 
         /// <summary>デフォルト指定のLayer</summary>
         public int DefaultLayer { get; set; } = 0;
@@ -205,9 +227,15 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ProjectileObjectManager(CollisionManager collisionManager, UpdateMode updateMode = UpdateMode.Update) {
+        /// <param name="collisionManager">衝突判定に使うCollisionManager</param>
+        /// <param name="updateMode">更新モード</param>
+        /// <param name="poolDefaultCapacity">Poolのデフォルトキャパシティ</param>
+        /// <param name="poolMaxCapacity">Poolの最大キャパシティ</param>
+        public ProjectileObjectManager(CollisionManager collisionManager, UpdateMode updateMode = UpdateMode.Update, int poolDefaultCapacity = 10, int poolMaxCapacity = 10000) {
             _collisionManager = collisionManager;
             _updateMode = updateMode;
+            _poolDefaultCapacity = poolDefaultCapacity;
+            _poolMaxCapacity = poolMaxCapacity;
             _projectilePlayer = new ProjectilePlayer();
 
             // Rootの生成
@@ -216,6 +244,18 @@ namespace GameFramework.ProjectileSystems {
             dispatcher.Setup(this);
             UnityEngine.Object.DontDestroyOnLoad(root);
             _rootTransform = root.transform;
+        }
+
+        /// <summary>
+        /// Poolの有効状態を変更(Debug用)
+        /// </summary>
+        public void SetActivePool(bool active) {
+            if (active == _activePool) {
+                return;
+            }
+            
+            Clear();
+            _activePool = active;
         }
 
         /// <summary>
@@ -244,15 +284,15 @@ namespace GameFramework.ProjectileSystems {
 
             // Poolの初期化
             if (!_bulletPools.TryGetValue(prefab, out var pool)) {
-                pool = new ObjectPool<IBulletProjectileObject>(
-                    () => CreateInstance(prefab), OnGetInstance, OnReleaseInstance, OnDestroyInstance);
+                pool = CreateBulletPool(prefab, _activePool);
                 _bulletPools[prefab] = pool;
             }
 
             // インスタンスの取得、初期化
-            var instance = pool.Get();
-            instance.SetLocalScale(scale);
-            instance.Start(projectile);
+            var objectInfo = pool.Get();
+            var projectileObj = objectInfo.projectileObject;
+            projectileObj.SetLocalScale(scale);
+            projectileObj.Start(projectile);
 
             // Raycastの生成
             var raycastCollision = default(IRaycastCollision);
@@ -261,22 +301,22 @@ namespace GameFramework.ProjectileSystems {
 
             // Projectileを再生
             var projectileHandle = _projectilePlayer.Play(projectile, layeredTime, prj => {
-                instance.UpdateProjectile(prj);
+                projectileObj.UpdateProjectile(prj);
                 raycastCollision.March(prj.Position);
                 onUpdatedTransform?.Invoke(prj.Position, prj.Rotation);
             }, () => {
                 collisionHandle.Dispose();
                 if (lastHitPoint != null) {
-                    instance.SetPosition(lastHitPoint.Value);
+                    projectileObj.SetPosition(lastHitPoint.Value);
                 }
 
-                instance.Exit();
+                projectileObj.Exit();
                 onExit?.Invoke();
             });
 
             // Raycastの生成
-            raycastCollision = instance.RaycastRadius > float.Epsilon
-                ? new SphereRaycastCollision(projectile.Position, projectile.Position, instance.RaycastRadius)
+            raycastCollision = projectileObj.RaycastRadius > float.Epsilon
+                ? new SphereRaycastCollision(projectile.Position, projectile.Position, projectileObj.RaycastRadius)
                 : new LineRaycastCollision(projectile.Position, projectile.Position);
             
             // コリジョン登録
@@ -285,13 +325,13 @@ namespace GameFramework.ProjectileSystems {
                     return;
                 }
 
-                instance.OnHitCollision(result);
+                projectileObj.OnHitCollision(result);
                 listener.OnHitRaycastCollision(result);
                 if (hitCount >= 0 && result.hitCount >= hitCount) {
                     // 着弾位置に移動してから廃棄する
                     if (result.raycastHit.distance > float.Epsilon) {
                         lastHitPoint = result.raycastHit.point;
-                        instance.SetPosition(lastHitPoint.Value);
+                        projectileObj.SetPosition(lastHitPoint.Value);
                         projectileHandle.Stop(lastHitPoint);
                     }
                     else {
@@ -305,7 +345,7 @@ namespace GameFramework.ProjectileSystems {
             }
 
             // 再生情報として登録
-            _playingInfos.Add(new BulletPlayingInfo(pool, instance, layeredTime, layer));
+            _playingInfos.Add(new BulletPlayingInfo(pool, objectInfo, layeredTime, layer));
 
             // ハンドル化して返却
             return new Handle(projectileHandle);
@@ -409,15 +449,15 @@ namespace GameFramework.ProjectileSystems {
 
             // Poolの初期化
             if (!_beamPools.TryGetValue(prefab, out var pool)) {
-                pool = new ObjectPool<IBeamProjectileObject>(
-                    () => CreateBeamInstance(prefab), OnGetInstance, OnReleaseInstance, OnDestroyInstance);
+                pool = CreateBeamPool(prefab, _activePool);
                 _beamPools[prefab] = pool;
             }
 
             // インスタンスの取得、初期化
-            var instance = pool.Get();
-            instance.SetLocalScale(scale);
-            instance.Start(projectile);
+            var objectInfo = pool.Get();
+            var projectileObj = objectInfo.projectileObject;
+            projectileObj.SetLocalScale(scale);
+            projectileObj.Start(projectile);
 
             // Raycast用データ
             var raycastCollision = default(IRaycastCollision);
@@ -425,7 +465,7 @@ namespace GameFramework.ProjectileSystems {
 
             // Projectileを再生
             var projectileHandle = _projectilePlayer.Play(projectile, layeredTime, prj => {
-                instance.UpdateProjectile(prj);
+                projectileObj.UpdateProjectile(prj);
                 if (raycastCollision != null) {
                     raycastCollision.Start = prj.TailPosition;
                     raycastCollision.End = prj.HeadPosition;
@@ -435,13 +475,13 @@ namespace GameFramework.ProjectileSystems {
                 onUpdatedTransform?.Invoke(prj.HeadPosition, prj.TailPosition, prj.Rotation);
             }, () => {
                 collisionHandle.Dispose();
-                instance.Exit();
+                projectileObj.Exit();
                 onExit?.Invoke();
             });
 
             // Raycastの生成
-            raycastCollision = instance.RaycastRadius > float.Epsilon
-                ? new SphereRaycastCollision(projectile.TailPosition, projectile.HeadPosition, instance.RaycastRadius)
+            raycastCollision = projectileObj.RaycastRadius > float.Epsilon
+                ? new SphereRaycastCollision(projectile.TailPosition, projectile.HeadPosition, projectileObj.RaycastRadius)
                 : new LineRaycastCollision(projectile.TailPosition, projectile.HeadPosition);
 
             // コリジョン登録
@@ -450,7 +490,7 @@ namespace GameFramework.ProjectileSystems {
                     return;
                 }
 
-                instance.OnHitCollision(result);
+                projectileObj.OnHitCollision(result);
                 listener.OnHitRaycastCollision(result);
                 if (hitCount >= 0 && result.hitCount >= hitCount) {
                     projectileHandle.Stop();
@@ -462,7 +502,7 @@ namespace GameFramework.ProjectileSystems {
             }
 
             // 再生情報として登録
-            _playingInfos.Add(new BeamPlayingInfo(pool, instance, layeredTime, layer));
+            _playingInfos.Add(new BeamPlayingInfo(pool, objectInfo, layeredTime, layer));
 
             // ハンドル化して返却
             return new Handle(projectileHandle);
@@ -570,73 +610,121 @@ namespace GameFramework.ProjectileSystems {
         }
 
         /// <summary>
-        /// インスタンス生成処理
+        /// BulletPoolの生成
         /// </summary>
-        private IBulletProjectileObject CreateInstance(GameObject prefab) {
-            var gameObj = UnityEngine.Object.Instantiate(prefab, _rootTransform);
-            var instance = gameObj.GetComponent<IBulletProjectileObject>();
-            if (instance == null) {
-                instance = gameObj.AddComponent<BulletProjectileObject>();
+        private ObjectPool<BulletObjectInfo> CreateBulletPool(GameObject prefab, bool activePool) {
+            // インスタンス生成処理
+            void CreateContent(BulletObjectInfo objectInfo) {
+                var gameObj = UnityEngine.Object.Instantiate(objectInfo.prefab, _rootTransform);
+                var instance = gameObj.GetComponent<IBulletProjectileObject>();
+                if (instance == null) {
+                    instance = gameObj.AddComponent<BulletProjectileObject>();
+                }
+
+                instance.SetActive(false);
+                objectInfo.projectileObject = instance;
             }
 
-            instance.SetActive(false);
-            return instance;
+            // 中身の削除
+            void DestroyContent(BulletObjectInfo objectInfo) {
+                if (objectInfo == null || objectInfo.projectileObject == null) {
+                    return;
+                }
+
+                if (objectInfo.projectileObject != null) {
+                    objectInfo.projectileObject.Dispose();
+                }
+                
+                objectInfo.projectileObject = null;
+            }
+            
+            var pool = new ObjectPool<BulletObjectInfo>(() => {
+                    var objectInfo = new BulletObjectInfo();
+                    objectInfo.prefab = prefab;
+
+                    if (activePool) {
+                        CreateContent(objectInfo);
+                    }
+
+                    return objectInfo;
+                }, info => {
+                    if (activePool) {
+                        info.projectileObject.SetActive(true);
+                    }
+                    else {
+                        CreateContent(info);
+                        info.projectileObject.SetActive(true);
+                    }
+                }, info => {
+                    if (activePool) {
+                        info.projectileObject.SetActive(false);
+                    }
+                    else {
+                        info.projectileObject.SetActive(false);
+                        DestroyContent(info);
+                    }
+                },
+                DestroyContent, true, _poolDefaultCapacity, _poolMaxCapacity);
+            return pool;
         }
 
         /// <summary>
-        /// インスタンス生成処理
+        /// BeamPoolの生成
         /// </summary>
-        private IBeamProjectileObject CreateBeamInstance(GameObject prefab) {
-            var gameObj = UnityEngine.Object.Instantiate(prefab, _rootTransform);
-            var instance = gameObj.GetComponent<IBeamProjectileObject>();
-            if (instance == null) {
-                instance = gameObj.AddComponent<BeamProjectileObject>();
+        private ObjectPool<BeamObjectInfo> CreateBeamPool(GameObject prefab, bool activePool) {
+            // インスタンス生成処理
+            void CreateContent(BeamObjectInfo objectInfo) {
+                var gameObj = UnityEngine.Object.Instantiate(objectInfo.prefab, _rootTransform);
+                var instance = gameObj.GetComponent<IBeamProjectileObject>();
+                if (instance == null) {
+                    instance = gameObj.AddComponent<BeamProjectileObject>();
+                }
+
+                instance.SetActive(false);
+                objectInfo.projectileObject = instance;
             }
 
-            instance.SetActive(false);
-            return instance;
-        }
+            // 中身の削除
+            void DestroyContent(BeamObjectInfo objectInfo) {
+                if (objectInfo == null || objectInfo.projectileObject == null) {
+                    return;
+                }
 
-        /// <summary>
-        /// インスタンス廃棄時処理
-        /// </summary>
-        private void OnDestroyInstance(IBulletProjectileObject instance) {
-            instance.Dispose();
-        }
+                if (objectInfo.projectileObject != null) {
+                    objectInfo.projectileObject.Dispose();
+                }
+                
+                objectInfo.projectileObject = null;
+            }
+            
+            var pool = new ObjectPool<BeamObjectInfo>(() => {
+                    var objectInfo = new BeamObjectInfo();
+                    objectInfo.prefab = prefab;
 
-        /// <summary>
-        /// インスタンス廃棄時処理
-        /// </summary>
-        private void OnDestroyInstance(IBeamProjectileObject instance) {
-            instance.Dispose();
-        }
+                    if (activePool) {
+                        CreateContent(objectInfo);
+                    }
 
-        /// <summary>
-        /// インスタンス取得時処理
-        /// </summary>
-        private void OnGetInstance(IBulletProjectileObject instance) {
-            instance.SetActive(true);
-        }
-
-        /// <summary>
-        /// インスタンス取得時処理
-        /// </summary>
-        private void OnGetInstance(IBeamProjectileObject instance) {
-            instance.SetActive(true);
-        }
-
-        /// <summary>
-        /// インスタンス返却時処理
-        /// </summary>
-        private void OnReleaseInstance(IBulletProjectileObject instance) {
-            instance.SetActive(false);
-        }
-
-        /// <summary>
-        /// インスタンス返却時処理
-        /// </summary>
-        private void OnReleaseInstance(IBeamProjectileObject instance) {
-            instance.SetActive(false);
+                    return objectInfo;
+                }, info => {
+                    if (activePool) {
+                        info.projectileObject.SetActive(true);
+                    }
+                    else {
+                        CreateContent(info);
+                        info.projectileObject.SetActive(true);
+                    }
+                }, info => {
+                    if (activePool) {
+                        info.projectileObject.SetActive(false);
+                    }
+                    else {
+                        info.projectileObject.SetActive(false);
+                        DestroyContent(info);
+                    }
+                },
+                DestroyContent, true, _poolDefaultCapacity, _poolMaxCapacity);
+            return pool;
         }
     }
 }

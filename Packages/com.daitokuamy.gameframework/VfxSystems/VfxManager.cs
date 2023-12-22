@@ -462,6 +462,8 @@ namespace GameFramework.VfxSystems {
         private List<PlayingInfo> _playingInfos = new();
         // 変数領域確保用のParticleSystemリスト
         private List<ParticleSystem> _workParticleSystems = new();
+        // Poolを有効にするフラグ
+        private bool _activePool = true;
 
         /// <summary>デフォルト指定のLayer</summary>
         public int DefaultLayer { get; set; } = 0;
@@ -480,6 +482,18 @@ namespace GameFramework.VfxSystems {
             dispatcher.Setup(this);
             Object.DontDestroyOnLoad(root);
             _rootTransform = root.transform;
+        }
+
+        /// <summary>
+        /// Poolの有効状態を変更(Debug用)
+        /// </summary>
+        public void SetActivePool(bool active) {
+            if (active == _activePool) {
+                return;
+            }
+            
+            Clear();
+            _activePool = active;
         }
 
         /// <summary>
@@ -609,7 +623,7 @@ namespace GameFramework.VfxSystems {
             
             // Poolが作られていなければ、ここで生成
             if (!_objectPools.TryGetValue(prefab, out var pool)) {
-                pool = CreatePool(prefab);
+                pool = CreatePool(prefab, _activePool);
                 _objectPools[prefab] = pool;
             }
 
@@ -631,28 +645,69 @@ namespace GameFramework.VfxSystems {
         /// <summary>
         /// Poolの生成
         /// </summary>
-        private ObjectPool<ObjectInfo> CreatePool(GameObject prefab) {
+        /// <param name="activePool">InstanceをPoolするか</param>
+        private ObjectPool<ObjectInfo> CreatePool(GameObject prefab, bool activePool) {
+            // 中身の生成
+            void CreateContent(ObjectInfo objectInfo) {
+                if (objectInfo == null || objectInfo.prefab == null) {
+                    return;
+                }
+                
+                var instance = Object.Instantiate(objectInfo.prefab, _rootTransform);
+                var vfxComponents = instance.GetComponentsInChildren<IVfxComponent>(true)
+                    .ToList();
+                _workParticleSystems.Clear();
+                FindRootParticleSystems(instance.transform, _workParticleSystems);
+                vfxComponents.AddRange(_workParticleSystems.Select(x => new ParticleSystemVfxComponent(x)));
+                instance.SetActive(false);
+                    
+                // Componentを一度停止状態にしておく
+                foreach (var component in vfxComponents) {
+                    component.StopImmediate();
+                }
+
+                objectInfo.root = instance;
+                objectInfo.components = vfxComponents.ToArray();
+            }
+
+            // 中身の削除
+            void DestroyContent(ObjectInfo objectInfo) {
+                if (objectInfo == null || objectInfo.root == null) {
+                    return;
+                }
+                
+                Object.Destroy(objectInfo.root);
+                objectInfo.root = null;
+                objectInfo.components = null;
+            }
+            
             var pool = new ObjectPool<ObjectInfo>(() => {
-                    var instance = Object.Instantiate(prefab, _rootTransform);
-                    var vfxComponents = instance.GetComponentsInChildren<IVfxComponent>(true)
-                        .ToList();
-                    _workParticleSystems.Clear();
-                    FindRootParticleSystems(instance.transform, _workParticleSystems);
-                    vfxComponents.AddRange(_workParticleSystems.Select(x => new ParticleSystemVfxComponent(x)));
-                    instance.SetActive(false);
-                    
-                    // Componentを一度停止状態にしておく
-                    foreach (var component in vfxComponents) {
-                        component.StopImmediate();
+                    var objectInfo = new ObjectInfo();
+                    objectInfo.prefab = prefab;
+
+                    if (activePool) {
+                        CreateContent(objectInfo);
                     }
-                    
-                    return new ObjectInfo {
-                        prefab = prefab,
-                        root = instance,
-                        components = vfxComponents.ToArray(),
-                    };
-                }, info => { info.root.SetActive(true); }, info => { info.root.SetActive(false); },
-                info => { Object.Destroy(info.root); }, true, _poolDefaultCapacity, _poolMaxCapacity);
+
+                    return objectInfo;
+                }, info => {
+                    if (activePool) {
+                        info.root.SetActive(true);
+                    }
+                    else {
+                        CreateContent(info);
+                        info.root.SetActive(true);
+                    }
+                }, info => {
+                    if (activePool) {
+                        info.root.SetActive(false);
+                    }
+                    else {
+                        info.root.SetActive(false);
+                        DestroyContent(info);
+                    }
+                },
+                DestroyContent, true, _poolDefaultCapacity, _poolMaxCapacity);
 
             return pool;
         }
