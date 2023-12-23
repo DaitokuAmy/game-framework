@@ -82,6 +82,12 @@ namespace GameFramework.UISystems {
             var handle = new AnimationHandle(status);
             
             _animationScope.Clear();
+
+            // 既にActiveじゃないならそのまま終わる
+            if (!IsActive) {
+                status.Complete();
+                return handle;
+            }
             
             Deactivate();
             PreClose(transitionType);
