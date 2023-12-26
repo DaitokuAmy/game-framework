@@ -9,6 +9,16 @@ namespace GameFramework.UISystems {
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class UIScreen : UIView {
+        /// <summary>
+        /// オープン状態
+        /// </summary>
+        public enum OpenStatus {
+            Opening,
+            Opened,
+            Closing,
+            Closed,
+        }
+        
         // アニメーションキャンセル用スコープ
         private DisposableScope _animationScope;
         // アクティブ状態のスコープ
@@ -26,6 +36,8 @@ namespace GameFramework.UISystems {
             get => CanvasGroup.blocksRaycasts;
             set => CanvasGroup.blocksRaycasts = value;
         }
+        /// <summary>現在のOpenStatus</summary>
+        public OpenStatus CurrentOpenStatus { get; private set; }
         /// <summary>キャンバスグループ</summary>
         public CanvasGroup CanvasGroup { get; private set; }
 
@@ -39,10 +51,12 @@ namespace GameFramework.UISystems {
             _animationScope.Clear();
             
             gameObject.SetActive(true);
+            CurrentOpenStatus = OpenStatus.Opening;
             PreOpen(transitionType);
 
             void PostOpenInternal() {
                 PostOpen(transitionType);
+                CurrentOpenStatus = OpenStatus.Opened;
                 Activate();
             }
 
@@ -90,10 +104,12 @@ namespace GameFramework.UISystems {
             }
             
             Deactivate();
+            CurrentOpenStatus = OpenStatus.Closing;
             PreClose(transitionType);
 
             void PostCloseInternal() {
                 PostClose(transitionType);
+                CurrentOpenStatus = OpenStatus.Closed;
                 gameObject.SetActive(false);
             }
 
