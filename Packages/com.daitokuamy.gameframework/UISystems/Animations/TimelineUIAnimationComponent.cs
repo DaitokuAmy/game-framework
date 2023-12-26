@@ -44,7 +44,6 @@ namespace GameFramework.UISystems {
         /// </summary>
         protected override void OnPlayInternal() {
             if (_playableDirector != null) {
-                _playableDirector.Stop();
                 _playableDirector.Play(_timelineAsset);
                 _playableDirector.Evaluate();
             }
