@@ -96,12 +96,6 @@ namespace GameFramework.UISystems {
                     return;
                 }
 
-                // 初回は再生開始を通知
-                if (first) {
-                    animation.OnPlay();
-                    first = false;
-                }
-
                 time = reverse ? 0.0f : animation.Duration;
                 loop = false;
                 Apply();
