@@ -143,6 +143,16 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// マニュアル初期化（InstantiateViewを呼べない場合に使用してください）
+        /// </summary>
+        protected void ManualInitialize(GameObject target) {
+            var views = target.GetComponentsInChildren<UIView>(true);
+            foreach (var view in views) {
+                ((IUIView)view).Initialize(Service);
+            }
+        }
+
+        /// <summary>
         /// 独自コルーチンの開始
         /// </summary>
         protected Coroutine StartCoroutine(IEnumerator enumerator, Action onCompleted = null,
