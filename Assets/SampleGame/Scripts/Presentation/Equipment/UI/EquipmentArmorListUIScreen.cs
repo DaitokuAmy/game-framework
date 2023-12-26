@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using GameFramework.Core;
-using GameFramework.UISystems;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -8,7 +7,8 @@ namespace SampleGame.Equipment {
     /// <summary>
     /// 装備画面の防具リスト用UIScreen
     /// </summary>
-    public class EquipmentArmorListUIScreen : UIScreen {
+    public class EquipmentArmorListUIScreen : AnimatableUIScreen {
+        [Header("シリアライズ")]
         [SerializeField, Tooltip("防具リスト用のUIViewテンプレート")]
         private ArmorUIView _armorUIViewTemplate;
         [SerializeField, Tooltip("防具詳細情報")]

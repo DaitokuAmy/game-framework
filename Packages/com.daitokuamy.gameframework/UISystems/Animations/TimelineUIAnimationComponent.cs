@@ -44,7 +44,9 @@ namespace GameFramework.UISystems {
         /// </summary>
         protected override void OnPlayInternal() {
             if (_playableDirector != null) {
-                _playableDirector.playableAsset = _timelineAsset ? _timelineAsset : _playableDirector.playableAsset;
+                _playableDirector.Stop();
+                _playableDirector.Play(_timelineAsset);
+                _playableDirector.Evaluate();
             }
         }
     }

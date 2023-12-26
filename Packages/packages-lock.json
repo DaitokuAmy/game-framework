@@ -1,5 +1,15 @@
 {
   "dependencies": {
+    "com.annulusgames.tween-playables": {
+      "version": "https://github.com/AnnulusGames/TweenPlayables.git?path=/Assets/TweenPlayables",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.textmeshpro": "2.0.1",
+        "com.unity.timeline": "1.2.14"
+      },
+      "hash": "7dca23c000b2e439b17cc946c0d0767983342fa6"
+    },
     "com.cysharp.unitask": {
       "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
       "depth": 0,

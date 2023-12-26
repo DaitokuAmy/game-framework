@@ -43,7 +43,9 @@ namespace GameFramework.UISystems {
         /// </summary>
         void IUIAnimation.OnPlay() {
             if (_playableDirector != null) {
-                _playableDirector.playableAsset = _timelineAsset;
+                _playableDirector.Stop();
+                _playableDirector.Play(_timelineAsset);
+                _playableDirector.Evaluate();
             }
         }
 
