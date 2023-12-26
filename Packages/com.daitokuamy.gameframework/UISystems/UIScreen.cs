@@ -13,17 +13,20 @@ namespace GameFramework.UISystems {
         /// オープン状態
         /// </summary>
         public enum OpenStatus {
+            Invalid = -1,
             Opening,
             Opened,
             Closing,
             Closed,
         }
-        
+
         // アニメーションキャンセル用スコープ
         private DisposableScope _animationScope;
         // アクティブ状態のスコープ
         private DisposableScope _activeScope;
-        
+        // アニメーション中の状態保持用インスタンス
+        private AnimationStatus _currentAnimationStatus;
+
         /// <summary>アクティブ化されているか</summary>
         public bool IsActivated { get; private set; }
         /// <summary>操作可能か</summary>
@@ -37,19 +40,35 @@ namespace GameFramework.UISystems {
             set => CanvasGroup.blocksRaycasts = value;
         }
         /// <summary>現在のOpenStatus</summary>
-        public OpenStatus CurrentOpenStatus { get; private set; }
+        public OpenStatus CurrentOpenStatus { get; private set; } = OpenStatus.Invalid;
         /// <summary>キャンバスグループ</summary>
         public CanvasGroup CanvasGroup { get; private set; }
 
         /// <summary>
         /// 開く処理
         /// </summary>
-        public AnimationHandle OpenAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
+        /// <param name="transitionType">遷移向き</param>
+        /// <param name="immediate">即時完了するか</param>
+        /// <param name="force">既に開いている場合でも開きなおすか</param>
+        public AnimationHandle OpenAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false) {
             var status = new AnimationStatus();
             var handle = new AnimationHandle(status);
-            
+
+            // 強制じゃない場合は既にOpenしていた場合は終わる
+            if (!force) {
+                if (CurrentOpenStatus == OpenStatus.Opening || CurrentOpenStatus == OpenStatus.Opened) {
+                    if (_currentAnimationStatus != null) {
+                        return new AnimationHandle(_currentAnimationStatus);
+                    }
+
+                    status.Complete();
+                    return handle;
+                }
+            }
+
             _animationScope.Clear();
-            
+            _currentAnimationStatus = status;
+
             gameObject.SetActive(true);
             CurrentOpenStatus = OpenStatus.Opening;
             PreOpen(transitionType);
@@ -57,6 +76,7 @@ namespace GameFramework.UISystems {
             void PostOpenInternal() {
                 PostOpen(transitionType);
                 CurrentOpenStatus = OpenStatus.Opened;
+                _currentAnimationStatus = null;
                 Activate();
             }
 
@@ -91,18 +111,34 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        public AnimationHandle CloseAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
+        /// <param name="transitionType">遷移向き</param>
+        /// <param name="immediate">即時完了するか</param>
+        /// <param name="force">既に閉じている場合でも閉じなおすか</param>
+        public AnimationHandle CloseAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false) {
             var status = new AnimationStatus();
             var handle = new AnimationHandle(status);
-            
-            _animationScope.Clear();
 
             // 既にActiveじゃないならそのまま終わる
             if (!IsActive) {
                 status.Complete();
                 return handle;
             }
-            
+
+            // 強制じゃない場合は既にCloseしていた場合は終わる
+            if (!force) {
+                if (CurrentOpenStatus == OpenStatus.Closing || CurrentOpenStatus == OpenStatus.Closed) {
+                    if (_currentAnimationStatus != null) {
+                        return new AnimationHandle(_currentAnimationStatus);
+                    }
+
+                    status.Complete();
+                    return handle;
+                }
+            }
+
+            _animationScope.Clear();
+            _currentAnimationStatus = status;
+
             Deactivate();
             CurrentOpenStatus = OpenStatus.Closing;
             PreClose(transitionType);
@@ -110,6 +146,7 @@ namespace GameFramework.UISystems {
             void PostCloseInternal() {
                 PostClose(transitionType);
                 CurrentOpenStatus = OpenStatus.Closed;
+                _currentAnimationStatus = null;
                 gameObject.SetActive(false);
             }
 
@@ -188,7 +225,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         protected virtual void PreClose(TransitionType transitionType) {
         }
-        
+
         /// <summary>
         /// 閉じる処理
         /// </summary>

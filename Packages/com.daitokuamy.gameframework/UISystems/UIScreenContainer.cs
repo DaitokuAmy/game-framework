@@ -59,7 +59,7 @@ namespace GameFramework.UISystems {
             }
             
             // 閉じておく
-            uIScreen.CloseAsync(TransitionType.None, true);
+            uIScreen.CloseAsync(TransitionType.None, true, true);
 
             // 要素を子として登録
             uIScreen.transform.SetParent(transform, false);
