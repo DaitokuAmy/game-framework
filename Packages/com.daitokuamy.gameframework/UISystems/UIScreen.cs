@@ -44,7 +44,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く処理
         /// </summary>
-        public AnimationHandle OpenAsync(TransitionType transitionType, bool immediate) {
+        public AnimationHandle OpenAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
             var status = new AnimationStatus();
             var handle = new AnimationHandle(status);
             
@@ -91,7 +91,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        public AnimationHandle CloseAsync(TransitionType transitionType, bool immediate) {
+        public AnimationHandle CloseAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
             var status = new AnimationStatus();
             var handle = new AnimationHandle(status);
             
