@@ -95,6 +95,16 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        private void OnEnable() {
+            // 再生中のアニメーションがあれば完結させる
+            if (_timer > 0.0f) {
+                _timer = 0.0f;
+            }
+        }
+
+        /// <summary>
         /// 更新処理
         /// </summary>
         private void UpdateInternal(float deltaTime) {
