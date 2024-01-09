@@ -23,6 +23,7 @@ namespace GameFramework.UISystems {
         private FaderInfo[] _faderInfos;
 
         private Dictionary<string, FaderUIView> _faders;
+        private FaderUIView _currentFader;
 
         /// <summary>
         /// 初期化処理
@@ -45,7 +46,15 @@ namespace GameFramework.UISystems {
             if (!_faders.TryGetValue(label, out var fader)) {
                 return AsyncOperationHandle.CanceledHandle;
             }
-
+            
+            // 違うFaderだった場合、即完了させて入れ替える
+            if (_currentFader != null && _currentFader != fader) {
+                var color = _currentFader.Color;
+                _currentFader.FadeInImmediate();
+                fader.FadeOutImmediate(color);
+            }
+            
+            _currentFader = fader;
             return fader.FadeInAsync(duration);
         }
 
@@ -60,6 +69,12 @@ namespace GameFramework.UISystems {
                 return AsyncOperationHandle.CanceledHandle;
             }
 
+            // 違うFaderだった場合、即完了させる
+            if (_currentFader != null && _currentFader != fader) {
+                _currentFader.FadeInImmediate();
+            }
+
+            _currentFader = fader;
             return fader.FadeOutAsync(color, duration);
         }
     }

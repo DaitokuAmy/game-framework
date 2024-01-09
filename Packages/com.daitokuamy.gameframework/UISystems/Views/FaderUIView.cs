@@ -10,7 +10,10 @@ namespace GameFramework.UISystems {
         private float _targetRate;
         private float _animationTimer;
         private AsyncOperator _fadeOperator;
-        
+
+        /// <summary>反映色</summary>
+        public Color Color { get; private set; }
+
         /// <summary>
         /// フェードイン
         /// </summary>
@@ -35,6 +38,7 @@ namespace GameFramework.UISystems {
         public AsyncOperationHandle FadeOutAsync(Color color, float duration) {
             _targetRate = 1.0f;
             _animationTimer = duration;
+            Color = color;
             SetColor(color);
             if (_fadeOperator != null) {
                 _fadeOperator.Aborted();
@@ -46,11 +50,44 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// 即時フェードイン
+        /// </summary>
+        public void FadeInImmediate() {
+            _targetRate = 0.0f;
+            _currentRate = _targetRate;
+            _animationTimer = -1.0f;
+            if (_fadeOperator != null) {
+                _fadeOperator.Aborted();
+                _fadeOperator = null;
+            }
+
+            ApplyRate(_currentRate);
+        }
+
+        /// <summary>
+        /// 即時フェードアウト
+        /// </summary>
+        /// <param name="color">フェードアウト色</param>
+        public void FadeOutImmediate(Color color) {
+            _targetRate = 1.0f;
+            _currentRate = _targetRate;
+            _animationTimer = -1.0f;
+            Color = color;
+            SetColor(color);
+            if (_fadeOperator != null) {
+                _fadeOperator.Aborted();
+                _fadeOperator = null;
+            }
+
+            ApplyRate(_currentRate);
+        }
+
+        /// <summary>
         /// 後更新処理
         /// </summary>
         protected override void LateUpdateInternal(float deltaTime) {
             base.LateUpdateInternal(deltaTime);
-            
+
             // 更新
             if (_animationTimer >= 0.0f) {
                 _currentRate = Mathf.Lerp(_currentRate, _targetRate, deltaTime >= _animationTimer ? 1.0f : deltaTime / _animationTimer);
