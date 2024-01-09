@@ -7,7 +7,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// Fader用のスクリーン
     /// </summary>
-    public abstract class FaderUIScreen : UIScreen {
+    public class FaderUIScreen : UIScreen {
         /// <summary>
         /// フェーダー情報
         /// </summary>
