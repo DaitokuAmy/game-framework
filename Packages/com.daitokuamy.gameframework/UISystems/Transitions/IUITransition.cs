@@ -4,7 +4,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// UI遷移用インターフェース
     /// </summary>
-    public interface IUiTransition {
+    public interface IUITransition {
         /// <summary>
         /// 遷移処理
         /// </summary>

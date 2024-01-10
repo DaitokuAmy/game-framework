@@ -16,7 +16,7 @@ namespace GameFramework.UISystems {
         /// <param name="childKey">遷移予定のChildを表すキー</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Transition(string childKey, IUiTransition transition = null, bool immediate = false) {
+        public AsyncOperationHandle Transition(string childKey, IUITransition transition = null, bool immediate = false) {
             var op = new AsyncOperator();
             var nextChildScreen = FindChild(childKey);
 
@@ -26,7 +26,7 @@ namespace GameFramework.UISystems {
             }
 
             if (transition == null) {
-                transition = new CrossUiTransition();
+                transition = new CrossUITransition();
             }
             
             // スタックに存在する場合は戻り遷移扱い
@@ -68,7 +68,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Back(IUiTransition transition = null, bool immediate = false) {
+        public AsyncOperationHandle Back(IUITransition transition = null, bool immediate = false) {
             var backKey = _stackKeys.Count > 1 ? _stackKeys[_stackKeys.Count - 2] : null;
             return Transition(backKey, transition, immediate);
         }
@@ -78,7 +78,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Clear(IUiTransition transition = null, bool immediate = false) {
+        public AsyncOperationHandle Clear(IUITransition transition = null, bool immediate = false) {
             return Transition(null, transition, immediate);
         }
 

@@ -15,17 +15,25 @@ namespace GameFramework.UISystems {
         /// <param name="transition">遷移方法</param>
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle<UIScreen> Change(string childKey, IUiTransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
+        /// <param name="force">同じキーだとしても開きなおすか</param>
+        public AsyncOperationHandle<UIScreen> Change(string childKey, IUITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false) {
             var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 
             if (_currentKey == childKey) {
-                op.Completed(nextChildScreen?.uiScreen);
-                return op;
+                if (!force) {
+                    op.Completed(nextChildScreen?.uiScreen);
+                    return op;
+                }
             }
 
             if (transition == null) {
-                transition = new CrossUiTransition();
+                if (_currentKey == childKey) {
+                    transition = new OutInUITransition();
+                }
+                else {
+                    transition = new CrossUITransition();
+                }
             }
             
             // 並び順変更
@@ -50,7 +58,7 @@ namespace GameFramework.UISystems {
         /// <param name="transition">遷移方法</param>
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Clear(IUiTransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
+        public AsyncOperationHandle Clear(IUITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
             var op = new AsyncOperator();
             var handle = Change(null, transition, transitionType, immediate);
             if (handle.IsError) {
