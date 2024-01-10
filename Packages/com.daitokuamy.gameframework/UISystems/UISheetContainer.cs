@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using GameFramework.Core;
 
@@ -16,7 +17,8 @@ namespace GameFramework.UISystems {
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
         /// <param name="force">同じキーだとしても開きなおすか</param>
-        public AsyncOperationHandle<UIScreen> Change(string childKey, IUITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false) {
+        /// <param name="initAction">初期化用アクション</param>
+        public AsyncOperationHandle<UIScreen> Change(string childKey, IUITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false, Action<UIScreen> initAction = null) {
             var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 
@@ -44,7 +46,7 @@ namespace GameFramework.UISystems {
             var nextUIScreen = nextChildScreen?.uiScreen;
             _currentKey = childKey;
             
-            StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, transitionType, immediate),
+            StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, transitionType, immediate, initAction),
                 () => op.Completed(nextUIScreen),
                 () => op.Aborted(),
                 err => op.Aborted(err));

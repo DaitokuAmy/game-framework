@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using GameFramework.Core;
+using System;
 
 namespace GameFramework.UISystems {
     /// <summary>
@@ -16,7 +17,8 @@ namespace GameFramework.UISystems {
         /// <param name="childKey">遷移予定のChildを表すキー</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Transition(string childKey, IUITransition transition = null, bool immediate = false) {
+        /// <param name="initAction">初期化アクション</param>
+        public AsyncOperationHandle Transition(string childKey, IUITransition transition = null, bool immediate = false, Action<UIScreen> initAction = null) {
             var op = new AsyncOperator();
             var nextChildScreen = FindChild(childKey);
 
@@ -55,7 +57,7 @@ namespace GameFramework.UISystems {
                 _stackKeys.Add(_currentKey);
             }
             
-            StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, back ? TransitionType.Back : TransitionType.Forward, immediate),
+            StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, back ? TransitionType.Back : TransitionType.Forward, immediate, initAction),
                 () => op.Completed(),
                 () => op.Aborted(),
                 err => op.Aborted(err));
@@ -68,9 +70,10 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Back(IUITransition transition = null, bool immediate = false) {
+        /// <param name="initAction">初期化アクション</param>
+        public AsyncOperationHandle Back(IUITransition transition = null, bool immediate = false, Action<UIScreen> initAction = null) {
             var backKey = _stackKeys.Count > 1 ? _stackKeys[_stackKeys.Count - 2] : null;
-            return Transition(backKey, transition, immediate);
+            return Transition(backKey, transition, immediate, initAction);
         }
 
         /// <summary>
