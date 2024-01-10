@@ -1,21 +1,20 @@
 using System;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
-using Opera.Infrastructure.Common;
-using SampleGame.Domain.Common;
+using SampleGame.Domain.Battle;
 
-namespace SampleGame.Infrastructure.Common {
+namespace SampleGame.Infrastructure.Battle {
     /// <summary>
     /// ユーザープレイヤー情報管理用リポジトリ
     /// </summary>
-    public class PlayerMasterDataRepository : IPlayerMasterDataRepository, IDisposable {
+    public class BattlePlayerMasterRepository : IBattlePlayerMasterRepository, IDisposable {
         private DisposableScope _unloadScope;
         private AssetManager _assetManager;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public PlayerMasterDataRepository(AssetManager assetManager) {
+        public BattlePlayerMasterRepository(AssetManager assetManager) {
             _unloadScope = new DisposableScope();
             _assetManager = assetManager;
         }
@@ -28,13 +27,13 @@ namespace SampleGame.Infrastructure.Common {
             _unloadScope?.Dispose();
             _unloadScope = null;
         }
-        
+
         /// <summary>
-        /// PlayerMasterの読み込み
+        /// BattlePlayerMasterの読み込み
         /// </summary>
-        IProcess<IPlayerMasterData> IPlayerMasterDataRepository.LoadPlayer(int id) {
-            return new PlayerMasterAssetRequest(id).LoadAsync(_assetManager, _unloadScope)
-                .Cast<PlayerMasterData, IPlayerMasterData>();
+        IProcess<IBattlePlayerMaster> IBattlePlayerMasterRepository.LoadPlayer(int id) {
+            return new BattlePlayerMasterAssetRequest(id).LoadAsync(_assetManager, _unloadScope)
+                .Cast<BattlePlayerMasterData, IBattlePlayerMaster>();
         }
     }
 }

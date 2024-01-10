@@ -4,10 +4,10 @@ namespace SampleGame.Domain.Common {
     /// <summary>
     /// マスターデータ読み込み用リポジトリ
     /// </summary>
-    public interface IPlayerMasterDataRepository {
+    public interface IPlayerMasterRepository {
         /// <summary>
         /// Playerのマスターデータ読み込み
         /// </summary>
-        IProcess<IPlayerMasterData> LoadPlayer(int id);
+        IProcess<IPlayerMaster> LoadPlayer(int id);
     }
 }

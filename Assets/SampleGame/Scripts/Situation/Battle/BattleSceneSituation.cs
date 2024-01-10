@@ -109,9 +109,9 @@ namespace SampleGame {
             // Infrastructure
             var assetManager = Services.Get<AssetManager>();
             var userPlayerRepository = new PrefsUserPlayerRepository();
-            var playerMasterDataRepository = new PlayerMasterDataRepository(assetManager).ScopeTo(scope);
-            var equipmentMasterDataRepository = new EquipmentMasterDataRepository(assetManager).ScopeTo(scope);
-            var battlePlayerMasterDataRepository = new BattlePlayerMasterDataRepository(assetManager).ScopeTo(scope);
+            var playerMasterDataRepository = new PlayerMasterRepository(assetManager).ScopeTo(scope);
+            var equipmentMasterDataRepository = new EquipmentMasterRepository(assetManager).ScopeTo(scope);
+            var battlePlayerMasterDataRepository = new BattlePlayerMasterRepository(assetManager).ScopeTo(scope);
             var actorSetupDataRepository = new ActorSetupDataRepository(assetManager).ScopeTo(scope);
             
             // Domain

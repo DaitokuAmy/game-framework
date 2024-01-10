@@ -12,7 +12,7 @@ namespace SampleGame.Application.Battle {
     /// BattlePlayer用のアプリケーションサービス
     /// </summary>
     public class BattlePlayerAppService : IDisposable {
-        private IBattlePlayerMasterDataRepository _masterDataRepository;
+        private IBattlePlayerMasterRepository _masterRepository;
         private IActorSetupDataRepository _actorSetupDataRepository;
 
         private BattlePlayerModel _battlePlayerModel;
@@ -23,8 +23,8 @@ namespace SampleGame.Application.Battle {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BattlePlayerAppService(IBattlePlayerMasterDataRepository masterDataRepository, IActorSetupDataRepository actorSetupDataRepository) {
-            _masterDataRepository = masterDataRepository;
+        public BattlePlayerAppService(IBattlePlayerMasterRepository masterRepository, IActorSetupDataRepository actorSetupDataRepository) {
+            _masterRepository = masterRepository;
             _actorSetupDataRepository = actorSetupDataRepository;
         }
 
@@ -41,7 +41,7 @@ namespace SampleGame.Application.Battle {
         public async UniTask<int> CreateBattlePlayerAsync(UserPlayerModel userPlayerModel, int battlePlayerMasterId, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
-            var masterData = await _masterDataRepository.LoadPlayer(battlePlayerMasterId).ToUniTask(cancellationToken: ct);
+            var masterData = await _masterRepository.LoadPlayer(battlePlayerMasterId).ToUniTask(cancellationToken: ct);
             var actorSetupData = await _actorSetupDataRepository.LoadBattleCharacterActorSetupData(masterData.ActorSetupDataAssetKey).ToUniTask(cancellationToken: ct);
             var model = BattlePlayerModel.Create();
             model.Setup(userPlayerModel, masterData, actorSetupData);

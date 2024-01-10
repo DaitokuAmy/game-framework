@@ -4,7 +4,7 @@ namespace SampleGame.Domain.Battle {
     /// <summary>
     /// マスターデータ読み込み用リポジトリ
     /// </summary>
-    public interface IBattlePlayerMasterDataRepository {
+    public interface IBattlePlayerMasterRepository {
         /// <summary>
         /// BattlePlayerのマスターデータ読み込み
         /// </summary>

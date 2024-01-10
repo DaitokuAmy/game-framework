@@ -1,8 +1,8 @@
 namespace SampleGame.Domain.Common {
     /// <summary>
-    /// プレイヤーマスターデータ用インターフェース
+    /// プレイヤーマスター用インターフェース
     /// </summary>
-    public interface IPlayerMasterData {
+    public interface IPlayerMaster {
         /// <summary>名前</summary>
         string Name { get; }
         /// <summary>Prefab読み込み用のアセットキー</summary>

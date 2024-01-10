@@ -5,7 +5,7 @@ namespace Opera.Infrastructure.Equipment {
     /// <summary>
     /// ArmorMasterData
     /// </summary>
-    public class ArmorMasterData : IArmorMasterData {
+    public class ArmorMasterData : IArmorMaster {
         public string name;
         public string prefabAssetKey;
         public int physicalDefense;
@@ -13,14 +13,14 @@ namespace Opera.Infrastructure.Equipment {
         public ArmorType armorType;
 
         /// <inheritdoc/>
-        string IEquipmentMasterData.Name => name;
+        string IEquipmentMaster.Name => name;
         /// <inheritdoc/>
-        string IEquipmentMasterData.PrefabAssetKey => prefabAssetKey;
+        string IEquipmentMaster.PrefabAssetKey => prefabAssetKey;
         /// <inheritdoc/>
-        int IArmorMasterData.PhysicalDefense => physicalDefense;
+        int IArmorMaster.PhysicalDefense => physicalDefense;
         /// <inheritdoc/>
-        int IArmorMasterData.MagicalDefense => magicalDefense;
+        int IArmorMaster.MagicalDefense => magicalDefense;
         /// <inheritdoc/>
-        ArmorType IArmorMasterData.ArmorType => armorType;
+        ArmorType IArmorMaster.ArmorType => armorType;
     }
 }

@@ -10,7 +10,7 @@ namespace SampleGame.Domain.Equipment {
     /// </summary>
     public class WeaponModel : EquipmentModel, IReadOnlyWeaponModel {
         /// <summary>マスターデータ</summary>
-        public IWeaponMasterData MasterData { get; private set; }
+        public IWeaponMaster MasterData { get; private set; }
         
         /// <summary>
         /// コンストラクタ
@@ -22,7 +22,7 @@ namespace SampleGame.Domain.Equipment {
         /// 初期化処理
         /// </summary>
         /// <param name="masterData">マスターデータ</param>
-        public void Setup(IWeaponMasterData masterData) {
+        public void Setup(IWeaponMaster masterData) {
             MasterData = masterData;
         }
     }

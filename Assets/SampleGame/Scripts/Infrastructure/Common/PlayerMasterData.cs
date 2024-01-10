@@ -6,15 +6,15 @@ namespace Opera.Infrastructure.Common {
     /// PlayerMasterData
     /// </summary>
     [CreateAssetMenu(fileName = "dat_master_player_0000.asset", menuName = "SampleGame/Master Data/Player")]
-    public class PlayerMasterData : ScriptableObject, IPlayerMasterData {
+    public class PlayerMasterData : ScriptableObject, IPlayerMaster {
         [Tooltip("名前")]
         public new string name;
         [Tooltip("表示用PrefabのAssetKey")]
         public string prefabAssetKey;
 
         /// <inheritdoc/>
-        string IPlayerMasterData.Name => name;
+        string IPlayerMaster.Name => name;
         /// <inheritdoc/>
-        string IPlayerMasterData.PrefabAssetKey => prefabAssetKey;
+        string IPlayerMaster.PrefabAssetKey => prefabAssetKey;
     }
 }

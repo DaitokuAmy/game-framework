@@ -9,14 +9,14 @@ namespace SampleGame.Infrastructure.Common {
     /// <summary>
     /// ユーザープレイヤー情報管理用リポジトリ
     /// </summary>
-    public class EquipmentMasterDataRepository : IEquipmentMasterDataRepository, IDisposable {
+    public class EquipmentMasterRepository : IEquipmentMasterRepository, IDisposable {
         private DisposableScope _unloadScope;
         private AssetManager _assetManager;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public EquipmentMasterDataRepository(AssetManager assetManager) {
+        public EquipmentMasterRepository(AssetManager assetManager) {
             _unloadScope = new DisposableScope();
             _assetManager = assetManager;
         }
@@ -33,7 +33,7 @@ namespace SampleGame.Infrastructure.Common {
         /// <summary>
         /// 武器マスターの読み込み
         /// </summary>
-        IProcess<IWeaponMasterData> IEquipmentMasterDataRepository.LoadWeapon(int id) {
+        IProcess<IWeaponMaster> IEquipmentMasterRepository.LoadWeapon(int id) {
             var masterData = new WeaponMasterData {
                 name = "Test",
                 prefabAssetKey = "",
@@ -42,13 +42,13 @@ namespace SampleGame.Infrastructure.Common {
                 magicalAttack = 100,
             };
 
-            return new AsyncStatusProvider<IWeaponMasterData>(() => true, () => null, () => masterData).GetHandle();
+            return new AsyncStatusProvider<IWeaponMaster>(() => true, () => null, () => masterData).GetHandle();
         }
 
         /// <summary>
         /// 防具マスターの読み込み
         /// </summary>
-        IProcess<IArmorMasterData> IEquipmentMasterDataRepository.LoadArmor(int id) {
+        IProcess<IArmorMaster> IEquipmentMasterRepository.LoadArmor(int id) {
             var masterData = new ArmorMasterData {
                 name = "Test",
                 prefabAssetKey = "",
@@ -57,7 +57,7 @@ namespace SampleGame.Infrastructure.Common {
                 magicalDefense = 100,
             };
 
-            return new AsyncStatusProvider<IArmorMasterData>(() => true, () => null, () => masterData).GetHandle();
+            return new AsyncStatusProvider<IArmorMaster>(() => true, () => null, () => masterData).GetHandle();
         }
     }
 }
