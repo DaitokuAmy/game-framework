@@ -15,15 +15,7 @@ namespace SampleGame.Infrastructure.User {
         /// </summary>
         IProcess<UserPlayerDto> IUserPlayerRepository.LoadUserPlayer() {
             var op = new AsyncOperator<UserPlayerDto>();
-            var json = PlayerPrefs.GetString(PrefsKey, "");
-            var dto = !string.IsNullOrEmpty(json) ? JsonUtility.FromJson<UserPlayerDto>(json) : new UserPlayerDto {
-                playerId = 1,
-                helmArmorId = 1,
-                bodyArmorId = 2,
-                armsArmorId = 3,
-                legsArmorId = 4,
-                weaponId = 101,
-            };
+            var dto = Load();
             op.Completed(dto);
             return op.GetHandle();
         }
@@ -97,11 +89,25 @@ namespace SampleGame.Infrastructure.User {
         /// 情報の書き込み
         /// </summary>
         private void Save(Func<UserPlayerDto, UserPlayerDto> writer) {
-            var json = PlayerPrefs.GetString(PrefsKey, "");
-            var dto = JsonUtility.FromJson<UserPlayerDto>(json);
+            var dto = Load();
             dto = writer.Invoke(dto);
             PlayerPrefs.SetString(PrefsKey, JsonUtility.ToJson(dto));
             PlayerPrefs.Save();
+        }
+
+        /// <summary>
+        /// 情報の読み込み
+        /// </summary>
+        private UserPlayerDto Load() {
+            var json = PlayerPrefs.GetString(PrefsKey, "");
+            return !string.IsNullOrEmpty(json) ? JsonUtility.FromJson<UserPlayerDto>(json) : new UserPlayerDto {
+                playerId = 1,
+                helmArmorId = 1,
+                bodyArmorId = 2,
+                armsArmorId = 3,
+                legsArmorId = 4,
+                weaponId = 101,
+            };
         }
     }
 }
