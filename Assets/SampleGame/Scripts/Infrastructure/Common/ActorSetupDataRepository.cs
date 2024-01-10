@@ -2,7 +2,7 @@ using System;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using SampleGame.Domain.Battle;
-using SampleGame.Domain.Common;
+using SampleGame.Application.Common;
 using SampleGame.Infrastructure.Battle;
 
 namespace SampleGame.Infrastructure.Common {

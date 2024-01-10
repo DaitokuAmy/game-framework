@@ -6,8 +6,10 @@ using GameFramework.Core;
 using SampleGame.Domain.Common;
 using SampleGame.Domain.Equipment;
 using SampleGame.Domain.User;
+using SampleGame.Application.Common;
+using SampleGame.Application.Equipment;
 
-namespace SampleGame.Application.Common {
+namespace SampleGame.Application.User {
     /// <summary>
     /// UserPlayer用のアプリケーションサービス
     /// </summary>

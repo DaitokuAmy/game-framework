@@ -1,6 +1,7 @@
 using GameFramework.Core;
+using SampleGame.Domain.Battle;
 
-namespace SampleGame.Domain.Battle {
+namespace SampleGame.Application.Battle {
     /// <summary>
     /// マスターデータ読み込み用リポジトリ
     /// </summary>

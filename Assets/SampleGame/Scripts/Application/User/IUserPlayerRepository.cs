@@ -1,18 +1,7 @@
 using GameFramework.Core;
+using SampleGame.Domain.User;
 
-namespace SampleGame.Domain.User {
-    /// <summary>
-    /// UserPlayer用のDTO
-    /// </summary>
-    public struct UserPlayerDto {
-        public int playerId;
-        public int weaponId;
-        public int helmArmorId;
-        public int bodyArmorId;
-        public int armsArmorId;
-        public int legsArmorId;
-    }
-    
+namespace SampleGame.Application.User {
     /// <summary>
     /// ユーザープレイヤー情報管理用リポジトリインターフェース
     /// </summary>

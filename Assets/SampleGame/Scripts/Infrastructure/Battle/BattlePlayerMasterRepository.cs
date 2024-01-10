@@ -1,6 +1,7 @@
 using System;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
+using SampleGame.Application.Battle;
 using SampleGame.Domain.Battle;
 
 namespace SampleGame.Infrastructure.Battle {

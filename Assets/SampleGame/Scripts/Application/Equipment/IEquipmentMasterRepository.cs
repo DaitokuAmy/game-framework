@@ -1,7 +1,7 @@
 using GameFramework.Core;
 using SampleGame.Domain.Equipment;
 
-namespace SampleGame.Domain.Common {
+namespace SampleGame.Application.Equipment {
     /// <summary>
     /// マスターデータ読み込み用リポジトリ
     /// </summary>

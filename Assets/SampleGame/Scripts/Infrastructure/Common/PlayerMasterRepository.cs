@@ -3,6 +3,7 @@ using GameFramework.AssetSystems;
 using GameFramework.Core;
 using Opera.Infrastructure.Common;
 using SampleGame.Domain.Common;
+using SampleGame.Application.Common;
 
 namespace SampleGame.Infrastructure.Common {
     /// <summary>

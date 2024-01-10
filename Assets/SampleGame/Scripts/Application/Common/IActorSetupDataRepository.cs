@@ -1,7 +1,7 @@
 using GameFramework.Core;
 using SampleGame.Domain.Battle;
 
-namespace SampleGame.Domain.Common {
+namespace SampleGame.Application.Common {
     /// <summary>
     /// アクター初期化データ読み込み用リポジトリ
     /// </summary>

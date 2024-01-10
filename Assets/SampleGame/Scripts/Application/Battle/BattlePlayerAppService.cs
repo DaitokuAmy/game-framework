@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using SampleGame.Domain.Battle;
-using SampleGame.Domain.Common;
+using SampleGame.Application.Common;
 using SampleGame.Domain.User;
 using UnityEngine;
 using GameFramework.Core;

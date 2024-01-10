@@ -4,10 +4,11 @@ using GameFramework.Core;
 using Opera.Infrastructure.Equipment;
 using SampleGame.Domain.Common;
 using SampleGame.Domain.Equipment;
+using SampleGame.Application.Equipment;
 
 namespace SampleGame.Infrastructure.Common {
     /// <summary>
-    /// ユーザープレイヤー情報管理用リポジトリ
+    /// 装備品マスター用リポジトリ
     /// </summary>
     public class EquipmentMasterRepository : IEquipmentMasterRepository, IDisposable {
         private DisposableScope _unloadScope;

@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.BodySystems;
 using GameFramework.CameraSystems;
@@ -14,7 +12,7 @@ using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using GameFramework.VfxSystems;
 using SampleGame.Application.Battle;
-using SampleGame.Application.Common;
+using SampleGame.Application.User;
 using UniRx;
 using UnityEngine;
 using SampleGame.Battle;

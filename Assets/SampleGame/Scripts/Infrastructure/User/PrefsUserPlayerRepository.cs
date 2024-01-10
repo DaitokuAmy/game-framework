@@ -1,6 +1,7 @@
 using System;
 using GameFramework.Core;
 using SampleGame.Domain.User;
+using SampleGame.Application.User;
 using UnityEngine;
 
 namespace SampleGame.Infrastructure.User {
