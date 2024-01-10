@@ -17,18 +17,26 @@ namespace GameFramework.UISystems {
         /// <param name="childKey">遷移予定のChildを表すキー</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
+        /// <param name="force">同じキーだとしても開きなおすか</param>
         /// <param name="initAction">初期化アクション</param>
-        public AsyncOperationHandle Transition(string childKey, IUITransition transition = null, bool immediate = false, Action<UIScreen> initAction = null) {
+        public AsyncOperationHandle Transition(string childKey, IUITransition transition = null, bool immediate = false, bool force = false, Action<UIScreen> initAction = null) {
             var op = new AsyncOperator();
             var nextChildScreen = FindChild(childKey);
 
             if (_currentKey == childKey) {
-                op.Completed();
-                return op;
+                if (!force) {
+                    op.Completed();
+                    return op;
+                }
             }
 
             if (transition == null) {
-                transition = new CrossUITransition();
+                if (_currentKey == childKey) {
+                    transition = new OutInUITransition();
+                }
+                else {
+                    transition = new CrossUITransition();
+                }
             }
             
             // スタックに存在する場合は戻り遷移扱い
@@ -73,7 +81,7 @@ namespace GameFramework.UISystems {
         /// <param name="initAction">初期化アクション</param>
         public AsyncOperationHandle Back(IUITransition transition = null, bool immediate = false, Action<UIScreen> initAction = null) {
             var backKey = _stackKeys.Count > 1 ? _stackKeys[_stackKeys.Count - 2] : null;
-            return Transition(backKey, transition, immediate, initAction);
+            return Transition(backKey, transition, immediate, true, initAction);
         }
 
         /// <summary>
