@@ -8,10 +8,19 @@ namespace GameFramework.SituationSystems {
     /// </summary>
     public class SituationFlowNode : IDisposable {
         /// <summary>
+        /// 遷移情報
+        /// </summary>
+        public struct TransitionInfo {
+            public SituationFlowNode prevNode;
+            public SituationFlowNode nextNode;
+            public bool back;
+        }
+        
+        /// <summary>
         /// 接続情報
         /// </summary>
         private class ConnectInfo {
-            public Action<bool> onTransition;
+            public Action<TransitionInfo> onTransition;
             public SituationFlowNode childNode;
         }
 
@@ -29,7 +38,7 @@ namespace GameFramework.SituationSystems {
         internal SituationContainer Container => _situation?.ParentContainer;
 
         /// <summary>フォールバック経由で遷移された時の通知</summary>
-        public event Action OnTransitionByFallbackEvent;
+        public event Action<TransitionInfo> OnTransitionByFallbackEvent;
 
         /// <summary>
         /// コンストラクタ
@@ -88,7 +97,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="situation">追加するSituationのインスタンス</param>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationFlowNode Connect(Situation situation, Action<bool> onTransition = null) {
+        public SituationFlowNode Connect(Situation situation, Action<TransitionInfo> onTransition = null) {
             var type = situation.GetType();
 
             // 既に同じTypeがあった場合は何もしない
@@ -157,21 +166,27 @@ namespace GameFramework.SituationSystems {
             if (prevNode.Situation == null || Situation == null) {
                 return;
             }
+
+            var transitionInfo = new TransitionInfo {
+                prevNode = prevNode,
+                nextNode = this,
+                back = back
+            };
             
             // 戻り遷移の場合はConnect情報からイベントを探す
             if (back) {
                 if (_connectInfos.TryGetValue(prevNode.Situation.GetType(), out var connectInfo)) {
-                    connectInfo.onTransition?.Invoke(true);
+                    connectInfo.onTransition?.Invoke(transitionInfo);
                 }
             }
             // 進む遷移の場合は、前のノードのConnect情報からイベントを探す
             else {
                 if (prevNode._connectInfos.TryGetValue(Situation.GetType(), out var connectInfo)) {
-                    connectInfo.onTransition?.Invoke(false);
+                    connectInfo.onTransition?.Invoke(transitionInfo);
                 }
                 // 接続情報がなく遷移した場合は、Fallback遷移とみなして通知する
                 else {
-                    OnTransitionByFallbackEvent?.Invoke();
+                    OnTransitionByFallbackEvent?.Invoke(transitionInfo);
                 }
             }
         }
