@@ -44,6 +44,7 @@ namespace GameFramework.UISystems {
             // 遷移処理
             var prevUIScreen = FindChild(_currentKey)?.uiScreen;
             var nextUIScreen = nextChildScreen?.uiScreen;
+            
             _currentKey = childKey;
             
             StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, transitionType, immediate, initAction),
