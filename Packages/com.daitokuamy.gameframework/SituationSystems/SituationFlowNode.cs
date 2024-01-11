@@ -7,7 +7,15 @@ namespace GameFramework.SituationSystems {
     /// シチュエーション遷移情報格納用ツリー用ノード
     /// </summary>
     public class SituationFlowNode : IDisposable {
-        private readonly Dictionary<Type, SituationFlowNode> _children = new();
+        /// <summary>
+        /// 接続情報
+        /// </summary>
+        private class ConnectInfo {
+            public Action<bool> onTransition;
+            public SituationFlowNode childNode;
+        }
+
+        private readonly Dictionary<Type, ConnectInfo> _connectInfos = new();
 
         private SituationFlow _flow;
         private Situation _situation;
@@ -19,6 +27,9 @@ namespace GameFramework.SituationSystems {
         internal Situation Situation => _situation;
         /// <summary>Situationが含まれているContainer</summary>
         internal SituationContainer Container => _situation?.ParentContainer;
+
+        /// <summary>フォールバック経由で遷移された時の通知</summary>
+        public event Action OnTransitionByFallbackEvent;
 
         /// <summary>
         /// コンストラクタ
@@ -43,16 +54,22 @@ namespace GameFramework.SituationSystems {
             if (!IsValid) {
                 return;
             }
-            
+
             // 親要素から参照を削除
             if (_parent != null) {
-                _parent._children.Remove(GetType());
+                _parent._connectInfos.Remove(GetType());
             }
-            
+
             // 子要素を削除
-            var children = _children.Values.ToArray();
-            foreach (var child in children) {
-                child.Dispose();
+            var infos = _connectInfos.Values.ToArray();
+            foreach (var info in infos) {
+                if (info == null) {
+                    continue;
+                }
+
+                if (info.childNode != null) {
+                    info.childNode.Dispose();
+                }
             }
 
             // 登録解除通知
@@ -61,7 +78,7 @@ namespace GameFramework.SituationSystems {
             }
 
             _parent = null;
-            _children.Clear();
+            _connectInfos.Clear();
             _situation = null;
             _flow = null;
         }
@@ -70,18 +87,23 @@ namespace GameFramework.SituationSystems {
         /// シチュエーションノードの接続
         /// </summary>
         /// <param name="situation">追加するSituationのインスタンス</param>
-        public SituationFlowNode Connect(Situation situation) {
+        /// <param name="onTransition">遷移時の通知</param>
+        public SituationFlowNode Connect(Situation situation, Action<bool> onTransition = null) {
             var type = situation.GetType();
-            
+
             // 既に同じTypeがあった場合は何もしない
-            if (_children.TryGetValue(type, out var node)) {
-                return node;
+            if (_connectInfos.TryGetValue(type, out var connectInfo)) {
+                return connectInfo.childNode;
             }
 
             // ノードの追加
-            node = new SituationFlowNode(_flow, situation, this);
-            _children.Add(type, node);
-            return node;
+            var childNode = new SituationFlowNode(_flow, situation, this);
+            connectInfo = new ConnectInfo {
+                onTransition = onTransition,
+                childNode = childNode
+            };
+            _connectInfos.Add(type, connectInfo);
+            return childNode;
         }
 
         /// <summary>
@@ -90,14 +112,15 @@ namespace GameFramework.SituationSystems {
         public bool Disconnect<T>()
             where T : Situation {
             var type = typeof(T);
-            
+
             // 該当のTypeがなければ何もしない
-            if (!_children.TryGetValue(type, out var node)) {
+            if (!_connectInfos.TryGetValue(type, out var connectInfo)) {
                 return false;
             }
 
             // ノードの削除
-            node.Dispose();
+            connectInfo.childNode.Dispose();
+            _connectInfos.Remove(type);
             return true;
         }
 
@@ -112,11 +135,45 @@ namespace GameFramework.SituationSystems {
         /// 該当の型の子Nodeを取得
         /// </summary>
         internal SituationFlowNode TryGetChild(Type type) {
-            if (!_children.TryGetValue(type, out var child)) {
+            if (!_connectInfos.TryGetValue(type, out var connectInfo)) {
                 return null;
             }
 
-            return child;
+            return connectInfo.childNode;
+        }
+
+        /// <summary>
+        /// 遷移通知
+        /// </summary>
+        /// <param name="prevNode">遷移前のノード</param>
+        /// <param name="back">戻り遷移か</param>
+        internal void OnTransition(SituationFlowNode prevNode, bool back) {
+            // 遷移元がなければ何もしない
+            if (prevNode == null) {
+                return;
+            }
+
+            // Situation間の遷移以外は何もしない
+            if (prevNode.Situation == null || Situation == null) {
+                return;
+            }
+            
+            // 戻り遷移の場合はConnect情報からイベントを探す
+            if (back) {
+                if (_connectInfos.TryGetValue(prevNode.Situation.GetType(), out var connectInfo)) {
+                    connectInfo.onTransition?.Invoke(true);
+                }
+            }
+            // 進む遷移の場合は、前のノードのConnect情報からイベントを探す
+            else {
+                if (prevNode._connectInfos.TryGetValue(Situation.GetType(), out var connectInfo)) {
+                    connectInfo.onTransition?.Invoke(false);
+                }
+                // 接続情報がなく遷移した場合は、Fallback遷移とみなして通知する
+                else {
+                    OnTransitionByFallbackEvent?.Invoke();
+                }
+            }
         }
     }
 }

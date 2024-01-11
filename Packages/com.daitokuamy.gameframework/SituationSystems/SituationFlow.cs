@@ -344,6 +344,11 @@ namespace GameFramework.SituationSystems {
                 transitionSituations.Add(situation);
                 return result;
             }
+            
+            // 遷移開始を通知
+            if (nextNode != null) {
+                nextNode.OnTransition(prevNode, back);
+            }
 
             var effectEntered = false;
             var enterEffect = new EnterTransitionEffect(effects);
