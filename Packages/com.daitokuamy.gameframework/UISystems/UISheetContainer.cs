@@ -17,7 +17,7 @@ namespace GameFramework.UISystems {
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
         /// <param name="force">同じキーだとしても開きなおすか</param>
-        /// <param name="initAction">初期化用アクション</param>
+        /// <param name="initAction">初期化アクション</param>
         public AsyncOperationHandle<UIScreen> Change(string childKey, IUITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false, Action<UIScreen> initAction = null) {
             var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
