@@ -33,7 +33,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>有効か</summary>
         public bool IsValid => _flow != null && _situation != null;
         /// <summary>実行対象のSituation</summary>
-        internal Situation Situation => _situation;
+        public Situation Situation => _situation;
         /// <summary>Situationが含まれているContainer</summary>
         internal SituationContainer Container => _situation?.ParentContainer;
 
