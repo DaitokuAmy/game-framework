@@ -11,6 +11,17 @@ namespace GameFramework.UISystems {
         [SerializeField, Tooltip("TouchUp時のスケール値")]
         private float _upScale = 1.0f;
 
+        /// <summary>TouchDown時のScale</summary>
+        public float DownScale {
+            get => _downScale;
+            set => _downScale = value;
+        }
+        /// <summary>TouchUp時のScale</summary>
+        public float UpScale {
+            get => _upScale;
+            set => _upScale = value;
+        }
+
         /// <summary>
         /// アニメーションの適用
         /// </summary>

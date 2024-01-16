@@ -1,7 +1,6 @@
 using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace GameFramework.UISystems {
     /// <summary>
@@ -25,6 +24,16 @@ namespace GameFramework.UISystems {
 
         /// <summary>TimeScale</summary>
         public float TimeScale { get; set; } = 1.0f;
+        /// <summary>TouchDown時間</summary>
+        public float DownDuration {
+            get => _downDuration;
+            set => _downDuration = value;
+        }
+        /// <summary>TouchUp時間</summary>
+        public float UpDuration {
+            get => _upDuration;
+            set => _upDuration = value;
+        }
         /// <summary>制御対象のボタン</summary>
         public RectTransform Target {
             get {
