@@ -20,7 +20,7 @@ namespace GameFramework.Core {
 
 #if USE_UNI_RX
         // TimeScaleの変化を監視するためのReactiveProperty
-        private FloatReactiveProperty _timeScaleProp = new FloatReactiveProperty(1.0f);
+        private readonly FloatReactiveProperty _timeScaleProp = new(1.0f);
         public IReadOnlyReactiveProperty<float> TimeScaleProp => _timeScaleProp;
 #endif
 
@@ -66,17 +66,17 @@ namespace GameFramework.Core {
         /// <param name="parent">親となるTimeLayer, 未指定の場合UnityEngine.Timeに直接依存</param>
         public void SetParent(LayeredTime parent) {
             if (Parent != null) {
-                Parent.OnChangedTimeScaleInternal -= OnChangedTimeScaleInternal;
+                Parent.OnChangedTimeScaleInternal -= OnChangedParentTimeScale;
                 Parent = null;
             }
 
             Parent = parent;
 
             if (Parent != null) {
-                Parent.OnChangedTimeScaleInternal += OnChangedTimeScaleInternal;
+                Parent.OnChangedTimeScaleInternal += OnChangedParentTimeScale;
             }
 
-            OnChangedTimeScaleInternal?.Invoke(TimeScale);
+            OnChangedParentTimeScale(TimeScale);
         }
 
         /// <summary>
@@ -84,9 +84,16 @@ namespace GameFramework.Core {
         /// </summary>
         public void Dispose() {
             if (Parent != null) {
-                Parent.OnChangedTimeScaleInternal -= OnChangedTimeScaleInternal;
+                Parent.OnChangedTimeScaleInternal -= OnChangedParentTimeScale;
                 Parent = null;
             }
+        }
+
+        /// <summary>
+        /// 親のTimeScale変換通知
+        /// </summary>
+        private void OnChangedParentTimeScale(float timeScale) {
+            OnChangedTimeScaleInternal?.Invoke(TimeScale);
         }
     }
 }
