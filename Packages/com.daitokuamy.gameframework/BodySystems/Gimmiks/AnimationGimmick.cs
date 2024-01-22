@@ -103,8 +103,6 @@ namespace GameFramework.BodySystems {
                     else {
                         _playing = false;
                     }
-
-                    _playing = false;
                 }
             }
 
