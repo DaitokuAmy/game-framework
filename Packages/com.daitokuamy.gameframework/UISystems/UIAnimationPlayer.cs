@@ -63,7 +63,7 @@ namespace GameFramework.UISystems {
             /// IEnumerator用
             /// </summary>
             bool IEnumerator.MoveNext() {
-                return !IsFinished;
+                return !((IProcess)this).IsDone;
             }
 
             /// <summary>
