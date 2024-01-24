@@ -96,7 +96,7 @@ namespace GameFramework.UISystems {
                     return;
                 }
 
-                time = reverse ? 0.0f : animation.Duration;
+                time = reverse ? 0.0f : animation.Duration - 0.001f;
                 loop = false;
                 Apply();
                 animation = null;
