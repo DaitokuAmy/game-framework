@@ -62,7 +62,7 @@ namespace GameFramework.CameraSystems.Editor {
         /// Prefabに出力
         /// </summary>
         private void ExportPrefab(CameraGroup cameraGroup, GameObject prefab) {
-            EditPrefab(prefab, obj => {
+            Core.Editor.EditorUtility.EditPrefab(prefab, obj => {
                 var cameras = cameraGroup.GetComponentsInChildren<CinemachineVirtualCameraBase>(true);
                 var components = cameraGroup.GetComponentsInChildren<CinemachineComponentBase>(true);
                 var extensions = cameraGroup.GetComponentsInChildren<CinemachineExtension>(true);
@@ -72,7 +72,7 @@ namespace GameFramework.CameraSystems.Editor {
                 void CopyComponents<T>(T[] sources, Func<T, GameObject, T> insertComponentFunc = null)
                     where T : MonoBehaviour {
                     foreach (var src in sources) {
-                        var path = GetTransformPath(cameraGroup.transform, src.transform);
+                        var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, src.transform);
                         var exportTarget = obj.transform.Find(path);
                         if (exportTarget == null) {
                             Debug.LogWarning($"Not found export path. [{path}]");
@@ -101,7 +101,7 @@ namespace GameFramework.CameraSystems.Editor {
                             continue;
                         }
                     
-                        var path = GetTransformPath(cameraGroup.transform, vcam.transform);
+                        var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, vcam.transform);
                         var exportTarget = obj.transform.Find(path);
                         if (exportTarget == null) {
                             Debug.LogWarning($"Not found export path. [{path}]");
@@ -151,37 +151,6 @@ namespace GameFramework.CameraSystems.Editor {
 
             EditorUtility.SetDirty(prefab);
             AssetDatabase.Refresh();
-        }
-
-        /// <summary>
-        /// TransformPathの取得
-        /// </summary>
-        private string GetTransformPath(Transform root, Transform child, string path = null) {
-            if (root == child) {
-                return path != null ? path : "";
-            }
-
-            return GetTransformPath(root, child.parent, path != null ? $"{child.name}/{path}" : child.name);
-        }
-
-        /// <summary>
-        /// Prefabの編集
-        /// ※Prefabは直接編集せずにこの関数を通して編集してください
-        /// </summary>
-        /// <param name="prefab">編集対象のPrefab</param>
-        /// <param name="editAction">編集処理</param>
-        private static void EditPrefab(GameObject prefab, Action<GameObject> editAction) {
-            var assetPath = AssetDatabase.GetAssetPath(prefab);
-
-            // Prefabを展開
-            var contentsRoot = PrefabUtility.LoadPrefabContents(assetPath);
-
-            // 編集処理
-            editAction(contentsRoot);
-
-            // Prefabの保存
-            PrefabUtility.SaveAsPrefabAsset(contentsRoot, assetPath);
-            PrefabUtility.UnloadPrefabContents(contentsRoot);
         }
     }
 }

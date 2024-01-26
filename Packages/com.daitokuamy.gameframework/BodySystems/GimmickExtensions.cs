@@ -8,7 +8,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static ActiveGimmick[] GetActiveGimmicks(this GimmickController source, string key) {
+        public static ActiveGimmick[] GetActiveGimmicks(this GimmickControllerOld source, string key) {
             return source.GetGimmicks<ActiveGimmick>(key);
         }
 
@@ -37,7 +37,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static AnimationGimmick[] GetAnimationGimmicks(this GimmickController source, string key) {
+        public static AnimationGimmick[] GetAnimationGimmicks(this GimmickControllerOld source, string key) {
             return source.GetGimmicks<AnimationGimmick>(key);
         }
 
@@ -69,7 +69,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static InvokeGimmick[] GetInvokeGimmicks(this GimmickController source, string key) {
+        public static InvokeGimmick[] GetInvokeGimmicks(this GimmickControllerOld source, string key) {
             return source.GetGimmicks<InvokeGimmick>(key);
         }
 
@@ -88,7 +88,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static ChangeGimmick<T>[] GetChangeGimmicks<T>(this GimmickController source, string key) {
+        public static ChangeGimmick<T>[] GetChangeGimmicks<T>(this GimmickControllerOld source, string key) {
             return source.GetGimmicks<ChangeGimmick<T>>(key);
         }
 
@@ -109,7 +109,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static StateGimmick[] GetStateGimmicks(this GimmickController source, string key) {
+        public static StateGimmick[] GetStateGimmicks(this GimmickControllerOld source, string key) {
             return source.GetGimmicks<StateGimmick>(key);
         }
 

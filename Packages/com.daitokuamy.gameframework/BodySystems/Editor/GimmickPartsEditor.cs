@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using GameFramework.GimmickSystems;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -14,6 +18,45 @@ namespace GameFramework.BodySystems.Editor {
         private ReorderableList _gimmickInfoList;
         // 選択中Gimmickのエディタ描画用
         private UnityEditor.Editor _selectedGimmickEditor;
+
+        [MenuItem("CONTEXT/GimmickParts/GameFramework/Convert GimmickGroup")]
+        private static void Test(MenuCommand menuCommand) {
+            var gimmickTypes = TypeCache.GetTypesDerivedFrom<GimmickSystems.Gimmick>();
+            
+            GimmickSystems.Gimmick ConvertGimmick(GameObject componentRoot, Gimmick baseGimmick) {
+                var className = baseGimmick.GetType().Name;
+                var exportType = gimmickTypes.FirstOrDefault(x => x.Name == className);
+                var component = componentRoot.AddComponent(exportType) as GimmickSystems.Gimmick;
+                EditorUtility.CopySerializedIfDifferent(baseGimmick, component);
+                return component;
+            }
+            
+            if (menuCommand.context is GimmickParts gimmickParts) {
+                var gameObj = gimmickParts.gameObject;
+                var gimmickInfos = gimmickParts.GimmickInfos;
+                var gimmickGroup = gameObj.GetComponent<GimmickGroup>();
+                if (gimmickGroup == null) {
+                    gimmickGroup = gameObj.AddComponent<GimmickGroup>();
+                }
+
+                var serializedObj = new SerializedObject(gimmickGroup);
+                serializedObj.Update();
+
+                var gimmickInfosProp = serializedObj.FindProperty("_gimmickInfos");
+                gimmickInfosProp.arraySize = gimmickInfos.Count;
+                var gimmickRootProp = serializedObj.FindProperty("_gimmickRoot");
+                var gimmickRoot = gimmickRootProp.objectReferenceValue as GameObject;
+                for (var i = 0; i < gimmickInfosProp.arraySize; i++) {
+                    var gimmickInfoProp = gimmickInfosProp.GetArrayElementAtIndex(i);
+                    gimmickInfoProp.FindPropertyRelative("key").stringValue = gimmickInfos[i].key;
+                    gimmickInfoProp.FindPropertyRelative("gimmick").objectReferenceValue = ConvertGimmick(gimmickRoot, gimmickInfos[i].gimmick);
+                }
+                
+                serializedObj.ApplyModifiedProperties();
+                
+                DestroyImmediate(gimmickParts);
+            }
+        }
 
         /// <summary>
         /// インスペクタ描画
@@ -134,20 +177,30 @@ namespace GameFramework.BodySystems.Editor {
             };
 
             // 要素選択状態変更
-            _gimmickInfoList.onSelectCallback += list => {
+            void SelectGimmick(IEnumerable<int> selectedIndices) {
                 if (_selectedGimmickEditor != null) {
                     DestroyImmediate(_selectedGimmickEditor);
                     _selectedGimmickEditor = null;
                 }
 
-                var gimmicks = list.selectedIndices
+                var gimmicks = selectedIndices
                     .Select(GetGimmick)
                     .Select(x => (Object)x)
                     .ToArray();
                 if (gimmicks.Length > 0) {
                     _selectedGimmickEditor = CreateEditor(gimmicks[0]);
                 }
+            }
+            _gimmickInfoList.onSelectCallback += list => {
+                SelectGimmick(list.selectedIndices);
             };
+            
+            // 初期状態で要素選択しておく
+            _gimmickInfoList.ClearSelection();
+            if (gimmickInfos.arraySize > 0) {
+                _gimmickInfoList.Select(0);
+                SelectGimmick(new[] { 0 });
+            }
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ namespace GameFramework.BodySystems {
     /// <summary>
     /// Body内のGimmick管理用クラス
     /// </summary>
+    [ExecuteAlways][DisallowMultipleComponent][Obsolete("Convert To GimmickGroup")]
     public class GimmickParts : MonoBehaviour {
         // ギミック情報
         [Serializable]
@@ -62,6 +63,21 @@ namespace GameFramework.BodySystems {
             }
 
             _initialized = true;
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        private void OnDestroy() {
+            for (var i = _gimmickInfos.Length - 1; i >= 0; i--) {
+                if (_gimmickInfos[i].gimmick == null) {
+                    continue;
+                }
+                
+                DestroyImmediate(_gimmickInfos[i].gimmick);
+            }
+
+            _gimmickInfos = Array.Empty<GimmickInfo>();
         }
     }
 }

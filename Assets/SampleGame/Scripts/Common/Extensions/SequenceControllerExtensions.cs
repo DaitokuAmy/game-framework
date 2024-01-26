@@ -44,7 +44,7 @@ namespace SampleGame {
         /// Body用ギミックイベントのバインド
         /// </summary>
         public static void BindBodyGimmickEvent(this IReadOnlySequenceController self, Body body) {
-            var gimmickController = body.GetController<GimmickController>();
+            var gimmickController = body.GetController<GimmickControllerOld>();
             if (gimmickController == null) {
                 return;
             }

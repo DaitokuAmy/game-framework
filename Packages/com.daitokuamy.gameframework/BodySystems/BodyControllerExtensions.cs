@@ -1,6 +1,7 @@
 using GameFramework.PlayableSystems;
 using UnityEngine;
 using UnityEngine.Timeline;
+using GameFramework.GimmickSystems;
 
 namespace GameFramework.BodySystems {
     /// <summary>
@@ -56,6 +57,51 @@ namespace GameFramework.BodySystems {
             var provider = new LayerMixerPlayableComponent(source.Animator, autoDispose);
             source.Handle.Change(provider, blendDuration);
             return provider;
+        }
+        
+        /// <summary>
+        /// ActiveGimmickを取得
+        /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
+        public static GameFramework.GimmickSystems.ActiveGimmick[] GetActiveGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<GameFramework.GimmickSystems.ActiveGimmick>(key);
+        }
+
+        /// <summary>
+        /// AnimationGimmickを取得
+        /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
+        public static GameFramework.GimmickSystems.AnimationGimmick[] GetAnimationGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<GameFramework.GimmickSystems.AnimationGimmick>(key);
+        }
+
+        /// <summary>
+        /// InvokeGimmickを取得
+        /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
+        public static GameFramework.GimmickSystems.InvokeGimmick[] GetInvokeGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<GameFramework.GimmickSystems.InvokeGimmick>(key);
+        }
+
+        /// <summary>
+        /// ChangeGimmickを取得
+        /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
+        public static GameFramework.GimmickSystems.ChangeGimmick<T>[] GetChangeGimmicks<T>(this GimmickController source, string key) {
+            return source.GetGimmicks<GameFramework.GimmickSystems.ChangeGimmick<T>>(key);
+        }
+
+        /// <summary>
+        /// StateGimmickを取得
+        /// </summary>
+        /// <param name="source">操作対象</param>
+        /// <param name="key">取得用のキー</param>
+        public static GameFramework.GimmickSystems.StateGimmick[] GetStateGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<GameFramework.GimmickSystems.StateGimmick>(key);
         }
     }
 }

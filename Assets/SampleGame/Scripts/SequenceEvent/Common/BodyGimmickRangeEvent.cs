@@ -19,12 +19,12 @@ namespace SampleGame.SequenceEvents {
     public abstract class BodyGimmickRangeEventHandler<TGimmick, TEvent> : RangeSequenceEventHandler<TEvent>
         where TGimmick : Gimmick
         where TEvent : BodyGimmickRangeEvent {
-        private GimmickController _gimmickController;
+        private GimmickControllerOld _gimmickController;
         
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(GimmickController gimmickController) {
+        public void Setup(GimmickControllerOld gimmickController) {
             _gimmickController = gimmickController;
         }
 

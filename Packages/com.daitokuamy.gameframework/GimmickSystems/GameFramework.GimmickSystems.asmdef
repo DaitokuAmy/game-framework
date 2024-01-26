@@ -1,0 +1,19 @@
+{
+    "name": "GameFramework.GimmickSystems",
+    "rootNamespace": "",
+    "references": [
+        "GUID:afebead123e02784da390b52d3e15019",
+        "GUID:aafbca04a30d6314fa04811bbf9a60f3",
+        "GUID:f06555f75b070af458a003d92f9efb00",
+        "GUID:14368971c13ea3c44895cfadd2a9c1e0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

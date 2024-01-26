@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.BodySystems;
+using GameFramework.GimmickSystems;
 using GameFramework.Core;
 using UniRx;
 using UnityEditor;
@@ -40,15 +41,15 @@ namespace SampleGame.ModelViewer.Editor {
             /// 初期化処理
             /// </summary>
             protected override void InitializeInternal(IScope scope) {
-                _floatPropertyFoldoutList = new FoldoutList<string>("Float Property", useScroll:false);
-                _intPropertyFoldoutList = new FoldoutList<string>("Int Property", useScroll:false);
-                _vectorPropertyFoldoutList = new FoldoutList<string>("Vector Property", useScroll:false);
-                _colorPropertyFoldoutList = new FoldoutList<string>("Color Property", useScroll:false);
-                _stringPropertyFoldoutList = new FoldoutList<string>("String Property", useScroll:false);
-                _objectPropertyFoldoutList = new FoldoutList<string>("Object Property", useScroll:false);
-                _locatorFoldoutList = new FoldoutList<string>("Locator Controller", useScroll:false);
-                _materialFoldoutList = new FoldoutList<string>("Material Controller", useScroll:false);
-                _gimmickFoldoutList = new FoldoutList<string>("Gimmick Controller", useScroll:false);
+                _floatPropertyFoldoutList = new FoldoutList<string>("Float Property", useScroll: false);
+                _intPropertyFoldoutList = new FoldoutList<string>("Int Property", useScroll: false);
+                _vectorPropertyFoldoutList = new FoldoutList<string>("Vector Property", useScroll: false);
+                _colorPropertyFoldoutList = new FoldoutList<string>("Color Property", useScroll: false);
+                _stringPropertyFoldoutList = new FoldoutList<string>("String Property", useScroll: false);
+                _objectPropertyFoldoutList = new FoldoutList<string>("Object Property", useScroll: false);
+                _locatorFoldoutList = new FoldoutList<string>("Locator Controller", useScroll: false);
+                _materialFoldoutList = new FoldoutList<string>("Material Controller", useScroll: false);
+                _gimmickFoldoutList = new FoldoutList<string>("Gimmick Controller", useScroll: false);
 
                 var entityManager = Services.Get<ActorManager>();
                 entityManager.PreviewActor
@@ -89,145 +90,295 @@ namespace SampleGame.ModelViewer.Editor {
                 }
 
                 // Gimmick
-                var gimmickController = _body.GetController<GimmickController>();
-                if (gimmickController != null) {
-                    void DrawActivateGimmick(string key) {
-                        var gimmicks = gimmickController.GetActiveGimmicks(key);
-                        if (gimmicks.Length <= 0) {
-                            return;
-                        }
 
-                        var activate = gimmicks[0].IsActive;
-                        if (GUILayout.Button(activate ? "Deactivate" : "Activate")) {
-                            if (activate) {
-                                gimmicks.Deactivate();
-                            }
-                            else {
-                                gimmicks.Activate();
-                            }
-                        }
-                    }
+                #region Old
 
-                    void DrawAnimationGimmick(string key) {
-                        var gimmicks = gimmickController.GetAnimationGimmicks(key);
-                        if (gimmicks.Length <= 0) {
-                            return;
-                        }
-
-                        if (GUILayout.Button("Play")) {
-                            gimmicks.Resume();
-                        }
-
-                        if (GUILayout.Button("Reverse Play")) {
-                            gimmicks.Resume(true);
-                        }
-                    }
-
-                    void DrawInvokeGimmick(string key) {
-                        var gimmicks = gimmickController.GetInvokeGimmicks(key);
-                        if (gimmicks.Length <= 0) {
-                            return;
-                        }
-
-                        if (GUILayout.Button("Invoke")) {
-                            gimmicks.Invoke();
-                        }
-                    }
-
-                    void DrawChangeGimmick<T>(string key) {
-                        var gimmicks = gimmickController.GetChangeGimmicks<T>(key);
-                        if (gimmicks.Length <= 0) {
-                            return;
-                        }
-
-                        var target = default(object);
-                        if (typeof(T) == typeof(Color)) {
-                            if (!_gimmickColorParams.TryGetValue(key, out var val)) {
-                                val = Color.white;
-                                _gimmickColorParams[key] = val;
+                {
+                    var gimmickController = _body.GetController<GimmickControllerOld>();
+                    if (gimmickController != null) {
+                        void DrawActivateGimmick(string key) {
+                            var gimmicks = gimmickController.GetActiveGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
                             }
 
-                            val = EditorGUILayout.ColorField(GUIContent.none, val);
-                            target = val;
-                        }
-
-                        if (typeof(T) == typeof(float)) {
-                            if (!_gimmickFloatParams.TryGetValue(key, out var val)) {
-                                val = 0.0f;
-                                _gimmickFloatParams[key] = val;
-                            }
-
-                            val = EditorGUILayout.FloatField(GUIContent.none, val);
-                            target = val;
-                        }
-
-                        if (typeof(T) == typeof(Vector2)) {
-                            if (!_gimmickVector2Params.TryGetValue(key, out var val)) {
-                                val = Vector2.zero;
-                                _gimmickVector2Params[key] = val;
-                            }
-
-                            val = EditorGUILayout.Vector2Field(GUIContent.none, val);
-                            target = val;
-                        }
-
-                        if (typeof(T) == typeof(Vector3)) {
-                            if (!_gimmickVector3Params.TryGetValue(key, out var val)) {
-                                val = Vector3.zero;
-                                _gimmickVector3Params[key] = val;
-                            }
-
-                            val = EditorGUILayout.Vector3Field(GUIContent.none, val);
-                            target = val;
-                        }
-
-                        if (typeof(T) == typeof(Vector4)) {
-                            if (!_gimmickVector4Params.TryGetValue(key, out var val)) {
-                                val = Vector4.zero;
-                                _gimmickVector4Params[key] = val;
-                            }
-
-                            val = EditorGUILayout.Vector4Field(GUIContent.none, val);
-                            target = val;
-                        }
-
-                        if (GUILayout.Button("Change")) {
-                            gimmicks.Change((T)target);
-                        }
-                    }
-
-                    void DrawStateGimmick(string key) {
-                        var gimmicks = gimmickController.GetStateGimmicks(key);
-                        if (gimmicks.Length <= 0) {
-                            return;
-                        }
-
-                        var stateNames = gimmicks.SelectMany(x => x.StateNames)
-                            .Distinct()
-                            .ToArray();
-                        using (new EditorGUILayout.VerticalScope("Box")) {
-                            foreach (var stateName in stateNames) {
-                                if (GUILayout.Button(stateName)) {
-                                    gimmicks.Change(stateName);
+                            var activate = gimmicks[0].IsActive;
+                            if (GUILayout.Button(activate ? "Deactivate" : "Activate")) {
+                                if (activate) {
+                                    gimmicks.Deactivate();
+                                }
+                                else {
+                                    gimmicks.Activate();
                                 }
                             }
                         }
-                    }
 
-                    _gimmickFoldoutList.OnGUI(gimmickController.GetKeys(), (key, index) => {
-                        EditorGUILayout.LabelField(key);
-                        EditorGUI.indentLevel++;
-                        DrawActivateGimmick(key);
-                        DrawAnimationGimmick(key);
-                        DrawInvokeGimmick(key);
-                        DrawChangeGimmick<Color>(key);
-                        DrawChangeGimmick<float>(key);
-                        DrawChangeGimmick<Vector2>(key);
-                        DrawChangeGimmick<Vector3>(key);
-                        DrawChangeGimmick<Vector4>(key);
-                        DrawStateGimmick(key);
-                        EditorGUI.indentLevel--;
-                    });
+                        void DrawAnimationGimmick(string key) {
+                            var gimmicks = gimmickController.GetAnimationGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            if (GUILayout.Button("Play")) {
+                                gimmicks.Resume();
+                            }
+
+                            if (GUILayout.Button("Reverse Play")) {
+                                gimmicks.Resume(true);
+                            }
+                        }
+
+                        void DrawInvokeGimmick(string key) {
+                            var gimmicks = gimmickController.GetInvokeGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            if (GUILayout.Button("Invoke")) {
+                                gimmicks.Invoke();
+                            }
+                        }
+
+                        void DrawChangeGimmick<T>(string key) {
+                            var gimmicks = gimmickController.GetChangeGimmicks<T>(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            var target = default(object);
+                            if (typeof(T) == typeof(Color)) {
+                                if (!_gimmickColorParams.TryGetValue(key, out var val)) {
+                                    val = Color.white;
+                                    _gimmickColorParams[key] = val;
+                                }
+
+                                val = EditorGUILayout.ColorField(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(float)) {
+                                if (!_gimmickFloatParams.TryGetValue(key, out var val)) {
+                                    val = 0.0f;
+                                    _gimmickFloatParams[key] = val;
+                                }
+
+                                val = EditorGUILayout.FloatField(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(Vector2)) {
+                                if (!_gimmickVector2Params.TryGetValue(key, out var val)) {
+                                    val = Vector2.zero;
+                                    _gimmickVector2Params[key] = val;
+                                }
+
+                                val = EditorGUILayout.Vector2Field(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(Vector3)) {
+                                if (!_gimmickVector3Params.TryGetValue(key, out var val)) {
+                                    val = Vector3.zero;
+                                    _gimmickVector3Params[key] = val;
+                                }
+
+                                val = EditorGUILayout.Vector3Field(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(Vector4)) {
+                                if (!_gimmickVector4Params.TryGetValue(key, out var val)) {
+                                    val = Vector4.zero;
+                                    _gimmickVector4Params[key] = val;
+                                }
+
+                                val = EditorGUILayout.Vector4Field(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (GUILayout.Button("Change")) {
+                                gimmicks.Change((T)target);
+                            }
+                        }
+
+                        void DrawStateGimmick(string key) {
+                            var gimmicks = gimmickController.GetStateGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            var stateNames = gimmicks.SelectMany(x => x.StateNames)
+                                .Distinct()
+                                .ToArray();
+                            using (new EditorGUILayout.VerticalScope("Box")) {
+                                foreach (var stateName in stateNames) {
+                                    if (GUILayout.Button(stateName)) {
+                                        gimmicks.Change(stateName);
+                                    }
+                                }
+                            }
+                        }
+
+                        _gimmickFoldoutList.OnGUI(gimmickController.GetKeys(), (key, index) => {
+                            EditorGUILayout.LabelField(key);
+                            EditorGUI.indentLevel++;
+                            DrawActivateGimmick(key);
+                            DrawAnimationGimmick(key);
+                            DrawInvokeGimmick(key);
+                            DrawChangeGimmick<Color>(key);
+                            DrawChangeGimmick<float>(key);
+                            DrawChangeGimmick<Vector2>(key);
+                            DrawChangeGimmick<Vector3>(key);
+                            DrawChangeGimmick<Vector4>(key);
+                            DrawStateGimmick(key);
+                            EditorGUI.indentLevel--;
+                        });
+                    }
+                }
+
+                #endregion
+
+                {
+                    var gimmickController = _body.GetController<GimmickController>();
+                    if (gimmickController != null) {
+                        void DrawActivateGimmick(string key) {
+                            var gimmicks = gimmickController.GetActiveGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            var activate = gimmicks[0].IsActive;
+                            if (GUILayout.Button(activate ? "Deactivate" : "Activate")) {
+                                if (activate) {
+                                    gimmicks.Deactivate();
+                                }
+                                else {
+                                    gimmicks.Activate();
+                                }
+                            }
+                        }
+
+                        void DrawAnimationGimmick(string key) {
+                            var gimmicks = gimmickController.GetAnimationGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            if (GUILayout.Button("Play")) {
+                                gimmicks.Resume();
+                            }
+
+                            if (GUILayout.Button("Reverse Play")) {
+                                gimmicks.Resume(true);
+                            }
+                        }
+
+                        void DrawInvokeGimmick(string key) {
+                            var gimmicks = gimmickController.GetInvokeGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            if (GUILayout.Button("Invoke")) {
+                                gimmicks.Invoke();
+                            }
+                        }
+
+                        void DrawChangeGimmick<T>(string key) {
+                            var gimmicks = gimmickController.GetChangeGimmicks<T>(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            var target = default(object);
+                            if (typeof(T) == typeof(Color)) {
+                                if (!_gimmickColorParams.TryGetValue(key, out var val)) {
+                                    val = Color.white;
+                                    _gimmickColorParams[key] = val;
+                                }
+
+                                val = EditorGUILayout.ColorField(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(float)) {
+                                if (!_gimmickFloatParams.TryGetValue(key, out var val)) {
+                                    val = 0.0f;
+                                    _gimmickFloatParams[key] = val;
+                                }
+
+                                val = EditorGUILayout.FloatField(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(Vector2)) {
+                                if (!_gimmickVector2Params.TryGetValue(key, out var val)) {
+                                    val = Vector2.zero;
+                                    _gimmickVector2Params[key] = val;
+                                }
+
+                                val = EditorGUILayout.Vector2Field(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(Vector3)) {
+                                if (!_gimmickVector3Params.TryGetValue(key, out var val)) {
+                                    val = Vector3.zero;
+                                    _gimmickVector3Params[key] = val;
+                                }
+
+                                val = EditorGUILayout.Vector3Field(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (typeof(T) == typeof(Vector4)) {
+                                if (!_gimmickVector4Params.TryGetValue(key, out var val)) {
+                                    val = Vector4.zero;
+                                    _gimmickVector4Params[key] = val;
+                                }
+
+                                val = EditorGUILayout.Vector4Field(GUIContent.none, val);
+                                target = val;
+                            }
+
+                            if (GUILayout.Button("Change")) {
+                                gimmicks.Change((T)target);
+                            }
+                        }
+
+                        void DrawStateGimmick(string key) {
+                            var gimmicks = gimmickController.GetStateGimmicks(key);
+                            if (gimmicks.Length <= 0) {
+                                return;
+                            }
+
+                            var stateNames = gimmicks.SelectMany(x => x.StateNames)
+                                .Distinct()
+                                .ToArray();
+                            using (new EditorGUILayout.VerticalScope("Box")) {
+                                foreach (var stateName in stateNames) {
+                                    if (GUILayout.Button(stateName)) {
+                                        gimmicks.Change(stateName);
+                                    }
+                                }
+                            }
+                        }
+
+                        _gimmickFoldoutList.OnGUI(gimmickController.GetKeys(), (key, index) => {
+                            EditorGUILayout.LabelField(key);
+                            EditorGUI.indentLevel++;
+                            DrawActivateGimmick(key);
+                            DrawAnimationGimmick(key);
+                            DrawInvokeGimmick(key);
+                            DrawChangeGimmick<Color>(key);
+                            DrawChangeGimmick<float>(key);
+                            DrawChangeGimmick<Vector2>(key);
+                            DrawChangeGimmick<Vector3>(key);
+                            DrawChangeGimmick<Vector4>(key);
+                            DrawStateGimmick(key);
+                            EditorGUI.indentLevel--;
+                        });
+                    }
                 }
 
                 // Material

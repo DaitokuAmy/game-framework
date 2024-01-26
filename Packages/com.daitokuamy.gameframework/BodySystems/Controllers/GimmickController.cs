@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework.GimmickSystems;
 
 namespace GameFramework.BodySystems {
     /// <summary>
@@ -8,7 +9,7 @@ namespace GameFramework.BodySystems {
     /// </summary>
     public class GimmickController : BodyController {
         // キャッシュ用のGimmick情報
-        private Dictionary<string, List<IGimmick>> _gimmicks = new Dictionary<string, List<IGimmick>>();
+        private Dictionary<string, List<GameFramework.GimmickSystems.IGimmick>> _gimmicks = new();
 
         /// <summary>
         /// ギミックのキー一覧を取得
@@ -21,7 +22,7 @@ namespace GameFramework.BodySystems {
         /// ギミックのキー一覧を取得
         /// </summary>
         public string[] GetKeys<T>()
-            where T : Gimmick {
+            where T : GameFramework.GimmickSystems.Gimmick {
             return _gimmicks
                 .Where(x => x.Value.Exists(y => y is T))
                 .Select(x => x.Key)
@@ -34,7 +35,7 @@ namespace GameFramework.BodySystems {
         /// <param name="key">取得用のキー</param>
         /// <typeparam name="T">ギミックの型</typeparam>
         public T[] GetGimmicks<T>(string key)
-            where T : Gimmick {
+            where T : GameFramework.GimmickSystems.Gimmick {
             if (!_gimmicks.TryGetValue(key, out var list)) {
                 return Array.Empty<T>();
             }
@@ -79,7 +80,7 @@ namespace GameFramework.BodySystems {
         private void RefreshGimmicks() {
             _gimmicks.Clear();
 
-            var gimmickPartsList = Body.GetComponentsInChildren<GimmickParts>(true);
+            var gimmickPartsList = Body.GetComponentsInChildren<GimmickGroup>(true);
             foreach (var gimmickParts in gimmickPartsList) {
                 if (gimmickParts == null) {
                     continue;
@@ -88,7 +89,7 @@ namespace GameFramework.BodySystems {
                 var gimmickInfos = gimmickParts.GimmickInfos;
                 foreach (var gimmickInfo in gimmickInfos) {
                     if (!_gimmicks.TryGetValue(gimmickInfo.key, out var list)) {
-                        list = new List<IGimmick>();
+                        list = new List<GameFramework.GimmickSystems.IGimmick>();
                         _gimmicks[gimmickInfo.key] = list;
                         foreach (var gimmick in list) {
                             gimmick.Initialize();
