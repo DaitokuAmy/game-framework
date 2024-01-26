@@ -81,73 +81,82 @@ namespace GameFramework.RendererSystems {
         /// 各種ゲッター
         /// </summary>
         public float GetFloat(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetFloat(n),
-                (m, n) => m.GetFloat(n));
+            float GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetFloat(id);
+            float GetMaterialAction(Material mat, int id) => mat.GetFloat(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public float GetFloat(string propertyName) => GetFloat(Shader.PropertyToID(propertyName));
 
         public int GetInt(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetInt(n),
-                (m, n) => m.GetInt(n));
+            int GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetInt(id);
+            int GetMaterialAction(Material mat, int id) => mat.GetInt(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public int GetInt(string propertyName) => GetInt(Shader.PropertyToID(propertyName));
 
         public Vector4 GetVector(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetVector(n),
-                (m, n) => m.GetVector(n));
+            Vector4 GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetVector(id);
+            Vector4 GetMaterialAction(Material mat, int id) => mat.GetVector(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public Vector4 GetVector(string propertyName) => GetVector(Shader.PropertyToID(propertyName));
 
         public Color GetColor(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetColor(n),
-                (m, n) => m.GetColor(n));
+            Color GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetColor(id);
+            Color GetMaterialAction(Material mat, int id) => mat.GetColor(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public Color GetColor(string propertyName) => GetColor(Shader.PropertyToID(propertyName));
 
         public Matrix4x4 GetMatrix(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetMatrix(n),
-                (m, n) => m.GetMatrix(n));
+            Matrix4x4 GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetMatrix(id);
+            Matrix4x4 GetMaterialAction(Material mat, int id) => mat.GetMatrix(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public Matrix4x4 GetMatrix(string propertyName) => GetMatrix(Shader.PropertyToID(propertyName));
 
         public float[] GetFloatArray(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetFloatArray(n),
-                (m, n) => m.GetFloatArray(n));
+            float[] GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetFloatArray(id);
+            float[] GetMaterialAction(Material mat, int id) => mat.GetFloatArray(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public float[] GetFloatArray(string propertyName) => GetFloatArray(Shader.PropertyToID(propertyName));
 
         public Vector4[] GetVectorArray(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetVectorArray(n),
-                (m, n) => m.GetVectorArray(n));
+            Vector4[] GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetVectorArray(id);
+            Vector4[] GetMaterialAction(Material mat, int id) => mat.GetVectorArray(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public Vector4[] GetVectorArray(string propertyName) => GetVectorArray(Shader.PropertyToID(propertyName));
 
         public Matrix4x4[] GetMatrixArray(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetMatrixArray(n),
-                (m, n) => m.GetMatrixArray(n));
+            Matrix4x4[] GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetMatrixArray(id);
+            Matrix4x4[] GetMaterialAction(Material mat, int id) => mat.GetMatrixArray(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public Matrix4x4[] GetMatrixArray(string propertyName) => GetMatrixArray(Shader.PropertyToID(propertyName));
 
         public Texture GetTexture(int nameId) {
-            return GetValue(nameId,
-                (b, n) => b.GetTexture(n),
-                (m, n) => m.GetTexture(n));
+            Texture GetPropertyAction(MaterialPropertyBlock block, int id) => block.GetTexture(id);
+            Texture GetMaterialAction(Material mat, int id) => mat.GetTexture(id);
+            
+            return GetValue(nameId, GetPropertyAction, GetMaterialAction);
         }
 
         public Texture GetTexture(string propertyName) => GetTexture(Shader.PropertyToID(propertyName));
@@ -156,73 +165,82 @@ namespace GameFramework.RendererSystems {
         /// 各種セッター
         /// </summary>
         public void SetFloat(int nameId, float val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetFloat(n, v),
-                (m, n, v) => m.SetFloat(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, float v) => block.SetFloat(id, v);
+            void SetMaterialAction(Material mat, int id, float v) => mat.SetFloat(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetFloat(string propertyName, float val) => SetFloat(Shader.PropertyToID(propertyName), val);
 
         public void SetInt(int nameId, int val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetInt(n, v),
-                (m, n, v) => m.SetInt(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, int v) => block.SetInt(id, v);
+            void SetMaterialAction(Material mat, int id, int v) => mat.SetInt(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetInt(string propertyName, int val) => SetInt(Shader.PropertyToID(propertyName), val);
 
         public void SetVector(int nameId, Vector4 val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetVector(n, v),
-                (m, n, v) => m.SetVector(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, Vector4 v) => block.SetVector(id, v);
+            void SetMaterialAction(Material mat, int id, Vector4 v) => mat.SetVector(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetVector(string propertyName, Vector4 val) => SetVector(Shader.PropertyToID(propertyName), val);
 
         public void SetColor(int nameId, Color val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetColor(n, v),
-                (m, n, v) => m.SetColor(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, Color v) => block.SetColor(id, v);
+            void SetMaterialAction(Material mat, int id, Color v) => mat.SetColor(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetColor(string propertyName, Color val) => SetColor(Shader.PropertyToID(propertyName), val);
 
         public void SetMatrix(int nameId, Matrix4x4 val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetMatrix(n, v),
-                (m, n, v) => m.SetMatrix(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, Matrix4x4 v) => block.SetMatrix(id, v);
+            void SetMaterialAction(Material mat, int id, Matrix4x4 v) => mat.SetMatrix(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetMatrix(string propertyName, Matrix4x4 val) => SetMatrix(Shader.PropertyToID(propertyName), val);
 
         public void SetFloatArray(int nameId, float[] val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetFloatArray(n, v),
-                (m, n, v) => m.SetFloatArray(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, float[] v) => block.SetFloatArray(id, v);
+            void SetMaterialAction(Material mat, int id, float[] v) => mat.SetFloatArray(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetFloatArray(string propertyName, float[] val) => SetFloatArray(Shader.PropertyToID(propertyName), val);
 
         public void SetVectorArray(int nameId, Vector4[] val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetVectorArray(n, v),
-                (m, n, v) => m.SetVectorArray(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, Vector4[] v) => block.SetVectorArray(id, v);
+            void SetMaterialAction(Material mat, int id, Vector4[] v) => mat.SetVectorArray(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetVectorArray(string propertyName, Vector4[] val) => SetVectorArray(Shader.PropertyToID(propertyName), val);
 
         public void SetMatrixArray(int nameId, Matrix4x4[] val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetMatrixArray(n, v),
-                (m, n, v) => m.SetMatrixArray(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, Matrix4x4[] v) => block.SetMatrixArray(id, v);
+            void SetMaterialAction(Material mat, int id, Matrix4x4[] v) => mat.SetMatrixArray(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetMatrixArray(string propertyName, Matrix4x4[] val) => SetMatrixArray(Shader.PropertyToID(propertyName), val);
 
         public void SetTexture(int nameId, Texture val) {
-            SetValue(nameId, val,
-                (b, n, v) => b.SetTexture(n, v),
-                (m, n, v) => m.SetTexture(n, v));
+            void SetPropertyAction(MaterialPropertyBlock block, int id, Texture v) => block.SetTexture(id, v);
+            void SetMaterialAction(Material mat, int id, Texture v) => mat.SetTexture(id, v);
+            
+            SetValue(nameId, val, SetPropertyAction, SetMaterialAction);
         }
 
         public void SetTexture(string propertyName, Texture val) => SetTexture(Shader.PropertyToID(propertyName), val);
@@ -238,7 +256,7 @@ namespace GameFramework.RendererSystems {
             }
 
             if (_clonedMaterial != null) {
-                getMaterialAction.Invoke(_clonedMaterial, nameId);
+                return getMaterialAction.Invoke(_clonedMaterial, nameId);
             }
 
             return getMaterialAction.Invoke(_material, nameId);
