@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -97,7 +98,7 @@ namespace GameFramework.Core.Editor {
                 AssetDatabase.SaveAssets();
             }
         }
-        
+
         /// <summary>
         /// TransformPathの取得
         /// </summary>
@@ -127,6 +128,43 @@ namespace GameFramework.Core.Editor {
             // Prefabの保存
             PrefabUtility.SaveAsPrefabAsset(contentsRoot, assetPath);
             PrefabUtility.UnloadPrefabContents(contentsRoot);
+        }
+
+        /// <summary>
+        /// CopyablePropertyアトリビュートがついたプロパティをコピーする
+        /// todo:未実装
+        /// </summary>
+        public static void CopySerializedObjectForAttribute(Object source, Object dest) {
+            var sourceObj = new SerializedObject(source);
+            var destObj = new SerializedObject(dest);
+            var sourceType = source.GetType();
+
+            destObj.Update();
+
+            var itr = sourceObj.GetIterator();
+            while (itr.NextVisible(true)) {
+                var type = sourceType;
+                var field = type.GetField(itr.name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                while (field == null || field.GetCustomAttribute<CopyablePropertyAttribute>() == null) {
+                    type = type.BaseType;
+                    if (type == null || type == typeof(Object)) {
+                        field = null;
+                        break;
+                    }
+
+                    field = type.GetField(itr.name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                }
+
+                if (field == null) {
+                    continue;
+                }
+
+                //var sourceProperty = sourceObj.FindProperty(itr.propertyPath);
+                //destObj.CopyFromSerializedPropertyIfDifferent(sourceProperty);
+                Debug.Log($"Test:{itr.propertyPath}");
+            }
+
+            destObj.ApplyModifiedProperties();
         }
     }
 }

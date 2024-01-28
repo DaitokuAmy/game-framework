@@ -1,3 +1,4 @@
+using GameFramework.Core;
 using GameFramework.RendererSystems;
 using UnityEngine;
 
@@ -6,11 +7,11 @@ namespace GameFramework.BodySystems {
     /// Color型のMaterialアニメーションギミック
     /// </summary>
     public class ColorMaterialAnimationGimmick : MaterialAnimationGimmick {
-        [SerializeField, Tooltip("開始値")]
+        [CopyableProperty, SerializeField, Tooltip("開始値")]
         private Color _start;
-        [SerializeField, Tooltip("終了値")]
+        [SerializeField, Tooltip("終了値"), CopyableProperty]
         private Color _end;
-        [SerializeField, Tooltip("カーブ")]
+        [SerializeField, Tooltip("カーブ"), CopyableProperty]
         private AnimationCurve _curve = AnimationCurve.Linear(0, 0, 1, 1);
 
         /// <summary>

@@ -1,3 +1,4 @@
+using GameFramework.Core;
 using GameFramework.RendererSystems;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace GameFramework.BodySystems {
     /// Gradient型のMaterialアニメーションギミック
     /// </summary>
     public class GradientMaterialAnimationGimmick : MaterialAnimationGimmick {
-        [SerializeField, Tooltip("グラデーション")]
+        [SerializeField, Tooltip("グラデーション"), CopyableProperty]
         private Gradient _gradient;
 
         /// <summary>

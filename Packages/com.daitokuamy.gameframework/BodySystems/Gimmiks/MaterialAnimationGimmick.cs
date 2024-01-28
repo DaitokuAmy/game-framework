@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using GameFramework.Core;
 using GameFramework.RendererSystems;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ namespace GameFramework.BodySystems {
         private RendererMaterial[] _targets = Array.Empty<RendererMaterial>();
         [SerializeField, Tooltip("Materialの制御タイプ")]
         private MaterialInstance.ControlType _controlType = MaterialInstance.ControlType.Auto;
-        [SerializeField, Tooltip("再生時間")]
+        [SerializeField, Tooltip("再生時間"), CopyableProperty]
         private float _duration = 1.0f;
         [SerializeField, Tooltip("ループ再生するか")]
         private bool _looping;

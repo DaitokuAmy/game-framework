@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using GameFramework.Core;
 using GameFramework.RendererSystems;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         [Serializable]
         public class StateInfo : StateInfoBase {
-            [Tooltip("対象の値")]
+            [Tooltip("対象の値"), CopyableProperty]
             public T materialValue;
         }
         
@@ -23,7 +24,7 @@ namespace GameFramework.BodySystems {
         private RendererMaterial[] _targets;
         [SerializeField, Tooltip("Materialの制御タイプ")]
         private MaterialInstance.ControlType _controlType = MaterialInstance.ControlType.Auto;
-        [SerializeField, Tooltip("ブレンド時間")]
+        [SerializeField, Tooltip("ブレンド時間"), CopyableProperty]
         private float _blendDuration = 0.2f;
 
         // マテリアル制御ハンドル

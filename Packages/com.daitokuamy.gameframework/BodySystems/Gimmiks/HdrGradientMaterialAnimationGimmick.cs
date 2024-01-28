@@ -1,3 +1,4 @@
+using GameFramework.Core;
 using GameFramework.RendererSystems;
 using UnityEngine;
 
@@ -6,7 +7,7 @@ namespace GameFramework.BodySystems {
     /// HdrGradient型のMaterialアニメーションギミック
     /// </summary>
     public class HdrGradientMaterialAnimationGimmick : MaterialAnimationGimmick {
-        [SerializeField, Tooltip("グラデーション"), ColorUsage(true, true)]
+        [SerializeField, Tooltip("グラデーション"), ColorUsage(true, true), CopyableProperty]
         private Gradient _gradient;
 
         /// <summary>

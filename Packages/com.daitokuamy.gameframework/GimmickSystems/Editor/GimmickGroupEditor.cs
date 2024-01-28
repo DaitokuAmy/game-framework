@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -37,20 +38,20 @@ namespace GameFramework.GimmickSystems.Editor {
             serializedObject.ApplyModifiedProperties();
 
             // Prefabへの保存
-            if (Application.isPlaying) {
-                _exportPrefab = EditorGUILayout.ObjectField("Export Prefab", _exportPrefab, typeof(GameObject), false) as GameObject;
-                if (_exportPrefab == null) {
-                    if (GUILayout.Button("Search Prefab")) {
-                        _exportPrefab = SearchPrefab(target as GimmickGroup);
-                    }
-                }
-
-                using (new EditorGUI.DisabledScope(_exportPrefab == null)) {
-                    if (GUILayout.Button("Export", GUILayout.Width(200))) {
-                        ExportPrefab(target as GimmickGroup, _exportPrefab);
-                    }
-                }
-            }
+            // if (Application.isPlaying) {
+            //     _exportPrefab = EditorGUILayout.ObjectField("Export Prefab", _exportPrefab, typeof(GameObject), false) as GameObject;
+            //     if (_exportPrefab == null) {
+            //         if (GUILayout.Button("Search Prefab")) {
+            //             _exportPrefab = SearchPrefab(target as GimmickGroup);
+            //         }
+            //     }
+            //
+            //     using (new EditorGUI.DisabledScope(_exportPrefab == null)) {
+            //         if (GUILayout.Button("Export", GUILayout.Width(200))) {
+            //             ExportPrefab(target as GimmickGroup, _exportPrefab);
+            //         }
+            //     }
+            // }
         }
 
         /// <summary>
@@ -223,90 +224,26 @@ namespace GameFramework.GimmickSystems.Editor {
         /// </summary>
         private void ExportPrefab(GimmickGroup gimmickGroup, GameObject prefab) {
             Core.Editor.EditorUtility.EditPrefab(prefab, obj => {
-                // var cameras = gimmickGroup.GetComponentsInChildren<CinemachineVirtualCameraBase>(true);
-                // var components = gimmickGroup.GetComponentsInChildren<CinemachineComponentBase>(true);
-                // var extensions = gimmickGroup.GetComponentsInChildren<CinemachineExtension>(true);
-                // var cameraTargets = gimmickGroup.GetComponentsInChildren<CameraTarget>(true);
-                //
-                // // それぞれを対応する場所にコピー
-                // void CopyComponents<T>(T[] sources, Func<T, GameObject, T> insertComponentFunc = null)
-                //     where T : MonoBehaviour {
-                //     foreach (var src in sources) {
-                //         var path = GetTransformPath(gimmickGroup.transform, src.transform);
-                //         var exportTarget = obj.transform.Find(path);
-                //         if (exportTarget == null) {
-                //             Debug.LogWarning($"Not found export path. [{path}]");
-                //             continue;
-                //         }
-                //
-                //         var dest = exportTarget.GetComponent(src.GetType());
-                //         if (dest == null && insertComponentFunc != null) {
-                //             dest = insertComponentFunc.Invoke(src, exportTarget.gameObject);
-                //         }
-                //
-                //         if (dest == null) {
-                //             Debug.LogWarning($"Not found export component. [{path}:{src.GetType()}]");
-                //             continue;
-                //         }
-                //
-                //         EditorUtility.CopySerializedIfDifferent(src, dest);
-                //     }
-                // }
-                //
-                // // Cameraに含まれるComponent/Extensionを全削除
-                // void RemoveComponentsAndExtensions(CinemachineVirtualCameraBase[] cameras) {
-                //     foreach (var cam in cameras) {
-                //         var vcam = cam as CinemachineVirtualCamera;
-                //         if (vcam == null) {
-                //             continue;
-                //         }
-                //     
-                //         var path = GetTransformPath(gimmickGroup.transform, vcam.transform);
-                //         var exportTarget = obj.transform.Find(path);
-                //         if (exportTarget == null) {
-                //             Debug.LogWarning($"Not found export path. [{path}]");
-                //             continue;
-                //         }
-                //
-                //         var exportVcam = exportTarget.GetComponent<CinemachineVirtualCamera>();
-                //         if (exportVcam == null) {
-                //             Debug.LogWarning($"Not found export virtual camera. [{path}]");
-                //             continue;
-                //         }
-                //         
-                //         // Componentを全部削除
-                //         exportVcam.DestroyCinemachineComponent<CinemachineComponentBase>();
-                //         // Extensionを全部削除
-                //         var extList = exportVcam.GetComponentsInChildren<CinemachineExtension>(true);
-                //         foreach (var ext in extList) {
-                //             exportVcam.RemoveExtension(ext);
-                //             DestroyImmediate(ext);
-                //         }
-                //     }
-                // }
-                //
-                // CopyComponents(cameras);
-                // RemoveComponentsAndExtensions(cameras);
-                // CopyComponents(components, (x, y) => {
-                //     var prevComponents = y.GetComponents<CinemachineComponentBase>();
-                //     foreach (var prevComponent in prevComponents) {
-                //         if (prevComponent.Stage == x.Stage) {
-                //             // 同じStageのものは削除
-                //             DestroyImmediate(prevComponent);
-                //         }
-                //     }
-                //
-                //     // 出力先Componentがなければ追加する
-                //     return y.AddComponent(x.GetType()) as CinemachineComponentBase;
-                // });
-                // CopyComponents(extensions, (x, y) => {
-                //     // 出力先Componentがなければ追加する
-                //     return y.AddComponent(x.GetType()) as CinemachineExtension;
-                // });
-                // CopyComponents(cameraTargets, (x, y) => {
-                //     // 出力先Componentがなければ追加する
-                //     return y.AddComponent<CameraTarget>();
-                // });
+                var gimmickInfos = gimmickGroup.GimmickInfos.ToArray();
+                
+                // それぞれを対応する場所にコピー
+                void CopyGimmicks(GimmickGroup.GimmickInfo[] sourceInfos) {
+                    for (var i = 0; i < sourceInfos.Length; i++) {
+                        var sourceInfo = sourceInfos[i];
+                        var gimmick = sourceInfo.gimmick;
+                        var exportGroup = obj.GetComponent<GimmickGroup>();
+                        var exportGimmickInfo = exportGroup.GimmickInfos.FirstOrDefault(x => x.key == sourceInfo.key);
+                        if (exportGimmickInfo == null) {
+                            Debug.LogWarning($"Not found export gimmick. [{sourceInfo.key}]");
+                            continue;
+                        }
+
+                        var exportGimmick = exportGimmickInfo.gimmick;
+                        Core.Editor.EditorUtility.CopySerializedObjectForAttribute(gimmick, exportGimmick);
+                    }
+                }
+                
+                CopyGimmicks(gimmickInfos);
             });
 
             EditorUtility.SetDirty(prefab);
