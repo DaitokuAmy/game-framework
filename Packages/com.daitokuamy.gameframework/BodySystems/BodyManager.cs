@@ -146,7 +146,6 @@ namespace GameFramework.BodySystems {
             body.AddController(new MaterialController());
             body.AddController(new MeshController());
             body.AddController(new AttachmentController());
-            body.AddController(new GimmickControllerOld()); // いずれ消す
             body.AddController(new GimmickController());
 
             void TryAddComponent<T>(GameObject go)
