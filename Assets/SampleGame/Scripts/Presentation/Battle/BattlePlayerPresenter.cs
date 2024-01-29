@@ -135,7 +135,7 @@ namespace SampleGame.Presentation.Battle {
             var cameraManager = Services.Get<CameraManager>();
             var collisionManager = Services.Get<CollisionManager>();
             var projectileObjectManager = Services.Get<ProjectileObjectManager>();
-            var gimmickController = _actor.Body.GetController<GimmickControllerOld>();
+            var gimmickController = _actor.Body.GetController<GimmickController>();
             var hitLayerMask = LayerMask.GetMask("Default");
             
             sequenceController.BindSignalEventHandler<BodyActiveGimmickSingleEvent, BodyActiveGimmickSingleEventHandler>(handler => {

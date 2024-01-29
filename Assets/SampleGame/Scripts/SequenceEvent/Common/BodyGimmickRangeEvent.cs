@@ -1,5 +1,6 @@
 using ActionSequencer;
 using GameFramework.BodySystems;
+using GameFramework.GimmickSystems;
 using UnityEngine;
 
 namespace SampleGame.SequenceEvents {
@@ -19,12 +20,12 @@ namespace SampleGame.SequenceEvents {
     public abstract class BodyGimmickRangeEventHandler<TGimmick, TEvent> : RangeSequenceEventHandler<TEvent>
         where TGimmick : Gimmick
         where TEvent : BodyGimmickRangeEvent {
-        private GimmickControllerOld _gimmickController;
+        private GimmickController _gimmickController;
         
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(GimmickControllerOld gimmickController) {
+        public void Setup(GimmickController gimmickController) {
             _gimmickController = gimmickController;
         }
 

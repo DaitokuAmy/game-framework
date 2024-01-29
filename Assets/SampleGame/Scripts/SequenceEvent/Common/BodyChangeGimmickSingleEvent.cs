@@ -1,4 +1,4 @@
-using GameFramework.BodySystems;
+using GameFramework.GimmickSystems;
 using UnityEngine;
 
 namespace SampleGame.SequenceEvents {

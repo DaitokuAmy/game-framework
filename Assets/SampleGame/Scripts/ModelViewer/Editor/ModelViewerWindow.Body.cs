@@ -94,7 +94,7 @@ namespace SampleGame.ModelViewer.Editor {
                 #region Old
 
                 {
-                    var gimmickController = _body.GetController<GimmickControllerOld>();
+                    var gimmickController = _body.GetController<GimmickController>();
                     if (gimmickController != null) {
                         void DrawActivateGimmick(string key) {
                             var gimmicks = gimmickController.GetActiveGimmicks(key);
