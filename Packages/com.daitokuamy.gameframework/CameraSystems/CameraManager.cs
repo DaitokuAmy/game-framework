@@ -609,6 +609,16 @@ namespace GameFramework.CameraSystems {
 
                 pair.Value.Controller.Update(deltaTime);
             }
+            
+            foreach (var pair in _cameraGroupInfos) {
+                foreach (var p in pair.Value.handlers) {
+                    if (p.Value.Controller == null) {
+                        continue;
+                    }
+                    
+                    p.Value.Controller.Update(deltaTime);
+                }
+            }
 
             // Componentの更新
             foreach (var pair in _cameraHandlers) {
@@ -617,6 +627,16 @@ namespace GameFramework.CameraSystems {
                 }
 
                 pair.Value.Component.Update(deltaTime);
+            }
+            
+            foreach (var pair in _cameraGroupInfos) {
+                foreach (var p in pair.Value.handlers) {
+                    if (p.Value.Component == null) {
+                        continue;
+                    }
+                    
+                    p.Value.Component.Update(deltaTime);
+                }
             }
 
             // Brainの更新
