@@ -455,16 +455,46 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// CameraComponentの取得
         /// </summary>
+        /// <param name="groupKey">CameraGroupとして登録したキー</param>
         /// <param name="cameraName">対象のカメラ名</param>
-        public TCameraComponent GetCameraComponent<TCameraComponent>(string cameraName)
+        public TCameraComponent GetCameraComponent<TCameraComponent>(string groupKey, string cameraName)
             where TCameraComponent : class, ICameraComponent {
             Initialize();
+            
+            var handlers = GetCameraHandlers(groupKey);
 
-            if (!_cameraHandlers.TryGetValue(cameraName, out var handler)) {
+            if (!handlers.TryGetValue(cameraName, out var handler)) {
                 return default;
             }
 
             return handler.Component as TCameraComponent;
+        }
+
+        /// <summary>
+        /// CameraComponentの取得
+        /// </summary>
+        /// <param name="cameraName">対象のカメラ名</param>
+        public TCameraComponent GetCameraComponent<TCameraComponent>(string cameraName)
+            where TCameraComponent : class, ICameraComponent {
+            return GetCameraComponent<TCameraComponent>(null, cameraName);
+        }
+
+        /// <summary>
+        /// CameraControllerの設定
+        /// </summary>
+        /// <param name="groupKey">CameraGroupとして登録したキー</param>
+        /// <param name="cameraName">対象のカメラ名</param>
+        /// <param name="cameraController">設定するController</param>
+        public void SetCameraController(string groupKey, string cameraName, ICameraController cameraController) {
+            Initialize();
+            
+            var handlers = GetCameraHandlers(groupKey);
+
+            if (!handlers.TryGetValue(cameraName, out var handler)) {
+                return;
+            }
+
+            handler.SetController(cameraController);
         }
 
         /// <summary>
@@ -473,13 +503,25 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         /// <param name="cameraController">設定するController</param>
         public void SetCameraController(string cameraName, ICameraController cameraController) {
+            SetCameraController(null, cameraName, cameraController);
+        }
+
+        /// <summary>
+        /// CameraControllerの取得
+        /// </summary>
+        /// <param name="groupKey">CameraGroupとして登録したキー</param>
+        /// <param name="cameraName">対象のカメラ名</param>
+        public TCameraController GetCameraController<TCameraController>(string groupKey, string cameraName)
+            where TCameraController : class, ICameraController {
             Initialize();
 
-            if (!_cameraHandlers.TryGetValue(cameraName, out var handler)) {
-                return;
+            var handlers = GetCameraHandlers(groupKey);
+
+            if (!handlers.TryGetValue(cameraName, out var handler)) {
+                return null;
             }
 
-            handler.SetController(cameraController);
+            return handler.Controller as TCameraController;
         }
 
         /// <summary>
@@ -488,13 +530,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         public TCameraController GetCameraController<TCameraController>(string cameraName)
             where TCameraController : class, ICameraController {
-            Initialize();
-
-            if (!_cameraHandlers.TryGetValue(cameraName, out var handler)) {
-                return null;
-            }
-
-            return handler.Controller as TCameraController;
+            return GetCameraController<TCameraController>(null, cameraName);
         }
 
         /// <summary>
