@@ -66,7 +66,7 @@ namespace GameFramework.GimmickSystems {
         /// </summary>
         /// <param name="speed">1.0を基準とした速度</param>
         void IGimmick.SetSpeed(float speed) {
-            
+            SetSpeedInternal(speed);
         }
         
         /// <summary>
