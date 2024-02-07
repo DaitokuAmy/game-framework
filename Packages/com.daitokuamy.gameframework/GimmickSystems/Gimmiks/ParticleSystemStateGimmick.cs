@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameFramework.GimmickSystems {
@@ -15,11 +16,15 @@ namespace GameFramework.GimmickSystems {
             public ParticleSystem[] activeParticleSystems;
         }
 
+        private readonly List<ParticleSystem> _particleSystems = new();
+
         /// <summary>
         /// 初期化処理
         /// </summary>
         protected override void InitializeInternal() {
             base.InitializeInternal();
+            
+            _particleSystems.Clear();
             
             // 全パーティクルの停止
             foreach (var info in StateInfos) {
@@ -29,7 +34,20 @@ namespace GameFramework.GimmickSystems {
                     }
                     
                     ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                    
+                    // ParticleSystemをキャッシュ
+                    _particleSystems.AddRange(ps.GetComponentsInChildren<ParticleSystem>(true));
                 }
+            }
+        }
+
+        /// <summary>
+        /// 速度の変更
+        /// </summary>
+        protected override void SetSpeedInternal(float speed) {
+            foreach (var ps in _particleSystems) {
+                var main = ps.main;
+                main.simulationSpeed = speed;
             }
         }
 

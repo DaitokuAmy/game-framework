@@ -12,6 +12,11 @@ namespace GameFramework.GimmickSystems {
         void Initialize();
 
         /// <summary>
+        /// 速度の設定
+        /// </summary>
+        void SetSpeed(float speed);
+
+        /// <summary>
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
@@ -55,6 +60,14 @@ namespace GameFramework.GimmickSystems {
             _disposed = true;
             DisposeInternal();
         }
+
+        /// <summary>
+        /// 速度の設定
+        /// </summary>
+        /// <param name="speed">1.0を基準とした速度</param>
+        void IGimmick.SetSpeed(float speed) {
+            
+        }
         
         /// <summary>
         /// 更新処理
@@ -88,6 +101,13 @@ namespace GameFramework.GimmickSystems {
         /// 廃棄時処理
         /// </summary>
         protected virtual void DisposeInternal() {
+        }
+
+        /// <summary>
+        /// 速度の設定
+        /// </summary>
+        /// <param name="speed">速度</param>
+        protected virtual void SetSpeedInternal(float speed) {
         }
 
         /// <summary>
