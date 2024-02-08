@@ -68,7 +68,7 @@ namespace GameFramework.BodySystems {
                             continue;
                         }
                         
-                        var materialInfo = new MaterialInstance(rendererMaterial.renderer, rendererMaterial.materialIndex, MaterialInstance.ControlType.Auto);
+                        var materialInfo = new MaterialInstance(rendererMaterial.renderer, rendererMaterial.materialIndex, info.controlType);
                         list.Add(materialInfo);
                     }
                 }

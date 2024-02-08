@@ -14,9 +14,11 @@ namespace GameFramework.BodySystems {
         [Serializable]
         public class Info {
             [Tooltip("Materialを取得する際のキー")]
-            public string key;
+            public string key = "";
+            [Tooltip("マテリアルの制御タイプ")]
+            public MaterialInstance.ControlType controlType = MaterialInstance.ControlType.Auto;
             [Tooltip("対象のMaterial")]
-            public RendererMaterial[] rendererMaterials;
+            public RendererMaterial[] rendererMaterials = Array.Empty<RendererMaterial>();
         }
 
         [Tooltip("マテリアル登録情報")]
