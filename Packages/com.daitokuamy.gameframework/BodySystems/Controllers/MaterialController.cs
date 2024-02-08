@@ -11,7 +11,7 @@ namespace GameFramework.BodySystems {
         // キャッシュ用のMaterial情報リスト
         private readonly Dictionary<string, List<MaterialInstance>> _materialInfos = new();
 
-        // Material情報のリフレッシュ
+        /// <summary>Material情報のリフレッシュ</summary>
         public event Action OnRefreshed;
 
         /// <summary>
