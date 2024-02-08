@@ -9,7 +9,7 @@ namespace GameFramework.BodySystems {
     /// </summary>
     public class MaterialController : BodyController {
         // キャッシュ用のMaterial情報リスト
-        private Dictionary<string, List<MaterialInstance>> _materialInfos = new Dictionary<string, List<MaterialInstance>>();
+        private readonly Dictionary<string, List<MaterialInstance>> _materialInfos = new();
 
         // Material情報のリフレッシュ
         public event Action OnRefreshed;
@@ -56,17 +56,21 @@ namespace GameFramework.BodySystems {
                 var parts = partsList[i];
                 for (var j = 0; j < parts.infos.Length; j++) {
                     var info = parts.infos[j];
-                    if (!info.IsValid) {
-                        continue;
-                    }
 
                     if (!_materialInfos.TryGetValue(info.key, out var list)) {
                         list = new List<MaterialInstance>();
                         _materialInfos.Add(info.key, list);
                     }
 
-                    var materialInfo = new MaterialInstance(info.Renderer, info.MaterialIndex, MaterialInstance.ControlType.Auto);
-                    list.Add(materialInfo);
+                    for (var k = 0; k < info.rendererMaterials.Length; k++) {
+                        var rendererMaterial = info.rendererMaterials[k];
+                        if (!rendererMaterial.IsValid) {
+                            continue;
+                        }
+                        
+                        var materialInfo = new MaterialInstance(rendererMaterial.renderer, rendererMaterial.materialIndex, MaterialInstance.ControlType.Auto);
+                        list.Add(materialInfo);
+                    }
                 }
             }
 

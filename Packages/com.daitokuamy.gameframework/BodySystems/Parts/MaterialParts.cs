@@ -16,11 +16,7 @@ namespace GameFramework.BodySystems {
             [Tooltip("Materialを取得する際のキー")]
             public string key;
             [Tooltip("対象のMaterial")]
-            public RendererMaterial rendererMaterial;
-
-            public bool IsValid => rendererMaterial.IsValid;
-            public Renderer Renderer => rendererMaterial.renderer;
-            public int MaterialIndex => rendererMaterial.materialIndex;
+            public RendererMaterial[] rendererMaterials;
         }
 
         [Tooltip("マテリアル登録情報")]
