@@ -707,31 +707,37 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         private void CreateCameraHandlersInternal(Dictionary<string, CameraHandler> handlers, Transform rootTransform) {
             handlers.Clear();
-            
-            foreach (Transform child in rootTransform) {
-                // カメラ名が既にあれば何もしない
-                var cameraName = child.name;
-                if (handlers.ContainsKey(cameraName)) {
-                    Debug.LogWarning($"Already exists camera name. [{cameraName}]");
-                    continue;
-                }
 
-                var component = child.GetComponent<ICameraComponent>();
-                if (component == null) {
-                    // Componentがないただの仮想カメラだったら、DefaultComponentを設定
-                    var vcam = child.GetComponent<CinemachineVirtualCameraBase>();
-                    if (vcam == null) {
+            void Create(Transform root) {
+                foreach (Transform child in root) {
+                    // カメラ名が既にあれば何もしない
+                    var cameraName = child.name;
+                    if (handlers.ContainsKey(cameraName)) {
+                        Debug.LogWarning($"Already exists camera name. [{cameraName}]");
                         continue;
                     }
+                    
+                    var component = child.GetComponent<ICameraComponent>();
+                    if (component == null) {
+                        // Componentがないただの仮想カメラだったら、DefaultComponentを設定
+                        var vcam = child.GetComponent<CinemachineVirtualCameraBase>();
+                        if (vcam == null) {
+                            // 何もない場合は再起する
+                            Create(child);
+                            continue;
+                        }
 
-                    component = new DefaultCameraComponent(vcam);
+                        component = new DefaultCameraComponent(vcam);
+                    }
+
+                    component.Initialize(this);
+
+                    var handler = new CameraHandler(cameraName, component);
+                    handlers[cameraName] = handler;
                 }
-
-                component.Initialize(this);
-
-                var handler = new CameraHandler(cameraName, component);
-                handlers[cameraName] = handler;
             }
+
+            Create(rootTransform);
         }
 
         /// <summary>
