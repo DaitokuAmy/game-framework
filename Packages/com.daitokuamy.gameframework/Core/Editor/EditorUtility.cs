@@ -111,6 +111,92 @@ namespace GameFramework.Core.Editor {
         }
 
         /// <summary>
+        /// SerializedObjectの差分チェック
+        /// </summary>
+        public static bool CheckDiffSerializedObject(SerializedObject a, SerializedObject b, Func<SerializedProperty, SerializedProperty, bool> checkSkipFunc = null) {
+            // 型が違えば差分あり
+            if (a.targetObject.GetType() != b.targetObject.GetType()) {
+                return true;
+            }
+
+            // 各種プロパティの差分をチェック
+            var aItr = a.GetIterator();
+            var bItr = b.GetIterator();
+            aItr.NextVisible(true);
+            bItr.NextVisible(true);
+            while (aItr.NextVisible(false)) {
+                bItr.NextVisible(false);
+
+                // スキップ判定
+                if (checkSkipFunc != null && checkSkipFunc.Invoke(aItr, bItr)) {
+                    continue;
+                }
+
+                // 差分チェック
+                if (!SerializedProperty.DataEquals(aItr, bItr)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// SerializedPropertyからField情報を取得する
+        /// </summary>
+        public static FieldInfo GetFieldInfo(SerializedProperty targetProperty) {
+            FieldInfo GetField(Type type, string path) {
+                return type.GetField(path, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            }
+
+            var parentType = targetProperty.serializedObject.targetObject.GetType();
+            var splits = targetProperty.propertyPath.Split('.');
+            var fieldInfo = GetField(parentType, splits[0]);
+            for (var i = 1; i < splits.Length; i++) {
+                if (splits[i] == "Array") {
+                    i += 2;
+                    if (i >= splits.Length)
+                        continue;
+
+                    var type = fieldInfo.FieldType.IsArray
+                        ? fieldInfo.FieldType.GetElementType()
+                        : fieldInfo.FieldType.GetGenericArguments()[0];
+
+                    fieldInfo = GetField(type, splits[i]);
+                }
+                else {
+                    fieldInfo = i + 1 < splits.Length && splits[i + 1] == "Array"
+                        ? GetField(parentType, splits[i])
+                        : GetField(fieldInfo.FieldType, splits[i]);
+                }
+
+                if (fieldInfo == null) {
+                    throw new Exception("Invalid FieldInfo. " + targetProperty.propertyPath);
+                }
+
+                parentType = fieldInfo.FieldType;
+            }
+
+            return fieldInfo;
+        }
+        
+        /// <summary>
+        /// SerializedPropertyからFieldの型を取得する 
+        /// </summary>
+        public static Type GetPropertyType(SerializedProperty targetProperty, bool isArrayListType = false) {
+            var fieldInfo = GetFieldInfo(targetProperty);
+ 
+            // 配列の場合は配列のTypeを返す
+            if (isArrayListType && targetProperty.isArray && targetProperty.propertyType != SerializedPropertyType.String) {
+                return fieldInfo.FieldType.IsArray
+                    ? fieldInfo.FieldType.GetElementType()
+                    : fieldInfo.FieldType.GetGenericArguments()[0];
+            }
+
+            return fieldInfo.FieldType;
+        }
+        
+        /// <summary>
         /// Prefabの編集
         /// ※Prefabは直接編集せずにこの関数を通して編集してください
         /// </summary>
