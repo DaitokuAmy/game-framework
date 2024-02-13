@@ -78,12 +78,15 @@ namespace GameFramework.CameraSystems.Editor {
                             // 階層が存在しなければ作成する
                             var childNames = path.Split("/");
                             exportTarget = obj.transform;
+                            var baseTrans = cameraGroup.transform;
                             foreach (var childName in childNames) {
                                 var parent = exportTarget;
                                 exportTarget = exportTarget.Find(childName);
+                                baseTrans = baseTrans.Find(childName);
                                 if (exportTarget == null) {
                                     exportTarget = new GameObject(childName).transform;
                                     exportTarget.SetParent(parent, false);
+                                    exportTarget.SetSiblingIndex(baseTrans.GetSiblingIndex());
                                 }
                             }
                         }
