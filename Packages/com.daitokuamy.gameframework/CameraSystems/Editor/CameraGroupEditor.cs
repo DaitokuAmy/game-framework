@@ -42,13 +42,13 @@ namespace GameFramework.CameraSystems.Editor {
         private GameObject SearchPrefab(CameraGroup cameraGroup) {
             var guids = AssetDatabase.FindAssets($"{cameraGroup.DefaultName} t:prefab");
             foreach (var guid in guids) {
-                var path = AssetDatabase.GUIDToAssetPath(guid);                
+                var path = AssetDatabase.GUIDToAssetPath(guid);
                 var asset = AssetDatabase.LoadAssetAtPath<GameObject>(path);
 
                 if (asset.name != cameraGroup.DefaultName) {
                     continue;
                 }
-                
+
                 var group = asset.GetComponent<CameraGroup>();
                 if (group != null) {
                     return asset;
@@ -75,8 +75,17 @@ namespace GameFramework.CameraSystems.Editor {
                         var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, src.transform);
                         var exportTarget = obj.transform.Find(path);
                         if (exportTarget == null) {
-                            Debug.LogWarning($"Not found export path. [{path}]");
-                            continue;
+                            // 階層が存在しなければ作成する
+                            var childNames = path.Split("/");
+                            exportTarget = obj.transform;
+                            foreach (var childName in childNames) {
+                                var parent = exportTarget;
+                                exportTarget = exportTarget.Find(childName);
+                                if (exportTarget == null) {
+                                    exportTarget = new GameObject(childName).transform;
+                                    exportTarget.SetParent(parent, false);
+                                }
+                            }
                         }
 
                         var dest = exportTarget.GetComponent(src.GetType());
@@ -100,7 +109,7 @@ namespace GameFramework.CameraSystems.Editor {
                         if (vcam == null) {
                             continue;
                         }
-                    
+
                         var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, vcam.transform);
                         var exportTarget = obj.transform.Find(path);
                         if (exportTarget == null) {
@@ -113,7 +122,7 @@ namespace GameFramework.CameraSystems.Editor {
                             Debug.LogWarning($"Not found export virtual camera. [{path}]");
                             continue;
                         }
-                        
+
                         // Componentを全部削除
                         exportVcam.DestroyCinemachineComponent<CinemachineComponentBase>();
                         // Extensionを全部削除
@@ -125,7 +134,16 @@ namespace GameFramework.CameraSystems.Editor {
                     }
                 }
 
-                CopyComponents(cameras);
+                CopyComponents(cameras, (x, y) => {
+                    var prevCamera = y.GetComponent<CinemachineVirtualCameraBase>();
+                    if (prevCamera != null) {
+                        // 既に存在していたら削除
+                        DestroyImmediate(prevCamera);
+                    }
+
+                    // 出力先Cameraがなければ追加する
+                    return y.AddComponent(x.GetType()) as CinemachineVirtualCameraBase;
+                });
                 RemoveComponentsAndExtensions(cameras);
                 CopyComponents(components, (x, y) => {
                     var prevComponents = y.GetComponents<CinemachineComponentBase>();
