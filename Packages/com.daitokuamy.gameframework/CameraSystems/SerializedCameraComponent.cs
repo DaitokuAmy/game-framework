@@ -41,6 +41,7 @@ namespace GameFramework.CameraSystems {
         
         /// <summary>
         /// カメラアクティブ時処理
+        /// カメラアクティブ時処理
         /// </summary>
         void ICameraComponent.Activate() {
             if (_virtualCamera == null) {
