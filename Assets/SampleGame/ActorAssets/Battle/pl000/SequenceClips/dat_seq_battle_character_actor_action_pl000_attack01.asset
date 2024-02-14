@@ -19,6 +19,7 @@ MonoBehaviour:
   - {fileID: 7271644832260823171}
   - {fileID: 5201561928720237376}
   - {fileID: 6214911963404964426}
+  - {fileID: -1602836793396804550}
 --- !u!114 &-3592940203893569571
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -43,6 +44,75 @@ MonoBehaviour:
     relativeAngles: {x: 90, y: 0, z: 0}
     constraintRotation: 0
     localScale: {x: 1, y: 1, z: 1}
+--- !u!114 &-1602836793396804550
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58b6744699a8b44e5a2fe2407c499f48, type: 3}
+  m_Name: SplineCameraRangeEvent
+  m_EditorClassIdentifier: 
+  label: SplineCameraRangeEvent
+  active: 1
+  enterTime: 0
+  exitTime: 3.5833333
+  groupKey: 
+  cameraName: Spline_0
+  toBlend:
+    active: 1
+    blendDefinition:
+      m_Style: 0
+      m_Time: 0
+      m_CustomCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+  fromBlend:
+    active: 1
+    blendDefinition:
+      m_Style: 0
+      m_Time: 0
+      m_CustomCurve:
+        serializedVersion: 2
+        m_Curve: []
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+  context:
+    splinePrefab: {fileID: 7947079466747853939, guid: c902f7de1b6c24cea9cc01181ef3d6db, type: 3}
+    duration: 1
+    timeCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 2
+        outSlope: 2
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  startTime: 0
+  constraintRoot: 1
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,7 +166,7 @@ MonoBehaviour:
   m_Name: MotionCameraRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30AB\u30E1\u30E9\u5207\u66FF(Motion)"
-  active: 1
+  active: 0
   enterTime: 0
   exitTime: 1
   groupKey: 
@@ -142,7 +212,7 @@ MonoBehaviour:
   m_Name: MotionCameraRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30AB\u30E1\u30E9\u5207\u66FF(Motion)"
-  active: 1
+  active: 0
   enterTime: 1
   exitTime: 2
   groupKey: 

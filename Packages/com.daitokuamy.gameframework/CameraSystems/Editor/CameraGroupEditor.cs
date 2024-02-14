@@ -69,6 +69,7 @@ namespace GameFramework.CameraSystems.Editor {
                 var components = cameraGroup.GetComponentsInChildren<CinemachineComponentBase>(true);
                 var extensions = cameraGroup.GetComponentsInChildren<CinemachineExtension>(true);
                 var cameraTargets = cameraGroup.GetComponentsInChildren<CameraTarget>(true);
+                var cameraComponents = cameraGroup.GetComponentsInChildren<ICameraComponent>(true);
 
                 // それぞれを対応する場所にコピー
                 void CopyComponents<T>(T[] sources, Func<T, GameObject, T> insertComponentFunc = null)
@@ -192,6 +193,10 @@ namespace GameFramework.CameraSystems.Editor {
                 CopyComponents(cameraTargets, (x, y) => {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent<CameraTarget>();
+                });
+                CopyComponents(cameraComponents.OfType<MonoBehaviour>().ToArray(), (x, y) => {
+                    // 出力先Componentがなければ追加する
+                    return y.AddComponent(x.GetType()) as MonoBehaviour;
                 });
             });
 

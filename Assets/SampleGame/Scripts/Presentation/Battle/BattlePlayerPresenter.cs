@@ -156,6 +156,9 @@ namespace SampleGame.Presentation.Battle {
             sequenceController.BindRangeEventHandler<LookAtMotionCameraRangeEvent, LookAtMotionCameraRangeEventHandler>(handler => {
                 handler.Setup(cameraManager, _actor.Body.Transform, _actor.Body.LayeredTime);
             });
+            sequenceController.BindRangeEventHandler<SplineCameraRangeEvent, SplineCameraRangeEventHandler>(handler => {
+                handler.Setup(cameraManager, _actor.Body.Transform, _actor.Body.LayeredTime);
+            });
             sequenceController.BindRangeEventHandler<RepeatSequenceClipRangeEvent, RepeatSequenceClipRangeEventHandler>(handler => {
                 handler.Setup((SequenceController)_actor.SequenceController);
             });
