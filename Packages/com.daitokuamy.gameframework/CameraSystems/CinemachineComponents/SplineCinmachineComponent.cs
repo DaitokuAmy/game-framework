@@ -16,6 +16,8 @@ namespace GameFramework.CameraSystems {
         private SplineContainer _splineContainer;
         [SerializeField, Tooltip("再生時間")]
         private float _duration = 1.0f;
+        [SerializeField, Tooltip("時間カーブ")]
+        private AnimationCurve _timeCurve = new(new Keyframe(0.0f, 0.0f, 1.0f, 1.0f), new Keyframe(1.0f, 1.0f, 1.0f, 1.0f));
 
         private float _currentTime;
 
@@ -34,6 +36,7 @@ namespace GameFramework.CameraSystems {
 
             _currentTime += deltaTime;
             var rate = _duration > 0.001f ? Mathf.Min(1.0f, _currentTime / _duration) : 1.0f;
+            rate = _timeCurve != null && _timeCurve.keys.Length > 1 ? Mathf.Clamp01(_timeCurve.Evaluate(rate)) : rate;
             var position = _splineContainer.Spline.EvaluatePosition(rate);
             if (FollowTarget != null) {
                 position = FollowTarget.TransformPoint(position);
