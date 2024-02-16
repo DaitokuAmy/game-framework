@@ -10,6 +10,8 @@ namespace GameFramework.CameraSystems {
     [DocumentationSorting(DocumentationSortingAttribute.Level.UserRef)]
     [ExecuteAlways]
     public class CinemachineCutBlender : CinemachineExtension {
+        [SerializeField, Tooltip("制御ステージ")]
+        private CinemachineCore.Stage _stage = CinemachineCore.Stage.Aim;
         [SerializeField, Tooltip("ブレンドに使う割合"), Range(0.0f, 1.0f)]
         private float _blendRate = 0.2f;
         [SerializeField, Tooltip("再生時間")]
@@ -35,7 +37,7 @@ namespace GameFramework.CameraSystems {
         /// 処理の上書き
         /// </summary>
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime) {
-            if (stage != CinemachineCore.Stage.Aim) {
+            if (stage != _stage) {
                 return;
             }
 

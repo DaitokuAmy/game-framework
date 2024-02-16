@@ -10,6 +10,8 @@ namespace GameFramework.CameraSystems {
     [DocumentationSorting(DocumentationSortingAttribute.Level.UserRef)]
     [ExecuteAlways]
     public class CinemachineDollyIn : CinemachineExtension {
+        [SerializeField, Tooltip("制御ステージ")]
+        private CinemachineCore.Stage _stage = CinemachineCore.Stage.Aim;
         [SerializeField, Tooltip("ドリーインアニメーション開始用オフセット")]
         private Vector3 _startOffset;
         [SerializeField, Tooltip("再生時間")]
@@ -32,7 +34,7 @@ namespace GameFramework.CameraSystems {
         /// 処理の上書き
         /// </summary>
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime) {
-            if (stage != CinemachineCore.Stage.Aim) {
+            if (stage != _stage) {
                 return;
             }
 
