@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731704, g: 0.1341472, b: 0.121078566, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1504,9 +1504,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1fbe6f9bbc2f4c5b980b033faee1871, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _blendRate: 0.2
-  _duration: 1
-  _timeCurve:
+  m_Stage: 1
+  m_BlendRate: 0.2
+  m_Duration: 1
+  m_TimeCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -2047,16 +2048,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef8972eb28d750c4b9906b25177eccfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _startOffset: {x: 0, y: 0, z: 5}
-  _duration: 1
-  _timeCurve:
+  m_Stage: 1
+  m_StartOffset: {x: 0, y: 0, z: 0}
+  m_Duration: 1
+  m_TimeCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
       value: 0
-      inSlope: 2
-      outSlope: 2
+      inSlope: 1
+      outSlope: 1
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -2064,8 +2066,8 @@ MonoBehaviour:
     - serializedVersion: 3
       time: 1
       value: 1
-      inSlope: 0
-      outSlope: 0
+      inSlope: 1
+      outSlope: 1
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
@@ -2230,6 +2232,7 @@ GameObject:
   - component: {fileID: 1296674417}
   - component: {fileID: 1296674418}
   - component: {fileID: 1296674419}
+  - component: {fileID: 1296674420}
   m_Layer: 0
   m_Name: Default
   m_TagString: Untagged
@@ -2315,6 +2318,26 @@ MonoBehaviour:
     m_FrequencyGain: 1
     m_Duration: 1
     m_NoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!114 &1296674420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1296674416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1b7b11d0c544074eb8ec0d16470760c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_PositionFrequency: 0.05
+  m_RotationFrequency: 0.05
+  m_PositionAmount: 0.1
+  m_RotationAmount: 1.5
+  m_PositionComponents: {x: 1, y: 1, z: 1}
+  m_RotationComponents: {x: 1, y: 1, z: 0}
+  m_PositionOctave: 3
+  m_RotationOctave: 3
 --- !u!1 &1321176414
 GameObject:
   m_ObjectHideFlags: 0

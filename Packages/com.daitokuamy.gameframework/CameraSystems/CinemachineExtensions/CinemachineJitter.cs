@@ -9,26 +9,26 @@ namespace GameFramework.CameraSystems {
     [AddComponentMenu("")]
     [DocumentationSorting(DocumentationSortingAttribute.Level.UserRef)]
     [ExecuteAlways]
-    public class CinemachineJitter : CinemachineExtension {        
-        [SerializeField, Tooltip("座標の周波数")]
-        private float _positionFrequency = 0.2f;
-        [SerializeField, Tooltip("回転の周波数")]
-        private float _rotationFrequency = 0.2f;
+    public class CinemachineJitter : CinemachineExtension {
+        [Tooltip("座標の周波数"), SaveDuringPlay]
+        public float m_PositionFrequency = 0.05f;
+        [Tooltip("回転の周波数"), SaveDuringPlay]
+        public float m_RotationFrequency = 0.05f;
 
-        [SerializeField, Tooltip("座標の移動量")]
-        private float _positionAmount = 1.0f;
-        [SerializeField, Tooltip("回転の移動量")]
-        private float _rotationAmount = 30.0f;
+        [Tooltip("座標の移動量"), SaveDuringPlay]
+        public float m_PositionAmount = 0.1f;
+        [Tooltip("回転の移動量"), SaveDuringPlay]
+        public float m_RotationAmount = 1.5f;
 
-        [SerializeField, Tooltip("座標のウェイト")]
-        private Vector3 _positionComponents = Vector3.one;
-        [SerializeField, Tooltip("回転のウェイト")]
-        private Vector3 _rotationComponents = new(1, 1, 0);
+        [Tooltip("座標のウェイト"), SaveDuringPlay]
+        public Vector3 m_PositionComponents = Vector3.one;
+        [Tooltip("回転のウェイト"), SaveDuringPlay]
+        public Vector3 m_RotationComponents = new(1, 1, 0);
 
-        [SerializeField, Tooltip("座標の音程")]
-        private int _positionOctave = 3;
-        [SerializeField, Tooltip("回転の音程")]
-        private int _rotationOctave = 3;
+        [Tooltip("座標の音程"), SaveDuringPlay]
+        public int m_PositionOctave = 3;
+        [Tooltip("回転の音程"), SaveDuringPlay]
+        public int m_RotationOctave = 3;
 
         private float _timePosition;
         private float _timeRotation;
@@ -58,26 +58,26 @@ namespace GameFramework.CameraSystems {
                 return;
             }
 
-            _timePosition += deltaTime * _positionFrequency;
-            _timeRotation += deltaTime * _rotationFrequency;
+            _timePosition += deltaTime * m_PositionFrequency;
+            _timeRotation += deltaTime * m_RotationFrequency;
 
-            if (_positionAmount * _positionAmount > float.Epsilon) {
+            if (m_PositionAmount * m_PositionAmount > float.Epsilon) {
                 var offsetPos = new Vector3(
-                    Fbm(_noiseVectors[0] * _timePosition, _positionOctave),
-                    Fbm(_noiseVectors[1] * _timePosition, _positionOctave),
-                    Fbm(_noiseVectors[2] * _timePosition, _positionOctave)
+                    Fbm(_noiseVectors[0] * _timePosition, m_PositionOctave),
+                    Fbm(_noiseVectors[1] * _timePosition, m_PositionOctave),
+                    Fbm(_noiseVectors[2] * _timePosition, m_PositionOctave)
                 );
-                offsetPos = Vector3.Scale(offsetPos, _positionComponents) * (_positionAmount * 2);
+                offsetPos = Vector3.Scale(offsetPos, m_PositionComponents) * (m_PositionAmount * 2);
                 state.RawPosition += state.RawOrientation * offsetPos;
             }
 
-            if (_rotationAmount * _rotationAmount > float.Epsilon) {
+            if (m_RotationAmount * m_RotationAmount > float.Epsilon) {
                 var offsetAngles = new Vector3(
-                    Fbm(_noiseVectors[3] * _timeRotation, _rotationOctave),
-                    Fbm(_noiseVectors[4] * _timeRotation, _rotationOctave),
-                    Fbm(_noiseVectors[5] * _timeRotation, _rotationOctave)
+                    Fbm(_noiseVectors[3] * _timeRotation, m_RotationOctave),
+                    Fbm(_noiseVectors[4] * _timeRotation, m_RotationOctave),
+                    Fbm(_noiseVectors[5] * _timeRotation, m_RotationOctave)
                 );
-                offsetAngles = Vector3.Scale(offsetAngles, _rotationComponents) * (_rotationAmount * 2);
+                offsetAngles = Vector3.Scale(offsetAngles, m_RotationComponents) * (m_RotationAmount * 2);
                 state.RawOrientation = state.RawOrientation * Quaternion.Euler(offsetAngles);
             }
         }
