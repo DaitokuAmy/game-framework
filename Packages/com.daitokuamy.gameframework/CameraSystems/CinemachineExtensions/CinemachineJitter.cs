@@ -68,7 +68,7 @@ namespace GameFramework.CameraSystems {
                     Fbm(_noiseVectors[2] * _timePosition, m_PositionOctave)
                 );
                 offsetPos = Vector3.Scale(offsetPos, m_PositionComponents) * (m_PositionAmount * 2);
-                state.RawPosition += state.RawOrientation * offsetPos;
+                state.PositionCorrection += state.RawOrientation * offsetPos;
             }
 
             if (m_RotationAmount * m_RotationAmount > float.Epsilon) {
@@ -78,7 +78,7 @@ namespace GameFramework.CameraSystems {
                     Fbm(_noiseVectors[5] * _timeRotation, m_RotationOctave)
                 );
                 offsetAngles = Vector3.Scale(offsetAngles, m_RotationComponents) * (m_RotationAmount * 2);
-                state.RawOrientation = state.RawOrientation * Quaternion.Euler(offsetAngles);
+                state.OrientationCorrection = Quaternion.Euler(offsetAngles) * state.OrientationCorrection;
             }
         }
 
