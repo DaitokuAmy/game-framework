@@ -66,7 +66,7 @@ namespace GameFramework.PlayableSystems {
         /// 再生速度の設定
         /// </summary>
         void IPlayableComponent.SetSpeed(float speed) {
-            _playable.SetSpeed(speed);
+            //_playable.SetSpeed(speed);
             SetSpeedInternal(speed);
         }
 
