@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using Cinemachine;
@@ -14,6 +13,8 @@ namespace GameFramework.CameraSystems.Editor {
     public class CameraGroupEditor : UnityEditor.Editor {
         // 出力先のPrefab
         private GameObject _exportPrefab;
+        // 出力元のルート
+        private Transform _targetRoot;
 
         /// <summary>
         /// インスペクタ描画
@@ -23,6 +24,9 @@ namespace GameFramework.CameraSystems.Editor {
 
             // Prefabへの保存
             if (Application.isPlaying) {
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("[Export Settings]", EditorStyles.boldLabel);
+                _targetRoot = EditorGUILayout.ObjectField("Source Root", _targetRoot, typeof(Transform), true) as Transform;
                 _exportPrefab = EditorGUILayout.ObjectField("Export Prefab", _exportPrefab, typeof(GameObject), false) as GameObject;
                 if (_exportPrefab == null) {
                     if (GUILayout.Button("Search Prefab")) {
@@ -32,7 +36,7 @@ namespace GameFramework.CameraSystems.Editor {
 
                 using (new EditorGUI.DisabledScope(_exportPrefab == null)) {
                     if (GUILayout.Button("Export", GUILayout.Width(200))) {
-                        ExportPrefab(target as CameraGroup, _exportPrefab);
+                        ExportPrefab(target as CameraGroup, _exportPrefab, _targetRoot);
                     }
                 }
             }
@@ -63,13 +67,17 @@ namespace GameFramework.CameraSystems.Editor {
         /// <summary>
         /// Prefabに出力
         /// </summary>
-        private void ExportPrefab(CameraGroup cameraGroup, GameObject prefab) {
+        private void ExportPrefab(CameraGroup cameraGroup, GameObject prefab, Transform targetRoot) {
             Core.Editor.EditorUtility.EditPrefab(prefab, obj => {
-                var cameras = cameraGroup.GetComponentsInChildren<CinemachineVirtualCameraBase>(true);
-                var components = cameraGroup.GetComponentsInChildren<CinemachineComponentBase>(true);
-                var extensions = cameraGroup.GetComponentsInChildren<CinemachineExtension>(true);
-                var cameraTargets = cameraGroup.GetComponentsInChildren<CameraTarget>(true);
-                var cameraComponents = cameraGroup.GetComponentsInChildren<ICameraComponent>(true);
+                if (!CheckInParent(targetRoot, cameraGroup.transform)) {
+                    targetRoot = cameraGroup.transform;
+                }
+
+                var cameras = targetRoot.GetComponentsInChildren<CinemachineVirtualCameraBase>(true);
+                var components = targetRoot.GetComponentsInChildren<CinemachineComponentBase>(true);
+                var extensions = targetRoot.GetComponentsInChildren<CinemachineExtension>(true);
+                var cameraTargets = targetRoot.GetComponentsInChildren<CameraTarget>(true);
+                var cameraComponents = targetRoot.GetComponentsInChildren<ICameraComponent>(true);
 
                 // それぞれを対応する場所にコピー
                 void CopyComponents<T>(T[] sources, Func<T, GameObject, T> insertComponentFunc = null)
@@ -105,16 +113,18 @@ namespace GameFramework.CameraSystems.Editor {
                         }
 
                         // 差分がなければスキップ
-                        // if (!Core.Editor.EditorUtility.CheckDiffSerializedObject(new SerializedObject(src), new SerializedObject(dest), (a, b) => {
-                        //         var fieldInfo = Core.Editor.EditorUtility.GetFieldInfo(a);
-                        //         var result = fieldInfo.GetCustomAttribute(typeof(NoSaveDuringPlayAttribute)) != null;
-                        //         return result;
-                        //     })) {
-                        //     continue;
-                        // }
+                        if (!Core.Editor.EditorUtility.CheckDiffSerializedObject(new SerializedObject(src), new SerializedObject(dest), (a, b) => {
+                                var fieldInfo = Core.Editor.EditorUtility.GetFieldInfo(a);
+                                var attribute = fieldInfo.GetCustomAttribute(typeof(NoSaveDuringPlayAttribute));
+                                var result = attribute != null;
+                                return result;
+                            })) {
+                            continue;
+                        }
 
                         // 差分が出てる所を編集
                         EditorUtility.CopySerializedIfDifferent(src, dest);
+                        Debug.Log($"Exported Component. [{dest.GetType().Name}]{dest.name}");
                     }
                 }
 
@@ -138,7 +148,7 @@ namespace GameFramework.CameraSystems.Editor {
                             Debug.LogWarning($"Not found export virtual camera. [{path}]");
                             continue;
                         }
-                        
+
                         // Componentの種類チェック
                         var sourceComponent = vcam.GetCinemachineComponent<CinemachineComponentBase>();
                         var exportComponent = exportVcam.GetCinemachineComponent<CinemachineComponentBase>();
@@ -146,7 +156,7 @@ namespace GameFramework.CameraSystems.Editor {
                             // 違っていたら削除する
                             exportVcam.DestroyCinemachineComponent<CinemachineComponentBase>();
                         }
-                        
+
                         // Extensionを全部削除
                         var sourceExtensions = vcam.GetComponentsInChildren<CinemachineExtension>(true);
                         var exportExtensions = exportVcam.GetComponentsInChildren<CinemachineExtension>(true);
@@ -155,7 +165,7 @@ namespace GameFramework.CameraSystems.Editor {
                             if (contains) {
                                 continue;
                             }
-                            
+
                             // 含まれてない場合は削除
                             exportVcam.RemoveExtension(ext);
                             DestroyImmediate(ext);
@@ -202,6 +212,25 @@ namespace GameFramework.CameraSystems.Editor {
 
             EditorUtility.SetDirty(prefab);
             AssetDatabase.Refresh();
+        }
+
+        /// <summary>
+        /// 対象のParentの子かチェックする
+        /// </summary>
+        private bool CheckInParent(Transform child, Transform parent) {
+            if (child == null) {
+                return false;
+            }
+
+            while (child.parent != null) {
+                if (child.parent == parent) {
+                    return true;
+                }
+
+                child = child.parent;
+            }
+
+            return false;
         }
     }
 }
