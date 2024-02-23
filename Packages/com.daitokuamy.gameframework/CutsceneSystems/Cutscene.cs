@@ -171,6 +171,18 @@ namespace GameFramework.CutsceneSystems {
         }
 
         /// <summary>
+        /// 再生位置のシーク
+        /// </summary>
+        /// <param name="time">シーク時間</param>
+        void ICutscene.Seek(float time) {
+            if (_playableDirector == null) {
+                return;
+            }
+
+            _playableDirector.time = time;
+        }
+
+        /// <summary>
         /// 通知の受信
         /// </summary>
         /// <param name="origin">発生元のPlayable</param>
@@ -260,6 +272,14 @@ namespace GameFramework.CutsceneSystems {
         /// </summary>
         /// <param name="speed">再生速度</param>
         protected virtual void SetSpeedInternal(float speed) {
+        }
+
+
+        /// <summary>
+        /// 再生位置のシーク(Override用)
+        /// </summary>
+        /// <param name="time">シーク時間</param>
+        protected virtual void SeekInternal(float time) {
         }
 
         /// <summary>

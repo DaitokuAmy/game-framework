@@ -80,6 +80,17 @@ namespace GameFramework.CutsceneSystems {
             }
 
             /// <summary>
+            /// 時間の設定
+            /// </summary>
+            public void SetTime(float time) {
+                if (_playingInfo == null) {
+                    return;
+                }
+
+                _playingInfo.SetTime(time);
+            }
+
+            /// <summary>
             /// 廃棄時処理
             /// </summary>
             public void Dispose() {
@@ -228,6 +239,21 @@ namespace GameFramework.CutsceneSystems {
 
                 CutsceneInfo.cutscene.Stop();
                 OnStopEvent?.Invoke();
+            }
+
+            /// <summary>
+            /// 時間の設定
+            /// </summary>
+            public void SetTime(float time) {
+                if (Disposed) {
+                    return;
+                }
+
+                if (CutsceneInfo.cutscene == null) {
+                    return;
+                }
+                
+                CutsceneInfo.cutscene.Seek(time);
             }
 
             /// <summary>

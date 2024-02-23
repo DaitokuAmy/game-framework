@@ -165,6 +165,18 @@ namespace GameFramework.CutsceneSystems {
         }
 
         /// <summary>
+        /// 再生位置のシーク
+        /// </summary>
+        /// <param name="time">シーク時間</param>
+        void ICutscene.Seek(float time) {
+            if (_playableDirector == null) {
+                return;
+            }
+
+            _playableDirector.time = time;
+        }
+
+        /// <summary>
         /// オブジェクトのバインド
         /// 対象全てに反映
         /// </summary>

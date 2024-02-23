@@ -39,5 +39,11 @@ namespace GameFramework.CutsceneSystems {
         /// </summary>
         /// <param name="speed">再生速度</param>
         void SetSpeed(float speed);
+
+        /// <summary>
+        /// 再生位置のシーク
+        /// </summary>
+        /// <param name="time">シーク時間</param>
+        void Seek(float time);
     }
 }
