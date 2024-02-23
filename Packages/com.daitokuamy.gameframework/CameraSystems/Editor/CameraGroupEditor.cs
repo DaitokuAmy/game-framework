@@ -113,14 +113,14 @@ namespace GameFramework.CameraSystems.Editor {
                         }
 
                         // 差分がなければスキップ
-                        if (!Core.Editor.EditorUtility.CheckDiffSerializedObject(new SerializedObject(src), new SerializedObject(dest), (a, b) => {
-                                var fieldInfo = Core.Editor.EditorUtility.GetFieldInfo(a);
-                                var attribute = fieldInfo.GetCustomAttribute(typeof(NoSaveDuringPlayAttribute));
-                                var result = attribute != null;
-                                return result;
-                            })) {
-                            continue;
-                        }
+                        // if (!Core.Editor.EditorUtility.CheckDiffSerializedObject(new SerializedObject(src), new SerializedObject(dest), (a, b) => {
+                        //         var fieldInfo = Core.Editor.EditorUtility.GetFieldInfo(a);
+                        //         var attribute = fieldInfo.GetCustomAttribute(typeof(NoSaveDuringPlayAttribute));
+                        //         var result = attribute != null;
+                        //         return result;
+                        //     })) {
+                        //     continue;
+                        // }
 
                         // 差分が出てる所を編集
                         EditorUtility.CopySerializedIfDifferent(src, dest);
