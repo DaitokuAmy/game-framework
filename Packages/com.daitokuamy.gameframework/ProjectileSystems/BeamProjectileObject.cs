@@ -141,13 +141,14 @@ namespace GameFramework.ProjectileSystems {
                 return;
             }
 
-            Projectile = projectile;
-            ((IBeamProjectileObject)this).UpdateProjectile(projectile);
             _isPlaying = true;
+            Projectile = projectile;
             StartProjectileInternal();
             foreach (var component in _projectileComponents) {
                 component.Start(projectile);
             }
+
+            ((IBeamProjectileObject)this).UpdateProjectile(projectile);
         }
 
         /// <summary>
@@ -245,6 +246,13 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="result">当たり結果</param>
         protected virtual void OnHitCollision(RaycastHitResult result) {
+        }
+
+        /// <summary>
+        /// 生成時処理
+        /// </summary>
+        private void Awake() {
+            _projectileComponents = gameObject.GetComponentsInChildren<IBeamProjectileComponent>();
         }
     }
 }

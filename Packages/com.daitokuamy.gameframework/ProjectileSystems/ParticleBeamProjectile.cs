@@ -122,18 +122,21 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="deltaTime">変位時間</param>
         bool IProjectile.Update(float deltaTime) {
             // 照射距離更新
-            _headDistance += _headSpeed * deltaTime;
             if (_stopped) {
                 _tailDistance += _tailSpeed * deltaTime;
+            }
+            else {
+                _headDistance += _headSpeed * deltaTime;
             }
 
             var point = CalcBeamPoint(_headDistance);
             var origin = CalcBeamPoint(_tailDistance);
             var vector = point - origin;
+            var end = _headDistance <= _tailDistance + float.Epsilon;
             
             // 当たり判定チェック
             var hitCount = 0;
-            if (vector.sqrMagnitude >= float.Epsilon) {
+            if (!end && vector.sqrMagnitude >= float.Epsilon) {
                 if (_radius > float.Epsilon) {
                     hitCount = Physics.SphereCastNonAlloc(origin, _radius, vector.normalized, _raycastHits, vector.magnitude, _obstacleLayerMask);
                 }
@@ -148,7 +151,7 @@ namespace GameFramework.ProjectileSystems {
             }
 
             // 衝突状態の更新
-            IsHitting = hitCount > 0;
+            IsHitting = hitCount > 0 || end;
             
             // 最大距離の調整
             _headDistance = Mathf.Min(_headDistance, _maxDistance);

@@ -144,13 +144,14 @@ namespace GameFramework.ProjectileSystems {
                 return;
             }
 
-            Projectile = projectile;
-            ((IBulletProjectileObject)this).UpdateProjectile(projectile);
             _isPlaying = true;
+            Projectile = projectile;
             StartProjectileInternal();
             foreach (var component in _projectileComponents) {
                 component.Start(projectile);
             }
+
+            ((IBulletProjectileObject)this).UpdateProjectile(projectile);
         }
 
         /// <summary>
@@ -190,7 +191,7 @@ namespace GameFramework.ProjectileSystems {
             var trans = transform;
             trans.position = projectile.Position;
             trans.rotation = projectile.Rotation;
-            
+
             UpdateTransformInternal(projectile);
             foreach (var component in _projectileComponents) {
                 component.UpdateProjectile(projectile);

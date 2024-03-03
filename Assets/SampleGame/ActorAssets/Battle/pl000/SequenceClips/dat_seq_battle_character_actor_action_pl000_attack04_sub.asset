@@ -51,6 +51,7 @@ MonoBehaviour:
       useRandom: 0
       minValue: 0.5
       maxValue: 0
+    autoExit: 0
     durationBaseMeter: 100
 --- !u!114 &-8591742924472959636
 MonoBehaviour:
@@ -241,6 +242,7 @@ MonoBehaviour:
       useRandom: 0
       minValue: 1
       maxValue: 0
+    autoExit: 0
     durationBaseMeter: 50
 --- !u!114 &-6569975835554042020
 MonoBehaviour:
@@ -365,6 +367,7 @@ MonoBehaviour:
       useRandom: 0
       minValue: 2
       maxValue: 0
+    autoExit: 0
     durationBaseMeter: 50
 --- !u!114 &-4678313882435369933
 MonoBehaviour:
@@ -1087,15 +1090,20 @@ MonoBehaviour:
     minValue: {x: 0, y: 0, z: 0}
     maxValue: {x: 0, y: 0, z: 0}
   projectileContext:
-    startPoint: {x: 0, y: 1, z: 1}
-    startVelocity: {x: 0, y: 5, z: 5}
+    startSpeed:
+      useRandom: 0
+      minValue: 0
+      maxValue: 0
     gravity: 9.8
     reflectLayerMask:
       serializedVersion: 2
       m_Bits: 1
     cor: 0.5
     radius: 0.1
-    duration: 3
+    duration:
+      useRandom: 0
+      minValue: 0
+      maxValue: 0
     roll: 0
 --- !u!114 &8940707502685451561
 MonoBehaviour:

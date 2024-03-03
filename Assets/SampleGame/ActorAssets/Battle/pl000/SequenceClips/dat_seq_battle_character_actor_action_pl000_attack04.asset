@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BattleThrowableBulletProjectileSignalEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u6295\u64F2"
-  active: 1
+  active: 0
   time: 0.68333334
   hitCount: 1
   prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
@@ -82,3 +82,38 @@ MonoBehaviour:
   label: Track
   sequenceEvents:
   - {fileID: -4751915230851904025}
+  - {fileID: 8812792158573205514}
+--- !u!114 &8812792158573205514
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f02620b4031fbee449f78e1e3655d80f, type: 3}
+  m_Name: BattleParticleBeamProjectileRangeEvent
+  m_EditorClassIdentifier: 
+  label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0/\u7C92\u5B50"
+  active: 1
+  enterTime: 0.68333334
+  exitTime: 1.5833334
+  hitCount: -1
+  prefab: {fileID: 1068142218427537299, guid: 9dd1418ae49020d42a63e9b96c9baaf6, type: 3}
+  scale: 5
+  locatorName: Hand_C
+  relativePosition: {x: 0, y: 0, z: 0}
+  relativeAngles: {x: 0, y: 0, z: 0}
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
+  context:
+    startSpeed: 10
+    endSpeed: 10
+    obstacleLayerMask:
+      serializedVersion: 2
+      m_Bits: 65
+    radius: 0
+    maxDistance: 100
+    tilt: 0

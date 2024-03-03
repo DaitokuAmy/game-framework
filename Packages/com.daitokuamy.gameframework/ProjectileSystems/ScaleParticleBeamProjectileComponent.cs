@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using GameFramework.CollisionSystems;
 using UnityEngine;
@@ -6,11 +7,41 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 拡大を使ったビームオブジェクト制御
     /// </summary>
-    public class ScaleParticleBeamProjectileComponent : BeamProjectileObject {
-        [SerializeField, Tooltip("拡縮可能なObject")]
-        private GameObject _scalableObject;
-        [SerializeField, Tooltip("拡縮可能ObjectのZ方向基準サイズ")]
-        private float _scalableObjectSizeZ = 1.0f;
+    public class ScaleParticleBeamProjectileComponent : BeamProjectileComponent {
+        /// <summary>
+        /// 軸タイプ
+        /// </summary>
+        private enum AxisType {
+            X,
+            Y,
+            Z,
+        }
+
+        /// <summary>
+        /// スケール可能オブジェクト情報
+        /// </summary>
+        [Serializable]
+        private class ScalableObjectInfo {
+            public GameObject target;
+            public AxisType axisType = AxisType.Z;
+            public float baseScale = 1.0f;
+        }
+
+        /// <summary>
+        /// スケール可能オブジェクト情報
+        /// </summary>
+        [Serializable]
+        private class ScalableParticleInfo {
+            public ParticleSystem target;
+            public AxisType axisType = AxisType.Z;
+            public float baseScale = 1.0f;
+            public float basePosition = -0.5f;
+        }
+
+        [SerializeField, Tooltip("拡縮可能オブジェクト情報リスト")]
+        private ScalableObjectInfo[] _scalableObjectInfos;
+        [SerializeField, Tooltip("拡縮可能パーティクル情報リスト")]
+        private ScalableParticleInfo[] _scalableParticleInfos;
         [SerializeField, Tooltip("先端のパーティクル(Loop)")]
         private ParticleSystem _headParticle;
         [SerializeField, Tooltip("末端のパーティクル(Loop)")]
@@ -27,13 +58,17 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="speed">1.0を基準とした速度</param>
         protected override void SetSpeedInternal(float speed) {
+            foreach (var info in _scalableParticleInfos) {
+                SetSpeedParticle(info.target, speed);
+            }
+
             SetSpeedParticle(_headParticle, speed);
             SetSpeedParticle(_tailParticle, speed);
             SetSpeedParticle(_collisionParticle, speed);
             SetSpeedParticle(_hitParticle, speed);
             SetSpeedParticle(_exitHeadParticle, speed);
         }
-        
+
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
@@ -44,8 +79,11 @@ namespace GameFramework.ProjectileSystems {
 
             PlayParticle(_headParticle);
             PlayParticle(_tailParticle);
+            foreach (var info in _scalableParticleInfos) {
+                PlayParticle(info.target);
+            }
         }
-        
+
         /// <summary>
         /// 内部用Transform更新処理
         /// </summary>
@@ -68,11 +106,7 @@ namespace GameFramework.ProjectileSystems {
                 }
             }
 
-            if (_scalableObject != null) {
-                var distance = projectile.Distance;
-                var scale = new Vector3(1.0f, 1.0f, distance / _scalableObjectSizeZ / transform.localScale.z);
-                _scalableObject.transform.localScale = scale;
-            }
+            SetScalableDistance(Projectile.Distance);
         }
 
         /// <summary>
@@ -81,6 +115,10 @@ namespace GameFramework.ProjectileSystems {
         protected override IEnumerator ExitProjectileRoutine() {
             StopParticle(_headParticle);
             StopParticle(_tailParticle);
+            foreach (var info in _scalableParticleInfos) {
+                StopParticle(info.target);
+            }
+
             PlayParticle(_exitHeadParticle);
 
             // Particleの再生が完了するまで待つ
@@ -95,10 +133,10 @@ namespace GameFramework.ProjectileSystems {
         }
 
         /// <summary>
-        /// コリジョンヒット通知
+        /// コリジョンヒット時通知
         /// </summary>
         /// <param name="result">当たり結果</param>
-        protected override void OnHitCollision(RaycastHitResult result) {
+        protected override void OnHitCollisionInternal(RaycastHitResult result) {
             PlayParticle(_hitParticle);
         }
 
@@ -153,6 +191,44 @@ namespace GameFramework.ProjectileSystems {
 
             var main = particle.main;
             main.simulationSpeed = speed;
+        }
+
+        /// <summary>
+        /// Scalable情報の距離を設定
+        /// </summary>
+        private void SetScalableDistance(float distance) {
+            foreach (var info in _scalableObjectInfos) {
+                if (info.target == null) {
+                    continue;
+                }
+
+                if (info.baseScale <= 0.001f) {
+                    continue;
+                }
+
+                var scale = info.target.transform.localScale;
+                scale[(int)info.axisType] = distance / info.baseScale / transform.localScale.z;
+                info.target.transform.localScale = scale;
+            }
+
+            foreach (var info in _scalableParticleInfos) {
+                if (info.target == null) {
+                    continue;
+                }
+
+                if (info.baseScale <= 0.001f) {
+                    continue;
+                }
+
+                var shape = info.target.shape;
+                var scale = shape.scale;
+                var position = shape.position;
+                var index = (int)info.axisType;
+                scale[index] = distance / info.baseScale / transform.localScale.z;
+                position[index] = shape.scale[index] * info.basePosition;
+                shape.scale = scale;
+                shape.position = position;
+            }
         }
     }
 }
