@@ -21,14 +21,14 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         private class ConnectInfo {
             public Action<TransitionInfo> onTransition;
-            public SituationFlowNode childNode;
+            public SituationFlowNode nextNode;
         }
 
         private readonly Dictionary<Type, ConnectInfo> _connectInfos = new();
 
         private SituationFlow _flow;
         private Situation _situation;
-        private SituationFlowNode _parent;
+        private SituationFlowNode _previous;
 
         /// <summary>有効か</summary>
         public bool IsValid => _flow != null && _situation != null;
@@ -45,11 +45,11 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="flow">SituationNode管理用ツリー</param>
         /// <param name="situation">遷移時に使うSituation</param>
-        /// <param name="parent">接続親のNode</param>
-        internal SituationFlowNode(SituationFlow flow, Situation situation, SituationFlowNode parent) {
+        /// <param name="prev">接続元のNode</param>
+        internal SituationFlowNode(SituationFlow flow, Situation situation, SituationFlowNode prev) {
             _flow = flow;
             _situation = situation;
-            _parent = parent;
+            _previous = prev;
 
             if (_situation is INodeSituation nodeSituation) {
                 nodeSituation.OnRegisterFlow(flow);
@@ -64,20 +64,20 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
-            // 親要素から参照を削除
-            if (_parent != null) {
-                _parent._connectInfos.Remove(GetType());
+            // 前要素から参照を削除
+            if (_previous != null) {
+                _previous._connectInfos.Remove(GetType());
             }
 
-            // 子要素を削除
+            // 次要素を削除
             var infos = _connectInfos.Values.ToArray();
             foreach (var info in infos) {
                 if (info == null) {
                     continue;
                 }
 
-                if (info.childNode != null) {
-                    info.childNode.Dispose();
+                if (info.nextNode != null) {
+                    info.nextNode.Dispose();
                 }
             }
 
@@ -86,7 +86,7 @@ namespace GameFramework.SituationSystems {
                 nodeSituation.OnUnregisterFlow(_flow);
             }
 
-            _parent = null;
+            _previous = null;
             _connectInfos.Clear();
             _situation = null;
             _flow = null;
@@ -96,23 +96,33 @@ namespace GameFramework.SituationSystems {
         /// シチュエーションノードの接続
         /// </summary>
         /// <param name="situation">追加するSituationのインスタンス</param>
+        /// <param name="overridePrevNode">戻り先ノードの上書き指定</param>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationFlowNode Connect(Situation situation, Action<TransitionInfo> onTransition = null) {
+        public SituationFlowNode Connect(Situation situation, SituationFlowNode overridePrevNode, Action<TransitionInfo> onTransition = null) {
             var type = situation.GetType();
 
             // 既に同じTypeがあった場合は何もしない
             if (_connectInfos.TryGetValue(type, out var connectInfo)) {
-                return connectInfo.childNode;
+                return connectInfo.nextNode;
             }
 
             // ノードの追加
-            var childNode = new SituationFlowNode(_flow, situation, this);
+            var nextNode = new SituationFlowNode(_flow, situation, overridePrevNode ?? this);
             connectInfo = new ConnectInfo {
                 onTransition = onTransition,
-                childNode = childNode
+                nextNode = nextNode
             };
             _connectInfos.Add(type, connectInfo);
-            return childNode;
+            return nextNode;
+        }
+
+        /// <summary>
+        /// シチュエーションノードの接続
+        /// </summary>
+        /// <param name="situation">追加するSituationのインスタンス</param>
+        /// <param name="onTransition">遷移時の通知</param>
+        public SituationFlowNode Connect(Situation situation, Action<TransitionInfo> onTransition = null) {
+            return Connect(situation, null, onTransition);
         }
 
         /// <summary>
@@ -128,27 +138,27 @@ namespace GameFramework.SituationSystems {
             }
 
             // ノードの削除
-            connectInfo.childNode.Dispose();
+            connectInfo.nextNode.Dispose();
             _connectInfos.Remove(type);
             return true;
         }
 
         /// <summary>
-        /// 親のNodeを取得
+        /// 前のNodeを取得
         /// </summary>
-        internal SituationFlowNode GetParent() {
-            return _parent;
+        internal SituationFlowNode GetPrevious() {
+            return _previous;
         }
 
         /// <summary>
-        /// 該当の型の子Nodeを取得
+        /// 型をもとに接続先のNodeを取得
         /// </summary>
-        internal SituationFlowNode TryGetChild(Type type) {
+        internal SituationFlowNode TryGetNext(Type type) {
             if (!_connectInfos.TryGetValue(type, out var connectInfo)) {
                 return null;
             }
 
-            return connectInfo.childNode;
+            return connectInfo.nextNode;
         }
 
         /// <summary>

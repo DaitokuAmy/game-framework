@@ -210,12 +210,12 @@ namespace GameFramework.SituationSystems {
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
             }
 
-            if (CurrentNode == _rootNode || CurrentNode.GetParent() == _rootNode) {
+            if (CurrentNode == _rootNode || CurrentNode.GetPrevious() == _rootNode) {
                 Debug.LogWarning("Current situation is not back.");
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
             }
 
-            var parentNode = CurrentNode.GetParent();
+            var parentNode = CurrentNode.GetPrevious();
             if (parentNode == null || !parentNode.IsValid) {
                 return RootContainer.Back(new SituationContainer.TransitionOption { clearStack = true, forceBack = true }, overrideTransition, effects);
             }
@@ -272,7 +272,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="type">接続先の型</param>
         /// <param name="includeFallback">fallbackに設定された物をチェックするか</param>
         public bool CheckTransition(Type type, bool includeFallback = true) {
-            var nextNode = CurrentNode.TryGetChild(type);
+            var nextNode = CurrentNode.TryGetNext(type);
             if (nextNode != null) {
                 return true;
             }
@@ -303,7 +303,7 @@ namespace GameFramework.SituationSystems {
 
             // 現在のNodeの接続先にあればそこに遷移
             if (CurrentNode != null) {
-                nextNode = CurrentNode.TryGetChild(type);
+                nextNode = CurrentNode.TryGetNext(type);
             }
 
             // 接続先がなければ、Fallback用のNodeを探す
