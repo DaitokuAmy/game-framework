@@ -402,6 +402,10 @@ namespace GameFramework.SituationSystems {
                     if (last) {
                         transitionEffects = effects;
                     }
+                    else {
+                        transitionEffects = new ITransitionEffect[] { enterEffect };
+                        effectEntered = true;
+                    }
                 }
 
                 yield return situation.ParentContainer.Transition(situation,
