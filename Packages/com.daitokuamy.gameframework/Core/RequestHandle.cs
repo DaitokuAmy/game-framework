@@ -55,7 +55,7 @@ namespace GameFramework.Core {
         /// リクエストを送る
         /// </summary>
         public void Request(T request, params object[] args) {
-            if (_receiver == null || _receiver.IsDone) {
+            if (_receiver == null || !IsStarted || IsDone) {
                 return;
             }
 
