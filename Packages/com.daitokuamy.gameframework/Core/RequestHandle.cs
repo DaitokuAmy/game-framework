@@ -6,7 +6,9 @@ namespace GameFramework.Core {
     /// リクエストを受けるためのインターフェース
     /// </summary>
     public interface IRequestReceiver<T> {
-        /// <summary>レシーバーが止まっているか</summary>
+        /// <summary>受信を開始しているか</summary>
+        bool IsStarted { get; }
+        /// <summary>受信が完了しているか</summary>
         bool IsDone { get; }
 
         /// <summary>
@@ -24,7 +26,9 @@ namespace GameFramework.Core {
         object IEnumerator.Current => null;
         Exception IProcess.Exception => null;
 
-        /// <summary>完了しているか</summary>
+        /// <summary>受信開始しているか</summary>
+        public bool IsStarted => _receiver != null && _receiver.IsStarted;
+        /// <summary>受信が完了しているか</summary>
         public bool IsDone => _receiver == null || !_receiver.IsDone;
 
         /// <summary>
