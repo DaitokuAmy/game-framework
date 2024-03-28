@@ -127,7 +127,6 @@ namespace GameFramework.SituationSystems {
 
             IsActive = true;
             _activeScope = new DisposableScope();
-            Debug.Log($"Activate:{GetType().Name}");
             ActivateInternal(handle, _activeScope);
         }
 
@@ -149,11 +148,9 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         IEnumerator ISituation.OpenRoutine(TransitionHandle handle) {
             _animationScope = new DisposableScope();
-            Debug.Log($"StartOpen:{GetType().Name}");
             yield return OpenRoutineInternal(handle, _animationScope);
             _animationScope.Dispose();
             _animationScope = null;
-            Debug.Log($"ExitOpen:{GetType().Name}");
         }
 
         /// <summary>
@@ -239,9 +236,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         IEnumerator ISituation.CloseRoutine(TransitionHandle handle) {
             _animationScope = new DisposableScope();
-            Debug.Log($"StartClose:{GetType().Name}");
             yield return CloseRoutineInternal(handle, _animationScope);
-            Debug.Log($"StartClose:{GetType().Name}");
             _animationScope.Dispose();
             _animationScope = null;
         }
@@ -272,7 +267,6 @@ namespace GameFramework.SituationSystems {
             DeactivateInternal(handle);
             _activeScope.Dispose();
             _activeScope = null;
-            Debug.Log($"Deactivate:{GetType().Name}");
         }
 
         /// <summary>
