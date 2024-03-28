@@ -16,15 +16,15 @@ namespace GameFramework.SituationSystems {
             // エフェクト開始＆読み込み
             yield return new MergedCoroutine(resolver.EnterEffectRoutine(), resolver.LoadNextRoutine());
 
-            // 非アクティブ化
-            resolver.DeactivatePrev();
+            // アクティブ化
+            resolver.ActivateNext();
 
             // 閉じる＆開く＆エフェクト終了
             yield return new MergedCoroutine(resolver.ClosePrevRoutine(), resolver.OpenNextRoutine(),
                 resolver.ExitEffectRoutine());
 
-            // アクティブ化
-            resolver.ActivateNext();
+            // 非アクティブ化
+            resolver.DeactivatePrev();
 
             // 解放
             yield return resolver.UnloadPrevRoutine();

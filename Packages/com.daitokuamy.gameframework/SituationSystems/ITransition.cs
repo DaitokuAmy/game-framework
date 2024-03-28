@@ -37,6 +37,11 @@ namespace GameFramework.SituationSystems {
         IEnumerator LoadNextRoutine();
 
         /// <summary>
+        /// 遷移先のアクティベート
+        /// </summary>
+        void ActivateNext();
+
+        /// <summary>
         /// 遷移先のオープンコルーチン
         /// </summary>
         /// <param name="immediate">即時に開くか(PreOpen/PostOpenのみ)</param>
@@ -47,11 +52,6 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="immediate">即時に閉じる(PreClose/PostCloseのみ)</param>
         IEnumerator ClosePrevRoutine(bool immediate = false);
-
-        /// <summary>
-        /// 遷移先のアクティベート
-        /// </summary>
-        void ActivateNext();
 
         /// <summary>
         /// 遷移元のディアクティベート

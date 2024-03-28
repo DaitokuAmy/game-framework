@@ -26,9 +26,6 @@ namespace GameFramework.SituationSystems {
         IEnumerator ITransition.TransitRoutine(ITransitionResolver resolver) {
             resolver.Start();
 
-            // 非アクティブ
-            resolver.DeactivatePrev();
-
             // エフェクト開始＆閉じる
             if (_closeImmediate) {
                 yield return resolver.EnterEffectRoutine();
@@ -38,11 +35,17 @@ namespace GameFramework.SituationSystems {
                 yield return new MergedCoroutine(resolver.EnterEffectRoutine(), resolver.ClosePrevRoutine());
             }
 
+            // 非アクティブ
+            resolver.DeactivatePrev();
+
             // 解放
             yield return resolver.UnloadPrevRoutine();
 
             // 読み込み
             yield return resolver.LoadNextRoutine();
+
+            // アクティブ化
+            resolver.ActivateNext();
 
             // エフェクト終了＆開く
             if (_openImmediate) {
@@ -52,9 +55,6 @@ namespace GameFramework.SituationSystems {
             else {
                 yield return new MergedCoroutine(resolver.ExitEffectRoutine(), resolver.OpenNextRoutine());
             }
-
-            // アクティブ化
-            resolver.ActivateNext();
 
             resolver.Finish();
         }

@@ -16,17 +16,17 @@ namespace GameFramework.SituationSystems {
             Loaded, // 読み込み済
             SetupFinished, // 初期化済
             Opening, // オープン中
-            Active, // アクティブ中
+            OpenFinished, // オープン済
         }
 
         // 読み込みスコープ
         private DisposableScope _loadScope;
         // 初期化スコープ
         private DisposableScope _setupScope;
-        // オープンスコープ
-        private DisposableScope _openScope;
         // アクティブスコープ
         private DisposableScope _activeScope;
+        // オープンスコープ
+        private DisposableScope _openScope;
         // アニメーションスコープ
         private DisposableScope _animationScope;
         // スタックを利用するか
@@ -45,6 +45,8 @@ namespace GameFramework.SituationSystems {
         public ServiceContainer ServiceContainer { get; private set; }
         /// <summary>現在状態</summary>
         public State CurrentState { get; private set; } = State.Invalid;
+        /// <summary>アクティブ状態か</summary>
+        public bool IsActive { get; private set; }
         /// <summary>コンテナ登録されているか</summary>
         public bool PreRegistered { get; private set; } = false;
         /// <summary>プリロード状態</summary>
@@ -116,6 +118,20 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        void ISituation.Activate(TransitionHandle handle) {
+            if (IsActive) {
+                return;
+            }
+
+            IsActive = true;
+            _activeScope = new DisposableScope();
+            Debug.Log($"Activate:{GetType().Name}");
+            ActivateInternal(handle, _activeScope);
+        }
+
+        /// <summary>
         /// 開く直前の処理
         /// </summary>
         void ISituation.PreOpen(TransitionHandle handle) {
@@ -133,9 +149,11 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         IEnumerator ISituation.OpenRoutine(TransitionHandle handle) {
             _animationScope = new DisposableScope();
+            Debug.Log($"StartOpen:{GetType().Name}");
             yield return OpenRoutineInternal(handle, _animationScope);
             _animationScope.Dispose();
             _animationScope = null;
+            Debug.Log($"ExitOpen:{GetType().Name}");
         }
 
         /// <summary>
@@ -143,19 +161,6 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         void ISituation.PostOpen(TransitionHandle handle) {
             PostOpenInternal(handle, _openScope);
-        }
-
-        /// <summary>
-        /// アクティブ時処理
-        /// </summary>
-        void ISituation.Activate(TransitionHandle handle) {
-            if (CurrentState >= State.Active) {
-                return;
-            }
-
-            _activeScope = new DisposableScope();
-            ActivateInternal(handle, _activeScope);
-            CurrentState = State.Active;
         }
 
         /// <summary>
@@ -169,8 +174,8 @@ namespace GameFramework.SituationSystems {
             // Systemの更新
             SystemUpdateInternal();
 
-            // UpdateはActive中のみ
-            if (CurrentState == State.Active) {
+            // アクティブ状態なら更新を実行
+            if (IsActive) {
                 UpdateInternal();
             }
 
@@ -190,7 +195,7 @@ namespace GameFramework.SituationSystems {
             SystemLateUpdateInternal();
 
             // LateUpdateはActive中のみ
-            if (CurrentState == State.Active) {
+            if (CurrentState == State.OpenFinished) {
                 LateUpdateInternal();
             }
 
@@ -210,26 +215,12 @@ namespace GameFramework.SituationSystems {
             SystemFixedUpdateInternal();
 
             // FixedUpdateはActive中のみ
-            if (CurrentState == State.Active) {
+            if (CurrentState == State.OpenFinished) {
                 FixedUpdateInternal();
             }
 
             // 子コンテナの更新
             ChildContainer?.FixedUpdate();
-        }
-
-        /// <summary>
-        /// 非アクティブ時処理
-        /// </summary>
-        void ISituation.Deactivate(TransitionHandle handle) {
-            if (CurrentState <= State.Opening) {
-                return;
-            }
-
-            CurrentState = State.Opening;
-            DeactivateInternal(handle);
-            _activeScope.Dispose();
-            _activeScope = null;
         }
 
         /// <summary>
@@ -248,7 +239,9 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         IEnumerator ISituation.CloseRoutine(TransitionHandle handle) {
             _animationScope = new DisposableScope();
+            Debug.Log($"StartClose:{GetType().Name}");
             yield return CloseRoutineInternal(handle, _animationScope);
+            Debug.Log($"StartClose:{GetType().Name}");
             _animationScope.Dispose();
             _animationScope = null;
         }
@@ -265,6 +258,21 @@ namespace GameFramework.SituationSystems {
             PostCloseInternal(handle);
             _openScope.Dispose();
             _openScope = null;
+        }
+
+        /// <summary>
+        /// 非アクティブ時処理
+        /// </summary>
+        void ISituation.Deactivate(TransitionHandle handle) {
+            if (!IsActive) {
+                return;
+            }
+
+            IsActive = false;
+            DeactivateInternal(handle);
+            _activeScope.Dispose();
+            _activeScope = null;
+            Debug.Log($"Deactivate:{GetType().Name}");
         }
 
         /// <summary>
@@ -328,7 +336,7 @@ namespace GameFramework.SituationSystems {
                 situation.PostClose(handle);
             }
             
-            if (CurrentState >= State.Active) {
+            if (CurrentState >= State.OpenFinished) {
                 situation.Deactivate(handle);
             }
 
