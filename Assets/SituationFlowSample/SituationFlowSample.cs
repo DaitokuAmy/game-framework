@@ -67,6 +67,7 @@ namespace SituationFlowSample {
             // Fallback
             _situationFlow.SetFallbackNode(a2Node);
             _situationFlow.SetFallbackNode(b1Node);
+            _situationFlow.SetFallbackNode(b22Node, a2Node);
             
             // 遷移
             _situationFlow.Transition(b21Node);

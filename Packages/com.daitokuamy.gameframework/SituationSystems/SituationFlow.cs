@@ -58,7 +58,8 @@ namespace GameFramework.SituationSystems {
             }
         }
 
-        private readonly Dictionary<Type, SituationFlowNode> _fallbackNodes = new();
+        private readonly Dictionary<Type, SituationFlowNode> _globalFallbackNodes = new();
+        private readonly Dictionary<SituationFlowNode, Dictionary<Type, SituationFlowNode>> _fallbackNodes = new();
         private CoroutineRunner _coroutineRunner;
         private SituationFlowNode _rootNode;
         private List<ITransitionEffect> _activeTransitionEffects = new();
@@ -237,7 +238,9 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// FallbackNodeの設定
         /// </summary>
-        public void SetFallbackNode(SituationFlowNode node) {
+        /// <param name="node">Fallback指定するノード</param>
+        /// <param name="rootNode">Fallback対象とするNodeの基点(nullだとグローバル)</param>
+        public void SetFallbackNode(SituationFlowNode node, SituationFlowNode rootNode = null) {
             if (node == null) {
                 return;
             }
@@ -247,7 +250,17 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
-            _fallbackNodes[situation.GetType()] = node;
+            if (rootNode == null) {
+                _globalFallbackNodes[situation.GetType()] = node;
+            }
+            else {
+                if (!_fallbackNodes.TryGetValue(rootNode, out var dict)) {
+                    dict = new Dictionary<Type, SituationFlowNode>();
+                    _fallbackNodes[rootNode] = dict;
+                }
+
+                dict[situation.GetType()] = node;
+            }
         }
 
         /// <summary>
@@ -256,13 +269,17 @@ namespace GameFramework.SituationSystems {
         public void ResetFallbackNode<T>()
             where T : Situation {
             var type = typeof(T);
-            _fallbackNodes.Remove(type);
+            _globalFallbackNodes.Remove(type);
+            foreach (var dict in _fallbackNodes.Values) {
+                dict.Remove(type);
+            }
         }
 
         /// <summary>
         /// FallbackNodeの設定全解除
         /// </summary>
         public void ResetFallbackNodes() {
+            _globalFallbackNodes.Clear();
             _fallbackNodes.Clear();
         }
 
@@ -278,7 +295,18 @@ namespace GameFramework.SituationSystems {
             }
 
             if (includeFallback) {
-                if (_fallbackNodes.TryGetValue(type, out var fallbackNode)) {
+                var findRootNode = CurrentNode;
+                while (findRootNode != null) {
+                    if (_fallbackNodes.TryGetValue(findRootNode, out var dict)) {
+                        if (dict.TryGetValue(type, out _)) {
+                            return true;
+                        }
+                    }
+
+                    findRootNode = findRootNode.GetPrevious();
+                }
+
+                if (_globalFallbackNodes.TryGetValue(type, out _)) {
                     return true;
                 }
             }
@@ -308,8 +336,19 @@ namespace GameFramework.SituationSystems {
 
             // 接続先がなければ、Fallback用のNodeを探す
             if (nextNode == null) {
-                if (_fallbackNodes.TryGetValue(type, out var fallbackNode)) {
-                    nextNode = fallbackNode;
+                var findRootNode = CurrentNode;
+                while (findRootNode != null) {
+                    if (_fallbackNodes.TryGetValue(findRootNode, out var dict)) {
+                        if (dict.TryGetValue(type, out nextNode)) {
+                            break;
+                        }
+                    }
+
+                    findRootNode = findRootNode.GetPrevious();
+                }
+
+                if (nextNode == null) {
+                    _globalFallbackNodes.TryGetValue(type, out nextNode);
                 }
             }
 
@@ -344,7 +383,7 @@ namespace GameFramework.SituationSystems {
                 transitionSituations.Add(situation);
                 return result;
             }
-            
+
             // 遷移開始を通知
             if (nextNode != null) {
                 nextNode.OnTransition(prevNode, back);
