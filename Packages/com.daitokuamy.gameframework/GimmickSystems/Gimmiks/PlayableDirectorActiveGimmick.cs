@@ -1,15 +1,18 @@
 using UnityEngine;
 using UnityEngine.Playables;
+using UnityEngine.Timeline;
 
 namespace GameFramework.GimmickSystems {
     /// <summary>
     /// PlayableDirectorのアクティブコントロールをするGimmick
     /// </summary>
     public class PlayableDirectorActiveGimmick : ActiveGimmick {
-        [SerializeField, Tooltip("Active制御する対象")]
-        private PlayableDirector[] _activeTargets;
-        [SerializeField, Tooltip("Inactive制御する対象")]
-        private PlayableDirector[] _inactiveTargets;
+        [SerializeField, Tooltip("制御に使うPlayableDirector")]
+        private PlayableDirector _playableDirector;
+        [SerializeField, Tooltip("Active時に流すAsset")]
+        private TimelineAsset _activeTimelineAsset;
+        [SerializeField, Tooltip("Inactive時に流すAsset")]
+        private TimelineAsset _inactiveTimelineAsset;
 
         /// <summary>
         /// 初期化処理
@@ -18,64 +21,28 @@ namespace GameFramework.GimmickSystems {
             base.InitializeInternal();
 
             // 全PlayableDirectorの初期化
-            foreach (var target in _activeTargets) {
-                InitializePlayableDirector(target);
-            }
-            
-            foreach (var target in _inactiveTargets) {
-                InitializePlayableDirector(target);
-            }
+            InitializePlayableDirector(_playableDirector);
         }
 
         /// <summary>
         /// 速度の変更
         /// </summary>
         protected override void SetSpeedInternal(float speed) {
-            foreach (var target in _activeTargets) {
-                SetSpeedPlayableDirector(target, speed);
-            }
+            SetSpeedPlayableDirector(_playableDirector, speed);
         }
 
         /// <summary>
         /// アクティブ化処理
         /// </summary>
         protected override void ActivateInternal() {
-            foreach (var target in _inactiveTargets) {
-                if (target == null) {
-                    continue;
-                }
-
-                target.Stop();
-            }
-            
-            foreach (var target in _activeTargets) {
-                if (target == null) {
-                    continue;
-                }
-
-                target.Play();
-            }
+            _playableDirector.Play(_activeTimelineAsset);
         }
 
         /// <summary>
         /// 非アクティブ化処理
         /// </summary>
         protected override void DeactivateInternal() {
-            foreach (var target in _activeTargets) {
-                if (target == null) {
-                    continue;
-                }
-
-                target.Stop();
-            }
-            
-            foreach (var target in _inactiveTargets) {
-                if (target == null) {
-                    continue;
-                }
-
-                target.Play();
-            }
+            _playableDirector.Play(_inactiveTimelineAsset);
         }
 
         /// <summary>
@@ -90,6 +57,7 @@ namespace GameFramework.GimmickSystems {
             playableDirector.playOnAwake = false;
             playableDirector.timeUpdateMode = DirectorUpdateMode.GameTime;
             playableDirector.extrapolationMode = DirectorWrapMode.Hold;
+            playableDirector.Play(_activeTimelineAsset);
             playableDirector.Stop();
         }
 
