@@ -348,6 +348,14 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
+        /// カメラ名の一覧を取得
+        /// </summary>
+        public string[] GetCameraNames(string groupKey = null) {
+            var handlers = GetCameraHandlers(groupKey);
+            return handlers.Keys.ToArray();
+        }
+
+        /// <summary>
         /// CameraGroupの登録
         /// </summary>
         /// <param name="cameraGroup">登録するCameraGroup(Prefabではない)</param>
