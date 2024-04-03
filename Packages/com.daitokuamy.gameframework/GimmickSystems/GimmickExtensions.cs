@@ -7,9 +7,10 @@ namespace GameFramework.GimmickSystems {
         /// Activate操作
         /// </summary>
         /// <param name="source">操作対象</param>
-        public static void Activate(this ActiveGimmick[] source) {
+        /// <param name="immediate">即時反映か</param>
+        public static void Activate(this ActiveGimmick[] source, bool immediate = false) {
             foreach (var gimmick in source) {
-                gimmick.Activate();
+                gimmick.Activate(immediate);
             }
         }
 
@@ -17,9 +18,10 @@ namespace GameFramework.GimmickSystems {
         /// Deactivate操作
         /// </summary>
         /// <param name="source">操作対象</param>
-        public static void Deactivate(this ActiveGimmick[] source) {
+        /// <param name="immediate">即時反映か</param>
+        public static void Deactivate(this ActiveGimmick[] source, bool immediate = false) {
             foreach (var gimmick in source) {
-                gimmick.Deactivate();
+                gimmick.Deactivate(immediate);
             }
         }
 

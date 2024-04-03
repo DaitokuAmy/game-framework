@@ -17,46 +17,46 @@ namespace GameFramework.GimmickSystems {
         protected override void PostInitializeInternal() {
             if (_activeOnLoad) {
                 IsActive = false;
-                Activate();
+                Activate(true);
             }
             else {
                 IsActive = true;
-                Deactivate();
+                Deactivate(true);
             }
         }
 
         /// <summary>
         /// アクティブ化
         /// </summary>
-        public void Activate() {
+        public void Activate(bool immediate = false) {
             if (IsActive) {
                 return;
             }
 
             IsActive = true;
-            ActivateInternal();
+            ActivateInternal(immediate);
         }
 
         /// <summary>
         /// 非アクティブ化
         /// </summary>
-        public void Deactivate() {
+        public void Deactivate(bool immediate = false) {
             if (!IsActive) {
                 return;
             }
 
             IsActive = false;
-            DeactivateInternal();
+            DeactivateInternal(immediate);
         }
 
         /// <summary>
         /// アクティブ化処理
         /// </summary>
-        protected abstract void ActivateInternal();
+        protected abstract void ActivateInternal(bool immediate);
 
         /// <summary>
         /// 非アクティブ化処理
         /// </summary>
-        protected abstract void DeactivateInternal();
+        protected abstract void DeactivateInternal(bool immediate);
     }
 }

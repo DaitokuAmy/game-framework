@@ -43,7 +43,7 @@ namespace GameFramework.GimmickSystems {
         /// <summary>
         /// アクティブ化処理
         /// </summary>
-        protected override void ActivateInternal() {
+        protected override void ActivateInternal(bool immediate) {
             foreach (var ps in _targets) {
                 if (ps == null) {
                     continue;
@@ -56,13 +56,18 @@ namespace GameFramework.GimmickSystems {
         /// <summary>
         /// 非アクティブ化処理
         /// </summary>
-        protected override void DeactivateInternal() {
+        protected override void DeactivateInternal(bool immediate) {
             foreach (var ps in _targets) {
                 if (ps == null) {
                     continue;
                 }
 
-                ps.Stop(true);
+                if (immediate) {
+                    ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                }
+                else {
+                    ps.Stop(true);
+                }
             }
         }
     }

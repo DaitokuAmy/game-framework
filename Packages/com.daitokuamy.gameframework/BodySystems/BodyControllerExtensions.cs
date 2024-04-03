@@ -64,8 +64,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static GameFramework.GimmickSystems.ActiveGimmick[] GetActiveGimmicks(this GimmickController source, string key) {
-            return source.GetGimmicks<GameFramework.GimmickSystems.ActiveGimmick>(key);
+        public static ActiveGimmick[] GetActiveGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<ActiveGimmick>(key);
         }
 
         /// <summary>
@@ -73,8 +73,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static GameFramework.GimmickSystems.AnimationGimmick[] GetAnimationGimmicks(this GimmickController source, string key) {
-            return source.GetGimmicks<GameFramework.GimmickSystems.AnimationGimmick>(key);
+        public static AnimationGimmick[] GetAnimationGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<AnimationGimmick>(key);
         }
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static GameFramework.GimmickSystems.InvokeGimmick[] GetInvokeGimmicks(this GimmickController source, string key) {
-            return source.GetGimmicks<GameFramework.GimmickSystems.InvokeGimmick>(key);
+        public static InvokeGimmick[] GetInvokeGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<InvokeGimmick>(key);
         }
 
         /// <summary>
@@ -91,8 +91,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static GameFramework.GimmickSystems.ChangeGimmick<T>[] GetChangeGimmicks<T>(this GimmickController source, string key) {
-            return source.GetGimmicks<GameFramework.GimmickSystems.ChangeGimmick<T>>(key);
+        public static ChangeGimmick<T>[] GetChangeGimmicks<T>(this GimmickController source, string key) {
+            return source.GetGimmicks<ChangeGimmick<T>>(key);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static GameFramework.GimmickSystems.StateGimmick[] GetStateGimmicks(this GimmickController source, string key) {
-            return source.GetGimmicks<GameFramework.GimmickSystems.StateGimmick>(key);
+        public static StateGimmick[] GetStateGimmicks(this GimmickController source, string key) {
+            return source.GetGimmicks<StateGimmick>(key);
         }
     }
 }
