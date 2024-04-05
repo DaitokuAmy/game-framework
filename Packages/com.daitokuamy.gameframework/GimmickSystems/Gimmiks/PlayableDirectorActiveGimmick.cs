@@ -35,6 +35,7 @@ namespace GameFramework.GimmickSystems {
         /// アクティブ化処理
         /// </summary>
         protected override void ActivateInternal(bool immediate) {
+            _playableDirector.time = 0.0f;
             _playableDirector.Play(_activeTimelineAsset);
             if (immediate) {
                 _playableDirector.time = _playableDirector.duration;
@@ -46,6 +47,7 @@ namespace GameFramework.GimmickSystems {
         /// 非アクティブ化処理
         /// </summary>
         protected override void DeactivateInternal(bool immediate) {
+            _playableDirector.time = 0.0f;
             _playableDirector.Play(_inactiveTimelineAsset);
             if (immediate) {
                 _playableDirector.time = _playableDirector.duration;
