@@ -35,8 +35,8 @@ namespace GameFramework.GimmickSystems {
         /// アクティブ化処理
         /// </summary>
         protected override void ActivateInternal(bool immediate) {
-            _playableDirector.time = 0.0f;
             _playableDirector.Play(_activeTimelineAsset);
+            _playableDirector.time = 0.0f;
             if (immediate) {
                 _playableDirector.time = _playableDirector.duration;
                 _playableDirector.Evaluate();
@@ -47,8 +47,8 @@ namespace GameFramework.GimmickSystems {
         /// 非アクティブ化処理
         /// </summary>
         protected override void DeactivateInternal(bool immediate) {
-            _playableDirector.time = 0.0f;
             _playableDirector.Play(_inactiveTimelineAsset);
+            _playableDirector.time = 0.0f;
             if (immediate) {
                 _playableDirector.time = _playableDirector.duration;
                 _playableDirector.Evaluate();
@@ -63,11 +63,11 @@ namespace GameFramework.GimmickSystems {
                 return;
             }
 
-            playableDirector.time = 0.0f;
             playableDirector.playOnAwake = false;
             playableDirector.timeUpdateMode = DirectorUpdateMode.GameTime;
             playableDirector.extrapolationMode = DirectorWrapMode.Hold;
             playableDirector.Play(_activeTimelineAsset);
+            playableDirector.time = 0.0f;
             playableDirector.Stop();
         }
 
