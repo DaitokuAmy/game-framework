@@ -27,7 +27,7 @@ namespace GameFramework.RendererSystems {
                 if (renderer == null) {
                     return;
                 }
-                
+
                 if (!s_cacheInfos.TryGetValue(renderer, out var cacheInfo)) {
                     renderer.GetSharedMaterials(materials);
                     for (var i = 0; i < materials.Count; i++) {
@@ -53,10 +53,14 @@ namespace GameFramework.RendererSystems {
                 if (renderer == null) {
                     return;
                 }
-                
+
                 if (s_cacheInfos.TryGetValue(renderer, out var cacheInfo)) {
                     cacheInfo.referenceCount--;
                     if (cacheInfo.referenceCount <= 0) {
+                        foreach (var material in cacheInfo.materials) {
+                            Object.DestroyImmediate(material);
+                        }
+
                         s_cacheInfos.Remove(renderer);
                     }
                 }
