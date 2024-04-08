@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using GameFramework.RendererSystems;
 using UnityEngine;
@@ -19,6 +20,8 @@ namespace GameFramework.GimmickSystems {
         [SerializeField, Tooltip("ループ再生するか")]
         private bool _looping;
 
+        // マテリアルインスタンスリスト
+        private List<MaterialInstance> _materialInstances = new();
         // マテリアル制御ハンドル
         private MaterialHandle _materialHandle;
         // プロパティのID
@@ -35,6 +38,14 @@ namespace GameFramework.GimmickSystems {
         protected override void InitializeInternal() {
             base.InitializeInternal();
             Refresh();
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected override void DisposeInternal() {
+            DestroyMaterialInstances();
+            base.DisposeInternal();
         }
 
         /// <summary>
@@ -62,12 +73,25 @@ namespace GameFramework.GimmickSystems {
         /// Material情報のリフレッシュ
         /// </summary>
         private void Refresh() {
-            var instances = _targets
+            DestroyMaterialInstances();
+            _materialInstances = _targets
                 .Where(x => x.IsValid)
                 .Select(x =>
-                    new MaterialInstance(x.renderer, x.materialIndex, _controlType));
-            _materialHandle = new MaterialHandle(instances);
+                    new MaterialInstance(x.renderer, x.materialIndex, _controlType))
+                .ToList();
+            _materialHandle = new MaterialHandle(_materialInstances);
             _propertyId = Shader.PropertyToID(_propertyName);
+        }
+
+        /// <summary>
+        /// Materialインスタンスの削除
+        /// </summary>
+        private void DestroyMaterialInstances() {
+            foreach (var instance in _materialInstances) {
+                instance.Dispose();
+            }
+
+            _materialInstances.Clear();
         }
     }
 }

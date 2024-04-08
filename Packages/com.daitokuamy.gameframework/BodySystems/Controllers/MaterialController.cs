@@ -46,10 +46,17 @@ namespace GameFramework.BodySystems {
         }
 
         /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected override void DisposeInternal() {
+            DestroyMaterialInfos();
+        }
+
+        /// <summary>
         /// マテリアル情報の生成
         /// </summary>
         private void CreateMaterialInfos() {
-            _materialInfos.Clear();
+            DestroyMaterialInfos();
 
             var partsList = Body.GetComponentsInChildren<MaterialParts>(true);
             for (var i = 0; i < partsList.Length; i++) {
@@ -75,6 +82,19 @@ namespace GameFramework.BodySystems {
             }
 
             OnRefreshed?.Invoke();
+        }
+
+        /// <summary>
+        /// マテリアル情報の削除
+        /// </summary>
+        private void DestroyMaterialInfos() {
+            foreach (var pair in _materialInfos) {
+                foreach (var instance in pair.Value) {
+                    instance.Dispose();
+                }
+            }
+            
+            _materialInfos.Clear();
         }
     }
 }
