@@ -41,7 +41,8 @@ namespace GameFramework.RendererSystems {
                     renderer.SetSharedMaterials(materials);
                 }
                 else {
-                    materials = cacheInfo.materials;
+                    materials.Clear();
+                    materials.AddRange(cacheInfo.materials);
                     cacheInfo.referenceCount++;
                 }
             }
