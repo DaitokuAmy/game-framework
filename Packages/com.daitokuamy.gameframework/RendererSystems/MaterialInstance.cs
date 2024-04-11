@@ -141,8 +141,8 @@ namespace GameFramework.RendererSystems {
             if (_clonedMaterials) {
 #if UNITY_EDITOR
                 RendererEditorCache.ReturnCloneMaterials(_renderer);
-                _clonedMaterials = false;
 #endif
+                _clonedMaterials = false;
             }
         }
 
