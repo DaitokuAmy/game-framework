@@ -139,8 +139,10 @@ namespace GameFramework.RendererSystems {
         /// </summary>
         public void Dispose() {
             if (_clonedMaterials) {
+#if UNITY_EDITOR
                 RendererEditorCache.ReturnCloneMaterials(_renderer);
                 _clonedMaterials = false;
+#endif
             }
         }
 
