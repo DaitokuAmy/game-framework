@@ -76,7 +76,8 @@ namespace GameFramework.BodySystems {
         /// </summary>
         /// <param name="target">Meshを含むGameObject</param>
         /// <param name="prefix">骨をマージする際につけるPrefix</param>
-        public void MergeMeshes(GameObject target, string prefix) {
+        /// <param name="overrideParent">上書き用結合先のTransform親</param>
+        public void MergeMeshes(GameObject target, string prefix, Transform overrideParent = null) {
             // 追加済み
             if (_mergedInfos.ContainsKey(target)) {
                 Debug.LogWarning($"Already merged target. [{target.name}]");
@@ -92,7 +93,7 @@ namespace GameFramework.BodySystems {
             }
 
             // ターゲットを移動させる
-            target.transform.SetParent(_additiveMeshRoot, false);
+            target.transform.SetParent(overrideParent != null ? overrideParent : _additiveMeshRoot, false);
             target.transform.localPosition = Vector3.zero;
             target.transform.localRotation = Quaternion.identity;
             target.transform.localScale = Vector3.one;
