@@ -108,7 +108,6 @@ namespace GameFramework.BodySystems {
             }
 
             if (root == null) {
-                Debug.LogWarning($"Not found root bone. {target.name}");
                 return;
             }
 
