@@ -41,6 +41,24 @@ namespace GameFramework.CommandSystems {
         }
 
         /// <summary>
+        /// 再利用処理
+        /// </summary>
+        bool ICommand.Recycle() {
+            // 既に再利用可能
+            if (_currentState == CommandState.Invalid) {
+                return true;
+            }
+            
+            // 廃棄されていなければ失敗
+            if (_currentState != CommandState.Destroyed) {
+                return false;
+            }
+
+            _currentState = CommandState.Invalid;
+            return true;
+        }
+
+        /// <summary>
         /// 開始処理
         /// </summary>
         /// <returns>trueを返すと実行開始</returns>
