@@ -1,13 +1,62 @@
-#if USE_UNI_RX
+using UnityEngine;
+#if USE_R3
+using System.Threading;
+using R3;
+
+#elif USE_UNI_RX
 using System;
 using UniRx;
-using UnityEngine;
+#endif
 
 namespace GameFramework.BodySystems {
     /// <summary>
     /// Body用のRx拡張メソッド
     /// </summary>
     public static class BodyObservables {
+#if USE_R3
+        /// <summary>
+        /// TriggerEnter監視
+        /// </summary>
+        public static Observable<Collider> OnTriggerEnterAsObservable(this ColliderController source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collider>(h => source.OnTriggerEnterEvent += h, h => source.OnTriggerEnterEvent -= h, ct);
+        }
+
+        /// <summary>
+        /// TriggerStay監視
+        /// </summary>
+        public static Observable<Collider> OnTriggerStayAsObservable(this ColliderController source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collider>(h => source.OnTriggerStayEvent += h, h => source.OnTriggerStayEvent -= h, ct);
+        }
+
+        /// <summary>
+        /// TriggerExit監視
+        /// </summary>
+        public static Observable<Collider> OnTriggerExitAsObservable(this ColliderController source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collider>(h => source.OnTriggerExitEvent += h, h => source.OnTriggerExitEvent -= h, ct);
+        }
+
+        /// <summary>
+        /// CollisionEnter監視
+        /// </summary>
+        public static Observable<Collision> OnCollisionEnterAsObservable(this ColliderController source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collision>(h => source.OnCollisionEnterEvent += h, h => source.OnCollisionEnterEvent -= h, ct);
+        }
+
+        /// <summary>
+        /// CollisionStay監視
+        /// </summary>
+        public static Observable<Collision> OnCollisionStayAsObservable(this ColliderController source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collision>(h => source.OnCollisionStayEvent += h, h => source.OnCollisionStayEvent -= h, ct);
+        }
+
+        /// <summary>
+        /// CollisionExit監視
+        /// </summary>
+        public static Observable<Collision> OnCollisionExitAsObservable(this ColliderController source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collision>(h => source.OnCollisionExitEvent += h, h => source.OnCollisionExitEvent -= h, ct);
+        }
+
+#elif USE_UNI_RX
         /// <summary>
         /// TriggerEnter監視
         /// </summary>
@@ -49,6 +98,6 @@ namespace GameFramework.BodySystems {
         public static IObservable<Collision> OnCollisionExitAsObservable(this ColliderController source) {
             return Observable.FromEvent<Collision>(h => source.OnCollisionExitEvent += h, h => source.OnCollisionExitEvent -= h);
         }
+#endif
     }
 }
-#endif

@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "GUID:afebead123e02784da390b52d3e15019",
-        "GUID:560b04d1a97f54a4e82edc0cbbb69285"
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285",
+        "GUID:77221876cc6b8244180b96e320b1bcd4"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -17,6 +18,11 @@
             "name": "com.neuecc.unirx",
             "expression": "",
             "define": "USE_UNI_RX"
+        },
+        {
+            "name": "com.cysharp.r3",
+            "expression": "",
+            "define": "USE_R3"
         }
     ],
     "noEngineReferences": false
