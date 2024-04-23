@@ -1,10 +1,12 @@
 {
   "dependencies": {
     "com.annulusgames.tween-playables": "https://github.com/AnnulusGames/TweenPlayables.git?path=/Assets/TweenPlayables",
+    "com.cysharp.r3": "https://github.com/Cysharp/R3.git?path=src/R3.Unity/Assets/R3.Unity",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
     "com.daitokuamy.actionsequencer": "https://github.com/DaitokuAmy/action-sequencer.git?path=/Packages/com.daitokuamy.actionsequencer",
     "com.daitokuamy.unitydebugmenu": "https://github.com/DaitokuAmy/unity-debug-menu.git?path=/Packages/com.daitokuamy.unitydebugmenu",
     "com.daitokuamy.unityrenametool": "https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Packages/com.daitokuamy.unityrenametool",
+    "com.github-glitchenzo.nugetforunity": "4.1.0",
     "com.harumak.unitydebugsheet": "https://github.com/Haruma-K/UnityDebugSheet.git?path=/Assets/UnityDebugSheet",
     "com.needle.compilation-visualizer": "1.8.3",
     "com.neuecc.unirx": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
@@ -70,6 +72,13 @@
       "url": "https://package.openupm.com/",
       "scopes": [
         "com.needle.compilation-visualizer"
+      ]
+    },
+    {
+      "name": "OpenUPM(Cysharp)",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.github-glitchenzo.nugetforunity"
       ]
     }
   ]

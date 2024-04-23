@@ -1,7 +1,9 @@
 using System;
 using UnityEngine;
 
-#if USE_UNI_RX
+#if USE_R3
+using R3;
+#elif USE_UNI_RX
 using UniRx;
 #endif
 
@@ -18,7 +20,11 @@ namespace GameFramework.Core {
         // 内部用TimeScaleの変更通知（通知タイミングを揃えるため）
         private event Action<float> OnChangedTimeScaleInternal;
 
-#if USE_UNI_RX
+#if USE_R3
+        // TimeScaleの変化を監視するためのReactiveProperty
+        private readonly ReactiveProperty<float> _timeScaleProp = new(1.0f);
+        public ReadOnlyReactiveProperty<float> TimeScaleProp => _timeScaleProp;
+#elif USE_UNI_RX
         // TimeScaleの変化を監視するためのReactiveProperty
         private readonly FloatReactiveProperty _timeScaleProp = new(1.0f);
         public IReadOnlyReactiveProperty<float> TimeScaleProp => _timeScaleProp;
@@ -53,7 +59,10 @@ namespace GameFramework.Core {
         /// <param name="parent">親となるTimeLayer, 未指定の場合UnityEngine.Timeに直接依存</param>
         public LayeredTime(LayeredTime parent = null) {
             OnChangedTimeScaleInternal += x => OnChangedTimeScale?.Invoke(x);
-#if USE_UNI_RX
+#if USE_R3
+            OnChangedTimeScaleInternal += x => _timeScaleProp.Value = x;
+            _timeScaleProp.Value = TimeScale;
+#elif USE_UNI_RX
             OnChangedTimeScaleInternal += x => _timeScaleProp.Value = x;
             _timeScaleProp.Value = TimeScale;
 #endif

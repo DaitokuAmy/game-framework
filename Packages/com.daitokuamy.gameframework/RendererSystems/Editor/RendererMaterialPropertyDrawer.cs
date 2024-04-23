@@ -20,6 +20,9 @@ namespace GameFramework.RendererSystems.Editor {
             var unitOffset = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
             rect.height = height;
+            EditorGUI.LabelField(rect, label);
+            rect.y += unitOffset;
+            EditorGUI.indentLevel++;
             renderer.objectReferenceValue = EditorGUI.ObjectField(rect, renderer.displayName, renderer.objectReferenceValue, typeof(Renderer), true);
             var r = renderer.objectReferenceValue as Renderer;
             if (r != null) {
@@ -31,6 +34,7 @@ namespace GameFramework.RendererSystems.Editor {
                 var index = Mathf.Clamp(materialIndex.intValue, 0, materials.Length - 1);
                 materialIndex.intValue = EditorGUI.Popup(rect, "Material", index, labels);
             }
+            EditorGUI.indentLevel--;
         }
 
         /// <summary>
@@ -41,7 +45,7 @@ namespace GameFramework.RendererSystems.Editor {
             var height = EditorGUIUtility.singleLineHeight;
             var unitOffset = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-            var totalHeight = height;
+            var totalHeight = height + unitOffset;
             if (renderer.objectReferenceValue is Renderer) {
                 totalHeight += unitOffset;
             }

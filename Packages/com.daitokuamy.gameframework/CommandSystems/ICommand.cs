@@ -26,6 +26,12 @@ namespace GameFramework.CommandSystems {
         void Initialize();
 
         /// <summary>
+        /// 再利用処理
+        /// </summary>
+        /// <returns>trueを返すと再利用可能</returns>
+        bool Recycle();
+
+        /// <summary>
         /// 待機中更新処理
         /// </summary>
         /// <returns>trueを返すと継続</returns>

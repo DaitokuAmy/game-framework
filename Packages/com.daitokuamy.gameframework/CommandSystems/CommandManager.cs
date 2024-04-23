@@ -59,6 +59,11 @@ namespace GameFramework.CommandSystems {
                 return CommandHandle.Empty;
             }
 
+            if (command.CurrentState == CommandState.Destroyed) {
+                // 廃棄済みならリサイクルする
+                command.Recycle();
+            }
+
             if (command.CurrentState != CommandState.Invalid) {
                 Debug.LogWarning($"invalid command. [{command.GetType()}]");
                 return CommandHandle.Empty;
