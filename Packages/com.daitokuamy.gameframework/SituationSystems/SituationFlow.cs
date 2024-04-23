@@ -206,6 +206,11 @@ namespace GameFramework.SituationSystems {
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public IProcess Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 既に遷移中なら失敗
+            if (IsTransitioning) {
+                return AsyncOperationHandle.CanceledHandle;
+            }
+            
             if (CurrentNode == null) {
                 Debug.LogWarning("Current situation is null.");
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
