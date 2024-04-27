@@ -9,10 +9,14 @@ namespace GameFramework.SituationSystems {
     /// シーン遷移に使うシチュエーション
     /// </summary>
     public abstract class SceneSituation : Situation {
-        // シーンのアセットパス
+        /// <summary>シーンのアセットパス</summary>
         protected abstract string SceneAssetPath { get; }
+        /// <summary>アンロード時の空シーンのアセットパス(未指定だとアンロードでシーンを廃棄しない)</summary>
+        protected virtual string EmptySceneAssetPath { get; } = "";
 
-        // シーン情報
+        /// <summary>空シーンが指定されているか</summary>
+        public bool HasEmptyScene => !string.IsNullOrEmpty(EmptySceneAssetPath);
+        /// <summary>シーン情報</summary>
         protected Scene Scene { get; private set; }
 
         /// <summary>
@@ -35,6 +39,16 @@ namespace GameFramework.SituationSystems {
                 .ToArray();
             foreach (var installer in installers) {
                 installer.Install(ServiceContainer);
+            }
+        }
+
+        /// <summary>
+        /// アンロード処理
+        /// </summary>
+        protected override void UnloadInternal(TransitionHandle handle) {
+            // シーンの解放
+            if (HasEmptyScene && Scene.IsValid()) {
+                SceneManager.LoadScene(EmptySceneAssetPath);
             }
         }
 

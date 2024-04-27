@@ -16,9 +16,11 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         private class EnterTransitionEffect : ITransitionEffect {
             private ITransitionEffect[] _effects;
+            private Action _onFinished;
 
-            public EnterTransitionEffect(ITransitionEffect[] effects) {
+            public EnterTransitionEffect(ITransitionEffect[] effects, Action onFinished = null) {
                 _effects = effects;
+                _onFinished = onFinished;
             }
 
             IEnumerator ITransitionEffect.EnterRoutine() {
@@ -29,6 +31,7 @@ namespace GameFramework.SituationSystems {
             }
 
             IEnumerator ITransitionEffect.ExitRoutine() {
+                _onFinished?.Invoke();
                 yield break;
             }
         }
@@ -40,7 +43,7 @@ namespace GameFramework.SituationSystems {
             private ITransitionEffect[] _effects;
             private Action _onFinished;
 
-            public ExitTransitionEffect(ITransitionEffect[] effects, Action onFinished) {
+            public ExitTransitionEffect(ITransitionEffect[] effects, Action onFinished = null) {
                 _effects = effects;
                 _onFinished = onFinished;
             }
@@ -100,6 +103,10 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         public void Update() {
             _coroutineRunner.Update();
+
+            foreach (var effect in _activeTransitionEffects) {
+                effect.Update();
+            }
         }
 
         /// <summary>
@@ -210,7 +217,7 @@ namespace GameFramework.SituationSystems {
             if (IsTransitioning) {
                 return AsyncOperationHandle.CanceledHandle;
             }
-            
+
             if (CurrentNode == null) {
                 Debug.LogWarning("Current situation is null.");
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
@@ -235,6 +242,34 @@ namespace GameFramework.SituationSystems {
 
             // 遷移実行
             return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(prevNode, CurrentNode, true, overrideTransition, effects),
+                () => IsTransitioning = false,
+                () => IsTransitioning = false,
+                ex => IsTransitioning = false);
+        }
+
+        /// <summary>
+        /// 現在のSituationをリセットする
+        /// </summary>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="effects">遷移演出</param>
+        public IProcess Reset(Action<Situation> onSetup = null, params ITransitionEffect[] effects) {
+            // 既に遷移中なら失敗
+            if (IsTransitioning) {
+                return AsyncOperationHandle.CanceledHandle;
+            }
+
+            if (CurrentNode == null) {
+                Debug.LogWarning("Current situation is null.");
+                return AsyncOperator.CreateCompletedOperator().GetHandle();
+            }
+
+            // 遷移中フラグをON
+            IsTransitioning = true;
+
+            // リセット実行
+            var situation = CurrentNode.Situation;
+            onSetup?.Invoke(situation);
+            return _coroutineRunner.StartCoroutine(ResetNodeRoutine(CurrentNode, effects),
                 () => IsTransitioning = false,
                 () => IsTransitioning = false,
                 ex => IsTransitioning = false);
@@ -367,12 +402,12 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// Node遷移用コルーチン
         /// </summary>
-        /// <param name="prevNode"></param>
+        /// <param name="node"></param>
         /// <param name="nextNode"></param>
         /// <param name="back">戻り遷移か</param>
         /// <param name="overrideTransition">遷移方法の指定</param>
         /// <param name="effects">遷移時の効果</param>
-        private IEnumerator TransitionNodeRoutine(SituationFlowNode prevNode, SituationFlowNode nextNode, bool back, ITransition overrideTransition, ITransitionEffect[] effects) {
+        private IEnumerator TransitionNodeRoutine(SituationFlowNode node, SituationFlowNode nextNode, bool back, ITransition overrideTransition, ITransitionEffect[] effects) {
             // 該当Situationのコンテナ階層にターゲットのコンテナがあるかを探す
             bool FindContainer(Situation situation, SituationContainer container, List<Situation> transitionSituations) {
                 if (situation == null || situation.ParentContainer == null) {
@@ -391,15 +426,15 @@ namespace GameFramework.SituationSystems {
 
             // 遷移開始を通知
             if (nextNode != null) {
-                nextNode.OnTransition(prevNode, back);
+                nextNode.OnTransition(node, back);
             }
 
             var effectEntered = false;
-            var enterEffect = new EnterTransitionEffect(effects);
-            var exitEffect = new ExitTransitionEffect(effects, () => _activeTransitionEffects.Clear());
+            ITransitionEffect enterEffect = new EnterTransitionEffect(effects);
+            ITransitionEffect exitEffect = new ExitTransitionEffect(effects);
 
-            var targetSituation = nextNode.Situation;
-            var baseContainer = prevNode?.Container;
+            var targetSituation = nextNode?.Situation;
+            var baseContainer = node?.Container;
             var situations = new List<Situation>();
             // 遷移元がなければ、開く必要のあるシチュエーションをリスト化
             if (baseContainer == null) {
@@ -414,17 +449,12 @@ namespace GameFramework.SituationSystems {
                 while (!FindContainer(targetSituation, baseContainer, situations)) {
                     var first = !effectEntered;
                     effectEntered = true;
-                    if (first) {
-                        // 独自のTransitionEffect用に更新を回すためのインスタンスキャッシュ
-                        _activeTransitionEffects.AddRange(effects);
-                    }
-
                     // 現階層を閉じる
                     yield return baseContainer.Transition(null,
                         new SituationContainer.TransitionOption {
                             forceBack = true,
                             clearStack = true
-                        }, overrideTransition: null, first ? new ITransitionEffect[] { enterEffect } : Array.Empty<ITransitionEffect>());
+                        }, overrideTransition: null, first ? new[] { enterEffect } : Array.Empty<ITransitionEffect>());
 
                     // 親のContainerを遷移対象してリトライ
                     baseContainer = baseContainer.Owner.ParentContainer;
@@ -439,7 +469,7 @@ namespace GameFramework.SituationSystems {
                 var transitionEffects = Array.Empty<ITransitionEffect>();
                 if (effectEntered) {
                     if (last) {
-                        transitionEffects = new ITransitionEffect[] { exitEffect };
+                        transitionEffects = new[] { exitEffect };
                     }
                 }
                 else {
@@ -447,7 +477,7 @@ namespace GameFramework.SituationSystems {
                         transitionEffects = effects;
                     }
                     else {
-                        transitionEffects = new ITransitionEffect[] { enterEffect };
+                        transitionEffects = new[] { enterEffect };
                         effectEntered = true;
                     }
                 }
@@ -457,6 +487,76 @@ namespace GameFramework.SituationSystems {
                         forceBack = back,
                         clearStack = true
                     }, last ? overrideTransition : null, transitionEffects);
+            }
+        }
+
+        /// <summary>
+        /// Nodeリセット用コルーチン
+        /// </summary>
+        /// <param name="node">リセットする現在のノード</param>
+        /// <param name="effects">遷移時の効果</param>
+        private IEnumerator ResetNodeRoutine(SituationFlowNode node, ITransitionEffect[] effects) {
+            // 該当Situationのコンテナ階層にターゲットのコンテナがあるかを探す
+            bool FindContainer(Situation situation, SituationContainer container, List<Situation> transitionSituations) {
+                if (situation == null || situation.ParentContainer == null) {
+                    return false;
+                }
+
+                if (situation.ParentContainer == container) {
+                    transitionSituations.Add(situation);
+                    return true;
+                }
+
+                var result = FindContainer(situation.ParentContainer.Owner, container, transitionSituations);
+                transitionSituations.Add(situation);
+                return result;
+            }
+
+            // 遷移開始を通知
+            node.OnTransition(node, false);
+
+            ITransitionEffect enterEffect = new EnterTransitionEffect(effects);
+            ITransitionEffect exitEffect = new ExitTransitionEffect(effects);
+
+            var targetSituation = node.Situation;
+            var situations = new List<Situation>();
+            var parentContainers = new List<SituationContainer>();
+
+            // ルートに戻るまでのシチュエーションをリスト化
+            var target = targetSituation;
+            while (target?.ParentContainer != null) {
+                situations.Insert(0, target);
+                parentContainers.Insert(0, target.ParentContainer);
+                target = target.ParentContainer?.Owner;
+            }
+
+            // 入り演出を入れる
+            _activeTransitionEffects.Add(enterEffect);
+            yield return enterEffect.EnterRoutine();
+            yield return enterEffect.ExitRoutine();
+            _activeTransitionEffects.Clear();
+
+            // ルートまで解放する
+            for (var i = situations.Count - 1; i >= 0; i--) {
+                var situation = situations[i];
+                situation.ParentContainer.Clear(true);
+            }
+
+            // 遷移を行う
+            for (var i = 0; i < situations.Count; i++) {
+                var situation = situations[i];
+                var parentContainer = parentContainers[i];
+                var last = i == situations.Count - 1;
+                var transitionEffects = Array.Empty<ITransitionEffect>();
+                if (last) {
+                    transitionEffects = new[] { exitEffect };
+                }
+
+                yield return parentContainer.Transition(situation,
+                    new SituationContainer.TransitionOption {
+                        forceBack = false,
+                        clearStack = true
+                    }, null, transitionEffects);
             }
         }
     }

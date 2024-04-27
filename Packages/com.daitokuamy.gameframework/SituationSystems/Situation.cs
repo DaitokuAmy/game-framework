@@ -695,7 +695,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        protected IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             if (SituationFlow == null) {
                 return ParentContainer.Transition(type, onSetup, overrideTransition, effects);
             }
@@ -710,7 +710,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        protected IProcess Transition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             if (SituationFlow == null) {
                 return new TransitionHandle(new Exception("Not found situation flow."));
             }
@@ -729,6 +729,19 @@ namespace GameFramework.SituationSystems {
             }
             
             return SituationFlow.Back(overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// シチューエーションのリセット
+        /// </summary>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="effects">遷移演出</param>
+        protected IProcess Reset(Action<Situation> onSetup = null, params ITransitionEffect[] effects) {
+            if (SituationFlow == null) {
+                return ParentContainer.Reset(onSetup, effects);
+            }
+            
+            return SituationFlow.Reset(onSetup, effects);
         }
 
         /// <summary>

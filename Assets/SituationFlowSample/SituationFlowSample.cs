@@ -86,6 +86,10 @@ namespace SituationFlowSample {
         /// 更新処理
         /// </summary>
         private void Update() {
+            if (Input.GetKeyDown(KeyCode.R)) {
+                _situationFlow.Reset();
+            }
+            
             _situationFlow.Update();
             _situationRunner.Update();
         }

@@ -67,8 +67,9 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 現在のシチュエーションを再構築する(遷移オプション使用不可 = クロス系の同時にライフサイクルが存在する物は使用不可)
         /// </summary>
+        /// <param name="onSetup">初期化処理</param>
         /// <param name="effects">遷移演出</param>
-        public TransitionHandle Reset(params ITransitionEffect[] effects) {
+        public TransitionHandle Reset(Action<Situation> onSetup, params ITransitionEffect[] effects) {
             if (Current == null) {
                 return new TransitionHandle(new Exception($"Current situation is null"));
             }
@@ -100,6 +101,9 @@ namespace GameFramework.SituationSystems {
                 effects = effects
             };
 
+            // 初期化通知
+            onSetup?.Invoke((Situation)next);
+            
             // コルーチンの登録
             _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => { _transitionInfo = null; });
 
@@ -108,6 +112,14 @@ namespace GameFramework.SituationSystems {
 
             // ハンドルの返却
             return new TransitionHandle(_transitionInfo);
+        }
+
+        /// <summary>
+        /// 現在のシチュエーションを再構築する(遷移オプション使用不可 = クロス系の同時にライフサイクルが存在する物は使用不可)
+        /// </summary>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Reset(params ITransitionEffect[] effects) {
+            return Reset(null, effects);
         }
 
         /// <summary>
@@ -599,11 +611,14 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 中身のクリア
         /// </summary>
-        public void Clear() {
+        public void Clear(bool skipPreUnregister = false) {
             // PreLoad/PreRegister毎解放する
             void ForceRelease(ISituation situation) {
                 situation.UnPreLoad();
-                situation.PreUnregister(this);
+                if (!skipPreUnregister) {
+                    situation.PreUnregister(this);
+                }
+
                 situation.Release(this);
             }
 
