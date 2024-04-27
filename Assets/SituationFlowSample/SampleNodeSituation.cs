@@ -62,6 +62,7 @@ namespace SituationFlowSample {
         /// </summary>
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
+            Debug.Log($"Activate. [{GetType().Name}]");
 
             var sample = Services.Get<SituationFlowSample>();
             sample.MenuView.BackSubject
@@ -89,6 +90,14 @@ namespace SituationFlowSample {
                             break;
                     }
                 });
+        }
+
+        /// <summary>
+        /// 非アクティブ時処理
+        /// </summary>
+        protected override void DeactivateInternal(TransitionHandle handle) {
+            Debug.Log($"Deactivate. [{GetType().Name}]");
+            base.DeactivateInternal(handle);
         }
     }
 }

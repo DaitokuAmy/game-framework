@@ -330,9 +330,7 @@ namespace GameFramework.SituationSystems {
                 situation.PostClose(handle);
             }
             
-            if (CurrentState >= State.OpenFinished) {
-                situation.Deactivate(handle);
-            }
+            situation.Deactivate(handle);
 
             if (CurrentState >= State.SetupFinished) {
                 situation.Cleanup(handle);

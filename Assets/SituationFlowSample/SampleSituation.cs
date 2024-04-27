@@ -13,7 +13,6 @@ namespace SituationFlowSample {
         /// </summary>
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
             yield return base.LoadRoutineInternal(handle, scope);
-
             Debug.Log($"Load Routine. [{GetType().Name}]");
         }
 
@@ -22,8 +21,23 @@ namespace SituationFlowSample {
         /// </summary>
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
-
             Debug.Log($"Setup Routine. [{GetType().Name}]");
+        }
+
+        /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+            base.ActivateInternal(handle, scope);
+            Debug.Log($"Activate. [{GetType().Name}]");
+        }
+
+        /// <summary>
+        /// 非アクティブ時処理
+        /// </summary>
+        protected override void DeactivateInternal(TransitionHandle handle) {
+            Debug.Log($"Deactivate. [{GetType().Name}]");
+            base.DeactivateInternal(handle);
         }
 
         /// <summary>
