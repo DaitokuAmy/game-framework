@@ -21,6 +21,10 @@ namespace GameFramework.UISystems {
 
         [SerializeField, Tooltip("適用対象の辺")]
         private Edges _edges = Edges.Left | Edges.Right | Edges.Top | Edges.Bottom;
+        [SerializeField, Tooltip("最低保証するセーフエリア(左下)")]
+        private Vector2 _allowedSafeAreaLeftDown;
+        [SerializeField, Tooltip("最低保証するセーフエリア(右上)")]
+        private Vector2 _allowedSafeAreaRightUp;
 
         // 制御対象のRectTransform
         private RectTransform _rectTransform;
@@ -57,6 +61,9 @@ namespace GameFramework.UISystems {
             if (resolution.x == 0 || resolution.y == 0) {
                 return;
             }
+
+            safeArea.min = Vector2.Max(safeArea.min, _allowedSafeAreaLeftDown);
+            safeArea.max = Vector2.Min(safeArea.max, resolution - _allowedSafeAreaRightUp);
 
             if (!force) {
                 if (_lastSafeArea == safeArea && _lastResolution == resolution) {
