@@ -13,6 +13,8 @@ namespace GameFramework.SituationSystems {
         protected abstract string SceneAssetPath { get; }
         /// <summary>アンロード時の空シーンのアセットパス(未指定だとアンロードでシーンを廃棄しない)</summary>
         protected virtual string EmptySceneAssetPath { get; } = "";
+        /// <summary>読み込み中のスレッド優先度の設定</summary>
+        protected virtual ThreadPriority LoadingThreadPriority => ThreadPriority.High;
 
         /// <summary>空シーンが指定されているか</summary>
         public bool HasEmptyScene => !string.IsNullOrEmpty(EmptySceneAssetPath);
@@ -23,6 +25,9 @@ namespace GameFramework.SituationSystems {
         /// 読み込み処理
         /// </summary>
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+            var prevThreadPriority = Application.backgroundLoadingPriority;
+            Application.backgroundLoadingPriority = LoadingThreadPriority;
+            
             // シーンの切り替え
             yield return SceneManager.LoadSceneAsync(SceneAssetPath, LoadSceneMode.Single);
 
@@ -40,6 +45,8 @@ namespace GameFramework.SituationSystems {
             foreach (var installer in installers) {
                 installer.Install(ServiceContainer);
             }
+            
+            Application.backgroundLoadingPriority = prevThreadPriority;
         }
 
         /// <summary>
