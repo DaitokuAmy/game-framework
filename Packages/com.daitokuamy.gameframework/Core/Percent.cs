@@ -102,7 +102,7 @@ namespace GameFramework.Core {
         }
 
         public static implicit operator int(Percent percent) {
-            return percent._value / One;
+            return percent._value;
         }
 
         public static implicit operator Percent(float value) {

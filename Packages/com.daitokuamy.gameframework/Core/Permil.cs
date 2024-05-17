@@ -102,7 +102,7 @@ namespace GameFramework.Core {
         }
 
         public static implicit operator int(Permil permil) {
-            return permil._value / One;
+            return permil._value;
         }
 
         public static implicit operator Permil(float value) {
