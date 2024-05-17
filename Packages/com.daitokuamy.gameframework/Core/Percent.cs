@@ -98,7 +98,7 @@ namespace GameFramework.Core {
         }
 
         public static implicit operator Percent(int value) {
-            return new Percent(value * One);
+            return new Percent(value);
         }
 
         public static implicit operator int(Percent percent) {
