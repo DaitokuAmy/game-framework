@@ -97,12 +97,12 @@ namespace GameFramework.Core {
             return new Permil((a * One) / b._value * One);
         }
 
-        public static implicit operator Permil(int value) {
-            return new Permil(value);
+        public static explicit operator int(Permil permil) {
+            return permil._value;
         }
 
-        public static implicit operator int(Permil permil) {
-            return permil._value;
+        public static implicit operator Permil(int value) {
+            return new Permil(value);
         }
 
         public static implicit operator Permil(float value) {
