@@ -15,6 +15,9 @@ namespace GameFramework.Core {
         [SerializeField]
         private int _value;
 
+        /// <summary>percent値</summary>
+        public int Value => _value;
+
         #region operators
 
         public static Percent operator +(Percent a, Percent b) {
@@ -98,7 +101,7 @@ namespace GameFramework.Core {
         }
 
         public static explicit operator int(Percent percent) {
-            return percent._value;
+            return percent._value / One;
         }
 
         public static implicit operator Percent(int value) {

@@ -15,6 +15,9 @@ namespace GameFramework.Core {
         [SerializeField]
         private int _value;
 
+        /// <summary>permil値</summary>
+        public int Value => _value;
+
         #region operators
 
         public static Permil operator +(Permil a, Permil b) {
@@ -98,7 +101,7 @@ namespace GameFramework.Core {
         }
 
         public static explicit operator int(Permil permil) {
-            return permil._value;
+            return permil._value / One;
         }
 
         public static implicit operator Permil(int value) {
