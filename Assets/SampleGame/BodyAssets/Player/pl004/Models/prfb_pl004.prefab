@@ -3775,7 +3775,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cf6bfba7b700454b9159c6f62f1ac8b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _boneRoot: {fileID: 0}
+  _boneRoot: {fileID: 6551939409918924257}
+  _root: {fileID: 6551939409918924257}
+  _hips: {fileID: 6551939409918924197}
   _jobSortingOrder: 1500
 --- !u!114 &5808620206713890205
 MonoBehaviour:
@@ -3822,6 +3824,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   infos:
   - key: Gimmick
+    controlType: -1
     rendererMaterials:
     - renderer: {fileID: 6551939409930781839}
       materialIndex: 0

@@ -56,6 +56,10 @@ namespace GameFramework.BodySystems {
 
         [SerializeField, Tooltip("骨検索のためのルートとなるTransform")]
         private Transform _boneRoot = default;
+        [SerializeField, Tooltip("ルートモーションの基点となるTransform")]
+        private Transform _root = default;
+        [SerializeField, Tooltip("高さ調整のための基点となるTransform")]
+        private Transform _hips = default;
         [SerializeField, Tooltip("AnimationJob登録時の実行オーダー")]
         private ushort _jobSortingOrder = 1500;
 
@@ -77,8 +81,12 @@ namespace GameFramework.BodySystems {
         private readonly Dictionary<GameObject, Transform[]> _mergedBones = new();
         private readonly Dictionary<Transform, int> _boneReferenceCounts = new();
 
-        // BoneのRootTransform
+        /// <summary>骨の検索元</summary>
         public Transform BoneRoot => _boneRoot;
+        /// <summary>位置基点用のルート骨</summary>
+        public Transform Root => _root;
+        /// <summary>高さ調整用の腰骨</summary>
+        public Transform Hips => _hips;
 
         // 実行優先度
         public override int ExecutionOrder => 15;

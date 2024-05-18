@@ -13,6 +13,8 @@ namespace GameFramework.BodySystems {
 
         // ルートスケール制御用
         private RootAnimationJobProvider _rootAnimationJobProvider;
+        // 腰高さ調整用
+        private AdjustHeightAnimationJobProvider _adjustHeightAnimationJobProvider;
         // モーション再生用クラス
         private MotionPlayer _player;
         // 内部的に保持する速度
@@ -43,6 +45,17 @@ namespace GameFramework.BodySystems {
             get => _rootAnimationJobProvider.AngularVelocityOffset;
             set => _rootAnimationJobProvider.AngularVelocityOffset = value;
         }
+        /// <summary>腰高さスケール(BoneControllerの指定がないと無効)</summary>
+        public float HeightScale {
+            get => _adjustHeightAnimationJobProvider?.HeightScale ?? 1.0f;
+            set {
+                if (_adjustHeightAnimationJobProvider == null) {
+                    return;
+                }
+
+                _adjustHeightAnimationJobProvider.HeightScale = value;
+            }
+        }
 
         /// <summary>
         /// 初期化処理
@@ -54,6 +67,15 @@ namespace GameFramework.BodySystems {
             // RootScaleJobの初期化
             _rootAnimationJobProvider = new RootAnimationJobProvider();
             _player.JobConnector.SetProvider(_rootAnimationJobProvider);
+
+            // BoneControllerがある場合、高さ調整用のProviderを追加
+            var boneController = Body.GetController<BoneController>();
+            if (boneController != null) {
+                if (boneController.Root != null && boneController.Hips != null) {
+                    _adjustHeightAnimationJobProvider = new AdjustHeightAnimationJobProvider(boneController.Root, boneController.Hips);
+                    _player.JobConnector.SetProvider(_adjustHeightAnimationJobProvider, 1);
+                }
+            }
 
             // TimeScale監視
             Body.LayeredTime.OnChangedTimeScale += OnChangedTimeScale;
