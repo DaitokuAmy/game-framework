@@ -155,5 +155,25 @@ namespace GameFramework.PlayableSystems {
             // ウェイトの変更
             _playable.SetInputWeight(index, weight);
         }
+
+        /// <summary>
+        /// レイヤーウェイトの取得
+        /// </summary>
+        /// <param name="handle">対象のレイヤーを表すHandle</param>
+        public float GetLayerWeight(MotionHandle handle) {
+            if (!handle.IsValid) {
+                return 0.0f;
+            }
+
+            var index = _extensionCrossFaders.IndexOf(handle.CrossFader);
+
+            // 含まれていなければ何もしない
+            if (index < 0) {
+                return 0.0f;
+            }
+
+            // ウェイトの取得
+            return _playable.GetInputWeight(index);
+        }
     }
 }

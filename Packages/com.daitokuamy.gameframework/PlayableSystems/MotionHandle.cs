@@ -73,5 +73,20 @@ namespace GameFramework.PlayableSystems {
             
             _parentComponent.SetLayerWeight(this, weight);
         }
+
+        /// <summary>
+        /// ウェイトの取得
+        /// </summary>
+        public float GetWeight() {
+            if (!IsValid) {
+                return 0.0f;
+            }
+
+            if (_parentComponent == null) {
+                return 0.0f;
+            }
+            
+            return _parentComponent.GetLayerWeight(this);
+        }
     }
 }
