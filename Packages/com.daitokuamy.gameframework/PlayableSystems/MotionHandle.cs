@@ -83,7 +83,7 @@ namespace GameFramework.PlayableSystems {
             }
 
             if (_parentComponent == null) {
-                return 0.0f;
+                return 1.0f;
             }
             
             return _parentComponent.GetLayerWeight(this);

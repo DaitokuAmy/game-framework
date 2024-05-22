@@ -153,7 +153,7 @@ namespace GameFramework.PlayableSystems {
             }
 
             // ウェイトの変更
-            _playable.SetInputWeight(index, weight);
+            _playable.SetInputWeight(index + 1, weight);
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace GameFramework.PlayableSystems {
             }
 
             // ウェイトの取得
-            return _playable.GetInputWeight(index);
+            return _playable.GetInputWeight(index + 1);
         }
     }
 }
