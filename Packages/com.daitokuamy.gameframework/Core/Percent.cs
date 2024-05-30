@@ -53,7 +53,7 @@ namespace GameFramework.Core {
         }
 
         public static bool operator <(float a, Percent b) {
-            return a * One < b;
+            return a * One < b._value;
         }
 
         public static bool operator >(Percent a, Percent b) {
@@ -65,7 +65,7 @@ namespace GameFramework.Core {
         }
 
         public static bool operator >(float a, Percent b) {
-            return a * One > b;
+            return a * One > b._value;
         }
 
         public static bool operator <=(Percent a, Percent b) {
