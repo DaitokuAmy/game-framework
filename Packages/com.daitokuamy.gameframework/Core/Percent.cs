@@ -20,6 +20,78 @@ namespace GameFramework.Core {
 
         #region operators
 
+        public static bool operator ==(Percent a, Percent b) {
+            return a._value == b._value;
+        }
+
+        public static bool operator ==(Percent a, float b) {
+            return a._value == (int)(b * One);
+        }
+
+        public static bool operator ==(float a, Percent b) {
+            return (int)(a * One) == b._value;
+        }
+
+        public static bool operator !=(Percent a, Percent b) {
+            return !(a == b);
+        }
+
+        public static bool operator !=(Percent a, float b) {
+            return !(a == b);
+        }
+
+        public static bool operator !=(float a, Percent b) {
+            return !(a == b);
+        }
+
+        public static bool operator <(Percent a, Percent b) {
+            return a._value < b._value;
+        }
+
+        public static bool operator <(Percent a, float b) {
+            return a._value < b * One;
+        }
+
+        public static bool operator <(float a, Percent b) {
+            return a * One < b;
+        }
+
+        public static bool operator >(Percent a, Percent b) {
+            return a._value > b._value;
+        }
+
+        public static bool operator >(Percent a, float b) {
+            return a._value > b * One;
+        }
+
+        public static bool operator >(float a, Percent b) {
+            return a * One > b;
+        }
+
+        public static bool operator <=(Percent a, Percent b) {
+            return !(a > b);
+        }
+
+        public static bool operator <=(Percent a, float b) {
+            return !(a > b);
+        }
+
+        public static bool operator <=(float a, Percent b) {
+            return !(a > b);
+        }
+
+        public static bool operator >=(Percent a, Percent b) {
+            return !(a < b);
+        }
+
+        public static bool operator >=(Percent a, float b) {
+            return !(a < b);
+        }
+
+        public static bool operator >=(float a, Percent b) {
+            return !(a < b);
+        }
+
         public static Percent operator +(Percent a, Percent b) {
             return new Percent(a._value + b._value);
         }

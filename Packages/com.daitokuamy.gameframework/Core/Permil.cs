@@ -20,6 +20,78 @@ namespace GameFramework.Core {
 
         #region operators
 
+        public static bool operator ==(Permil a, Permil b) {
+            return a._value == b._value;
+        }
+
+        public static bool operator ==(Permil a, float b) {
+            return a._value == (int)(b * One);
+        }
+
+        public static bool operator ==(float a, Permil b) {
+            return (int)(a * One) == b._value;
+        }
+
+        public static bool operator !=(Permil a, Permil b) {
+            return !(a == b);
+        }
+
+        public static bool operator !=(Permil a, float b) {
+            return !(a == b);
+        }
+
+        public static bool operator !=(float a, Permil b) {
+            return !(a == b);
+        }
+
+        public static bool operator <(Permil a, Permil b) {
+            return a._value < b._value;
+        }
+
+        public static bool operator <(Permil a, float b) {
+            return a._value < b * One;
+        }
+
+        public static bool operator <(float a, Permil b) {
+            return a * One < b;
+        }
+
+        public static bool operator >(Permil a, Permil b) {
+            return a._value > b._value;
+        }
+
+        public static bool operator >(Permil a, float b) {
+            return a._value > b * One;
+        }
+
+        public static bool operator >(float a, Permil b) {
+            return a * One > b;
+        }
+
+        public static bool operator <=(Permil a, Permil b) {
+            return !(a > b);
+        }
+
+        public static bool operator <=(Permil a, float b) {
+            return !(a > b);
+        }
+
+        public static bool operator <=(float a, Permil b) {
+            return !(a > b);
+        }
+
+        public static bool operator >=(Permil a, Permil b) {
+            return !(a < b);
+        }
+
+        public static bool operator >=(Permil a, float b) {
+            return !(a < b);
+        }
+
+        public static bool operator >=(float a, Permil b) {
+            return !(a < b);
+        }
+
         public static Permil operator +(Permil a, Permil b) {
             return new Permil(a._value + b._value);
         }
