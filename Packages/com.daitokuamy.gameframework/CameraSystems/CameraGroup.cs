@@ -1,3 +1,5 @@
+using System.Linq;
+using Cinemachine;
 using UnityEngine;
 
 namespace GameFramework.CameraSystems {
@@ -27,6 +29,16 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         private void Awake() {
             DefaultName = name.Replace("(Clone)", "");
+        }
+
+        /// <summary>
+        /// 保持しているカメラ名のリストを取得
+        /// </summary>
+        public string[] GetCameraNames() {
+            return CameraRoot.GetComponentsInChildren<CinemachineVirtualCameraBase>(true)
+                .Where(x => x.ParentCamera == null)
+                .Select(x => x.name)
+                .ToArray();
         }
     }
 }
