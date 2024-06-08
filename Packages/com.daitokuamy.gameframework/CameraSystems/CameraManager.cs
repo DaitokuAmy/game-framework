@@ -137,6 +137,7 @@ namespace GameFramework.CameraSystems {
             public GameObject prefab;
             public CameraGroup cameraGroup;
             public Dictionary<string, CameraHandler> handlers = new();
+            public Dictionary<string, Transform> targetPoints = new();
         }
 
         [SerializeField, Tooltip("仮想カメラ用のBrain")]
@@ -158,7 +159,7 @@ namespace GameFramework.CameraSystems {
         private Dictionary<string, CameraHandler> _cameraHandlers = new();
         // 基準Transform
         private Dictionary<string, Transform> _targetPoints = new();
-        
+
         // カメラグループ情報
         private Dictionary<string, CameraGroupInfo> _cameraGroupInfos = new();
 
@@ -362,29 +363,31 @@ namespace GameFramework.CameraSystems {
         /// <param name="overrideGroupKey">上書き用登録する際のキー</param>
         public void RegisterCameraGroup(CameraGroup cameraGroup, string overrideGroupKey = null) {
             Initialize();
-            
+
             if (cameraGroup == null) {
                 Debug.LogError("Camera group is null");
                 return;
             }
-            
+
             var groupKey = string.IsNullOrEmpty(overrideGroupKey) ? cameraGroup.Key : overrideGroupKey;
-            
+
             // カメラグループの登録
             if (_cameraGroupInfos.ContainsKey(groupKey)) {
                 // すでにあった場合は登録解除して上書き
                 UnregisterCameraGroup(groupKey);
             }
-            
+
             // 登録処理
             cameraGroup.gameObject.SetActive(true);
             cameraGroup.name = groupKey;
             var groupInfo = new CameraGroupInfo();
             groupInfo.cameraGroup = cameraGroup;
             _cameraGroupInfos[groupKey] = groupInfo;
-            
+
             // CameraHandlerの生成
             CreateCameraHandlersInternal(groupInfo.handlers, cameraGroup.CameraRoot.transform);
+            // TargetPointsの生成
+            CreateTargetPointsInternal(groupInfo.targetPoints, cameraGroup.TargetPointRoot != null ? cameraGroup.TargetPointRoot.transform : null);
         }
 
         /// <summary>
@@ -405,7 +408,7 @@ namespace GameFramework.CameraSystems {
                 Debug.LogError($"Invalid camera group. [{cameraGroup.name}]");
                 return;
             }
-            
+
             // CameraGroupの登録
             RegisterCameraGroup(cameraGroup, overrideGroupKey);
         }
@@ -415,9 +418,10 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         public void UnregisterCameraGroup(string key) {
             Initialize();
-            
+
             if (_cameraGroupInfos.TryGetValue(key, out var info)) {
                 ClearCameraHandlersInternal(info.handlers);
+                ClearTargetPointsInternal(info.targetPoints);
                 if (info.cameraGroup != null) {
                     if (info.prefab != null) {
                         Destroy(info.cameraGroup.gameObject);
@@ -426,6 +430,7 @@ namespace GameFramework.CameraSystems {
                         info.cameraGroup.gameObject.SetActive(false);
                     }
                 }
+
                 _cameraGroupInfos.Remove(key);
             }
         }
@@ -438,7 +443,7 @@ namespace GameFramework.CameraSystems {
                 Debug.LogError("Camera group prefab is null");
                 return;
             }
-            
+
             UnregisterCameraGroup(cameraGroup.Key);
         }
 
@@ -450,13 +455,13 @@ namespace GameFramework.CameraSystems {
                 Debug.LogError("Camera group prefab is null");
                 return;
             }
-            
+
             var cameraGroup = prefab.GetComponent<CameraGroup>();
             if (cameraGroup == null) {
                 Debug.LogError($"Not found camera group. [{prefab.name}]");
                 return;
             }
-            
+
             UnregisterCameraGroup(cameraGroup.Key);
         }
 
@@ -468,7 +473,7 @@ namespace GameFramework.CameraSystems {
         public TCameraComponent GetCameraComponent<TCameraComponent>(string groupKey, string cameraName)
             where TCameraComponent : class, ICameraComponent {
             Initialize();
-            
+
             var handlers = GetCameraHandlers(groupKey);
 
             if (!handlers.TryGetValue(cameraName, out var handler)) {
@@ -495,7 +500,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraController">設定するController</param>
         public void SetCameraController(string groupKey, string cameraName, ICameraController cameraController) {
             Initialize();
-            
+
             var handlers = GetCameraHandlers(groupKey);
 
             if (!handlers.TryGetValue(cameraName, out var handler)) {
@@ -546,9 +551,20 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="targetPointName">ターゲットポイント名</param>
         public Transform GetTargetPoint(string targetPointName) {
+            return GetTargetPoint(null, targetPointName);
+        }
+
+        /// <summary>
+        /// ターゲットポイント(仮想カメラが参照するTransform)の取得
+        /// </summary>
+        /// <param name="groupKey">CameraGroupとして登録したキー</param>
+        /// <param name="targetPointName">ターゲットポイント名</param>
+        public Transform GetTargetPoint(string groupKey, string targetPointName) {
             Initialize();
 
-            if (!_targetPoints.TryGetValue(targetPointName, out var targetPoint)) {
+            var targetPoints = GetTargetPoints(groupKey);
+
+            if (!targetPoints.TryGetValue(targetPointName, out var targetPoint)) {
                 return null;
             }
 
@@ -580,10 +596,11 @@ namespace GameFramework.CameraSystems {
             foreach (var info in _cameraGroupInfos) {
                 ClearCameraHandlersInternal(info.Value.handlers);
             }
+
             _cameraGroupInfos.Clear();
-            
+
             ClearCameraHandlersInternal(_cameraHandlers);
-            
+
             _targetPoints.Clear();
 
             LayeredTime.Dispose();
@@ -617,13 +634,13 @@ namespace GameFramework.CameraSystems {
 
                 pair.Value.Controller.Update(deltaTime);
             }
-            
+
             foreach (var pair in _cameraGroupInfos) {
                 foreach (var p in pair.Value.handlers) {
                     if (p.Value.Controller == null) {
                         continue;
                     }
-                    
+
                     p.Value.Controller.Update(deltaTime);
                 }
             }
@@ -636,13 +653,13 @@ namespace GameFramework.CameraSystems {
 
                 pair.Value.Component.Update(deltaTime);
             }
-            
+
             foreach (var pair in _cameraGroupInfos) {
                 foreach (var p in pair.Value.handlers) {
                     if (p.Value.Component == null) {
                         continue;
                     }
-                    
+
                     p.Value.Component.Update(deltaTime);
                 }
             }
@@ -657,7 +674,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         private void ActivateInternal(string groupKey, string cameraName, CameraBlend cameraBlend, bool force) {
             var handlers = GetCameraHandlers(groupKey);
-            
+
             if (!handlers.TryGetValue(cameraName, out var handler)) {
                 return;
             }
@@ -672,7 +689,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         private void DeactivateInternal(string groupKey, string cameraName, CameraBlend cameraBlend, bool force) {
             var handlers = GetCameraHandlers(groupKey);
-            
+
             if (!handlers.TryGetValue(cameraName, out var handler)) {
                 return;
             }
@@ -692,6 +709,21 @@ namespace GameFramework.CameraSystems {
 
             if (_cameraGroupInfos.TryGetValue(groupKey, out var info)) {
                 return info.handlers;
+            }
+
+            return new();
+        }
+
+        /// <summary>
+        /// ターゲットポイント格納用Dictionaryの取得
+        /// </summary>
+        private Dictionary<string, Transform> GetTargetPoints(string groupKey) {
+            if (string.IsNullOrEmpty(groupKey)) {
+                return _targetPoints;
+            }
+
+            if (_cameraGroupInfos.TryGetValue(groupKey, out var info)) {
+                return info.targetPoints;
             }
 
             return new();
@@ -724,7 +756,7 @@ namespace GameFramework.CameraSystems {
                         Debug.LogWarning($"Already exists camera name. [{cameraName}]");
                         continue;
                     }
-                    
+
                     var component = child.GetComponent<ICameraComponent>();
                     if (component == null) {
                         // Componentがないただの仮想カメラだったら、DefaultComponentを設定
@@ -764,17 +796,39 @@ namespace GameFramework.CameraSystems {
         /// TargetPoint情報の生成
         /// </summary>
         private void CreateTargetPoints() {
-            _targetPoints.Clear();
+            CreateTargetPointsInternal(_targetPoints, _targetPointRoot.transform);
+        }
 
-            foreach (Transform targetPoint in _targetPointRoot.transform) {
+        /// <summary>
+        /// TargetPoint情報の生成
+        /// </summary>
+        private void CreateTargetPointsInternal(Dictionary<string, Transform> targetPoints, Transform rootTransform) {
+            targetPoints.Clear();
+
+            if (rootTransform == null) {
+                return;
+            }
+
+            foreach (Transform targetPoint in rootTransform) {
+                if (targetPoint == rootTransform) {
+                    continue;
+                }
+
                 var targetPointName = targetPoint.name;
-                if (_targetPoints.ContainsKey(targetPointName)) {
+                if (targetPoints.ContainsKey(targetPointName)) {
                     targetPoint.gameObject.SetActive(false);
                     continue;
                 }
 
-                _targetPoints[targetPointName] = targetPoint;
+                targetPoints[targetPointName] = targetPoint;
             }
+        }
+
+        /// <summary>
+        /// CameraHandlerの解放
+        /// </summary>
+        private void ClearTargetPointsInternal(Dictionary<string, Transform> targetPoints) {
+            targetPoints.Clear();
         }
 
         /// <summary>

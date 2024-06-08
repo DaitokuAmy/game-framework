@@ -9,6 +9,8 @@ namespace GameFramework.CameraSystems {
         private string _key = "";
         [SerializeField, Tooltip("仮想カメラが登録されているRootTObject")]
         private GameObject _virtualCameraRoot;
+        [SerializeField, Tooltip("ターゲットポイントが登録されているRootObject")]
+        private GameObject _targetPointRoot;
         
         /// <summary>初期GameObject名</summary>
         public string DefaultName { get; private set; }
@@ -17,6 +19,8 @@ namespace GameFramework.CameraSystems {
         public string Key => string.IsNullOrWhiteSpace(_key) ? "Unknown" : _key;
         /// <summary>仮想カメラが登録されているRootObject</summary>
         public GameObject CameraRoot => _virtualCameraRoot != null ? _virtualCameraRoot : gameObject;
+        /// <summary>仮想カメラが登録されているRootObject</summary>
+        public GameObject TargetPointRoot => _targetPointRoot;
 
         /// <summary>
         /// 生成時処理
