@@ -9,9 +9,10 @@ namespace GameFramework.CameraSystems.Editor {
     /// </summary>
     [CustomEditor(typeof(CameraTarget))]
     public class CameraTargetEditor : UnityEditor.Editor {
+        private SerializedProperty _groupProp;
         private SerializedProperty _followTargetNameProp;
         private SerializedProperty _lookAtTargetNameProp;
-        
+
         /// <summary>
         /// インスペクタ描画
         /// </summary>
@@ -26,6 +27,7 @@ namespace GameFramework.CameraSystems.Editor {
         /// アクティブ時処理
         /// </summary>
         private void OnEnable() {
+            _groupProp = serializedObject.FindProperty("_group");
             _followTargetNameProp = serializedObject.FindProperty("_followTargetName");
             _lookAtTargetNameProp = serializedObject.FindProperty("_lookAtTargetName");
         }
@@ -37,7 +39,7 @@ namespace GameFramework.CameraSystems.Editor {
             if (!Application.isPlaying) {
                 return false;
             }
-            
+
             var cameraTarget = target as CameraTarget;
             if (cameraTarget == null) {
                 return false;
@@ -47,10 +49,12 @@ namespace GameFramework.CameraSystems.Editor {
             if (cameraManager == null) {
                 return false;
             }
-            
+
             serializedObject.Update();
 
-            var targetPoints = cameraManager.GetTargetPoints();
+            var group = serializedObject.FindProperty("_group").objectReferenceValue as CameraGroup;
+            var groupKey = group != null ? group.Key : "";
+            var targetPoints = cameraManager.GetTargetPoints(groupKey);
             var labels = targetPoints.Select(x => x.name).ToList();
             labels.Insert(0, "(None)");
 
@@ -59,10 +63,14 @@ namespace GameFramework.CameraSystems.Editor {
                 index = EditorGUILayout.Popup(new GUIContent(prop.displayName, prop.tooltip), index, labels.ToArray());
                 prop.stringValue = index > 0 ? labels[index] : "";
             }
-            
+
+            using (new EditorGUI.DisabledScope(true)) {
+                EditorGUILayout.PropertyField(_groupProp);
+            }
+
             DrawTarget(_followTargetNameProp);
             DrawTarget(_lookAtTargetNameProp);
-            
+
             serializedObject.ApplyModifiedProperties();
 
             if (GUI.changed) {
@@ -72,7 +80,7 @@ namespace GameFramework.CameraSystems.Editor {
                     cameraTarget.SetupCameraTarget(cameraManager, virtualCamera);
                 }
             }
-            
+
             return true;
         }
     }

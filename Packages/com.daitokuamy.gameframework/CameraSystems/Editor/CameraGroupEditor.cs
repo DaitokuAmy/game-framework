@@ -44,7 +44,7 @@ namespace GameFramework.CameraSystems.Editor {
                                 var path = paths[i];
                                 menu.AddItem(new GUIContent(paths[i]), false, () => { _exportRootPath = path; });
                             }
-                            
+
                             menu.ShowAsContext();
                         }
                     }
@@ -116,7 +116,7 @@ namespace GameFramework.CameraSystems.Editor {
                 var cameraComponents = targetRoot.GetComponentsInChildren<ICameraComponent>(true);
 
                 // それぞれを対応する場所にコピー
-                void CopyComponents<T>(T[] sources, Func<T, GameObject, T> insertComponentFunc = null)
+                void CopyComponents<T>(T[] sources, Func<SerializedProperty, bool> copyCheckFunc = null, Func<T, GameObject, T> insertComponentFunc = null)
                     where T : MonoBehaviour {
                     foreach (var src in sources) {
                         var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, src.transform);
@@ -148,18 +148,8 @@ namespace GameFramework.CameraSystems.Editor {
                             continue;
                         }
 
-                        // 差分がなければスキップ
-                        // if (!Core.Editor.EditorUtility.CheckDiffSerializedObject(new SerializedObject(src), new SerializedObject(dest), (a, b) => {
-                        //         var fieldInfo = Core.Editor.EditorUtility.GetFieldInfo(a);
-                        //         var attribute = fieldInfo.GetCustomAttribute(typeof(NoSaveDuringPlayAttribute));
-                        //         var result = attribute != null;
-                        //         return result;
-                        //     })) {
-                        //     continue;
-                        // }
-
-                        // 差分が出てる所を編集
-                        EditorUtility.CopySerializedIfDifferent(src, dest);
+                        // 値の更新
+                        Core.Editor.EditorUtility.CopySerializedObject(src, dest, copyCheckFunc);
                         Debug.Log($"Exported Component. [{dest.GetType().Name}]{dest.name}");
                     }
                 }
@@ -209,18 +199,32 @@ namespace GameFramework.CameraSystems.Editor {
                     }
                 }
 
-                CopyComponents(cameras, (x, y) => {
+                CopyComponents(cameras, prop => {
+                    if (prop.propertyPath == "m_Follow" || prop.propertyPath == "m_LookAt") {
+                        return false;
+                    }
+
+                    return true;
+                }, (x, y) => {
                     var prevCamera = y.GetComponent<CinemachineVirtualCameraBase>();
+                    var prevFollow = default(Transform);
+                    var prevLookAt = default(Transform);
                     if (prevCamera != null) {
-                        // 既に存在していたら削除
+                        // Follow/LookAtは回収
+                        prevFollow = prevCamera.Follow;
+                        prevLookAt = prevCamera.LookAt;
+                        // 既に別のCameraBaseが存在していたら削除
                         DestroyImmediate(prevCamera);
                     }
 
                     // 出力先Cameraがなければ追加する
-                    return y.AddComponent(x.GetType()) as CinemachineVirtualCameraBase;
+                    var nextCamera = (CinemachineVirtualCameraBase)y.AddComponent(x.GetType());
+                    nextCamera.Follow = prevFollow;
+                    nextCamera.LookAt = prevLookAt;
+                    return nextCamera;
                 });
                 RemoveComponentsAndExtensions(cameras);
-                CopyComponents(components, (x, y) => {
+                CopyComponents(components, null, (x, y) => {
                     var prevComponents = y.GetComponents<CinemachineComponentBase>();
                     foreach (var prevComponent in prevComponents) {
                         if (prevComponent.Stage == x.Stage) {
@@ -232,15 +236,21 @@ namespace GameFramework.CameraSystems.Editor {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent(x.GetType()) as CinemachineComponentBase;
                 });
-                CopyComponents(extensions, (x, y) => {
+                CopyComponents(extensions, null, (x, y) => {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent(x.GetType()) as CinemachineExtension;
                 });
-                CopyComponents(cameraTargets, (x, y) => {
+                CopyComponents(cameraTargets, prop => {
+                    if (prop.propertyPath == "_group") {
+                        return false;
+                    }
+
+                    return true;
+                }, (x, y) => {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent<CameraTarget>();
                 });
-                CopyComponents(cameraComponents.OfType<MonoBehaviour>().ToArray(), (x, y) => {
+                CopyComponents(cameraComponents.OfType<MonoBehaviour>().ToArray(), null, (x, y) => {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent(x.GetType()) as MonoBehaviour;
                 });

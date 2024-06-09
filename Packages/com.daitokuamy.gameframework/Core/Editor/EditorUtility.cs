@@ -171,7 +171,7 @@ namespace GameFramework.Core.Editor {
                 }
 
                 if (fieldInfo == null) {
-                    throw new Exception("Invalid FieldInfo. " + targetProperty.propertyPath);
+                    return null;
                 }
 
                 parentType = fieldInfo.FieldType;
@@ -179,13 +179,13 @@ namespace GameFramework.Core.Editor {
 
             return fieldInfo;
         }
-        
+
         /// <summary>
         /// SerializedPropertyからFieldの型を取得する 
         /// </summary>
         public static Type GetPropertyType(SerializedProperty targetProperty, bool isArrayListType = false) {
             var fieldInfo = GetFieldInfo(targetProperty);
- 
+
             // 配列の場合は配列のTypeを返す
             if (isArrayListType && targetProperty.isArray && targetProperty.propertyType != SerializedPropertyType.String) {
                 return fieldInfo.FieldType.IsArray
@@ -195,7 +195,7 @@ namespace GameFramework.Core.Editor {
 
             return fieldInfo.FieldType;
         }
-        
+
         /// <summary>
         /// Prefabの編集
         /// ※Prefabは直接編集せずにこの関数を通して編集してください
@@ -221,16 +221,10 @@ namespace GameFramework.Core.Editor {
         /// todo:未実装
         /// </summary>
         public static void CopySerializedObjectForAttribute(Object source, Object dest) {
-            var sourceObj = new SerializedObject(source);
-            var destObj = new SerializedObject(dest);
             var sourceType = source.GetType();
-
-            destObj.Update();
-
-            var itr = sourceObj.GetIterator();
-            while (itr.NextVisible(true)) {
+            CopySerializedObject(source, dest, prop => {
                 var type = sourceType;
-                var field = type.GetField(itr.name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                var field = type.GetField(prop.name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 while (field == null || field.GetCustomAttribute<CopyablePropertyAttribute>() == null) {
                     type = type.BaseType;
                     if (type == null || type == typeof(Object)) {
@@ -238,16 +232,37 @@ namespace GameFramework.Core.Editor {
                         break;
                     }
 
-                    field = type.GetField(itr.name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+                    field = type.GetField(prop.name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
                 }
 
                 if (field == null) {
+                    return false;
+                }
+
+                //return true;
+                return false;
+            });
+        }
+
+        /// <summary>
+        /// SerializedObjectの条件付きコピー
+        /// </summary>
+        public static void CopySerializedObject(Object source, Object dest, Func<SerializedProperty, bool> checkFunc = null) {
+            var sourceObj = new SerializedObject(source);
+            var destObj = new SerializedObject(dest);
+
+            destObj.Update();
+
+            var itr = sourceObj.GetIterator();
+            var bindingAttr = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+            while (itr.NextVisible(true)) {
+                if (checkFunc != null && !checkFunc.Invoke(itr)) {
                     continue;
                 }
 
-                //var sourceProperty = sourceObj.FindProperty(itr.propertyPath);
-                //destObj.CopyFromSerializedPropertyIfDifferent(sourceProperty);
-                Debug.Log($"Test:{itr.propertyPath}");
+                var sourceProperty = sourceObj.FindProperty(itr.propertyPath);
+                destObj.CopyFromSerializedPropertyIfDifferent(sourceProperty);
+                //Debug.Log($"Test:{itr.propertyPath}");
             }
 
             destObj.ApplyModifiedProperties();

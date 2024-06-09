@@ -384,10 +384,10 @@ namespace GameFramework.CameraSystems {
             groupInfo.cameraGroup = cameraGroup;
             _cameraGroupInfos[groupKey] = groupInfo;
 
-            // CameraHandlerの生成
-            CreateCameraHandlersInternal(groupInfo.handlers, cameraGroup.CameraRoot.transform);
             // TargetPointsの生成
             CreateTargetPointsInternal(groupInfo.targetPoints, cameraGroup.TargetPointRoot != null ? cameraGroup.TargetPointRoot.transform : null);
+            // CameraHandlerの生成
+            CreateCameraHandlersInternal(groupInfo.handlers, cameraGroup.CameraRoot.transform);
         }
 
         /// <summary>
@@ -562,7 +562,7 @@ namespace GameFramework.CameraSystems {
         public Transform GetTargetPoint(string groupKey, string targetPointName) {
             Initialize();
 
-            var targetPoints = GetTargetPoints(groupKey);
+            var targetPoints = GetTargetPointsInternal(groupKey);
 
             if (!targetPoints.TryGetValue(targetPointName, out var targetPoint)) {
                 return null;
@@ -570,12 +570,13 @@ namespace GameFramework.CameraSystems {
 
             return targetPoint;
         }
-
+        
         /// <summary>
         /// ターゲットポイントのリストを取得
         /// </summary>
-        public Transform[] GetTargetPoints() {
-            return _targetPoints.Values.ToArray();
+        public Transform[] GetTargetPoints(string groupKey = null) {
+            var dict = GetTargetPointsInternal(groupKey);
+            return dict.Values.ToArray();
         }
 
         /// <summary>
@@ -717,7 +718,7 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// ターゲットポイント格納用Dictionaryの取得
         /// </summary>
-        private Dictionary<string, Transform> GetTargetPoints(string groupKey) {
+        private Dictionary<string, Transform> GetTargetPointsInternal(string groupKey) {
             if (string.IsNullOrEmpty(groupKey)) {
                 return _targetPoints;
             }
