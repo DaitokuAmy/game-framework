@@ -6,6 +6,8 @@ namespace GameFramework.CameraSystems {
     /// カメラターゲットの文字列指定
     /// </summary>
     public class CameraTarget : MonoBehaviour {
+        [SerializeField, Tooltip("Group内Targetを使用する場合の指定")]
+        private CameraGroup _group;
         [SerializeField, Tooltip("Followに指定するTarget名")]
         private string _followTargetName = "";
         [SerializeField, Tooltip("LookAtに指定するTarget名")]
@@ -26,18 +28,23 @@ namespace GameFramework.CameraSystems {
                 return;
             }
 
+            var groupKey = default(string);
+            if (_group != null) {
+                groupKey = _group.Key;
+            }
+
             if (string.IsNullOrEmpty(FollowTargetName)) {
                 virtualCamera.Follow = null;
             }
             else {
-                virtualCamera.Follow = cameraManager.GetTargetPoint(FollowTargetName);
+                virtualCamera.Follow = cameraManager.GetTargetPoint(groupKey, FollowTargetName);
             }
 
             if (string.IsNullOrEmpty(LookAtTargetName)) {
                 virtualCamera.LookAt = null;
             }
             else {
-                virtualCamera.LookAt = cameraManager.GetTargetPoint(LookAtTargetName);
+                virtualCamera.LookAt = cameraManager.GetTargetPoint(groupKey, LookAtTargetName);
             }
         }
     }
