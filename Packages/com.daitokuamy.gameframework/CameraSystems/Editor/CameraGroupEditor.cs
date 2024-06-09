@@ -11,10 +11,12 @@ namespace GameFramework.CameraSystems.Editor {
     /// </summary>
     [CustomEditor(typeof(CameraGroup))]
     public class CameraGroupEditor : UnityEditor.Editor {
-        // 出力先のPrefab
-        private GameObject _exportPrefab;
         // 出力元のルート
         private Transform _targetRoot;
+        // 出力先のPrefab
+        private GameObject _exportPrefab;
+        // 出力先のPrefabから見た出力CameraGroupの相対Path
+        private string _exportRootPath;
 
         /// <summary>
         /// インスペクタ描画
@@ -28,6 +30,26 @@ namespace GameFramework.CameraSystems.Editor {
                 EditorGUILayout.LabelField("[Export Settings]", EditorStyles.boldLabel);
                 _targetRoot = EditorGUILayout.ObjectField("Source Root", _targetRoot, typeof(Transform), true) as Transform;
                 _exportPrefab = EditorGUILayout.ObjectField("Export Prefab", _exportPrefab, typeof(GameObject), false) as GameObject;
+                if (_exportPrefab != null) {
+                    _exportRootPath = EditorGUILayout.TextField("Export Root Path", _exportRootPath);
+                    using (new EditorGUILayout.HorizontalScope()) {
+                        GUILayout.Space(EditorGUIUtility.labelWidth);
+                        if (GUILayout.Button("Search")) {
+                            var menu = new GenericMenu();
+                            var paths = _exportPrefab.GetComponentsInChildren<CameraGroup>(true)
+                                .Where(x => x.gameObject != _exportPrefab)
+                                .Select(x => Core.Editor.EditorUtility.GetTransformPath(_exportPrefab.transform, x.transform))
+                                .ToArray();
+                            for (var i = 0; i < paths.Length; i++) {
+                                var path = paths[i];
+                                menu.AddItem(new GUIContent(paths[i]), false, () => { _exportRootPath = path; });
+                            }
+                            
+                            menu.ShowAsContext();
+                        }
+                    }
+                }
+
                 if (_exportPrefab == null) {
                     if (GUILayout.Button("Search Prefab")) {
                         _exportPrefab = SearchPrefab(target as CameraGroup);
@@ -36,7 +58,7 @@ namespace GameFramework.CameraSystems.Editor {
 
                 using (new EditorGUI.DisabledScope(_exportPrefab == null)) {
                     if (GUILayout.Button("Export", GUILayout.Width(200))) {
-                        ExportPrefab(target as CameraGroup, _exportPrefab, _targetRoot);
+                        ExportPrefab(target as CameraGroup, _exportPrefab, _exportRootPath, _targetRoot);
                     }
                 }
             }
@@ -67,10 +89,24 @@ namespace GameFramework.CameraSystems.Editor {
         /// <summary>
         /// Prefabに出力
         /// </summary>
-        private void ExportPrefab(CameraGroup cameraGroup, GameObject prefab, Transform targetRoot) {
+        private void ExportPrefab(CameraGroup cameraGroup, GameObject prefab, string exportRootPath, Transform targetRoot) {
             Core.Editor.EditorUtility.EditPrefab(prefab, obj => {
                 if (!CheckInParent(targetRoot, cameraGroup.transform)) {
                     targetRoot = cameraGroup.transform;
+                }
+
+                // 出力先に相対パスが存在していたらそれを適用
+                var exportRoot = obj.transform;
+                if (!string.IsNullOrEmpty(exportRootPath)) {
+                    var childNames = exportRootPath.Split('/');
+                    foreach (var childName in childNames) {
+                        var result = exportRoot.Find(childName);
+                        if (result == null) {
+                            break;
+                        }
+
+                        exportRoot = result;
+                    }
                 }
 
                 var cameras = targetRoot.GetComponentsInChildren<CinemachineVirtualCameraBase>(true);
@@ -84,11 +120,11 @@ namespace GameFramework.CameraSystems.Editor {
                     where T : MonoBehaviour {
                     foreach (var src in sources) {
                         var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, src.transform);
-                        var exportTarget = obj.transform.Find(path);
+                        var exportTarget = exportRoot.Find(path);
                         if (exportTarget == null) {
                             // 階層が存在しなければ作成する
                             var childNames = path.Split("/");
-                            exportTarget = obj.transform;
+                            exportTarget = exportRoot;
                             var baseTrans = cameraGroup.transform;
                             foreach (var childName in childNames) {
                                 var parent = exportTarget;
@@ -137,7 +173,7 @@ namespace GameFramework.CameraSystems.Editor {
                         }
 
                         var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, vcam.transform);
-                        var exportTarget = obj.transform.Find(path);
+                        var exportTarget = exportRoot.Find(path);
                         if (exportTarget == null) {
                             Debug.LogWarning($"Not found export path. [{path}]");
                             continue;
