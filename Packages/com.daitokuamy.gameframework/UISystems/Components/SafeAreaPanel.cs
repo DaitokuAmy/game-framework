@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GameFramework.UISystems {
     /// <summary>
@@ -26,6 +27,8 @@ namespace GameFramework.UISystems {
         [SerializeField, Tooltip("最低保証するセーフエリア(右上)")]
         private Vector2 _allowedSafeAreaRightUp;
 
+        // 計算用のCanvasScaler
+        private CanvasScaler _canvasScaler;
         // 制御対象のRectTransform
         private RectTransform _rectTransform;
         // 最後に適用したSafeArea
@@ -50,6 +53,69 @@ namespace GameFramework.UISystems {
                 return _rectTransform;
             }
         }
+        /// <summary>計算に使うCanvasScaler</summary>
+        private CanvasScaler CanvasScaler {
+            get {
+                if (_canvasScaler == null) {
+                    _canvasScaler = GetComponentInParent<CanvasScaler>();
+                }
+
+                return _canvasScaler;
+            }
+        }
+
+        /// <summary>
+        /// スクリプト変更時処理
+        /// </summary>
+        private void OnValidate() {
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        private void Update() {
+            Apply(_dirty);
+        }
+
+        /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        private void OnEnable() {
+            _dirty = true;
+        }
+
+        /// <summary>
+        /// 親Transform変更時
+        /// </summary>
+        private void OnTransformParentChanged() {
+            _canvasScaler = null;
+        }
+
+        /// <summary>
+        /// 非アクティブ時処理
+        /// </summary>
+        private void OnDisable() {
+#if UNITY_EDITOR
+            _rectTransformTracker.Clear();
+#endif
+        }
+
+        /// <summary>
+        /// 最低保証するSafeAreaのMarginを取得
+        /// </summary>
+        private void GetAllowedSafeArea(out Vector2 leftDown, out Vector2 rightUp) {
+            var canvasScaler = CanvasScaler;
+            if (canvasScaler == null) {
+                leftDown = Vector2.zero;
+                rightUp = Vector2.zero;
+                return;
+            }
+
+            var scale = canvasScaler.transform.localScale.x;
+            leftDown = _allowedSafeAreaLeftDown * scale;
+            rightUp = _allowedSafeAreaRightUp * scale;
+        }
 
         /// <summary>
         /// SafeAreaの反映
@@ -62,8 +128,10 @@ namespace GameFramework.UISystems {
                 return;
             }
 
-            safeArea.min = Vector2.Max(safeArea.min, _allowedSafeAreaLeftDown);
-            safeArea.max = Vector2.Min(safeArea.max, resolution - _allowedSafeAreaRightUp);
+            GetAllowedSafeArea(out var leftDown, out var rightUp);
+            
+            safeArea.min = Vector2.Max(safeArea.min, leftDown);
+            safeArea.max = Vector2.Min(safeArea.max, resolution - rightUp);
 
             if (!force) {
                 if (_lastSafeArea == safeArea && _lastResolution == resolution) {
@@ -98,36 +166,6 @@ namespace GameFramework.UISystems {
             trans.sizeDelta = Vector2.zero;
             trans.anchorMin = anchorMin;
             trans.anchorMax = anchorMax;
-        }
-
-        /// <summary>
-        /// スクリプト変更時処理
-        /// </summary>
-        private void OnValidate() {
-            _dirty = true;
-        }
-
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        private void Update() {
-            Apply(_dirty);
-        }
-
-        /// <summary>
-        /// アクティブ時処理
-        /// </summary>
-        private void OnEnable() {
-            _dirty = true;
-        }
-
-        /// <summary>
-        /// 非アクティブ時処理
-        /// </summary>
-        private void OnDisable() {
-#if UNITY_EDITOR
-            _rectTransformTracker.Clear();
-#endif
         }
     }
 }
