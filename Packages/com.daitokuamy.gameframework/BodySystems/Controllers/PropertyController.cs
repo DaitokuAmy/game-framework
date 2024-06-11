@@ -153,6 +153,21 @@ namespace GameFramework.BodySystems {
         }
 
         /// <summary>
+        /// Booleanパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="defaultValue">見つからなかったときの値</param>
+        public bool GetBooleanProperty(string key, bool defaultValue = false) {
+            for (var i = 0; i < _propertyPartsList.Count; i++) {
+                if (_propertyPartsList[i].TryGetBooleanProperty(key, out var val)) {
+                    return val;
+                }
+            }
+
+            return defaultValue;
+        }
+
+        /// <summary>
         /// Objectパラメータの取得
         /// </summary>
         /// <param name="key">取得キー</param>

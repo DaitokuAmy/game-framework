@@ -40,6 +40,12 @@ namespace GameFramework.BodySystems {
         }
 
         [Serializable]
+        private class BooleanPropertyInfo {
+            public string key;
+            public bool value;
+        }
+
+        [Serializable]
         private class ObjectPropertyInfo {
             public string key;
             public Object value;
@@ -55,6 +61,8 @@ namespace GameFramework.BodySystems {
         private ColorPropertyInfo[] _colorPropertyInfos = Array.Empty<ColorPropertyInfo>();
         [SerializeField, Tooltip("StringProperty情報")]
         private StringPropertyInfo[] _stringPropertyInfos = Array.Empty<StringPropertyInfo>();
+        [SerializeField, Tooltip("BooleanProperty情報")]
+        private BooleanPropertyInfo[] _booleanPropertyInfos = Array.Empty<BooleanPropertyInfo>();
         [SerializeField, Tooltip("ObjectProperty情報")]
         private ObjectPropertyInfo[] _objectPropertyInfos = Array.Empty<ObjectPropertyInfo>();
 
@@ -66,6 +74,7 @@ namespace GameFramework.BodySystems {
         private Dictionary<string, Vector4> _vectorProperties;
         private Dictionary<string, Color> _colorProperties;
         private Dictionary<string, string> _stringProperties;
+        private Dictionary<string, bool> _booleanProperties;
         private Dictionary<string, Object> _objectProperties;
 
         /// <summary>
@@ -98,6 +107,14 @@ namespace GameFramework.BodySystems {
         public IEnumerable<string> GetColorKeys() {
             Initialize();
             return _colorProperties.Keys;
+        }
+
+        /// <summary>
+        /// Booleanパラメータ用のキー
+        /// </summary>
+        public IEnumerable<string> GetBooleanKeys() {
+            Initialize();
+            return _booleanProperties.Keys;
         }
 
         /// <summary>
@@ -167,6 +184,16 @@ namespace GameFramework.BodySystems {
         }
 
         /// <summary>
+        /// Booleanパラメータの取得
+        /// </summary>
+        /// <param name="key">取得キー</param>
+        /// <param name="value">値</param>
+        public bool TryGetBooleanProperty(string key, out bool value) {
+            Initialize();
+            return _booleanProperties.TryGetValue(key, out value);
+        }
+
+        /// <summary>
         /// Objectパラメータの取得
         /// </summary>
         /// <param name="key">取得キー</param>
@@ -190,6 +217,7 @@ namespace GameFramework.BodySystems {
             _vectorProperties = _vectorPropertyInfos.ToDictionary(x => x.key, x => x.value);
             _colorProperties = _colorPropertyInfos.ToDictionary(x => x.key, x => x.value);
             _stringProperties = _stringPropertyInfos.ToDictionary(x => x.key, x => x.value);
+            _booleanProperties = _booleanPropertyInfos.ToDictionary(x => x.key, x => x.value);
             _objectProperties = _objectPropertyInfos.ToDictionary(x => x.key, x => x.value);
         }
     }
