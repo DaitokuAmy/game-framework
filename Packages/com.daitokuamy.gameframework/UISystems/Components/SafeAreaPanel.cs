@@ -90,6 +90,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         private void OnTransformParentChanged() {
             _canvasScaler = null;
+            _dirty = true;
         }
 
         /// <summary>
