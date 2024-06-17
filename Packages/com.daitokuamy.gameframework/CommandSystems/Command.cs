@@ -55,6 +55,7 @@ namespace GameFramework.CommandSystems {
             }
 
             _currentState = CommandState.Invalid;
+            Exception = null;
             return true;
         }
 
