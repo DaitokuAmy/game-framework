@@ -94,7 +94,7 @@ namespace GameFramework.CameraSystems {
                 w *= 0.5f;
             }
 
-            return f;
+            return f - 0.5f;
         }
     }
 }
