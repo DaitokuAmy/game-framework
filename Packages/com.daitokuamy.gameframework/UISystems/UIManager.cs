@@ -212,7 +212,6 @@ namespace GameFramework.UISystems {
             sceneInfo = new SceneInfo();
             sceneInfo.key = assetKey;
             sceneInfo.assetHandle = handle;
-            sceneInfo.rootCanvases = handle.Scene.GetRootGameObjects().Select(x => x.GetComponent<Canvas>()).ToArray();
             _sceneInfos.Add(assetKey, sceneInfo);
 
             IEnumerator Routine() {
@@ -227,7 +226,13 @@ namespace GameFramework.UISystems {
                 yield return handle.ActivateAsync();
 
                 var scene = handle.Scene;
+                var rootCanvases = new List<Canvas>();
                 foreach (var obj in scene.GetRootGameObjects()) {
+                    var canvas = obj.GetComponent<Canvas>();
+                    if (canvas != null) {
+                        rootCanvases.Add(canvas);
+                    }
+
                     var services = obj.GetComponentsInChildren<IUIService>();
                     foreach (var service in services) {
                         var serviceType = service.GetType();
@@ -242,6 +247,7 @@ namespace GameFramework.UISystems {
                     }
                 }
 
+                sceneInfo.rootCanvases = rootCanvases.ToArray();
                 sceneInfo.initialized = true;
             }
 
@@ -296,8 +302,10 @@ namespace GameFramework.UISystems {
                     _services[serviceType] = service;
                     service.Initialize();
                 }
-                
-                prefabInfo.rootCanvases = instance.GetComponents<Canvas>();
+
+                prefabInfo.rootCanvases = instance.GetComponents<Canvas>()
+                    .Where(x => x.transform.parent is not RectTransform)
+                    .ToArray();
                 prefabInfo.initialized = true;
             }
 
