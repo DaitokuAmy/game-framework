@@ -85,6 +85,7 @@ namespace GameFramework.UISystems {
             public bool initialized;
             public Coroutine coroutine;
             public List<Type> serviceTypes = new();
+            public Canvas[] rootCanvases;
 
             public abstract bool IsDone { get; }
             public abstract Exception Exception { get; }
@@ -211,6 +212,7 @@ namespace GameFramework.UISystems {
             sceneInfo = new SceneInfo();
             sceneInfo.key = assetKey;
             sceneInfo.assetHandle = handle;
+            sceneInfo.rootCanvases = handle.Scene.GetRootGameObjects().Select(x => x.GetComponent<Canvas>()).ToArray();
             _sceneInfos.Add(assetKey, sceneInfo);
 
             IEnumerator Routine() {
@@ -294,7 +296,8 @@ namespace GameFramework.UISystems {
                     _services[serviceType] = service;
                     service.Initialize();
                 }
-
+                
+                prefabInfo.rootCanvases = instance.GetComponents<Canvas>();
                 prefabInfo.initialized = true;
             }
 
@@ -322,6 +325,15 @@ namespace GameFramework.UISystems {
             }
 
             return (T)service;
+        }
+
+        /// <summary>
+        /// 現在存在するCanvasの一覧を取得
+        /// </summary>
+        public Canvas[] GetCanvases() {
+            return _prefabInfos.SelectMany(x => x.Value.rootCanvases)
+                .Concat(_sceneInfos.SelectMany(x => x.Value.rootCanvases))
+                .ToArray();
         }
 
         /// <summary>
