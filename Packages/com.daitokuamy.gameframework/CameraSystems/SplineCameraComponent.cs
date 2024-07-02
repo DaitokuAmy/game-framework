@@ -84,17 +84,14 @@ namespace GameFramework.CameraSystems {
             var rate = _duration > 0.001f ? Mathf.Min(1.0f, _currentTime / _duration) : 1.0f;
             rate = _timeCurve != null && _timeCurve.keys.Length > 1 ? _timeCurve.Evaluate(rate) : rate;
 
-            _splineContainer.Spline.Evaluate(rate, out var splinePos, out var splineTangent, out var splineUpVec);
-            var splineRot = Quaternion.LookRotation(splineTangent, splineUpVec);
+            _splineContainer.Spline.Evaluate(rate, out var splinePos, out _, out _);
 
             var pos = _relativePosition + _relativeRotation * splinePos;
-            var rot = _relativeRotation * splineRot;
             if (_parentTransform != null) {
                 pos = _parentTransform.TransformPoint(pos);
-                rot = _parentTransform.rotation * rot;
             }
             
-            VirtualCamera.transform.SetPositionAndRotation(pos, rot);
+            VirtualCamera.transform.position = pos;
         }
     }
 }
