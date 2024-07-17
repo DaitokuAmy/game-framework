@@ -165,15 +165,12 @@ namespace GameFramework.CommandSystems {
             for (var i = _standbyCommands.Count - 1; i >= 0; i--) {
                 var command = _standbyCommands[i];
                 
-                // Standbyじゃない物は除外
-                if (command.CurrentState != CommandState.Standby) {
+                // 待機中更新
+                if (!command.StandbyUpdate()) {
                     command.Destroy();
                     _standbyCommands.RemoveAt(i);
                     continue;
                 }
-                
-                // 待機中更新
-                command.StandbyUpdate();
 
                 // 実行状態に移せるか
                 if (command.Priority < blockPriority) {
