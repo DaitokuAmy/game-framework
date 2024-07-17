@@ -205,8 +205,8 @@ namespace SampleGame {
         /// <summary>
         /// デフォルトモーションに変更
         /// </summary>
-        private void ChangeDefaultMotion(IActorAction action) {
-            _motionController.Change(_basePlayableComponent, action.OutBlend);
+        private void ChangeDefaultMotion(IActorAction action, float outBlendDuration) {
+            _motionController.Change(_basePlayableComponent, outBlendDuration);
         }
 
         /// <summary>

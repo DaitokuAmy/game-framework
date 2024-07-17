@@ -28,7 +28,5 @@ namespace SampleGame.Domain.Common {
         public ClipInfo[] clipInfos;
         [Tooltip("キャンセル時に実行させるシーケンスクリップ")]
         public SequenceClip[] cancelSequenceClips;
-
-        float IActorAction.OutBlend => clipInfos.Length > 0 ? clipInfos[clipInfos.Length - 1].outBlend : 0.0f;
     }
 }

@@ -45,6 +45,11 @@ namespace GameFramework.ActorSystems {
         /// Actionのキャンセル
         /// </summary>
         void CancelAction();
+
+        /// <summary>
+        /// 戻りブレンド時間の取得
+        /// </summary>
+        float GetOutBlendDuration();
     }
     
     /// <summary>
@@ -114,7 +119,6 @@ namespace GameFramework.ActorSystems {
                 yield return PlayActionRoutineInternal(_currentAction, args);
             }
             
-            _currentAction = null;
             _isPlaying = false;
         }
 
@@ -137,11 +141,15 @@ namespace GameFramework.ActorSystems {
                 return;
             }
 
-            var currentAction = _currentAction;
-            _currentAction = null;
             _isPlaying = false;
+            CancelActionInternal(_currentAction);
+        }
 
-            CancelActionInternal(currentAction);
+        /// <summary>
+        /// 戻りブレンド時間の取得
+        /// </summary>
+        public float GetOutBlendDuration() {
+            return GetOutBlendDurationInternal(_currentAction);
         }
 
         /// <summary>
@@ -168,6 +176,13 @@ namespace GameFramework.ActorSystems {
         /// アクションのキャンセル処理
         /// </summary>
         protected virtual void CancelActionInternal(TActorAction action) {
+        }
+
+        /// <summary>
+        /// 戻りブレンド時間の取得
+        /// </summary>
+        protected virtual float GetOutBlendDurationInternal(TActorAction action) {
+            return 0.0f;
         }
     }
 }

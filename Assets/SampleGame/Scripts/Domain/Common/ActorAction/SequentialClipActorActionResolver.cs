@@ -115,5 +115,12 @@ namespace SampleGame.Domain.Common {
             _nextLoopIndex++;
             return true;
         }
+
+        /// <summary>
+        /// 戻りブレンド時間の取得
+        /// </summary>
+        protected override float GetOutBlendDurationInternal(SequentialClipActorAction action) {
+            return action.clipInfos.Length > 0 ? action.clipInfos[action.clipInfos.Length - 1].outBlend : 0.0f;
+        }
     }
 }

@@ -18,7 +18,5 @@ namespace SampleGame.Domain.Common {
         public float inBlend = 0.1f;
         [Tooltip("抜けブレンド時間")]
         public float outBlend = 0.1f;
-
-        float IActorAction.OutBlend => outBlend;
     }
 }

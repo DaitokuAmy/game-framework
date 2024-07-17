@@ -71,5 +71,12 @@ namespace SampleGame.Domain.Common {
             
             _sequenceHandles.Clear();
         }
+
+        /// <summary>
+        /// 戻りブレンド時間の取得
+        /// </summary>
+        protected override float GetOutBlendDurationInternal(ControllerActorAction action) {
+            return action.outBlend;
+        }
     }
 }

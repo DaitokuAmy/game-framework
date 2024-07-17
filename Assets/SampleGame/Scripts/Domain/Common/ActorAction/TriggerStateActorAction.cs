@@ -23,7 +23,5 @@ namespace SampleGame.Domain.Common {
         public string lastTag = "";
         [Tooltip("シーケンスクリップ情報")]
         public SequenceClip[] sequenceClips;
-
-        float IActorAction.OutBlend => 0.0f;
     }
 }

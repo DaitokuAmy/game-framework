@@ -180,6 +180,8 @@ namespace GameFramework.ActorSystems {
         private PlayingInfo _playingInfo;
         private bool _disposed;
 
+        /// <summary>アクション終了通知用のデリゲート型</summary>
+        public delegate void FinishedAction(IActorAction action, float outBlendDuration);
         /// <summary>アクション再生中か</summary>
         public bool IsPlaying => _playingInfo != null;
 
@@ -278,7 +280,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// Actionの再生ルーチン
         /// </summary>
-        public Handle Play(IActorAction action, Action<IActorAction> onFinishAction = null, params object[] args) {
+        public Handle Play(IActorAction action, FinishedAction onFinishAction = null, params object[] args) {
             if (_disposed) {
                 Debug.LogWarning("Player is disposed.");
                 return new Handle();
@@ -300,7 +302,7 @@ namespace GameFramework.ActorSystems {
             // Actionの再生
             foundResolver.PrePlayAction(action, args);
             var coroutine = new Coroutine(foundResolver.PlayActionRoutine(args));
-            _playingInfo = new PlayingInfo(action, foundResolver, coroutine, () => onFinishAction?.Invoke(action));
+            _playingInfo = new PlayingInfo(action, foundResolver, coroutine, () => onFinishAction?.Invoke(action, foundResolver.GetOutBlendDuration()));
             return new Handle(_playingInfo);
         }
 
