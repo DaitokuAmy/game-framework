@@ -16,6 +16,8 @@ namespace SampleGame.Domain.Common {
         public class ClipInfo {
             [Tooltip("再生対象のAnimationClip")]
             public AnimationClip animationClip;
+            [Tooltip("Loopする場合の秒数(負の値で無限)")]
+            public float loopDuration;
             [Tooltip("同時再生するシーケンスクリップ")]
             public SequenceClip[] sequenceClips;
             [Tooltip("入りブレンド時間")]

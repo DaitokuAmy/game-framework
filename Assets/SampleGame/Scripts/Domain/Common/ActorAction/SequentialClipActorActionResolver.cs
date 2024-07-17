@@ -17,7 +17,9 @@ namespace SampleGame.Domain.Common {
 
         // 再生中のSequenceHandle
         private readonly List<SequenceHandle> _sequenceHandles = new();
-        
+
+        // 現在再生中のClipIndex
+        private int _currentIndex;
         // 現在のLoopIndex
         private int _loopIndex;
         // 進行されているLoopIndex
@@ -36,6 +38,18 @@ namespace SampleGame.Domain.Common {
         }
 
         /// <summary>
+        /// 開始処理
+        /// </summary>
+        protected override void StartInternal(SequentialClipActorAction action, object[] args) {
+            _currentIndex = 0;
+            _loopIndex = -1;
+            _nextLoopIndex = -1;
+
+            // LoopClipの総数を取得
+            _loopCount = action.clipInfos.Count(x => x.animationClip != null && x.animationClip.isLooping);
+        }
+
+        /// <summary>
         /// アクションの再生コルーチン
         /// </summary>
         protected override IEnumerator PlayActionRoutineInternal(SequentialClipActorAction action, object[] args) {
@@ -48,18 +62,28 @@ namespace SampleGame.Domain.Common {
                 foreach (var clip in clipInfo.sequenceClips) {
                     _sequenceHandles.Add(_sequenceController.Play(clip));
                 }
-                
+
                 // AnimationClipがなければ何もしない
                 if (clipInfo.animationClip == null) {
                     yield break;
                 }
-                
+
                 // Loop
                 if (clipInfo.animationClip.isLooping) {
+                    var timer = clipInfo.loopDuration;
+
                     // 現在のLoopIndexを更新
                     _loopIndex++;
                     // 進行されるのを待つ
                     while (_nextLoopIndex < _loopIndex) {
+                        // タイマー更新＆監視
+                        timer -= DeltaTime;
+                        if (clipInfo.loopDuration >= 0.0f) {
+                            if (timer <= 0.0f) {
+                                break;
+                            }
+                        }
+
                         yield return null;
                     }
                 }
@@ -76,14 +100,9 @@ namespace SampleGame.Domain.Common {
                 }
             }
 
-            _loopIndex = -1;
-            _nextLoopIndex = -1;
-
-            // LoopClipの総数を取得
-            _loopCount = action.clipInfos.Count(x => x.animationClip != null && x.animationClip.isLooping);
-
             foreach (var info in action.clipInfos) {
                 yield return PlayClipRoutine(info);
+                _currentIndex++;
             }
 
             _sequenceHandles.Clear();
@@ -99,6 +118,10 @@ namespace SampleGame.Domain.Common {
 
             _sequenceHandles.Clear();
 
+            if (action.cancelSequenceClips == null) {
+                return;
+            }
+
             foreach (var clip in action.cancelSequenceClips) {
                 _sequenceController.Play(clip);
             }
@@ -111,7 +134,7 @@ namespace SampleGame.Domain.Common {
             if (_nextLoopIndex + 1 >= _loopCount) {
                 return false;
             }
-            
+
             _nextLoopIndex++;
             return true;
         }
@@ -120,7 +143,12 @@ namespace SampleGame.Domain.Common {
         /// 戻りブレンド時間の取得
         /// </summary>
         protected override float GetOutBlendDurationInternal(SequentialClipActorAction action) {
-            return action.clipInfos.Length > 0 ? action.clipInfos[action.clipInfos.Length - 1].outBlend : 0.0f;
+            if (action.clipInfos.Length <= 0) {
+                return 0.0f;
+            }
+
+            var index = Mathf.Max(action.clipInfos.Length - 1, _currentIndex);
+            return action.clipInfos[index].outBlend;
         }
     }
 }
