@@ -147,7 +147,7 @@ namespace SampleGame.Domain.Common {
                 return 0.0f;
             }
 
-            var index = Mathf.Max(action.clipInfos.Length - 1, _currentIndex);
+            var index = Mathf.Min(action.clipInfos.Length - 1, _currentIndex);
             return action.clipInfos[index].outBlend;
         }
     }
