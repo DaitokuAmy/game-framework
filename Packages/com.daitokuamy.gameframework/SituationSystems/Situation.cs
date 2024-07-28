@@ -677,13 +677,13 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        protected IProcess Transition<T>(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+        protected IProcess Transition<T>(Action<T> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
             where T : Situation {
             if (SituationFlow == null) {
-                return ParentContainer.Transition<T>(onSetup, overrideTransition, effects);
+                return ParentContainer.Transition(onSetup, overrideTransition, effects);
             }
             
-            return SituationFlow.Transition<T>(onSetup, overrideTransition, effects);
+            return SituationFlow.Transition(onSetup, overrideTransition, effects);
         }
 
         /// <summary>

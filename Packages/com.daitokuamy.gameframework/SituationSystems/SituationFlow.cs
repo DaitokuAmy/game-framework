@@ -135,10 +135,10 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition<T>(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+        public IProcess Transition<T>(Action<T> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
             where T : Situation {
             var type = typeof(T);
-            return Transition(type, onSetup, overrideTransition, effects);
+            return Transition(type, situation => onSetup?.Invoke((T)situation), overrideTransition, effects);
         }
 
         /// <summary>
