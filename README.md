@@ -200,8 +200,11 @@ SituationのSetParentと併用する事で、ライフサイクルの管理（�
 // |Resident                                                          |
 // |Introduction          |OutGame                             |InGame|
 // |TitleTop|Option|Credit|HomeTop|PartyTop|UnitList|UnitDetail|
+// 常駐
 var residentSituation = new ResidentSituation();
 regidentSituation.SetParent(_situationRunner);
+
+// 導入用シーン
 var introductionSituation = new IntroductionSceneSituation();
 introductionSceneSituation.SetParent(regidentSituation);
 var titleTopSituation = new TitleTopSituation();
@@ -210,6 +213,8 @@ var optionSituation = new OptionSituation();
 optionSituation.SetParent(introductionSceneSituation);
 var creditSituation = new CreditSituation();
 creditSituation.SetParent(introductionSceneSituation);
+
+// アウトゲームシーン
 var outGameSceneSituation = new OutGameSceneSituation();
 outGameSceneSituation.SetParent(residentSituation);
 var homeTopSituation = new HomeTopSituation();
@@ -220,6 +225,8 @@ var unitListSituation = new UnitListSituation();
 unitListSituation.SetParent(outGameSceneSituation);
 var unitDetailSituation = new UnitDetailSituation();
 unitDetailSituation.SetParent(outGameSceneSituation);
+
+// インゲームシーン
 var inGameSceneSituation = new InGameSceneSituation();
 inGameSceneSituation.SetParent(residentSituation);
 
