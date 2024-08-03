@@ -248,4 +248,6 @@ _situationFlow.SetFallback(partyTopNode, homeTopNode);
 var inGameNode = homeTopSituation.Connect(inGameSceneSituation);
 ```
 
+使用方法は[サンプルコード](https://github.com/DaitokuAmy/game-framework/blob/main/Assets/SituationFlowSample/SituationFlowSample.cs)を参考にしてください  
+
 
