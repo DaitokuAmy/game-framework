@@ -160,3 +160,92 @@ UnityのTime.deltaTimeをラップした物で、これらをネスト管理す�
 - なぜネスト管理が必要なのか
   - Gameではスローの表現を多層的に行う事が多く、Unity標準のUnscaled機能などでは対応しきれない事が多いため
     - UIのTimeScale > 3D空間のTimeScale > 3DキャラのTimeScale > 3Dキャラの発射したObjectのTimeScale といったようなイメージ
+
+### SituationFlow
+Situation同士の遷移関係を定義するための仕組みです  
+
+具体例でいうと、以下のように遷移関係を指定できるようになっています  
+```csharp
+// タイトル画面 > ゲーム画面 > メニュー画面
+// タイトル画面 > オプション画面
+// の遷移関係を定義
+var titleNode = _situationFlow.ConnectRoot(_titleSituation);
+var gameNode = titleNode.Connect(_gameSituation);
+var menuNode = gameNode.Connect(_menuSituation);
+var optionNode = titleNode.Connect(_optionSituation);
+```
+
+指定した後は、クラスの型を指定して遷移する事で、今の遷移状態の接続先に指定されているSituationに遷移します（接続していない場合はエラー）
+```csharp
+// タイトル画面に遷移
+_situationFlow.Transition<TitleSituation>(situation => /* 遷移時のSituationインスタンスの初期化 */);
+
+// 接続関係の前の戻る
+_situationFlow.Back();
+```
+
+特徴として、この設計は「Situationをスタック管理していない」点があります  
+事前にツリー構造を定義しているため、現在位置(Node)の戻り先が特定可能なので、スタック管理が不要になっています  
+
+また、以下のようなツリーでは表現しづらいショートカットのような遷移指定にも対応しています  
+```csharp
+var gameNode = titleNode.Connect(_gameSituation); // この時点ではタイトル画面の次にゲーム画面を指した状態
+_situation.SetFallbackNode(gameNode); // こうする事で、タイトル画面以外から GameSituation を指定された場合、ここにダイレクトジャンプする指定が可能
+```
+※どのSituationからでもGameSituationに遷移する事が可能で、Fallback指定経由で遷移した場合はGameSituationの戻り先がTitleSituationになる  
+
+SituationのSetParentと併用する事で、ライフサイクルの管理（リソースやクラスの初期化/解放）と遷移の管理を別定義できるため、主に複雑な遷移のアプリケーションの際に利用します
+```csharp
+//---- リソーススコープを指定(以下の指定をする事で、常駐リソースの管理やアウトゲーム中のみに必要なクラスの初期化などを階層的に管理が可能になっています)
+// |Resident                                                          |
+// |Introduction          |OutGame                             |InGame|
+// |TitleTop|Option|Credit|HomeTop|PartyTop|UnitList|UnitDetail|
+var residentSituation = new ResidentSituation();
+regidentSituation.SetParent(_situationRunner);
+var introductionSituation = new IntroductionSceneSituation();
+introductionSceneSituation.SetParent(regidentSituation);
+var titleTopSituation = new TitleTopSituation();
+titleTopSituation.SetParent(introductionSceneSituation);
+var optionSituation = new OptionSituation();
+optionSituation.SetParent(introductionSceneSituation);
+var creditSituation = new CreditSituation();
+creditSituation.SetParent(introductionSceneSituation);
+var outGameSceneSituation = new OutGameSceneSituation();
+outGameSceneSituation.SetParent(residentSituation);
+var homeTopSituation = new HomeTopSituation();
+homeTopSituation.SetParent(outGameSceneSituation);
+var partyTopSituation = new PartyTopSituation();
+partyTopSituation.SetParent(outGameSceneSituation);
+var unitListSituation = new UnitListSituation();
+unitListSituation.SetParent(outGameSceneSituation);
+var unitDetailSituation = new UnitDetailSituation();
+unitDetailSituation.SetParent(outGameSceneSituation);
+var inGameSceneSituation = new InGameSceneSituation();
+inGameSceneSituation.SetParent(residentSituation);
+
+//---- 遷移関係を指定(以下のように遷移関係を指定する事で、遷移に合わせて上記で指定したライフサイクルスコープが自動的に初期化、解放されるようになります)
+// タイトル > オプション
+// タイトル > クレジット
+// タイトル > ホームトップ
+var titleTopNode = _situationFlow.ConnectRoot(titleTopSituation);
+titleTopNode.Connect(optionSituation);
+titleTopNode.Connect(creditSituation);
+var homeTopNode = titleTopNode.Connect(homeSituation);
+
+// ホームトップ > パーティトップ
+// パーティトップ > ユニットリスト
+// パーティトップ > ユニット詳細
+// ユニットリスト > ユニット詳細]
+var partyTopNode = homeTopNode.Connect(partyTopSituation);
+var unitListNode = partyTopNode.Connect(unitListSituation);
+partyTopNode.Connect(unitDetailSituation);
+unitListNode.Connect(unitDetailSituation);
+
+// パーティトップのFallback指定(フッター遷移のように、アウトゲームの各種画面からパーティトップへの遷移を許す)
+_situationFlow.SetFallback(partyTopNode, homeTopNode);
+
+// ホームトップ > インゲーム
+var inGameNode = homeTopSituation.Connect(inGameSceneSituation);
+```
+
+
