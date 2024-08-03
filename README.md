@@ -180,7 +180,7 @@ var optionNode = titleNode.Connect(_optionSituation);
 // タイトル画面に遷移
 _situationFlow.Transition<TitleSituation>(situation => /* 遷移時のSituationインスタンスの初期化 */);
 
-// 接続関係の前の戻る
+// 接続関係の前に戻る
 _situationFlow.Back();
 ```
 
