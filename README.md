@@ -187,7 +187,7 @@ _situationFlow.Back();
 特徴として、この設計は「Situationをスタック管理していない」点があります  
 事前にツリー構造を定義しているため、現在位置(Node)の戻り先が特定可能なので、スタック管理が不要になっています  
 
-また、以下のようなツリーでは表現しづらいショートカットのような遷移指定にも対応しています  
+また、以下のようにツリーでは表現しづらい、ショートカットのような遷移指定にも対応しています  
 ```csharp
 var gameNode = titleNode.Connect(_gameSituation); // この時点ではタイトル画面の次にゲーム画面を指した状態
 _situation.SetFallbackNode(gameNode); // こうする事で、タイトル画面以外から GameSituation を指定された場合、ここにダイレクトジャンプする指定が可能
@@ -246,6 +246,12 @@ _situationFlow.SetFallback(partyTopNode, homeTopNode);
 
 // ホームトップ > インゲーム
 var inGameNode = homeTopSituation.Connect(inGameSceneSituation);
+```
+
+ちなみに、Nodeを直接指定して該当箇所に直接ジャンプする事も可能です  
+```csharp
+// 直接PartyTopNodeに遷移する
+_situationFlow.Transition(partyTopNode, situation => /* 初期化処理 */);
 ```
 
 使用方法は[サンプルコード](https://github.com/DaitokuAmy/game-framework/blob/main/Assets/SituationFlowSample/SituationFlowSample.cs)を参考にしてください  
