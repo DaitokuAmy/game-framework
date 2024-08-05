@@ -44,6 +44,13 @@ namespace GameFramework.BodySystems {
         }
 
         /// <summary>
+        /// スクリプトリロード
+        /// </summary>
+        private void OnValidate() {
+            _locators = null;
+        }
+
+        /// <summary>
         /// 初期化処理
         /// </summary>
         private void Initialize() {
