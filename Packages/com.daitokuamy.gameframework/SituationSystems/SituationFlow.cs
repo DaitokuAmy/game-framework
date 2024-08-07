@@ -23,6 +23,12 @@ namespace GameFramework.SituationSystems {
                 _onFinished = onFinished;
             }
 
+            void ITransitionEffect.Begin() {
+                foreach (var effect in _effects) {
+                    effect.Begin();
+                }
+            }
+
             IEnumerator ITransitionEffect.EnterRoutine() {
                 yield return new MergedCoroutine(_effects.Select(x => x.EnterRoutine()));
             }
@@ -33,6 +39,9 @@ namespace GameFramework.SituationSystems {
             IEnumerator ITransitionEffect.ExitRoutine() {
                 _onFinished?.Invoke();
                 yield break;
+            }
+
+            void ITransitionEffect.End() {
             }
         }
 
@@ -48,6 +57,9 @@ namespace GameFramework.SituationSystems {
                 _onFinished = onFinished;
             }
 
+            void ITransitionEffect.Begin() {
+            }
+
             IEnumerator ITransitionEffect.EnterRoutine() {
                 yield break;
             }
@@ -58,6 +70,12 @@ namespace GameFramework.SituationSystems {
             IEnumerator ITransitionEffect.ExitRoutine() {
                 yield return new MergedCoroutine(_effects.Select(x => x.ExitRoutine()));
                 _onFinished?.Invoke();
+            }
+
+            void ITransitionEffect.End() {
+                foreach (var effect in _effects) {
+                    effect.End();
+                }
             }
         }
 
@@ -532,8 +550,10 @@ namespace GameFramework.SituationSystems {
 
             // 入り演出を入れる
             _activeTransitionEffects.Add(enterEffect);
+            enterEffect.Begin();
             yield return enterEffect.EnterRoutine();
             yield return enterEffect.ExitRoutine();
+            enterEffect.End();
             _activeTransitionEffects.Clear();
 
             // ルートまで解放する

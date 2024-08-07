@@ -678,6 +678,9 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         void ITransitionResolver.Start() {
             _transitionInfo.state = TransitionState.Standby;
+            foreach (var effect in _transitionInfo.effects) {
+                effect.Begin();
+            }
         }
 
         /// <summary>
@@ -785,6 +788,10 @@ namespace GameFramework.SituationSystems {
         /// 遷移完了
         /// </summary>
         void ITransitionResolver.Finish() {
+            foreach (var effect in _transitionInfo.effects) {
+                effect.End();
+            }
+            
             _transitionInfo.state = TransitionState.Completed;
         }
     }

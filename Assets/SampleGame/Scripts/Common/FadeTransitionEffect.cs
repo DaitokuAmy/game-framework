@@ -21,6 +21,12 @@ namespace SampleGame {
         }
 
         /// <summary>
+        /// 遷移開始
+        /// </summary>
+        void ITransitionEffect.Begin() {
+        }
+
+        /// <summary>
         /// 演出開始
         /// </summary>
         IEnumerator ITransitionEffect.EnterRoutine() {
@@ -42,6 +48,12 @@ namespace SampleGame {
             _scope.Dispose();
             yield return Services.Get<FadeController>().FadeInAsync(_duration)
                 .StartAsEnumerator(_scope);
+        }
+
+        /// <summary>
+        /// 遷移終了
+        /// </summary>
+        void ITransitionEffect.End() {
         }
     }
 }

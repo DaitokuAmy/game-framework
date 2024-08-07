@@ -6,6 +6,11 @@ namespace GameFramework.SituationSystems {
     /// </summary>
     public interface ITransitionEffect {
         /// <summary>
+        /// 遷移開始
+        /// </summary>
+        void Begin();
+        
+        /// <summary>
         /// 開始ルーチン
         /// </summary>
         IEnumerator EnterRoutine();
@@ -19,5 +24,10 @@ namespace GameFramework.SituationSystems {
         /// 終了ルーチン
         /// </summary>
         IEnumerator ExitRoutine();
+        
+        /// <summary>
+        /// 遷移終了
+        /// </summary>
+        void End();
     }
 }
