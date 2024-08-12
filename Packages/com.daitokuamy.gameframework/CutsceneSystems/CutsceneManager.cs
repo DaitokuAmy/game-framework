@@ -1,13 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using GameFramework.Core;
 using GameFramework.TaskSystems;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace GameFramework.CutsceneSystems {
@@ -22,14 +25,33 @@ namespace GameFramework.CutsceneSystems {
             // 再生中の情報
             private PlayingInfo _playingInfo;
 
-            // 再生中か
+            /// <summary>再生中か</summary>
             public bool IsPlaying => _playingInfo != null && _playingInfo.IsPlaying();
-            // 未使用
+            /// <summary>完了しているか</summary>
+            public bool IsDone => !IsPlaying;
+            
+            /// <summary>未使用</summary>
             object IEnumerator.Current => null;
-            // 完了しているか
-            bool IProcess.IsDone => !IsPlaying;
-            // エラー
+            /// <summary>エラー</summary>
             Exception IProcess.Exception => null;
+            
+            /// <summary>停止通知</summary>
+            public event Action OnStopEvent {
+                add {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnStopEvent += value;
+                }
+                remove {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnStopEvent -= value;
+                }
+            }
 
             /// <summary>
             /// コンストラクタ
@@ -113,6 +135,46 @@ namespace GameFramework.CutsceneSystems {
             /// 未使用
             /// </summary>
             void IEnumerator.Reset() {
+            }
+        }
+        
+        /// <summary>
+        /// 再生管理用ハンドル
+        /// </summary>
+        public readonly struct HandleAwaiter : INotifyCompletion {
+            private readonly Handle _handle;
+
+            /// <summary>完了しているか</summary>
+            public bool IsCompleted {
+                [DebuggerHidden]
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => !_handle.IsPlaying;
+            }
+
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public HandleAwaiter(Handle handle) {
+                _handle = handle;
+            }
+        
+            /// <summary>
+            /// Await開始時の処理
+            /// </summary>
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void OnCompleted(Action continuation) {
+                _handle.OnStopEvent += continuation;
+            }
+
+            /// <summary>
+            /// 結果の取得
+            /// </summary>
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void GetResult() {
             }
         }
 
