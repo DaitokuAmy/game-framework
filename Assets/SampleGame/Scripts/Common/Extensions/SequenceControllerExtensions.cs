@@ -31,6 +31,9 @@ namespace SampleGame {
             self.BindSignalEventHandler<BattleThrowableBulletProjectileSignalEvent, BattleThrowableBulletProjectileSignalEventHandler>(handler => {
                 handler.Setup(collisionManager, projectileObjectManager, collisionListener, raycastCollisionListener, actor, targetLayerMask, checkHitFunc);
             });
+            self.BindSignalEventHandler<BattleAimedThrowableBulletProjectileSignalEvent, BattleAimedThrowableBulletProjectileSignalEventHandler>(handler => {
+                handler.Setup(collisionManager, projectileObjectManager, collisionListener, raycastCollisionListener, actor, targetLayerMask, checkHitFunc);
+            });
             self.BindSignalEventHandler<BattleSplineBulletProjectileSignalEvent, BattleSplineBulletProjectileSignalEventHandler>(handler => {
                 handler.Setup(collisionManager, projectileObjectManager, collisionListener, raycastCollisionListener, actor, targetLayerMask, checkHitFunc);
             });

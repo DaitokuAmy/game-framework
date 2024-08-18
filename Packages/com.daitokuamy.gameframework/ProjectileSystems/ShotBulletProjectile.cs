@@ -1,7 +1,6 @@
 using System;
 using GameFramework.Core;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
@@ -21,7 +20,6 @@ namespace GameFramework.ProjectileSystems {
             public float gravity;
             [Tooltip("最大距離")]
             public float maxDistance;
-            [FormerlySerializedAs("tilt")]
             [Tooltip("オブジェクトの傾き(角度)")]
             public MinMaxFloat roll;
         }

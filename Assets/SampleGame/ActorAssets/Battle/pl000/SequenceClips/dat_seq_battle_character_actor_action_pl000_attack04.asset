@@ -52,6 +52,45 @@ MonoBehaviour:
       minValue: 2
       maxValue: 0
     roll: 0
+--- !u!114 &-3779302032352954887
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14f743e98b0ba564b9b948f86bb1d0c0, type: 3}
+  m_Name: BattleAimedThrowableBulletProjectileSignalEvent
+  m_EditorClassIdentifier: 
+  label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u30A8\u30A4\u30E0\u6295\u5C04"
+  active: 1
+  time: 0.68333334
+  hitCount: 1
+  prefab: {fileID: 1035855108615972641, guid: 4a5fa7d18dcf642c9a65e6dea4642a08, type: 3}
+  scale: 1
+  locatorName: Hand_C
+  offsetPosition:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  offsetAngles:
+    useRandom: 0
+    minValue: {x: -5, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  emptyRange: 30
+  raycastDamage: 1
+  exitCollisionRadius: 0
+  exitCollisionDuration: 0
+  targetLocatorName: 
+  targetPositionOffset:
+    useRandom: 0
+    minValue: {x: 0, y: 0, z: 0}
+    maxValue: {x: 0, y: 0, z: 0}
+  projectileContext:
+    gravity: 9.8
+    roll: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,6 +122,7 @@ MonoBehaviour:
   sequenceEvents:
   - {fileID: -4751915230851904025}
   - {fileID: 8812792158573205514}
+  - {fileID: -3779302032352954887}
 --- !u!114 &8812792158573205514
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -96,7 +136,7 @@ MonoBehaviour:
   m_Name: BattleParticleBeamProjectileRangeEvent
   m_EditorClassIdentifier: 
   label: "\u30D0\u30C8\u30EB/\u30D3\u30FC\u30E0/\u7C92\u5B50"
-  active: 1
+  active: 0
   enterTime: 0.68333334
   exitTime: 1.5833334
   hitCount: -1

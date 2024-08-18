@@ -1,7 +1,6 @@
 using System;
 using GameFramework.Core;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
@@ -13,7 +12,6 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         [Serializable]
         public struct Context {
-            [FormerlySerializedAs("startVelocity")]
             [Tooltip("初速")]
             public MinMaxFloat startSpeed;
             [Tooltip("重力加速度")]

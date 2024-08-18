@@ -97,3 +97,6 @@ MonoBehaviour:
   - fullName: SampleGame.SequenceEvents.BodyVectorChangeGimmickSingleEvent
     label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30D9\u30AF\u30C8\u30EB\u5909\u66F4"
     color: {r: 1, g: 0.5019608, b: 0.828647, a: 1}
+  - fullName: SampleGame.Battle.BattleAimedThrowableBulletProjectileSignalEvent
+    label: "\u30D0\u30C8\u30EB/\u5F3E\u767A\u5C04/\u30A8\u30A4\u30E0\u6295\u5C04"
+    color: {r: 1, g: 0.5019608, b: 0.5019608, a: 1}

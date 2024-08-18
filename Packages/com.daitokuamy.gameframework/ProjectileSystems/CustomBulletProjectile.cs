@@ -1,7 +1,6 @@
 using System;
 using GameFramework.Core;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
@@ -21,15 +20,12 @@ namespace GameFramework.ProjectileSystems {
             public MinMaxFloat frequency;
             [Tooltip("奥行きカーブ(Last=1)")]
             public MinMaxAnimationCurve depthCurve;
-            [FormerlySerializedAs("rollCurve")]
             [Tooltip("傾きカーブ(-1〜1)")]
             public MinMaxAnimationCurve tiltCurve;
-            [FormerlySerializedAs("rollOffset")]
             [Tooltip("傾きオフセット(-1～1)")]
             public MinMaxFloat tiltOffset;
             [Tooltip("進捗する時間軸カーブ")]
             public MinMaxAnimationCurve timeCurve;
-            [FormerlySerializedAs("tilt")]
             [Tooltip("オブジェクトの傾き(角度)")]
             public MinMaxFloat roll;
             [Tooltip("到達時間")]
