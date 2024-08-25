@@ -23,8 +23,13 @@ namespace GameFramework.CollisionSystems {
                 return (center, Vector3.up);
             }
 
-            var point = collider.ClosestPoint(center);
-            var normal = (center - point).normalized;
+            var point = collider.ClosestPointOnBounds(center);
+            var vector = center - point;
+            if (vector.sqrMagnitude <= float.Epsilon) {
+                vector = collider.bounds.center - point;
+            }
+
+            var normal = vector.normalized;
             return (point, normal);
         }
     }
