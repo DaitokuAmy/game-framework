@@ -11,6 +11,8 @@ namespace GameFramework.CameraSystems {
     /// カメラ管理クラス
     /// </summary>
     public class CameraManager : LateUpdatableTaskBehaviour, IDisposable {
+        public const string MainCameraGroupName = "Main";
+        
         /// <summary>
         /// カメラブレンド情報
         /// </summary>
@@ -142,10 +144,14 @@ namespace GameFramework.CameraSystems {
 
         [SerializeField, Tooltip("仮想カメラ用のBrain")]
         private CinemachineBrain _brain;
-        [SerializeField, Tooltip("仮想カメラを配置しているRootObject")]
-        private GameObject _virtualCameraRoot;
-        [SerializeField, Tooltip("仮想カメラの基準Transformを配置しているRootObject")]
-        private GameObject _targetPointRoot;
+        [SerializeField, Tooltip("メインで扱うカメラグループ")]
+        private CameraGroup _mainCameraGroup;
+        [SerializeField, Tooltip("メインで扱うカメラグループのPrefab(こちらの指定が優先)")]
+        private GameObject _mainCameraGroupPrefab;
+        // [SerializeField, Tooltip("仮想カメラを配置しているRootObject")]
+        // private GameObject _virtualCameraRoot;
+        // [SerializeField, Tooltip("仮想カメラの基準Transformを配置しているRootObject")]
+        // private GameObject _targetPointRoot;
         [SerializeField, Tooltip("デフォルトで使用するカメラ名")]
         private string _defaultCameraName = "Default";
 
@@ -153,6 +159,8 @@ namespace GameFramework.CameraSystems {
         private bool _initialized;
         // 廃棄済みフラグ
         private bool _disposed;
+        // カメラグループのルートオブジェクト
+        private GameObject _cameraGroupRoot;
         // Brainの初期状態のUpdateMethod
         private CinemachineBrain.UpdateMethod _defaultUpdateMethod;
         // カメラハンドリング用情報
@@ -189,7 +197,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         public void Activate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            Activate(null, cameraName, blendDefinition);
+            Activate(MainCameraGroupName, cameraName, blendDefinition);
         }
 
         /// <summary>
@@ -209,7 +217,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         public void ForceActivate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            ForceActivate(null, cameraName, blendDefinition);
+            ForceActivate(MainCameraGroupName, cameraName, blendDefinition);
         }
 
         /// <summary>
@@ -227,7 +235,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         public void Activate(string cameraName) {
-            Activate(null, cameraName);
+            Activate(MainCameraGroupName, cameraName);
         }
 
         /// <summary>
@@ -245,7 +253,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         public void ForceActivate(string cameraName) {
-            ForceActivate(null, cameraName);
+            ForceActivate(MainCameraGroupName, cameraName);
         }
 
         /// <summary>
@@ -265,7 +273,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         public void Deactivate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            Deactivate(null, cameraName, blendDefinition);
+            Deactivate(MainCameraGroupName, cameraName, blendDefinition);
         }
 
         /// <summary>
@@ -285,7 +293,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         public void ForceDeactivate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            ForceDeactivate(null, cameraName, blendDefinition);
+            ForceDeactivate(MainCameraGroupName, cameraName, blendDefinition);
         }
 
         /// <summary>
@@ -303,7 +311,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         public void Deactivate(string cameraName) {
-            Deactivate(null, cameraName);
+            Deactivate(MainCameraGroupName, cameraName);
         }
 
         /// <summary>
@@ -321,7 +329,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         public void ForceDeactivate(string cameraName) {
-            ForceDeactivate(null, cameraName);
+            ForceDeactivate(MainCameraGroupName, cameraName);
         }
 
         /// <summary>
@@ -345,7 +353,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">カメラ名</param>
         public bool CheckActivate(string cameraName) {
-            return CheckActivate(null, cameraName);
+            return CheckActivate(MainCameraGroupName, cameraName);
         }
 
         /// <summary>
@@ -401,7 +409,7 @@ namespace GameFramework.CameraSystems {
                 return;
             }
 
-            var gameObj = Instantiate(prefab, _virtualCameraRoot.transform, false);
+            var gameObj = Instantiate(prefab, _cameraGroupRoot.transform, false);
             var cameraGroup = gameObj.GetComponent<CameraGroup>();
             if (cameraGroup == null || cameraGroup.CameraRoot == null) {
                 Destroy(cameraGroup.gameObject);
@@ -489,7 +497,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         public TCameraComponent GetCameraComponent<TCameraComponent>(string cameraName)
             where TCameraComponent : class, ICameraComponent {
-            return GetCameraComponent<TCameraComponent>(null, cameraName);
+            return GetCameraComponent<TCameraComponent>(MainCameraGroupName, cameraName);
         }
 
         /// <summary>
@@ -516,7 +524,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         /// <param name="cameraController">設定するController</param>
         public void SetCameraController(string cameraName, ICameraController cameraController) {
-            SetCameraController(null, cameraName, cameraController);
+            SetCameraController(MainCameraGroupName, cameraName, cameraController);
         }
 
         /// <summary>
@@ -543,7 +551,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         public TCameraController GetCameraController<TCameraController>(string cameraName)
             where TCameraController : class, ICameraController {
-            return GetCameraController<TCameraController>(null, cameraName);
+            return GetCameraController<TCameraController>(MainCameraGroupName, cameraName);
         }
 
         /// <summary>
@@ -551,7 +559,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="targetPointName">ターゲットポイント名</param>
         public Transform GetTargetPoint(string targetPointName) {
-            return GetTargetPoint(null, targetPointName);
+            return GetTargetPoint(MainCameraGroupName, targetPointName);
         }
 
         /// <summary>
@@ -570,7 +578,7 @@ namespace GameFramework.CameraSystems {
 
             return targetPoint;
         }
-        
+
         /// <summary>
         /// ターゲットポイントのリストを取得
         /// </summary>
@@ -731,19 +739,6 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
-        /// カメラ制御用ハンドラーの生成
-        /// </summary>
-        private void CreateCameraHandlers() {
-            if (_virtualCameraRoot == null) {
-                Debug.LogWarning("Not found virtual camera root.");
-                return;
-            }
-
-            // CameraHandlerの生成
-            CreateCameraHandlersInternal(_cameraHandlers, _virtualCameraRoot.transform);
-        }
-
-        /// <summary>
         /// CameraHandlerの生成
         /// </summary>
         private void CreateCameraHandlersInternal(Dictionary<string, CameraHandler> handlers, Transform rootTransform) {
@@ -791,13 +786,6 @@ namespace GameFramework.CameraSystems {
             }
 
             handlers.Clear();
-        }
-
-        /// <summary>
-        /// TargetPoint情報の生成
-        /// </summary>
-        private void CreateTargetPoints() {
-            CreateTargetPointsInternal(_targetPoints, _targetPointRoot.transform);
         }
 
         /// <summary>
@@ -871,8 +859,18 @@ namespace GameFramework.CameraSystems {
             _brain.m_UpdateMethod = CinemachineBrain.UpdateMethod.ManualUpdate;
             CinemachineCore.GetBlendOverride += GetBlend;
 
-            CreateCameraHandlers();
-            CreateTargetPoints();
+            // カメラグループのルート作成
+            _cameraGroupRoot = new GameObject("Groups");
+            _cameraGroupRoot.transform.SetParent(transform, false);
+
+            // メインのカメラグループを設定
+            if (_mainCameraGroupPrefab != null) {
+                RegisterCameraGroupPrefab(_mainCameraGroupPrefab, MainCameraGroupName);
+            }
+            else if (_mainCameraGroup != null) {
+                _mainCameraGroup.transform.SetParent(_cameraGroupRoot.transform, false);
+                RegisterCameraGroup(_mainCameraGroup, MainCameraGroupName);
+            }
 
             // デフォルトのカメラをActivate
             Activate(_defaultCameraName);

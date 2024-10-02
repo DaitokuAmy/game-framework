@@ -258,11 +258,11 @@ MonoBehaviour:
   m_Name: CameraRangeEvent
   m_EditorClassIdentifier: 
   label: "\u5171\u901A/\u30AB\u30E1\u30E9\u5207\u66FF"
-  active: 0
+  active: 1
   enterTime: 0
   exitTime: 1.5
-  groupKey: 
-  cameraName: Action_0
+  groupKey: pl000
+  cameraName: Skill_0
   toBlend:
     active: 1
     blendDefinition:

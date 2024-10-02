@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731704, g: 0.1341472, b: 0.121078566, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -362,6 +362,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac0b09e7857660247b1477e93731de29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &56486750
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 56486751}
+  - component: {fileID: 56486752}
+  m_Layer: 0
+  m_Name: Main
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &56486751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56486750}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1256933855}
+  - {fileID: 934566944}
+  m_Father: {fileID: 1954338457}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &56486752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56486750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0a2438c8f5194bf081f4a7e41cc3dca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _key: 
+  _virtualCameraRoot: {fileID: 1256933854}
+  _targetPointRoot: {fileID: 934566943}
 --- !u!1 &56583882
 GameObject:
   m_ObjectHideFlags: 0
@@ -2031,7 +2080,7 @@ Transform:
   m_Children:
   - {fileID: 678547284}
   - {fileID: 794307527}
-  m_Father: {fileID: 1954338457}
+  m_Father: {fileID: 56486751}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &935957756
 GameObject:
@@ -2471,7 +2520,7 @@ Transform:
   - {fileID: 56583883}
   - {fileID: 2036521530}
   - {fileID: 843533421}
-  m_Father: {fileID: 1954338457}
+  m_Father: {fileID: 56486751}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1296674416
 GameObject:
@@ -3514,8 +3563,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _brain: {fileID: 2047344119}
-  _virtualCameraRoot: {fileID: 1256933854}
-  _targetPointRoot: {fileID: 934566943}
+  _mainCameraGroup: {fileID: 56486752}
+  _mainCameraGroupPrefab: {fileID: 0}
   _defaultCameraName: Default
 --- !u!4 &1954338457
 Transform:
@@ -3531,8 +3580,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2047344117}
-  - {fileID: 1256933855}
-  - {fileID: 934566944}
+  - {fileID: 56486751}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1971073152
@@ -4059,7 +4107,7 @@ RectTransform:
   m_Father: {fileID: 1947418535}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.8958333, y: 0.9074074}
+  m_AnchorMax: {x: 0.9109878, y: 0.90751076}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
