@@ -58,7 +58,6 @@ namespace GameFramework.CameraSystems {
 
             // 位置をずらす
             state.PositionCorrection = finalPosition - state.RawPosition;
-            Debug.Log($"_currenTime:{_currentTime}, deltaTime:{deltaTime}");
         }
     }
 }
