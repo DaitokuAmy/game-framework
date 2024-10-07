@@ -11,6 +11,8 @@ namespace GameFramework.CameraSystems {
         [SerializeField, Tooltip("制御対象の仮想カメラ")]
         private TCamera _virtualCamera;
 
+        private int _defaultPriority;
+
         // アクティブ状態
         bool ICameraComponent.IsActive => gameObject.activeSelf;
 
@@ -27,6 +29,11 @@ namespace GameFramework.CameraSystems {
             var cameraTarget = VirtualCamera.GetComponent<CameraTarget>();
             if (cameraTarget != null) {
                 cameraTarget.SetupCameraTarget(cameraManager, VirtualCamera);
+            }
+            
+            // 初期化時点でのPriorityをキャッシュ
+            if (_virtualCamera != null) {
+                _defaultPriority = _virtualCamera.Priority;
             }
             
             InitializeInternal();
@@ -81,6 +88,28 @@ namespace GameFramework.CameraSystems {
             }
             
             UpdateInternal(deltaTime);
+        }
+
+        /// <summary>
+        /// プライオリティのセット(上書き用)
+        /// </summary>
+        void ICameraComponent.SetPriority(int priority) {
+            if (_virtualCamera == null) {
+                return;
+            }
+
+            _virtualCamera.Priority = priority;
+        }
+
+        /// <summary>
+        /// プライオリティのリセット
+        /// </summary>
+        void ICameraComponent.ResetPriority() {
+            if (_virtualCamera == null) {
+                return;
+            }
+
+            _virtualCamera.Priority = _defaultPriority;
         }
 
         /// <summary>

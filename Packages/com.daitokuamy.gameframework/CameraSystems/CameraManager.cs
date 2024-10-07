@@ -32,6 +32,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         private class CameraHandler : IDisposable {
             private int _activateCount;
+            private int _overridePriority;
 
             public string Name { get; }
             public ICameraComponent Component { get; }
@@ -43,6 +44,7 @@ namespace GameFramework.CameraSystems {
             public CameraHandler(string cameraName, ICameraComponent cameraComponent) {
                 Name = cameraName;
                 Component = cameraComponent;
+                _overridePriority = int.MinValue;
                 ApplyActiveStatus();
             }
 
@@ -66,12 +68,17 @@ namespace GameFramework.CameraSystems {
             /// <summary>
             /// アクティブ化
             /// </summary>
-            public void Activate(bool force = false) {
+            public void Activate(bool force = false, int overridePriority = int.MinValue) {
                 if (force) {
                     _activateCount = 1;
                 }
                 else {
                     _activateCount++;
+                }
+                
+                if (_activateCount > 0 && overridePriority > _overridePriority) {
+                    _overridePriority = overridePriority;
+                    Component.SetPriority(_overridePriority);
                 }
 
                 ApplyActiveStatus();
@@ -91,6 +98,10 @@ namespace GameFramework.CameraSystems {
                 if (_activateCount < 0) {
                     Debug.LogWarning($"activateCount is minus. [{Name}]");
                     _activateCount = 0;
+                }
+
+                if (_activateCount == 0) {
+                    Component.ResetPriority();
                 }
 
                 ApplyActiveStatus();
@@ -186,9 +197,10 @@ namespace GameFramework.CameraSystems {
         /// <param name="groupKey">CameraGroupとして登録したキー</param>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
-        public void Activate(string groupKey, string cameraName, CinemachineBlendDefinition blendDefinition) {
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void Activate(string groupKey, string cameraName, CinemachineBlendDefinition blendDefinition, int overridePriority = int.MinValue) {
             Initialize();
-            ActivateInternal(groupKey, cameraName, new CameraBlend(blendDefinition), false);
+            ActivateInternal(groupKey, cameraName, new CameraBlend(blendDefinition), false, overridePriority);
         }
 
         /// <summary>
@@ -196,8 +208,9 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
-        public void Activate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            Activate(MainCameraGroupName, cameraName, blendDefinition);
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void Activate(string cameraName, CinemachineBlendDefinition blendDefinition, int overridePriority = int.MinValue) {
+            Activate(MainCameraGroupName, cameraName, blendDefinition, overridePriority);
         }
 
         /// <summary>
@@ -206,9 +219,10 @@ namespace GameFramework.CameraSystems {
         /// <param name="groupKey">CameraGroupとして登録したキー</param>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
-        public void ForceActivate(string groupKey, string cameraName, CinemachineBlendDefinition blendDefinition) {
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void ForceActivate(string groupKey, string cameraName, CinemachineBlendDefinition blendDefinition, int overridePriority = int.MinValue) {
             Initialize();
-            ActivateInternal(groupKey, cameraName, new CameraBlend(blendDefinition), true);
+            ActivateInternal(groupKey, cameraName, new CameraBlend(blendDefinition), true, overridePriority);
         }
 
         /// <summary>
@@ -216,8 +230,9 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
-        public void ForceActivate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            ForceActivate(MainCameraGroupName, cameraName, blendDefinition);
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void ForceActivate(string cameraName, CinemachineBlendDefinition blendDefinition, int overridePriority = int.MinValue) {
+            ForceActivate(MainCameraGroupName, cameraName, blendDefinition, overridePriority);
         }
 
         /// <summary>
@@ -225,17 +240,19 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="groupKey">CameraGroupとして登録したキー</param>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
-        public void Activate(string groupKey, string cameraName) {
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void Activate(string groupKey, string cameraName, int overridePriority = int.MinValue) {
             Initialize();
-            ActivateInternal(groupKey, cameraName, null, false);
+            ActivateInternal(groupKey, cameraName, null, false, overridePriority);
         }
 
         /// <summary>
         /// カメラのアクティブ化(参照カウンタ有)
         /// </summary>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
-        public void Activate(string cameraName) {
-            Activate(MainCameraGroupName, cameraName);
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void Activate(string cameraName, int overridePriority = int.MinValue) {
+            Activate(MainCameraGroupName, cameraName, overridePriority);
         }
 
         /// <summary>
@@ -243,17 +260,19 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="groupKey">CameraGroupとして登録したキー</param>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
-        public void ForceActivate(string groupKey, string cameraName) {
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void ForceActivate(string groupKey, string cameraName, int overridePriority = int.MinValue) {
             Initialize();
-            ActivateInternal(groupKey, cameraName, null, true);
+            ActivateInternal(groupKey, cameraName, null, true, overridePriority);
         }
 
         /// <summary>
         /// カメラのアクティブ化(参照カウンタなし)
         /// </summary>
         /// <param name="cameraName">アクティブ化するカメラ名</param>
-        public void ForceActivate(string cameraName) {
-            ForceActivate(MainCameraGroupName, cameraName);
+        /// <param name="overridePriority">上書き用プライオリティ</param>
+        public void ForceActivate(string cameraName, int overridePriority = int.MinValue) {
+            ForceActivate(MainCameraGroupName, cameraName, overridePriority);
         }
 
         /// <summary>
@@ -681,7 +700,7 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// カメラのアクティブ化
         /// </summary>
-        private void ActivateInternal(string groupKey, string cameraName, CameraBlend cameraBlend, bool force) {
+        private void ActivateInternal(string groupKey, string cameraName, CameraBlend cameraBlend, bool force, int overridePriority) {
             var handlers = GetCameraHandlers(groupKey);
 
             if (!handlers.TryGetValue(cameraName, out var handler)) {

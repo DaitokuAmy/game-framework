@@ -31,5 +31,15 @@ namespace GameFramework.CameraSystems {
         /// 更新処理
         /// </summary>
         void Update(float deltaTime);
+
+        /// <summary>
+        /// プライオリティのセット(上書き用)
+        /// </summary>
+        void SetPriority(int priority);
+
+        /// <summary>
+        /// プライオリティのリセット
+        /// </summary>
+        void ResetPriority();
     }
 }
