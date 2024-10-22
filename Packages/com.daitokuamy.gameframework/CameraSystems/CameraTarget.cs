@@ -28,7 +28,7 @@ namespace GameFramework.CameraSystems {
                 return;
             }
 
-            var groupKey = default(string);
+            var groupKey = CameraManager.MainCameraGroupKey;
             if (_group != null) {
                 groupKey = _group.Key;
             }

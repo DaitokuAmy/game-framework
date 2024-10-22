@@ -53,7 +53,7 @@ namespace GameFramework.CameraSystems.Editor {
             serializedObject.Update();
 
             var group = serializedObject.FindProperty("_group").objectReferenceValue as CameraGroup;
-            var groupKey = group != null ? group.Key : "";
+            var groupKey = group != null ? group.Key : CameraManager.MainCameraGroupKey;
             var targetPoints = cameraManager.GetTargetPoints(groupKey);
             var labels = targetPoints.Select(x => x.name).ToList();
             labels.Insert(0, "(None)");

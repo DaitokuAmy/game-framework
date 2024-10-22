@@ -11,8 +11,8 @@ namespace GameFramework.CameraSystems {
     /// カメラ管理クラス
     /// </summary>
     public class CameraManager : LateUpdatableTaskBehaviour, IDisposable {
-        public const string MainCameraGroupName = "Main";
-        
+        public const string MainCameraGroupKey = "Main";
+
         /// <summary>
         /// カメラブレンド情報
         /// </summary>
@@ -75,7 +75,7 @@ namespace GameFramework.CameraSystems {
                 else {
                     _activateCount++;
                 }
-                
+
                 if (_activateCount > 0 && overridePriority > _overridePriority) {
                     _overridePriority = overridePriority;
                     Component.SetPriority(_overridePriority);
@@ -159,10 +159,6 @@ namespace GameFramework.CameraSystems {
         private CameraGroup _mainCameraGroup;
         [SerializeField, Tooltip("メインで扱うカメラグループのPrefab(こちらの指定が優先)")]
         private GameObject _mainCameraGroupPrefab;
-        // [SerializeField, Tooltip("仮想カメラを配置しているRootObject")]
-        // private GameObject _virtualCameraRoot;
-        // [SerializeField, Tooltip("仮想カメラの基準Transformを配置しているRootObject")]
-        // private GameObject _targetPointRoot;
         [SerializeField, Tooltip("デフォルトで使用するカメラ名")]
         private string _defaultCameraName = "Default";
 
@@ -174,10 +170,6 @@ namespace GameFramework.CameraSystems {
         private GameObject _cameraGroupRoot;
         // Brainの初期状態のUpdateMethod
         private CinemachineBrain.UpdateMethod _defaultUpdateMethod;
-        // カメラハンドリング用情報
-        private Dictionary<string, CameraHandler> _cameraHandlers = new();
-        // 基準Transform
-        private Dictionary<string, Transform> _targetPoints = new();
 
         // カメラグループ情報
         private Dictionary<string, CameraGroupInfo> _cameraGroupInfos = new();
@@ -210,7 +202,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         /// <param name="overridePriority">上書き用プライオリティ</param>
         public void Activate(string cameraName, CinemachineBlendDefinition blendDefinition, int overridePriority = int.MinValue) {
-            Activate(MainCameraGroupName, cameraName, blendDefinition, overridePriority);
+            Activate(MainCameraGroupKey, cameraName, blendDefinition, overridePriority);
         }
 
         /// <summary>
@@ -232,7 +224,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         /// <param name="overridePriority">上書き用プライオリティ</param>
         public void ForceActivate(string cameraName, CinemachineBlendDefinition blendDefinition, int overridePriority = int.MinValue) {
-            ForceActivate(MainCameraGroupName, cameraName, blendDefinition, overridePriority);
+            ForceActivate(MainCameraGroupKey, cameraName, blendDefinition, overridePriority);
         }
 
         /// <summary>
@@ -252,7 +244,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="overridePriority">上書き用プライオリティ</param>
         public void Activate(string cameraName, int overridePriority = int.MinValue) {
-            Activate(MainCameraGroupName, cameraName, overridePriority);
+            Activate(MainCameraGroupKey, cameraName, overridePriority);
         }
 
         /// <summary>
@@ -272,7 +264,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">アクティブ化するカメラ名</param>
         /// <param name="overridePriority">上書き用プライオリティ</param>
         public void ForceActivate(string cameraName, int overridePriority = int.MinValue) {
-            ForceActivate(MainCameraGroupName, cameraName, overridePriority);
+            ForceActivate(MainCameraGroupKey, cameraName, overridePriority);
         }
 
         /// <summary>
@@ -292,7 +284,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         public void Deactivate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            Deactivate(MainCameraGroupName, cameraName, blendDefinition);
+            Deactivate(MainCameraGroupKey, cameraName, blendDefinition);
         }
 
         /// <summary>
@@ -312,7 +304,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         /// <param name="blendDefinition">上書き用ブレンド設定</param>
         public void ForceDeactivate(string cameraName, CinemachineBlendDefinition blendDefinition) {
-            ForceDeactivate(MainCameraGroupName, cameraName, blendDefinition);
+            ForceDeactivate(MainCameraGroupKey, cameraName, blendDefinition);
         }
 
         /// <summary>
@@ -330,7 +322,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         public void Deactivate(string cameraName) {
-            Deactivate(MainCameraGroupName, cameraName);
+            Deactivate(MainCameraGroupKey, cameraName);
         }
 
         /// <summary>
@@ -348,7 +340,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">非アクティブ化するカメラ名</param>
         public void ForceDeactivate(string cameraName) {
-            ForceDeactivate(MainCameraGroupName, cameraName);
+            ForceDeactivate(MainCameraGroupKey, cameraName);
         }
 
         /// <summary>
@@ -372,13 +364,17 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="cameraName">カメラ名</param>
         public bool CheckActivate(string cameraName) {
-            return CheckActivate(MainCameraGroupName, cameraName);
+            return CheckActivate(MainCameraGroupKey, cameraName);
         }
 
         /// <summary>
         /// カメラ名の一覧を取得
         /// </summary>
         public string[] GetCameraNames(string groupKey = null) {
+            if (string.IsNullOrEmpty(groupKey)) {
+                groupKey = MainCameraGroupKey;
+            }
+
             var handlers = GetCameraHandlers(groupKey);
             return handlers.Keys.ToArray();
         }
@@ -397,6 +393,9 @@ namespace GameFramework.CameraSystems {
             }
 
             var groupKey = string.IsNullOrEmpty(overrideGroupKey) ? cameraGroup.Key : overrideGroupKey;
+            if (string.IsNullOrEmpty(groupKey)) {
+                groupKey = MainCameraGroupKey;
+            }
 
             // カメラグループの登録
             if (_cameraGroupInfos.ContainsKey(groupKey)) {
@@ -516,7 +515,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         public TCameraComponent GetCameraComponent<TCameraComponent>(string cameraName)
             where TCameraComponent : class, ICameraComponent {
-            return GetCameraComponent<TCameraComponent>(MainCameraGroupName, cameraName);
+            return GetCameraComponent<TCameraComponent>(MainCameraGroupKey, cameraName);
         }
 
         /// <summary>
@@ -543,7 +542,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         /// <param name="cameraController">設定するController</param>
         public void SetCameraController(string cameraName, ICameraController cameraController) {
-            SetCameraController(MainCameraGroupName, cameraName, cameraController);
+            SetCameraController(MainCameraGroupKey, cameraName, cameraController);
         }
 
         /// <summary>
@@ -570,7 +569,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="cameraName">対象のカメラ名</param>
         public TCameraController GetCameraController<TCameraController>(string cameraName)
             where TCameraController : class, ICameraController {
-            return GetCameraController<TCameraController>(MainCameraGroupName, cameraName);
+            return GetCameraController<TCameraController>(MainCameraGroupKey, cameraName);
         }
 
         /// <summary>
@@ -578,7 +577,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         /// <param name="targetPointName">ターゲットポイント名</param>
         public Transform GetTargetPoint(string targetPointName) {
-            return GetTargetPoint(MainCameraGroupName, targetPointName);
+            return GetTargetPoint(MainCameraGroupKey, targetPointName);
         }
 
         /// <summary>
@@ -627,10 +626,6 @@ namespace GameFramework.CameraSystems {
 
             _cameraGroupInfos.Clear();
 
-            ClearCameraHandlersInternal(_cameraHandlers);
-
-            _targetPoints.Clear();
-
             LayeredTime.Dispose();
         }
 
@@ -655,14 +650,6 @@ namespace GameFramework.CameraSystems {
             var deltaTime = LayeredTime.DeltaTime;
 
             // Controllerの更新
-            foreach (var pair in _cameraHandlers) {
-                if (pair.Value.Controller == null) {
-                    continue;
-                }
-
-                pair.Value.Controller.Update(deltaTime);
-            }
-
             foreach (var pair in _cameraGroupInfos) {
                 foreach (var p in pair.Value.handlers) {
                     if (p.Value.Controller == null) {
@@ -674,14 +661,6 @@ namespace GameFramework.CameraSystems {
             }
 
             // Componentの更新
-            foreach (var pair in _cameraHandlers) {
-                if (pair.Value.Component == null || !pair.Value.Component.IsActive) {
-                    continue;
-                }
-
-                pair.Value.Component.Update(deltaTime);
-            }
-
             foreach (var pair in _cameraGroupInfos) {
                 foreach (var p in pair.Value.handlers) {
                     if (p.Value.Component == null) {
@@ -732,7 +711,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         private Dictionary<string, CameraHandler> GetCameraHandlers(string groupKey) {
             if (string.IsNullOrEmpty(groupKey)) {
-                return _cameraHandlers;
+                groupKey = MainCameraGroupKey;
             }
 
             if (_cameraGroupInfos.TryGetValue(groupKey, out var info)) {
@@ -747,7 +726,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         private Dictionary<string, Transform> GetTargetPointsInternal(string groupKey) {
             if (string.IsNullOrEmpty(groupKey)) {
-                return _targetPoints;
+                groupKey = MainCameraGroupKey;
             }
 
             if (_cameraGroupInfos.TryGetValue(groupKey, out var info)) {
@@ -884,11 +863,11 @@ namespace GameFramework.CameraSystems {
 
             // メインのカメラグループを設定
             if (_mainCameraGroupPrefab != null) {
-                RegisterCameraGroupPrefab(_mainCameraGroupPrefab, MainCameraGroupName);
+                RegisterCameraGroupPrefab(_mainCameraGroupPrefab, MainCameraGroupKey);
             }
             else if (_mainCameraGroup != null) {
                 _mainCameraGroup.transform.SetParent(_cameraGroupRoot.transform, false);
-                RegisterCameraGroup(_mainCameraGroup, MainCameraGroupName);
+                RegisterCameraGroup(_mainCameraGroup, MainCameraGroupKey);
             }
 
             // デフォルトのカメラをActivate
