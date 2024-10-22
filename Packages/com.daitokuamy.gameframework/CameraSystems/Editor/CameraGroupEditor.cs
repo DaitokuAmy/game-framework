@@ -250,10 +250,11 @@ namespace GameFramework.CameraSystems.Editor {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent<CameraTarget>();
                 });
-                CopyComponents(cameraComponents.OfType<MonoBehaviour>().ToArray(), null, (x, y) => {
-                    // 出力先Componentがなければ追加する
-                    return y.AddComponent(x.GetType()) as MonoBehaviour;
-                });
+                // インスタンス上の参照先が入っているケースで消える事があるので一旦未対応
+                // CopyComponents(cameraComponents.OfType<MonoBehaviour>().ToArray(), null, (x, y) => {
+                //     // 出力先Componentがなければ追加する
+                //     return y.AddComponent(x.GetType()) as MonoBehaviour;
+                // });
             });
 
             EditorUtility.SetDirty(prefab);
