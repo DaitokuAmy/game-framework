@@ -215,6 +215,24 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
+        /// 比較
+        /// </summary>
+        public override bool Equals(object obj) {
+            if (obj is not Percent percent) {
+                return false;
+            }
+
+            return _value == percent._value;
+        }
+
+        /// <summary>
+        /// ハッシュコードの生成
+        /// </summary>
+        public override int GetHashCode() {
+            return _value.GetHashCode();
+        }
+
+        /// <summary>
         /// 文字列変換
         /// </summary>
         public override string ToString() {

@@ -10,7 +10,7 @@ namespace GameFramework.Core {
         [SerializeField, Tooltip("Easingを使う際のタイプ")]
         private EaseType _easeType;
         [SerializeField, Tooltip("AnimationCurveを使う際のタイプ")]
-        private AnimationCurve _animationCurve;
+        private AnimationCurve _animationCurve = new(new Keyframe(0, 0, 0, 1), new Keyframe(1, 1, 1, 0));
         [SerializeField, Tooltip("AnimationCurveを使うか")]
         private bool _useAnimationCurve;
 

@@ -215,6 +215,24 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
+        /// 比較
+        /// </summary>
+        public override bool Equals(object obj) {
+            if (obj is not Permil permil) {
+                return false;
+            }
+
+            return _value == permil._value;
+        }
+
+        /// <summary>
+        /// ハッシュコードの生成
+        /// </summary>
+        public override int GetHashCode() {
+            return _value.GetHashCode();
+        }
+
+        /// <summary>
         /// 文字列変換
         /// </summary>
         public override string ToString() {
@@ -231,14 +249,14 @@ namespace GameFramework.Core {
         /// <summary>
         /// 文字列変換
         /// </summary>
-        public string ToString(System.IFormatProvider provider) {
+        public string ToString(IFormatProvider provider) {
             return (_value / (float)One).ToString(provider);
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
-        public string ToString(string format, System.IFormatProvider provider) {
+        public string ToString(string format, IFormatProvider provider) {
             return (_value / (float)One).ToString(format, provider);
         }
     }

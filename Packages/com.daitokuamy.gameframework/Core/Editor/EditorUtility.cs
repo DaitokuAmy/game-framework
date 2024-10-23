@@ -254,7 +254,6 @@ namespace GameFramework.Core.Editor {
             destObj.Update();
 
             var itr = sourceObj.GetIterator();
-            var bindingAttr = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
             while (itr.NextVisible(true)) {
                 if (checkFunc != null && !checkFunc.Invoke(itr)) {
                     continue;
@@ -262,7 +261,6 @@ namespace GameFramework.Core.Editor {
 
                 var sourceProperty = sourceObj.FindProperty(itr.propertyPath);
                 destObj.CopyFromSerializedPropertyIfDifferent(sourceProperty);
-                //Debug.Log($"Test:{itr.propertyPath}");
             }
 
             destObj.ApplyModifiedProperties();
