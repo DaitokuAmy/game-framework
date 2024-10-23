@@ -15,6 +15,22 @@ namespace GameFramework.Core {
         private bool _useAnimationCurve;
 
         /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public TweenCurve(EaseType easeType) {
+            _useAnimationCurve = false;
+            _easeType = easeType;
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public TweenCurve(AnimationCurve animationCurve) {
+            _useAnimationCurve = true;
+            _animationCurve = animationCurve;
+        }
+
+        /// <summary>
         /// 値の補間
         /// </summary>
         /// <param name="start">開始値</param>
