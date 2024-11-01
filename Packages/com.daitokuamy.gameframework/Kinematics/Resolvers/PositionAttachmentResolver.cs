@@ -16,7 +16,7 @@ namespace GameFramework.Kinematics {
         }
 
         // 設定
-        public ResolverSettings Settings { get; set; } = new ResolverSettings();
+        public ResolverSettings Settings { get; set; } = new();
 
         /// <summary>
         /// コンストラクタ

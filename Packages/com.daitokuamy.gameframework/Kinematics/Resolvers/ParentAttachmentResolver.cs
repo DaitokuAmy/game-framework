@@ -13,7 +13,9 @@ namespace GameFramework.Kinematics {
             public Vector3 offsetPosition = Vector3.zero;
             public Vector3 offsetAngles = Vector3.zero;
             public Vector3 offsetScale = Vector3.one;
-            public TransformMasks mask = KinematicsDefinitions.TransformMasksAll;
+            public AxisMasks positionMasks = KinematicsDefinitions.AxisMasksAll;
+            public AxisMasks angleMasks = KinematicsDefinitions.AxisMasksAll;
+            public AxisMasks scaleMasks = KinematicsDefinitions.AxisMasksAll;
         }
 
         // 設定
@@ -41,20 +43,47 @@ namespace GameFramework.Kinematics {
                 rotation = GetTargetRotation() * rotation;
             }
             else {
-                rotation = rotation * GetTargetRotation();
+                rotation *= GetTargetRotation();
             }
 
-            if ((Settings.mask & TransformMasks.Position) != 0) {
-                Owner.position = GetTargetPosition() + offsetPosition;
+            // 座標
+            var pos = Owner.position;
+            var targetPos = GetTargetPosition() + offsetPosition;
+            for (var i = 0; i < 3; i++) {
+                if (((int)Settings.positionMasks & (1 << i)) == 0) {
+                    continue;
+                }
+
+                pos[i] = targetPos[i];
             }
 
-            if ((Settings.mask & TransformMasks.Rotation) != 0) {
-                Owner.rotation = rotation;
+            Owner.position = pos;
+
+            // 回転
+            var angles = Owner.eulerAngles;
+            var targetAngles = rotation.eulerAngles;
+            for (var i = 0; i < 3; i++) {
+                if (((int)Settings.angleMasks & (1 << i)) == 0) {
+                    continue;
+                }
+
+                angles[i] = targetAngles[i];
             }
 
-            if ((Settings.mask & TransformMasks.Scale) != 0) {
-                Owner.localScale = Vector3.Scale(GetTargetLocalScale(), offsetScale);
+            Owner.eulerAngles = angles;
+
+            // スケール
+            var scale = Owner.localScale;
+            var targetScale = Vector3.Scale(GetTargetLocalScale(), offsetScale);
+            for (var i = 0; i < 3; i++) {
+                if (((int)Settings.scaleMasks & (1 << i)) == 0) {
+                    continue;
+                }
+
+                scale[i] = targetScale[i];
             }
+
+            Owner.localScale = scale;
         }
 
         /// <summary>

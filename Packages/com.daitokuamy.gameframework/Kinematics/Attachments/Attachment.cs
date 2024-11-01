@@ -16,6 +16,8 @@ namespace GameFramework.Kinematics {
 
         [SerializeField, Tooltip("有効化")]
         private bool _active = false;
+        [SerializeField, Tooltip("ロック状態")]
+        private bool _lock = false;
         [SerializeField, Tooltip("更新モード")]
         private Mode _updateMode = Mode.LateUpdate;
         [SerializeField, Tooltip("ターゲットリスト")]
@@ -24,27 +26,27 @@ namespace GameFramework.Kinematics {
         // 初期化済みか
         private bool _initialized;
 
-        // 更新モード
+        /// <summary>更新モード</summary>
         public Mode UpdateMode {
             get => _updateMode;
             set => _updateMode = value;
         }
-        // ターゲットリスト
+        /// <summary>ターゲットリスト</summary>
         public AttachmentResolver.TargetSource[] Sources {
             set {
-                if (!_initialized) {
-                    Initialize();
-                    _initialized = true;
-                }
+                Initialize();
 
                 _sources = value;
-                if (Resolver != null) {
-                    Resolver.Sources = _sources;
-                }
+                Resolver.Sources = _sources;
             }
         }
-        // Transform制御用インスタンス
+        /// <summary>Transform制御用インスタンス</summary>
         protected abstract AttachmentResolver Resolver { get; }
+
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
+        protected abstract void InitializeInternal();
 
         /// <summary>
         /// 更新処理
@@ -61,32 +63,36 @@ namespace GameFramework.Kinematics {
         /// 自身のTransformからオフセットを設定する
         /// </summary>
         public void TransferOffset() {
-            Resolver?.TransferOffset();
+            Initialize();
+            Resolver.TransferOffset();
         }
 
         /// <summary>
         /// オフセットを初期化
         /// </summary>
         public void ResetOffset() {
-            Resolver?.ResetOffset();
+            Initialize();
+            Resolver.ResetOffset();
         }
 
         /// <summary>
         /// Transformを反映
         /// </summary>
         public void ApplyTransform() {
-            Resolver?.Resolve();
+            Initialize();
+            Resolver.Resolve();
         }
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected abstract void Initialize();
+        private void Initialize() {
+            if (_initialized) {
+                return;
+            }
 
-        /// <summary>
-        /// シリアライズ値更新時処理
-        /// </summary>
-        protected virtual void OnValidateInternal() {
+            _initialized = true;
+            InitializeInternal();
         }
 
         /// <summary>
@@ -97,13 +103,8 @@ namespace GameFramework.Kinematics {
                 return;
             }
 
-            if (!_active && !Application.isPlaying) {
+            if (!(_active && _lock)) {
                 return;
-            }
-
-            if (!_initialized) {
-                Initialize();
-                _initialized = true;
             }
 
             ApplyTransform();
@@ -114,10 +115,6 @@ namespace GameFramework.Kinematics {
         /// </summary>
         private void Awake() {
             Sources = _sources;
-            if (!_initialized) {
-                Initialize();
-                _initialized = true;
-            }
         }
 
         /// <summary>
@@ -154,12 +151,8 @@ namespace GameFramework.Kinematics {
         /// 値変更時の処理
         /// </summary>
         private void OnValidate() {
+            _initialized = false;            
             Sources = _sources;
-            try {
-                OnValidateInternal();
-            }
-            catch {
-            }
         }
     }
 }

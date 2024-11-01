@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GameFramework.Kinematics {
     /// <summary>
@@ -24,16 +23,9 @@ namespace GameFramework.Kinematics {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void Initialize() {
+        protected override void InitializeInternal() {
             _resolver = new PositionAttachmentResolver(transform);
             _resolver.Settings = _settings;
-        }
-
-        /// <summary>
-        /// シリアライズ値更新時処理
-        /// </summary>
-        protected override void OnValidateInternal() {
-            Settings = _settings;
         }
     }
 }
