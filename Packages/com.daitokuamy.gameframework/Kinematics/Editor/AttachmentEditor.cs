@@ -112,7 +112,12 @@ namespace GameFramework.Kinematics.Editor {
             }
 
             // ターゲット情報描画
-            _sourceList.DoLayoutList();
+            using (var scope = new EditorGUI.ChangeCheckScope()) {
+                _sourceList.DoLayoutList();
+                if (scope.changed) {
+                    TransferOffset();
+                }
+            }
         }
 
         /// <summary>
