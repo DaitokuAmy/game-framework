@@ -79,6 +79,10 @@ namespace GameFramework.Kinematics {
                 NormalizeWeights();
             }
 
+            if (!_normalized) {
+                return Vector3.zero;
+            }
+
             var position = Vector3.zero;
 
             foreach (var info in _targetInfos) {
@@ -98,6 +102,10 @@ namespace GameFramework.Kinematics {
         protected Quaternion GetTargetRotation() {
             if (!(_normalized && Application.isPlaying)) {
                 NormalizeWeights();
+            }
+
+            if (!_normalized) {
+                return Quaternion.identity;
             }
 
             var rotation = Quaternion.identity;
@@ -120,6 +128,10 @@ namespace GameFramework.Kinematics {
         protected Vector3 GetTargetLocalScale() {
             if (!(_normalized && Application.isPlaying)) {
                 NormalizeWeights();
+            }
+
+            if (!_normalized) {
+                return Vector3.one;
             }
 
             var scale = Vector3.zero;
