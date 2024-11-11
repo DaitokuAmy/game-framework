@@ -6,7 +6,7 @@ namespace GameFramework.Kinematics {
     /// </summary>
     public class ScaleAttachment : Attachment {
         [SerializeField, Tooltip("制御用設定")]
-        private ScaleAttachmentResolver.ResolverSettings _settings = null;
+        private ScaleAttachmentResolver.ResolverSettings _settings = new();
 
         private ScaleAttachmentResolver _resolver;
 

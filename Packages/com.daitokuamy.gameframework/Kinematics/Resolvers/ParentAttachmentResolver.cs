@@ -15,7 +15,7 @@ namespace GameFramework.Kinematics {
             public Vector3 offsetScale = Vector3.one;
             public AxisMasks positionMasks = KinematicsDefinitions.AxisMasksAll;
             public AxisMasks angleMasks = KinematicsDefinitions.AxisMasksAll;
-            public AxisMasks scaleMasks = KinematicsDefinitions.AxisMasksAll;
+            public AxisMasks scaleMasks = 0;
         }
 
         // 設定

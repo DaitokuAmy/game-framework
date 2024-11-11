@@ -6,7 +6,7 @@ namespace GameFramework.Kinematics {
     /// </summary>
     public class ParentAttachment : Attachment {
         [SerializeField, Tooltip("制御用設定")]
-        private ParentAttachmentResolver.ResolverSettings _settings = null;
+        private ParentAttachmentResolver.ResolverSettings _settings = new();
 
         private ParentAttachmentResolver _resolver;
 

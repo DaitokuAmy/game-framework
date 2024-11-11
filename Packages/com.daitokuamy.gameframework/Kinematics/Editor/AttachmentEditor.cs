@@ -26,7 +26,9 @@ namespace GameFramework.Kinematics.Editor {
             // Transformが動いた際の座標転送
             var transform = (target as MonoBehaviour)?.transform;
             if (transform != null && transform.hasChanged && !_lockProp.boolValue) {
+                serializedObject.ApplyModifiedProperties();
                 TransferOffset();
+                serializedObject.Update();
                 transform.hasChanged = false;
             }
 
@@ -38,7 +40,6 @@ namespace GameFramework.Kinematics.Editor {
         /// </summary>
         protected virtual void TransferOffset() {
             var attachment = (Attachment)target;
-
             // 現在のTransformで設定を更新
             attachment.TransferOffset();
             attachment.ApplyTransform();
@@ -90,7 +91,9 @@ namespace GameFramework.Kinematics.Editor {
 
                 // ゼロ
                 if (GUILayout.Button("Zero")) {
+                    serializedObject.ApplyModifiedProperties();
                     ResetOffset();
+                    serializedObject.Update();
                     _activeProp.boolValue = true;
                     _lockProp.boolValue = true;
                 }
@@ -115,7 +118,9 @@ namespace GameFramework.Kinematics.Editor {
             using (var scope = new EditorGUI.ChangeCheckScope()) {
                 _sourceList.DoLayoutList();
                 if (scope.changed) {
+                    serializedObject.ApplyModifiedProperties();
                     TransferOffset();
+                    serializedObject.Update();
                 }
             }
         }

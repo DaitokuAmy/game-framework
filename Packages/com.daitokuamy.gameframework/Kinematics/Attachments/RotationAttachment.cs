@@ -6,7 +6,7 @@ namespace GameFramework.Kinematics {
     /// </summary>
     public class RotationAttachment : Attachment {
         [SerializeField, Tooltip("制御用設定")]
-        private RotationAttachmentResolver.ResolverSettings _settings = null;
+        private RotationAttachmentResolver.ResolverSettings _settings = new();
 
         private RotationAttachmentResolver _resolver;
 

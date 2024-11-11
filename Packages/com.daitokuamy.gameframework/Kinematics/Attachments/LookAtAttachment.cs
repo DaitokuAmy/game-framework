@@ -6,7 +6,7 @@ namespace GameFramework.Kinematics {
     /// </summary>
     public class LookAtAttachment : Attachment {
         [SerializeField, Tooltip("制御用設定")]
-        private LookAtAttachmentResolver.ResolverSettings _settings = null;
+        private LookAtAttachmentResolver.ResolverSettings _settings = new();
 
         private LookAtAttachmentResolver _resolver;
 
