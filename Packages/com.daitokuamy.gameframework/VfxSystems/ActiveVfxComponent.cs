@@ -76,6 +76,12 @@ namespace GameFramework.VfxSystems {
         }
 
         /// <summary>
+        /// Lodレベルの設定
+        /// </summary>
+        void IVfxComponent.SetLodLevel(int level) {
+        }
+
+        /// <summary>
         /// 対象のGameObjectのアクティブ状態を指定
         /// </summary>
         private void SetActive(bool active) {

@@ -3,7 +3,7 @@ namespace GameFramework.VfxSystems {
     /// Vfx制御用コンポーネント
     /// </summary>
     public interface IVfxComponent {
-        // 再生中か
+        /// <summary>再生中か</summary>
         bool IsPlaying { get; }
 
         /// <summary>
@@ -30,5 +30,10 @@ namespace GameFramework.VfxSystems {
         /// 再生速度の設定
         /// </summary>
         void SetSpeed(float speed);
+
+        /// <summary>
+        /// LodLevelの設定
+        /// </summary>
+        void SetLodLevel(int level);
     }
 }

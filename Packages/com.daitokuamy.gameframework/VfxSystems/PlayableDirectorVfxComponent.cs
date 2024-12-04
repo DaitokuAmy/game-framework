@@ -79,6 +79,12 @@ namespace GameFramework.VfxSystems {
         }
 
         /// <summary>
+        /// Lodレベルの設定
+        /// </summary>
+        void IVfxComponent.SetLodLevel(int level) {
+        }
+
+        /// <summary>
         /// 生成時処理
         /// </summary>
         private void Awake() {

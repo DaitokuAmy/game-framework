@@ -117,5 +117,11 @@ namespace GameFramework.VfxSystems {
         /// </summary>
         void IVfxComponent.SetSpeed(float speed) {
         }
+
+        /// <summary>
+        /// Lodレベルの設定
+        /// </summary>
+        void IVfxComponent.SetLodLevel(int level) {
+        }
     }
 }
