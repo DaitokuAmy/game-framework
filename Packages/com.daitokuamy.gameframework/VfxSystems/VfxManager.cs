@@ -36,13 +36,11 @@ namespace GameFramework.VfxSystems {
         /// 再生管理用ハンドル
         /// </summary>
         public struct Handle : IDisposable, IProcess {
-            // 再生中情報管理用Pool
-            private ObjectPool<PlayingInfo> _playingInfoPool;
             // 再生中の情報
             private PlayingInfo _playingInfo;
 
             // 有効なハンドルか
-            public bool IsValid => _playingInfo != null && !_playingInfo.Initialized;
+            public bool IsValid => _playingInfo != null && _playingInfo.Initialized;
             // 再生中か
             public bool IsPlaying => _playingInfo != null && _playingInfo.IsPlaying();
             // 未使用
@@ -107,8 +105,7 @@ namespace GameFramework.VfxSystems {
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            internal Handle(ObjectPool<PlayingInfo> pool, PlayingInfo info) {
-                _playingInfoPool = pool;
+            internal Handle(PlayingInfo info) {
                 _playingInfo = info;
             }
 
@@ -143,9 +140,7 @@ namespace GameFramework.VfxSystems {
                 }
 
                 _playingInfo.Cleanup();
-                _playingInfoPool.Release(_playingInfo);
                 _playingInfo = null;
-                _playingInfoPool = null;
             }
 
             /// <summary>
@@ -561,7 +556,7 @@ namespace GameFramework.VfxSystems {
             // 再生情報の生成
             var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, lodProvider, layer, false);
             // Handle化して返却
-            return new Handle(_playingInfoPool, playingInfo);
+            return new Handle(playingInfo);
         }
 
         /// <summary>
@@ -579,7 +574,7 @@ namespace GameFramework.VfxSystems {
             // 再生
             playingInfo?.Play();
             // Handle化して返却
-            return new Handle(_playingInfoPool, playingInfo);
+            return new Handle(playingInfo);
         }
 
         /// <summary>
@@ -592,10 +587,10 @@ namespace GameFramework.VfxSystems {
 
                 // 廃棄
                 info.Cleanup();
-                _playingInfoPool.Release(info);
 
                 // Poolに戻す
                 _playingInfos.RemoveAt(i);
+                _playingInfoPool.Release(info);
                 ReturnObjectInfo(info.ObjectInfo);
             }
 
@@ -634,6 +629,7 @@ namespace GameFramework.VfxSystems {
                 // 廃棄対象ならPoolに戻す
                 if (!info.Initialized) {
                     _playingInfos.RemoveAt(i);
+                    _playingInfoPool.Release(info);
                     ReturnObjectInfo(info.ObjectInfo);
                 }
             }
