@@ -339,6 +339,9 @@ namespace GameFramework.VfxSystems {
                     return;
                 }
 
+                // Transform更新
+                Update();
+                
                 for (var i = 0; i < ObjectInfo.components.Length; i++) {
                     var component = ObjectInfo.components[i];
                     component.Play();
