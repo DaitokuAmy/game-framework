@@ -340,7 +340,10 @@ namespace GameFramework.VfxSystems {
                 }
 
                 // Transform更新
-                Update();
+                UpdatePosition();
+                UpdateRotation();
+                UpdateScale();
+                _transformDirty = false;
                 
                 for (var i = 0; i < ObjectInfo.components.Length; i++) {
                     var component = ObjectInfo.components[i];
