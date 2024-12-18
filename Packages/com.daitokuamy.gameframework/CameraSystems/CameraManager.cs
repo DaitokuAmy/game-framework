@@ -830,6 +830,8 @@ namespace GameFramework.CameraSystems {
             // Cameraに対するBlend情報を探す
             _toCameraBlends.TryGetValue(toCamera, out var toBlend);
             _fromCameraBlends.TryGetValue(fromCamera, out var fromBlend);
+            _toCameraBlends.Remove(toCamera);
+            _fromCameraBlends.Remove(fromCamera);
 
             // Toが優先
             if (toBlend != null) {
