@@ -70,8 +70,8 @@ namespace GameFramework.CameraSystems {
         /// カメラ更新処理
         /// </summary>
         protected override void UpdateInternal(float deltaTime) {
-            ApplyRootTransform();
             UpdateGraph(deltaTime);
+            ApplyRootTransform();
         }
 
         /// <summary>
