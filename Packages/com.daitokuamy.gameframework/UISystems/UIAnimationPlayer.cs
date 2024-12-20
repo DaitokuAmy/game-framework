@@ -207,6 +207,18 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// アニメーションの停止
+        /// </summary>
+        public void Stop() {
+            foreach (var info in _playingInfos) {
+                info.Stop();
+            }
+
+            _playingInfos.Clear();
+            _removePlayerInfoIndices.Clear();
+        }
+
+        /// <summary>
         /// アニメーションの最終フレームに設定する
         /// </summary>
         /// <param name="animation">アニメーションインターフェース</param>
