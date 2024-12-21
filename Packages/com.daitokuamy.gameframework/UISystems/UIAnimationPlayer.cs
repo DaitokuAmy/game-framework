@@ -248,6 +248,15 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// アニメーションの最終フレームに設定する
+        /// </summary>
+        public void Skip() {
+            foreach (var info in _playingInfos) {
+                info.Skip();
+            }
+        }
+
+        /// <summary>
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
