@@ -176,7 +176,8 @@ namespace GameFramework.UISystems {
         /// <param name="animation">アニメーションインターフェース</param>
         /// <param name="reverse">逆再生</param>
         /// <param name="loop">ループ再生か</param>
-        public Handle Play(IUIAnimation animation, bool reverse = false, bool loop = false) {
+        /// <param name="startOffset">開始時間オフセット</param>
+        public Handle Play(IUIAnimation animation, bool reverse = false, bool loop = false, float startOffset = 0.0f) {
             if (animation == null) {
                 return Handle.Empty;
             }
@@ -193,7 +194,7 @@ namespace GameFramework.UISystems {
             // 再生情報を構築してリストに登録
             var playingInfo = new PlayingInfo {
                 animation = animation,
-                time = reverse ? animation.Duration : 0.0f,
+                time = Mathf.Clamp(reverse ? animation.Duration - startOffset : startOffset, 0.0f, animation.Duration),
                 reverse = reverse,
                 loop = loop
             };
