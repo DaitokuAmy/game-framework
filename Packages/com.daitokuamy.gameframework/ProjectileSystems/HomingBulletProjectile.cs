@@ -138,7 +138,7 @@ namespace GameFramework.ProjectileSystems {
             }
             // 誘導開始前
             else {
-                acceleration += targetVec.normalized * _homingOffAcceleration;
+                acceleration += Rotation * Vector3.forward * _homingOffAcceleration;
             }
             
             // 加速度の最大値でクランプ
