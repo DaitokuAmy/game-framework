@@ -16,12 +16,16 @@ namespace GameFramework.ProjectileSystems {
             public MinMaxFloat startSpeed;
             [Tooltip("加速度の最大値(0以下で無効)")]
             public MinMaxFloat maxAcceleration;
+            [Tooltip("誘導開始前の加速度")]
+            public MinMaxFloat homingOffAcceleration;
             [Tooltip("外れた後もホーミングし続けるか")]
             public bool continueAcceleration;
             [Tooltip("最大飛翔距離")]
             public float maxDistance;
             [Tooltip("着弾想定時間")]
             public MinMaxFloat duration;
+            [Tooltip("誘導開始時間割合(0〜1)")]
+            public MinMaxFloat homingStartTiming;
             [Tooltip("着弾想定時間に到達すると自動で終了するか")]
             public bool autoExit;
             [Tooltip("想定時間をスケールさせるための基準距離(0以下なら固定時間)")]
@@ -31,9 +35,11 @@ namespace GameFramework.ProjectileSystems {
         private readonly Vector3 _startPoint;
         private readonly float _startSpeed;
         private readonly float _maxAcceleration;
+        private readonly float _homingOffAcceleration;
         private readonly bool _continueAcceleration;
         private readonly float _maxDistance;
         private readonly float _duration;
+        private readonly float _homingStartTiming;
         private readonly bool _autoExit;
 
         private bool _stopped;
@@ -61,18 +67,22 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="endPoint">終了座標</param>
         /// <param name="startSpeed">初速</param>
         /// <param name="duration">着弾想定時間</param>
+        /// <param name="homingStartTiming">誘導開始タイミング(0〜1)</param>
         /// <param name="durationBaseMeter">着弾想定時間の基準距離(0以下で無効)</param>
+        /// <param name="homingOffAcceleration">誘導開始前の加速度</param>
         /// <param name="maxAcceleration">最大加速度</param>
         /// <param name="continueAcceleration">外れた後にも加速し続けるか</param>
         /// <param name="maxDistance">最大距離</param>
-        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat maxAcceleration, bool continueAcceleration, float maxDistance, MinMaxFloat duration, float durationBaseMeter, bool autoExit) {
+        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat homingOffAcceleration, MinMaxFloat maxAcceleration, bool continueAcceleration, float maxDistance, MinMaxFloat duration, MinMaxFloat homingStartTiming, float durationBaseMeter, bool autoExit) {
             _startPoint = startPoint;
             _endPoint = endPoint;
             _startSpeed = startSpeed.Rand();
             _duration = CalcDuration(startPoint, endPoint, duration.Rand(), durationBaseMeter);
+            _homingStartTiming = homingStartTiming.Rand();
             _maxAcceleration = maxAcceleration.Rand();
             _autoExit = autoExit;
             _continueAcceleration = continueAcceleration;
+            _homingOffAcceleration = homingOffAcceleration.Rand();
             _maxDistance = maxDistance;
 
             Position = _startPoint;
@@ -87,8 +97,8 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="endPoint">ターゲット座標</param>
         /// <param name="context">初期化用パラメータ</param>
         public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, Context context)
-            : this(startPoint, startRotation, endPoint, context.startSpeed, context.maxAcceleration, context.continueAcceleration, context.maxDistance,
-                context.duration, context.durationBaseMeter, context.autoExit) {
+            : this(startPoint, startRotation, endPoint, context.startSpeed,  context.homingOffAcceleration, context.maxAcceleration, context.continueAcceleration, context.maxDistance,
+                context.duration, context.homingStartTiming, context.durationBaseMeter, context.autoExit) {
         }
 
         /// <summary>
@@ -115,12 +125,20 @@ namespace GameFramework.ProjectileSystems {
         
             // 加速度を求める
             var acceleration = Vector3.zero;
-
-            if (_timer > 0.001f) {
-                acceleration += (targetVec - _velocity * _timer) * 2.0f / (_timer * _timer);
+            var timerRate = Mathf.Clamp01(_timer / _duration);
+            
+            // 誘導開始中
+            if (timerRate >= _homingStartTiming) {
+                if (_timer > 0.001f) {
+                    acceleration += (targetVec - _velocity * _timer) * 2.0f / (_timer * _timer);
+                }
+                else if (_continueAcceleration && deltaTime > 0.001f) {
+                    acceleration += (targetVec - _velocity * deltaTime) * 2.0f / (deltaTime * deltaTime);
+                }
             }
-            else if (_continueAcceleration && deltaTime > 0.001f) {
-                acceleration += (targetVec - _velocity * deltaTime) * 2.0f / (deltaTime * deltaTime);
+            // 誘導開始前
+            else {
+                acceleration += targetVec.normalized * _homingOffAcceleration;
             }
             
             // 加速度の最大値でクランプ
