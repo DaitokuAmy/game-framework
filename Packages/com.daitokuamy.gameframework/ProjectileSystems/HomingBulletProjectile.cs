@@ -125,7 +125,7 @@ namespace GameFramework.ProjectileSystems {
         
             // 加速度を求める
             var acceleration = Vector3.zero;
-            var timerRate = Mathf.Clamp01(_timer / _duration);
+            var timerRate = Mathf.Clamp01((_duration - _timer) / _duration);
             
             // 誘導開始中
             if (timerRate >= _homingStartTiming) {
