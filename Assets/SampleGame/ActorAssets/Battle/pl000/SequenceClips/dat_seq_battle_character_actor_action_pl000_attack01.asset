@@ -65,9 +65,9 @@ MonoBehaviour:
   toBlend:
     active: 1
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2
@@ -76,9 +76,9 @@ MonoBehaviour:
   fromBlend:
     active: 1
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2
@@ -128,6 +128,7 @@ MonoBehaviour:
   tracks:
   - {fileID: -5653727750773252324}
   frameRate: 60
+  filterData: {fileID: 0}
 --- !u!114 &2488815616933560863
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -174,9 +175,9 @@ MonoBehaviour:
   toBlend:
     active: 1
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2
@@ -185,9 +186,9 @@ MonoBehaviour:
   fromBlend:
     active: 1
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2
@@ -220,9 +221,9 @@ MonoBehaviour:
   toBlend:
     active: 1
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2
@@ -231,9 +232,9 @@ MonoBehaviour:
   fromBlend:
     active: 0
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2
@@ -266,9 +267,9 @@ MonoBehaviour:
   toBlend:
     active: 1
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2
@@ -277,9 +278,9 @@ MonoBehaviour:
   fromBlend:
     active: 0
     blendDefinition:
-      m_Style: 0
-      m_Time: 0
-      m_CustomCurve:
+      Style: 0
+      Time: 0
+      CustomCurve:
         serializedVersion: 2
         m_Curve: []
         m_PreInfinity: 2

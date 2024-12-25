@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Cinemachine;
+using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
 
@@ -193,7 +193,6 @@ namespace GameFramework.CameraSystems.Editor {
                             }
 
                             // 含まれてない場合は削除
-                            exportVcam.RemoveExtension(ext);
                             DestroyImmediate(ext);
                         }
                     }
