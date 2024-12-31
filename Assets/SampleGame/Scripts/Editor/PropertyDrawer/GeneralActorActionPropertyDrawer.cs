@@ -1,19 +1,19 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using SampleGame.Domain.Common;
+using SampleGame.Infrastructure;
 
 namespace SampleGame.Editor {
     /// <summary>
     /// GeneralActorAction用の拡張
     /// </summary>
     [CustomPropertyDrawer(typeof(GeneralActorAction))]
-    public class GeneralActionPropertyDrawer : PropertyDrawer {
+    public class GeneralActorActionPropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
-            var lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing * 2;
+            var lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             var rect = position;
 
             rect.height = lineHeight;
@@ -21,7 +21,7 @@ namespace SampleGame.Editor {
             rect.y += rect.height;
 
             if (property.isExpanded) {
-                rect.xMin += 15;
+                EditorGUI.indentLevel++;
 
                 var actionTypeProp = property.FindPropertyRelative("actionType");
                 rect.height = lineHeight;
@@ -38,15 +38,21 @@ namespace SampleGame.Editor {
 
                 rect.y += rect.height;
 
-
                 var actionProp = GetActionProperty(property, actionType);
                 if (actionProp != null) {
-                    rect.height = EditorGUI.GetPropertyHeight(actionProp, true);
-                    EditorGUI.PropertyField(rect, actionProp, true);
-                    rect.y += rect.height;
+                    var parentDepth = actionProp.depth;
+                    actionProp.NextVisible(true);
+                    while (true) {
+                        rect.height = EditorGUI.GetPropertyHeight(actionProp, true);
+                        EditorGUI.PropertyField(rect, actionProp, true);
+                        rect.y += rect.height;
+                        if (!actionProp.NextVisible(false) || actionProp.depth <= parentDepth) {
+                            break;
+                        }
+                    }
                 }
 
-                rect.xMin -= 15;
+                EditorGUI.indentLevel--;
             }
         }
 
@@ -56,7 +62,7 @@ namespace SampleGame.Editor {
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             var totalHeight = 0.0f;
             var actionTypeProp = property.FindPropertyRelative("actionType");
-            var lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing * 2;
+            var lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
             totalHeight += lineHeight;
 
@@ -70,7 +76,14 @@ namespace SampleGame.Editor {
             var actionType = actionTypes[actionTypeProp.enumValueIndex];
             var actionProp = GetActionProperty(property, actionType);
             if (actionProp != null) {
-                totalHeight += EditorGUI.GetPropertyHeight(actionProp, property.isExpanded);
+                var parentDepth = actionProp.depth;
+                actionProp.NextVisible(true);
+                while (true) {
+                    totalHeight += EditorGUI.GetPropertyHeight(actionProp, true);
+                    if (!actionProp.NextVisible(false) || actionProp.depth <= parentDepth) {
+                        break;
+                    }
+                }
             }
 
             return totalHeight;
@@ -92,6 +105,12 @@ namespace SampleGame.Editor {
                 }
                 case GeneralActorAction.ActionType.Timeline: {
                     return property.FindPropertyRelative("timelineActorAction");
+                }
+                case GeneralActorAction.ActionType.Timer: {
+                    return property.FindPropertyRelative("timerActorAction");
+                }
+                case GeneralActorAction.ActionType.ReactionLoop: {
+                    return property.FindPropertyRelative("reactionLoopClipActorAction");
                 }
             }
 

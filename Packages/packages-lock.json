@@ -23,6 +23,13 @@
       "dependencies": {},
       "hash": "785ddb969d2be734a91b981d6e4523a01fe2f3ea"
     },
+    "com.daitokuamy.gameaibehaviour": {
+      "version": "https://github.com/DaitokuAmy/game-ai-behaviour.git?path=/Packages/com.daitokuamy.gameaibehaviour",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "21a710f699e54395ad6689a05a051ec2146c12d5"
+    },
     "com.daitokuamy.gameframework": {
       "version": "file:com.daitokuamy.gameframework",
       "depth": 0,
