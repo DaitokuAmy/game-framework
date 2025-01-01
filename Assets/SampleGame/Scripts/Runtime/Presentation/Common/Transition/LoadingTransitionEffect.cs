@@ -24,7 +24,7 @@ namespace SampleGame.Presentation {
         /// </summary>
         public LoadingTransitionEffect() {
             _loadKeys = new[] {
-                 "Default_0",
+                 "Normal",
             };
         }
         

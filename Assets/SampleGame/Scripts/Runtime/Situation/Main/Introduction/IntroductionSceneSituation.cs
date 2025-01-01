@@ -1,8 +1,12 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using GameFramework.Core;
-using GameFramework.CoroutineSystems;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
+using SampleGame.Presentation.Introduction;
+using UniRx;
 
 namespace SampleGame.Introduction {
     /// <summary>
@@ -19,7 +23,10 @@ namespace SampleGame.Introduction {
             yield return base.LoadRoutineInternal(handle, scope);
             
             // UI読み込み
-            yield return LoadUIRoutine(scope);
+            var tasks = new List<UniTask>();
+            tasks.Add(LoadUIAsync(scope, scope.Token));
+
+            yield return UniTask.WhenAll(tasks).ToCoroutine();
         }
 
         /// <summary>
@@ -27,16 +34,28 @@ namespace SampleGame.Introduction {
         /// </summary>
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
+
+            var situationService = Services.Get<SituationService>();
+            var uiManager = Services.Get<UIManager>();
+            var titleTopService = uiManager.GetService<TitleTopUIService>();
+            titleTopService.OnClickedStartButtonSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => {
+                    //situationService.Transition<>()
+                });
         }
 
         /// <summary>
         /// UIの読み込み
         /// </summary>
-        private IEnumerator LoadUIRoutine(IScope scope) {
+        private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
             var uiManager = Services.Get<UIManager>();
-            yield return new MergedCoroutine(
-                uiManager.LoadSceneAsync("ui_title").ScopeTo(scope)
-            );
+
+            UniTask LoadAsync(string assetKey) {
+                return uiManager.LoadSceneAsync(assetKey).ScopeTo(unloadScope).ToUniTask(cancellationToken: ct);
+            }
+            
+            return UniTask.WhenAll(LoadAsync("ui_title"));
         }
     }
 }

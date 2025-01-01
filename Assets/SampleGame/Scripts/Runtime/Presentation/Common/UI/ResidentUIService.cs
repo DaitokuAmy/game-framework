@@ -7,8 +7,6 @@ namespace SampleGame.Presentation {
     /// 常駐なUIService
     /// </summary>
     public class ResidentUIService : UIService {
-        [SerializeField, Tooltip("タップエフェクトのルート階層")]
-        private RectTransform _tapEffectRootTransform;
         [SerializeField, Tooltip("ローディング画面用のコンテナ")]
         private UISheetContainer _loadingScreenContainer;
         [SerializeField, Tooltip("ブロック画面")]
@@ -18,8 +16,6 @@ namespace SampleGame.Presentation {
         [SerializeField, Tooltip("フェーダー用スクリーン")]
         private FaderUIScreen _faderScreen;
 
-        /// <summary>タップエフェクトのルート階層</summary>
-        public RectTransform TapEffectRootTransform => _tapEffectRootTransform;
         /// <summary>画面ブロック用のスクリーン</summary>
         public BlockUIScreen BlockScreen => _blockScreen;
         /// <summary>通知用のスクリーン</summary>

@@ -44,7 +44,7 @@ namespace SampleGame {
         /// 初期化処理
         /// </summary>
         protected override IEnumerator StartRoutineInternal(object[] args) {
-            // FPS初期化（これはいずれちゃんとした管理クラス用意した方が良い）
+            // FPS初期化
             UnityEngine.Application.targetFrameRate = 60;
 
             // RootのServiceにインスタンスを登録

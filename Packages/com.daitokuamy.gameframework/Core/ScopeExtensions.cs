@@ -14,7 +14,7 @@ namespace GameFramework.Core {
         public static bool IsValid(this IScope source) {
             return source != null && !source.Token.IsCancellationRequested;
         }
-        
+
         /// <summary>
         /// CancellationTokenのScope変換
         /// </summary>
@@ -29,6 +29,10 @@ namespace GameFramework.Core {
         /// </summary>
         public static T ScopeTo<T>(this T source, IScope scope)
             where T : IDisposable {
+            if (scope == null) {
+                return source;
+            }
+
             scope.OnExpired += source.Dispose;
             return source;
         }

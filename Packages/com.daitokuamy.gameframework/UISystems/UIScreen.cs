@@ -20,6 +20,9 @@ namespace GameFramework.UISystems {
             Closed,
         }
 
+        [SerializeField, Tooltip("開始時に開いた状態にするか")]
+        private bool _openOnStart = true;
+
         // アニメーションキャンセル用スコープ
         private DisposableScope _animationScope;
         // アクティブ状態のスコープ
@@ -187,6 +190,20 @@ namespace GameFramework.UISystems {
             CanvasGroup = GetComponent<CanvasGroup>();
             _activeScope = new DisposableScope();
             _animationScope = new DisposableScope();
+        }
+
+        /// <summary>
+        /// 開始時処理
+        /// </summary>
+        protected override void StartInternal(IScope scope) {
+            base.StartInternal(scope);
+
+            if (_openOnStart) {
+                OpenAsync();
+            }
+            else {
+                CloseAsync(immediate: true);
+            }
         }
 
         /// <summary>

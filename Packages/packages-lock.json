@@ -50,6 +50,13 @@
       "dependencies": {},
       "hash": "fa0a56ac91cebe66e4d381149779bcddf38300b7"
     },
+    "com.daitokuamy.unitytweenplayables": {
+      "version": "https://github.com/DaitokuAmy/unity-tween-playables.git?path=/Packages/com.daitokuamy.unitytweenplayables",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "24b352da5a432cdfb61a5ae7bc9dbe4afff3e889"
+    },
     "com.github-glitchenzo.nugetforunity": {
       "version": "4.2.0",
       "depth": 0,

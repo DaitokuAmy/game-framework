@@ -1,4 +1,5 @@
 using GameFramework.Core;
+using SampleGame.Introduction;
 using SampleGame.Main;
 
 namespace SampleGame {
@@ -13,14 +14,14 @@ namespace SampleGame {
             var mainSituation = new MainSituation().ScopeTo(scope);
             mainSituation.SetParent(_situationRunner);
             
-            //SetupIntroductionSituations(mainSituation, scope);
+            SetupIntroductionSituations(mainSituation, scope);
         }
 
         /// <summary>
         /// 遷移処理の初期化
         /// </summary>
         private void SetupFlow(IScope scope) {
-            //var introductionNode = _situationFlow.ConnectRoot(GetSituation<IntroductionSceneSituation>());
+            var introductionNode = _situationFlow.ConnectRoot(GetSituation<IntroductionSceneSituation>());
         }
     }
 }
