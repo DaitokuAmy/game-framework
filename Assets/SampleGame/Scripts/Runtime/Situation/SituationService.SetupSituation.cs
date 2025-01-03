@@ -24,7 +24,8 @@ namespace SampleGame {
         /// </summary>
         private void SetupFlow(IScope scope) {
             var introductionNode = _situationFlow.ConnectRoot(GetSituation<IntroductionSceneSituation>());
-            var modelViewerNode = _situationFlow.ConnectRoot(GetSituation<ModelViewerSceneSituation>());
+            var modelViewerNode = introductionNode.Connect(GetSituation<ModelViewerSceneSituation>());
+            _situationFlow.SetFallbackNode(modelViewerNode);
         }
     }
 }

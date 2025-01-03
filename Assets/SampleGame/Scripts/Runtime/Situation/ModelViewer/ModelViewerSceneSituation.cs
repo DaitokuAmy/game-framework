@@ -147,8 +147,10 @@ namespace SampleGame.ModelViewer {
         protected override void DeactivateInternal(TransitionHandle handle) {
             // Debugページ削除
             var debugSheet = Services.Get<DebugSheet>();
-            var rootPage = debugSheet.GetOrCreateInitialPage();
-            rootPage.RemoveItem(_debugPageId);
+            if (debugSheet != null) {
+                var rootPage = debugSheet.GetOrCreateInitialPage();
+                rootPage.RemoveItem(_debugPageId);
+            }
 
             base.DeactivateInternal(handle);
         }
