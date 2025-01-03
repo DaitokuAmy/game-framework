@@ -199,4 +199,20 @@ namespace SampleGame.Infrastructure {
             Address = GetPath($"Tables/dat_table_{assetKey}.asset");
         }
     }
+
+    /// <summary>
+    /// フィールドシーン用のAssetRequest
+    /// </summary>
+    public class FieldSceneAssetRequest : SceneAssetRequest {
+        // 読み込みAddress
+        public override string Address { get; }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="assetKey">fld000</param>
+        public FieldSceneAssetRequest(string assetKey) : base(LoadSceneMode.Additive) {
+            Address = GetProjectPath($"EnvironmentAssets/Field/{assetKey}/{assetKey}.unity");
+        }
+    }
 }

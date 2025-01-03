@@ -1,6 +1,7 @@
 using GameFramework.Core;
-using SampleGame.Introduction;
 using SampleGame.Main;
+using SampleGame.Introduction;
+using SampleGame.ModelViewer;
 
 namespace SampleGame {
     /// <summary>
@@ -15,6 +16,7 @@ namespace SampleGame {
             mainSituation.SetParent(_situationRunner);
             
             SetupIntroductionSituations(mainSituation, scope);
+            SetupViewerSituations(_situationRunner, scope);
         }
 
         /// <summary>
@@ -22,6 +24,7 @@ namespace SampleGame {
         /// </summary>
         private void SetupFlow(IScope scope) {
             var introductionNode = _situationFlow.ConnectRoot(GetSituation<IntroductionSceneSituation>());
+            var modelViewerNode = _situationFlow.ConnectRoot(GetSituation<ModelViewerSceneSituation>());
         }
     }
 }

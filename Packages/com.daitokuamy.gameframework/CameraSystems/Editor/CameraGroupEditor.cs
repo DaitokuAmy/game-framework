@@ -38,7 +38,7 @@ namespace GameFramework.CameraSystems.Editor {
                             var menu = new GenericMenu();
                             var paths = _exportPrefab.GetComponentsInChildren<CameraGroup>(true)
                                 .Where(x => x.gameObject != _exportPrefab)
-                                .Select(x => Core.Editor.EditorUtility.GetTransformPath(_exportPrefab.transform, x.transform))
+                                .Select(x => Core.Editor.EditorTool.GetTransformPath(_exportPrefab.transform, x.transform))
                                 .ToArray();
                             for (var i = 0; i < paths.Length; i++) {
                                 var path = paths[i];
@@ -90,7 +90,7 @@ namespace GameFramework.CameraSystems.Editor {
         /// Prefabに出力
         /// </summary>
         private void ExportPrefab(CameraGroup cameraGroup, GameObject prefab, string exportRootPath, Transform targetRoot) {
-            Core.Editor.EditorUtility.EditPrefab(prefab, obj => {
+            Core.Editor.EditorTool.EditPrefab(prefab, obj => {
                 if (!CheckInParent(targetRoot, cameraGroup.transform)) {
                     targetRoot = cameraGroup.transform;
                 }
@@ -119,7 +119,7 @@ namespace GameFramework.CameraSystems.Editor {
                 void CopyComponents<T>(T[] sources, Func<SerializedProperty, bool> copyCheckFunc = null, Func<T, GameObject, T> insertComponentFunc = null)
                     where T : MonoBehaviour {
                     foreach (var src in sources) {
-                        var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, src.transform);
+                        var path = Core.Editor.EditorTool.GetTransformPath(cameraGroup.transform, src.transform);
                         var exportTarget = exportRoot.Find(path);
                         if (exportTarget == null) {
                             // 階層が存在しなければ作成する
@@ -149,7 +149,7 @@ namespace GameFramework.CameraSystems.Editor {
                         }
 
                         // 値の更新
-                        Core.Editor.EditorUtility.CopySerializedObject(src, dest, copyCheckFunc);
+                        Core.Editor.EditorTool.CopySerializedObject(src, dest, copyCheckFunc);
                         Debug.Log($"Exported Component. [{dest.GetType().Name}]{dest.name}");
                     }
                 }
@@ -162,7 +162,7 @@ namespace GameFramework.CameraSystems.Editor {
                             continue;
                         }
 
-                        var path = Core.Editor.EditorUtility.GetTransformPath(cameraGroup.transform, vcam.transform);
+                        var path = Core.Editor.EditorTool.GetTransformPath(cameraGroup.transform, vcam.transform);
                         var exportTarget = exportRoot.Find(path);
                         if (exportTarget == null) {
                             Debug.LogWarning($"Not found export path. [{path}]");

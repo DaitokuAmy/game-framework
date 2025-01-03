@@ -19,7 +19,6 @@ namespace SampleGame.Presentation {
         /// </summary>
         protected ActionableActor(Body body) : base(body) {
             MotionController = body.GetController<MotionController>();
-
             ActionPlayer = new ActorActionPlayer(body.LayeredTime);
         }
 
@@ -62,7 +61,7 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// ActionPlayerResolverの追加
         /// </summary>
-        protected void AddActionPlayerResolvers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
+        protected virtual void AddActionPlayerResolvers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
             actionPlayer.AddResolver(new ClipActorActionResolver(motionHandle, (SequenceController)SequenceController));
             actionPlayer.AddResolver(new ControllerActorActionResolver(motionHandle, (SequenceController)SequenceController));
             actionPlayer.AddResolver(new TimelineActorActionResolver(motionHandle, (SequenceController)SequenceController));
