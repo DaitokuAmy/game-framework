@@ -26,28 +26,33 @@ namespace SampleGame.Editor.ModelViewer {
         /// マスター情報の更新
         /// </summary>
         private void UpdateMaster() {
-            var actorAssetKeys = new HashSet<string>();
-            var actorSetupDataGuids = AssetDatabase.FindAssets($"t:{nameof(ModelViewerActorSetupData)}");
-            foreach (var guid in actorSetupDataGuids) {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var fileName = Path.GetFileNameWithoutExtension(path);
-                var assetKey = fileName.Replace("dat_model_viewer_actor_setup_", "");
-                actorAssetKeys.Add(assetKey);
-            }
+            void UpdateSetupData<T>(string prefix, string assetKeysPropertyName) {
+                var assetKeys = new HashSet<string>();
+                var guids = AssetDatabase.FindAssets($"t:{typeof(T).Name}");
+                foreach (var guid in guids) {
+                    var path = AssetDatabase.GUIDToAssetPath(guid);
+                    var fileName = Path.GetFileNameWithoutExtension(path);
+                    var assetKey = fileName.Replace(prefix, "");
+                    assetKeys.Add(assetKey);
+                }
 
-            var sortedActorAssetKeys = actorAssetKeys.OrderBy(x => x).ToArray();
+                var sortedAssetKeys = assetKeys.OrderBy(x => x).ToArray();
 
-            serializedObject.Update();
-            var masterProp = serializedObject.FindProperty("master");
+                serializedObject.Update();
+                var masterProp = serializedObject.FindProperty("master");
             
-            // ActorAssetKeysの更新
-            var actorAssetKeysProp = masterProp.FindPropertyRelative("actorAssetKeys");
-            actorAssetKeysProp.arraySize = sortedActorAssetKeys.Length;
-            for (var i = 0; i < sortedActorAssetKeys.Length; i++) {
-                actorAssetKeysProp.GetArrayElementAtIndex(i).stringValue = sortedActorAssetKeys[i];
-            }
+                // AssetKeysの更新
+                var assetKeysProp = masterProp.FindPropertyRelative(assetKeysPropertyName);
+                assetKeysProp.arraySize = sortedAssetKeys.Length;
+                for (var i = 0; i < sortedAssetKeys.Length; i++) {
+                    assetKeysProp.GetArrayElementAtIndex(i).stringValue = sortedAssetKeys[i];
+                }
 
-            serializedObject.ApplyModifiedProperties();
+                serializedObject.ApplyModifiedProperties();
+            }
+            
+            UpdateSetupData<ModelViewerActorSetupData>("dat_model_viewer_actor_setup_", "actorAssetKeys");
+            UpdateSetupData<ModelViewerEnvironmentSetupData>("dat_model_viewer_environment_setup_", "environmentAssetKeys");
         }
     }
 }
