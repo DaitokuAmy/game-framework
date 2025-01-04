@@ -11,7 +11,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>モデルビューア全体管理用モデル</summary>
         IReadOnlyModelViewerModel ModelViewerModel { get; }
         /// <summary>表示用オブジェクトのモデル</summary>
-        IReadOnlyPreviewActorModel PreviewActorModel { get; }
+        IReadOnlyActorModel ActorModel { get; }
         /// <summary>録画用モデル</summary>
         IReadOnlyRecordingModel RecordingModel { get; }
         /// <summary>設定用モデル</summary>
@@ -27,7 +27,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>モデルビューア全体管理用モデル</summary>
         public IReadOnlyModelViewerModel ModelViewerModel => ModelViewerModelInternal;
         /// <summary>表示用オブジェクトのモデル</summary>
-        public IReadOnlyPreviewActorModel PreviewActorModel => PreviewActorModelInternal;
+        public IReadOnlyActorModel ActorModel => ActorModelInternal;
         /// <summary>録画用モデル</summary>
         public IReadOnlyRecordingModel RecordingModel => RecordingModelInternal;
         /// <summary>設定用モデル</summary>
@@ -36,7 +36,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>モデルビューア全体管理用モデル</summary>
         internal ModelViewerModel ModelViewerModelInternal { get; private set; }
         /// <summary>表示用オブジェクトのモデル</summary>
-        internal PreviewActorModel PreviewActorModelInternal => ModelViewerModelInternal.ActorModelInternal;
+        internal ActorModel ActorModelInternal => ModelViewerModelInternal.ActorModelInternal;
         /// <summary>録画用モデル</summary>
         internal RecordingModel RecordingModelInternal { get; private set; }
         /// <summary>設定用モデル</summary>
@@ -71,37 +71,37 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// ファクトリーの設定
         /// </summary>
-        public void SetFactory(IPreviewActorFactory actorFactory) {
-            ModelViewerModelInternal.SetFactory(actorFactory);
+        public void SetFactory(IActorFactory actorFactory, IEnvironmentFactory environmentFactory) {
+            ModelViewerModelInternal.SetFactory(actorFactory, environmentFactory);
         }
 
         /// <summary>
-        /// 表示モデルの変更
+        /// アクターの変更
         /// </summary>
-        public void ChangePreviewActor(IPreviewActorMaster master) {
-            ModelViewerModelInternal.ChangeActorModelAsync(master, _scope.Token).Forget();
+        public void ChangeActor(IActorMaster master) {
+            ModelViewerModelInternal.ChangeActorAsync(master, _scope.Token).Forget();
         }
 
         /// <summary>
         /// アクターのリセット
         /// </summary>
         public void ResetActor() {
-            if (PreviewActorModel == null) {
+            if (ActorModel == null) {
                 return;
             }
             
-            PreviewActorModelInternal.ResetActor();
+            ActorModelInternal.ResetActor();
         }
 
         /// <summary>
         /// アニメーションクリップの変更
         /// </summary>
         public void ChangeAnimationClip(int clipIndex) {
-            if (PreviewActorModel == null) {
+            if (ActorModel == null) {
                 return;
             }
             
-            PreviewActorModelInternal.ChangeAnimationClip(clipIndex);
+            ActorModelInternal.ChangeAnimationClip(clipIndex);
         }
 
         /// <summary>
@@ -109,34 +109,36 @@ namespace SampleGame.Domain.ModelViewer {
         /// ※同じClipを設定したらトグル
         /// </summary>
         public void ToggleAdditiveAnimationClip(int clipIndex) {
-            if (PreviewActorModel == null) {
+            if (ActorModel == null) {
                 return;
             }
             
-            PreviewActorModelInternal.ToggleAdditiveAnimationClip(clipIndex);
+            ActorModelInternal.ToggleAdditiveAnimationClip(clipIndex);
         }
 
         /// <summary>
         /// MeshAvatarの変更
         /// </summary>
         public void ChangeMeshAvatar(string key, int index) {
-            if (PreviewActorModel == null) {
+            if (ActorModel == null) {
                 return;
             }
             
-            PreviewActorModelInternal.ChangeMeshAvatar(key, index);
+            ActorModelInternal.ChangeMeshAvatar(key, index);
         }
 
         /// <summary>
         /// 環境の変更
         /// </summary>
-        public void ChangeEnvironment(int index) {
-            if (index < 0 || index >= ModelViewerModel.MasterData.EnvironmentAssetKeys.Count) {
-                return;
-            }
+        public void ChangeEnvironment(IEnvironmentMaster master) {
+            ModelViewerModelInternal.ChangeEnvironmentAsync(master, _scope.Token).Forget();
+        }
 
-            var assetKey = ModelViewerModel.MasterData.EnvironmentAssetKeys[index];
-            ModelViewerModelInternal.ChangeEnvironmentAssetKey(assetKey);
+        /// <summary>
+        /// ディレクショナルライトのY角度の設定
+        /// </summary>
+        public void SetDirectionalLightAngleY(float angleY) {
+            ModelViewerModelInternal.EnvironmentModelInternal.SetLightAngleY(angleY);
         }
 
         /// <summary>

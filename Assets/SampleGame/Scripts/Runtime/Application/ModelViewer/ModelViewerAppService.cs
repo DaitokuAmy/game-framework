@@ -46,22 +46,22 @@ namespace SampleGame.Application.ModelViewer {
         /// <summary>
         /// ファクトリーの設定
         /// </summary>
-        public void SetFactory(IPreviewActorFactory actorFactory) {
-            _domainService.SetFactory(actorFactory);
+        public void SetFactory(IActorFactory actorFactory, IEnvironmentFactory environmentFactory) {
+            _domainService.SetFactory(actorFactory, environmentFactory);
         }
 
         /// <summary>
         /// 表示モデルの変更
         /// </summary>
         public void ChangePreviewActor(int index) {
-            var assetKeys = _domainService.ModelViewerModel.MasterData.ActorAssetKeys;
+            var assetKeys = _domainService.ModelViewerModel.Master.ActorAssetKeys;
             if (index < 0 || index >= assetKeys.Count) {
                 return;
             }
 
             // 設定ファイルを読み込み
             _repository.LoadActorMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => { _domainService.ChangePreviewActor(result); })
+                .ContinueWith(result => { _domainService.ChangeActor(result); })
                 .Forget();
         }
 
@@ -83,7 +83,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップのリプレイ
         /// </summary>
         public void ReplayAnimationClip() {
-            var model = _domainService.PreviewActorModel;
+            var model = _domainService.ActorModel;
             if (model == null) {
                 return;
             }
@@ -95,7 +95,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップを先に進める
         /// </summary>
         public void NextAnimationClip() {
-            var model = _domainService.PreviewActorModel;
+            var model = _domainService.ActorModel;
             if (model == null) {
                 return;
             }
@@ -109,7 +109,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップを前に戻す
         /// </summary>
         public void PreviousAnimationClip() {
-            var model = _domainService.PreviewActorModel;
+            var model = _domainService.ActorModel;
             if (model == null) {
                 return;
             }
@@ -138,7 +138,22 @@ namespace SampleGame.Application.ModelViewer {
         /// 環境の変更
         /// </summary>
         public void ChangeEnvironment(int index) {
-            _domainService.ChangeEnvironment(index);
+            var assetKeys = _domainService.ModelViewerModel.Master.EnvironmentAssetKeys;
+            if (index < 0 || index >= assetKeys.Count) {
+                return;
+            }
+
+            // 設定ファイルを読み込み
+            _repository.LoadEnvironmentMasterAsync(assetKeys[index], _scope.Token)
+                .ContinueWith(result => { _domainService.ChangeEnvironment(result); })
+                .Forget();
+        }
+
+        /// <summary>
+        /// ディレクショナルライトのY角度の設定
+        /// </summary>
+        public void SetDirectionalLightAngleY(float angleY) {
+            _domainService.SetDirectionalLightAngleY(angleY);
         }
 
         /// <summary>

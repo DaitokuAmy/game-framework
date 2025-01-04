@@ -9,6 +9,11 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// ActorMasterの読み込み
         /// </summary>
-        UniTask<IPreviewActorMaster> LoadActorMasterAsync(string setupDataId, CancellationToken ct);
+        UniTask<IActorMaster> LoadActorMasterAsync(string assetKey, CancellationToken ct);
+
+        /// <summary>
+        /// EnvironmentMasterの読み込み
+        /// </summary>
+        UniTask<IEnvironmentMaster> LoadEnvironmentMasterAsync(string assetKey, CancellationToken ct);
     }
 }

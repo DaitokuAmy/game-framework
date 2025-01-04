@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 766e4859ef2073d499c3d859617ce96d, type: 3}
-  m_Name: dat_model_viewer_preview_actor_setup_ch001_00
+  m_Name: dat_model_viewer_actor_setup_ch001_00
   m_EditorClassIdentifier: 
   prefab: {fileID: 6551939409919215813, guid: e90cc77ab40acd7449c212852d734a25, type: 3}
   defaultAnimationClipIndex: 0

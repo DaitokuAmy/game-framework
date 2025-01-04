@@ -8,7 +8,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 読み取り専用インターフェース
     /// </summary>
-    public interface IReadOnlyPreviewActorModel {
+    public interface IReadOnlyActorModel {
         /// <summary>現在再生中のAnimationClipIndex</summary>
         int CurrentAnimationClipIndex { get; }
         /// <summary>現在再生中の加算AnimationClipIndex</summary>
@@ -17,7 +17,11 @@ namespace SampleGame.Domain.ModelViewer {
         int AnimationClipCount { get; }
 
         /// <summary>マスター</summary>
-        IPreviewActorMaster Master { get; }
+        IActorMaster Master { get; }
+        /// <summary>位置</summary>
+        Vector3 Position { get; }
+        /// <summary>向き</summary>
+        Quaternion Rotation { get; }
         /// <summary>現在再生中のClip</summary>
         AnimationClip CurrentAnimationClip { get; }
         /// <summary>現在再生中の加算Clip</summary>
@@ -27,11 +31,11 @@ namespace SampleGame.Domain.ModelViewer {
     }
 
     /// <summary>
-    /// 表示用アクターモデル
+    /// アクターモデル
     /// </summary>
-    public class PreviewActorModel : AutoIdModel<PreviewActorModel>, IReadOnlyPreviewActorModel {
+    public class ActorModel : AutoIdModel<ActorModel>, IReadOnlyActorModel {
         private Dictionary<string, GameObject> _currentMeshAvatars;
-        private IPreviewActorController _actorController;
+        private IActorController _actorController;
 
         /// <summary>有効か</summary>
         public bool IsActive => _actorController != null;
@@ -44,7 +48,11 @@ namespace SampleGame.Domain.ModelViewer {
         public int AnimationClipCount => Master?.AnimationClips.Count ?? 0;
 
         /// <summary>マスター</summary>
-        public IPreviewActorMaster Master { get; private set; }
+        public IActorMaster Master { get; private set; }
+        /// <summary>位置</summary>
+        public Vector3 Position => _actorController?.Position ?? Vector3.zero;
+        /// <summary>向き</summary>
+        public Quaternion Rotation => _actorController?.Rotation ?? Quaternion.identity;
         /// <summary>現在再生中のClip</summary>
         public AnimationClip CurrentAnimationClip { get; private set; }
         /// <summary>現在再生中の加算Clip</summary>
@@ -55,7 +63,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        private PreviewActorModel(int id)
+        private ActorModel(int id)
             : base(id) {
         }
 
@@ -71,7 +79,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// データの設定
         /// </summary>
-        public void Setup(IPreviewActorMaster master) {
+        public void Setup(IActorMaster master) {
             // マスター設定
             Master = master;
 
@@ -91,7 +99,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// コントローラーの設定
         /// </summary>
-        public void SetController(IPreviewActorController controller) {
+        public void SetController(IActorController controller) {
             _actorController = controller;
 
             // 初期化

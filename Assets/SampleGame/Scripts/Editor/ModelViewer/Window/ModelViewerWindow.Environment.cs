@@ -1,6 +1,7 @@
 using System.Linq;
 using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
+using UnityEditor;
 using UnityEngine;
 
 namespace SampleGame.ModelViewer.Editor {
@@ -13,7 +14,7 @@ namespace SampleGame.ModelViewer.Editor {
         /// </summary>
         private class EnvironmentPanel : PanelBase {
             public override string Title => "Environment";
-            
+
             private SearchableList<string> _environmentAssetKeyList;
 
             /// <summary>
@@ -22,7 +23,7 @@ namespace SampleGame.ModelViewer.Editor {
             protected override void InitializeInternal(IScope scope) {
                 _environmentAssetKeyList = new SearchableList<string>();
             }
-            
+
             /// <summary>
             /// GUI描画
             /// </summary>
@@ -30,15 +31,29 @@ namespace SampleGame.ModelViewer.Editor {
                 var appService = Services.Get<ModelViewerAppService>();
                 var viewerModel = appService.DomainService.ModelViewerModel;
                 var prevColor = GUI.color;
-                
+
+                var environmentModel = viewerModel.EnvironmentModel;
+                if (environmentModel != null) {
+                    // ライト角度の変更
+                    var angleY = environmentModel.DirectionalLightAngleY;
+                    using (var scope = new EditorGUI.ChangeCheckScope()) {
+                        angleY = EditorGUILayout.Slider("ライト向き(Y)", angleY, 0.0f, 360.0f);
+                        if (scope.changed) {
+                            appService.SetDirectionalLightAngleY(angleY);
+                        }
+                    }
+                }
+
                 // Environmentの変更
-                var environmentIds = viewerModel.MasterData.EnvironmentAssetKeys.ToArray();
+                var environmentIds = viewerModel.Master.EnvironmentAssetKeys.ToArray();
                 _environmentAssetKeyList.OnGUI(environmentIds, x => x, (key, index) => {
-                    var current = viewerModel.EnvironmentAssetKey.Value == key;
+                    var current = viewerModel.EnvironmentModel != null && viewerModel.EnvironmentModel.Master.AssetKey == key;
                     GUI.color = current ? Color.green : Color.gray;
                     if (GUILayout.Button(key)) {
                         appService.ChangeEnvironment(index);
                     }
+
+                    GUI.color = prevColor;
                 });
 
                 GUI.color = prevColor;

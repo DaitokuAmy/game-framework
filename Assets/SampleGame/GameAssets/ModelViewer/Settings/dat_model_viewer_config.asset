@@ -24,7 +24,7 @@ MonoBehaviour:
     angleControlSpeed: 1
     lookAtOffsetControlSpeed: 0.01
     distanceControlSpeed: 0.01
-    scrollDistanceControlSpeed: 0.01
+    scrollDistanceControlSpeed: 1
     startLookAtOffset: {x: 0, y: 1, z: 0}
     startAngles: {x: 10, y: 180, z: 0}
     startDistance: 5

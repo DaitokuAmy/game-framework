@@ -26,10 +26,10 @@ namespace SampleGame.ModelViewer.Editor {
             protected override void InitializeInternal(IScope scope) {
                 var viewerModel = Services.Get<ModelViewerAppService>().DomainService.ModelViewerModel;
                 
-                // PreviewActor生成監視
-                viewerModel.CreatedPreviewActorSubject
+                // Actor生成監視
+                viewerModel.CreatedActorSubject
                     .TakeUntil(scope)
-                    .StartWith(() => new CreatedPreviewActorDto {
+                    .StartWith(() => new CreatedActorDto {
                         ActorModel = viewerModel.ActorModel
                     })
                     .Subscribe(dto => {
@@ -51,7 +51,7 @@ namespace SampleGame.ModelViewer.Editor {
                     });
                 
                 // PreviewActor削除監視
-                viewerModel.DeletedPreviewActorSubject
+                viewerModel.DeletedActorSubject
                     .TakeUntil(scope)
                     .Subscribe(dto => {
                         _meshAvatarFoldoutLists.Clear();
@@ -64,7 +64,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// </summary>
             protected override void OnGUIInternal() {
                 var appService = Services.Get<ModelViewerAppService>();
-                var actorModel = appService.DomainService.PreviewActorModel;
+                var actorModel = appService.DomainService.ActorModel;
                 var prevColor = GUI.color;
 
                 var keys = _meshAvatarFoldoutLists.Keys.ToArray();

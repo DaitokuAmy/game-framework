@@ -63,7 +63,7 @@ namespace SampleGame.Presentation.ModelViewer {
             var op = new AsyncOperator();
             var domainService = Services.Get<ModelViewerAppService>().DomainService;
             var recordingModel = domainService.RecordingModel;
-            var actorName = domainService.ModelViewerModel.ActorModel.Master.Name;
+            var actorName = domainService.ModelViewerModel.ActorModel.Master.DisplayName;
             _coroutineRunner.StartCoroutine(
                 RecordRoutine(actorName, recordingModel.RotationDuration, recordingModel.Options),
                 () => {
@@ -136,7 +136,7 @@ namespace SampleGame.Presentation.ModelViewer {
         private IEnumerator RecordRoutine(string assetKey, float rotationDuration, RecordingOptions flags) {
             var slot = Services.Get<ActorEntityManager>().RootTransform;
             var cameraComponent = Services.Get<CameraManager>().GetCameraComponent<PreviewCameraComponent>("Default");
-            var dirLight = Services.Get<EnvironmentManager>().CurrentLight;
+            var appService = Services.Get<ModelViewerAppService>();
 
             void SetSlotAngle(float angle) {
                 if (slot == null) {
@@ -157,14 +157,7 @@ namespace SampleGame.Presentation.ModelViewer {
             }
 
             void SetLightAngle(float angle) {
-                if (dirLight == null) {
-                    return;
-                }
-
-                var lightTrans = dirLight.transform;
-                var lightEulerAngles = lightTrans.eulerAngles;
-                lightEulerAngles.y = angle;
-                lightTrans.eulerAngles = lightEulerAngles;
+                appService.SetDirectionalLightAngleY(angle);
             }
 
             // 録画用設定を初期化

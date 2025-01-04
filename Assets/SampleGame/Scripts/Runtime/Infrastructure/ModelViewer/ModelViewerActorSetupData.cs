@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
-using IMeshAvatarInfo = SampleGame.Domain.ModelViewer.IPreviewActorMaster.IMeshAvatarInfo;
+using IMeshAvatarInfo = SampleGame.Domain.ModelViewer.IActorMaster.IMeshAvatarInfo;
 
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewer用のアクター初期化データ
     /// </summary>
-    [CreateAssetMenu(fileName = "dat_preview_actor_setup_hoge.asset", menuName = "SampleGame/Model Viewer/Actor Setup Data")]
-    public class ModelViewerPreviewActorSetupData : ScriptableObject, IPreviewActorMaster {
+    [CreateAssetMenu(fileName = "dat_model_viewer_actor_setup_hoge.asset", menuName = "SampleGame/Model Viewer/Actor Setup Data")]
+    public class ModelViewerActorSetupData : ScriptableObject, IActorMaster {
         /// <summary>
         /// メッシュアバター情報
         /// </summary>
@@ -29,7 +29,9 @@ namespace SampleGame.Infrastructure.ModelViewer {
             int IMeshAvatarInfo.DefaultIndex => defaultIndex;
             IReadOnlyList<GameObject> IMeshAvatarInfo.Prefabs => prefabs;
         }
-        
+
+        [Tooltip("表示名")]
+        public string displayName;
         [Tooltip("Body用のPrefab")]
         public GameObject prefab;
         [Tooltip("初期のアニメーションクリップIndex")]
@@ -39,10 +41,10 @@ namespace SampleGame.Infrastructure.ModelViewer {
         [Tooltip("アバターメッシュ情報リスト")]
         public MeshAvatarInfo[] meshAvatarInfos = Array.Empty<MeshAvatarInfo>();
 
-        public string Name => name.Replace("dat_preview_actor_setup_", "");
-        public GameObject Prefab => prefab;
-        public int DefaultAnimationClipIndex => defaultAnimationClipIndex;
-        public IReadOnlyList<AnimationClip> AnimationClips => animationClips;
-        public IReadOnlyList<IMeshAvatarInfo> MeshAvatarInfos => meshAvatarInfos;
+        string IActorMaster.DisplayName => string.IsNullOrEmpty(displayName) ? name.Replace("dat_model_viewer_actor_setup_", "") : displayName;
+        GameObject IActorMaster.Prefab => prefab;
+        int IActorMaster.DefaultAnimationClipIndex => defaultAnimationClipIndex;
+        IReadOnlyList<AnimationClip> IActorMaster.AnimationClips => animationClips;
+        IReadOnlyList<IMeshAvatarInfo> IActorMaster.MeshAvatarInfos => meshAvatarInfos;
     }
 }

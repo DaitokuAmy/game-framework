@@ -5,7 +5,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// プレビュー用のActorデータのインタフェース
     /// </summary>
-    public interface IPreviewActorMaster {
+    public interface IActorMaster {
         /// <summary>
         /// メッシュアバター情報のインタフェース
         /// </summary>
@@ -20,8 +20,8 @@ namespace SampleGame.Domain.ModelViewer {
             IReadOnlyList<GameObject> Prefabs { get; }
         }
 
-        /// <summary>名前</summary>
-        string Name { get; }
+        /// <summary>表示名</summary>
+        string DisplayName { get; }
         /// <summary>Body用のPrefab</summary>
         GameObject Prefab { get; }
         /// <summary>デフォルトのアニメーションクリップIndex</summary>

@@ -115,7 +115,7 @@ namespace SampleGame.Presentation.ModelViewer {
             var rigidbody = Body.GetComponent<Rigidbody>();
             if (rigidbody != null) {
                 rigidbody.isKinematic = true;
-                rigidbody.interpolation = RigidbodyInterpolation.Extrapolate;
+                rigidbody.interpolation = RigidbodyInterpolation.None;
             }
 
             // 加算レイヤーの追加

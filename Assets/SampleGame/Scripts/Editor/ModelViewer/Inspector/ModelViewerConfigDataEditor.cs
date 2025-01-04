@@ -27,11 +27,11 @@ namespace SampleGame.Editor.ModelViewer {
         /// </summary>
         private void UpdateMaster() {
             var actorAssetKeys = new HashSet<string>();
-            var actorSetupDataGuids = AssetDatabase.FindAssets($"t:{nameof(ModelViewerPreviewActorSetupData)}");
+            var actorSetupDataGuids = AssetDatabase.FindAssets($"t:{nameof(ModelViewerActorSetupData)}");
             foreach (var guid in actorSetupDataGuids) {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
                 var fileName = Path.GetFileNameWithoutExtension(path);
-                var assetKey = fileName.Replace("dat_preview_actor_setup_", "");
+                var assetKey = fileName.Replace("dat_model_viewer_actor_setup_", "");
                 actorAssetKeys.Add(assetKey);
             }
 

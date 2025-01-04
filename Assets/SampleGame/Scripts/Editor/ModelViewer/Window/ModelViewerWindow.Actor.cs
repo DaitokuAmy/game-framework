@@ -33,7 +33,7 @@ namespace SampleGame.ModelViewer.Editor {
             protected override void OnGUIInternal() {
                 var appService = Services.Get<ModelViewerAppService>();
                 var viewerModel = appService.DomainService.ModelViewerModel;
-                var actorModel = appService.DomainService.PreviewActorModel;
+                var actorModel = appService.DomainService.ActorModel;
 
                 var prevColor = GUI.color;
 
@@ -43,9 +43,9 @@ namespace SampleGame.ModelViewer.Editor {
 
                 using (new EditorGUILayout.HorizontalScope("Box")) {
                     // Actorの変更
-                    var actorAssetKeys = viewerModel.MasterData.ActorAssetKeys.ToArray();
+                    var actorAssetKeys = viewerModel.Master.ActorAssetKeys.ToArray();
                     _modelList.OnGUI(actorAssetKeys, x => x, (key, index) => {
-                        var current = actorModel != null && actorModel.Master.Name == key;
+                        var current = actorModel != null && actorModel.Master.DisplayName == key;
                         GUI.color = current ? Color.green : Color.gray;
                         if (GUILayout.Button(key)) {
                             appService.ChangePreviewActor(index);

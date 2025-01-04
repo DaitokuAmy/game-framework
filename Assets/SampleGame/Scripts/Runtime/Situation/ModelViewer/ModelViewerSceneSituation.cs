@@ -9,6 +9,7 @@ using GameFramework.LogicSystems;
 using GameFramework.SituationSystems;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
+using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
 using SampleGame.Presentation;
 using SampleGame.Presentation.ModelViewer;
@@ -78,8 +79,8 @@ namespace SampleGame.ModelViewer {
             cameraManager.SetCameraController("Default", new PreviewCameraController(_configData.camera));
 
             // 初期値反映
-            _appService.ChangePreviewActor(_domainService.ModelViewerModel.MasterData.DefaultActorAssetKeyIndex);
-            _appService.ChangeEnvironment(_domainService.ModelViewerModel.MasterData.DefaultEnvironmentAssetKeyIndex);
+            _appService.ChangePreviewActor(_domainService.ModelViewerModel.Master.DefaultActorAssetKeyIndex);
+            _appService.ChangeEnvironment(_domainService.ModelViewerModel.Master.DefaultEnvironmentAssetKeyIndex);
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace SampleGame.ModelViewer {
             var motionsPageId = -1;
             _debugPageId = rootPage.AddPageLinkButton("Model Viewer", onLoad: pageTuple => {
                 // モーションページの初期化
-                void SetupMotionPage(IPreviewActorMaster setupData) {
+                void SetupMotionPage(IActorMaster setupData) {
                     if (motionsPageId >= 0) {
                         pageTuple.page.RemoveItem(motionsPageId);
                         motionsPageId = -1;
@@ -119,7 +120,7 @@ namespace SampleGame.ModelViewer {
 
                 // Environment
                 pageTuple.page.AddPageLinkButton("Environments", onLoad: fieldsPageTuple => {
-                    var environmentAssetKeys = viewerModel.MasterData.EnvironmentAssetKeys;
+                    var environmentAssetKeys = viewerModel.Master.EnvironmentAssetKeys;
                     for (var i = 0; i < environmentAssetKeys.Count; i++) {
                         var index = i;
                         fieldsPageTuple.page.AddButton(environmentAssetKeys[i],
@@ -129,7 +130,7 @@ namespace SampleGame.ModelViewer {
 
                 // PreviewActor
                 pageTuple.page.AddPageLinkButton("Models", onLoad: modelsPageTuple => {
-                    var actorAssetKeys = viewerModel.MasterData.ActorAssetKeys;
+                    var actorAssetKeys = viewerModel.Master.ActorAssetKeys;
                     for (var i = 0; i < actorAssetKeys.Count; i++) {
                         var index = i;
                         modelsPageTuple.page.AddButton(actorAssetKeys[i], clicked: () => { appService.ChangePreviewActor(index); });
@@ -137,9 +138,9 @@ namespace SampleGame.ModelViewer {
                 });
 
                 // Actor生成監視
-                viewerModel.CreatedPreviewActorSubject
+                viewerModel.CreatedActorSubject
                     .TakeUntil(scope)
-                    .StartWith(() => new CreatedPreviewActorDto {
+                    .StartWith(() => new CreatedActorDto {
                         ActorModel = viewerModel.ActorModel
                     })
                     .Subscribe(dto => {
@@ -149,7 +150,7 @@ namespace SampleGame.ModelViewer {
                     });
 
                 // 初期状態反映
-                SetupMotionPage(_domainService.PreviewActorModel.Master);
+                SetupMotionPage(_domainService.ActorModel.Master);
             });
         }
 
@@ -174,6 +175,8 @@ namespace SampleGame.ModelViewer {
             var assetManager = Services.Get<AssetManager>();
             var repository = new ModelViewerRepository(assetManager);
             ServiceContainer.Set<IModelViewerRepository>(repository);
+            var fieldSceneRepository = new FieldSceneRepository(assetManager);
+            ServiceContainer.Set(fieldSceneRepository);
 
             yield break;
         }
@@ -229,8 +232,9 @@ namespace SampleGame.ModelViewer {
         /// Factoryの初期化
         /// </summary>
         private IEnumerator SetupFactoryRoutine(IScope scope) {
-            var actorFactory = new PreviewActorFactory();
-            _appService.SetFactory(actorFactory);
+            var actorFactory = new ActorFactory();
+            var environmentFactory = new EnvironmentFactory();
+            _appService.SetFactory(actorFactory, environmentFactory);
             yield break;
         }
 

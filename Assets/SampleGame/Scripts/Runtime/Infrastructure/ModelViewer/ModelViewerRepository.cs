@@ -12,7 +12,8 @@ namespace SampleGame.Infrastructure.ModelViewer {
     public class ModelViewerRepository : IDisposable, IModelViewerRepository {
         private readonly AssetManager _assetManager;
         private readonly DisposableScope _unloadScope;
-        private readonly PoolAssetStorage<ModelViewerPreviewActorSetupData> _actorSetupDataStorage;
+        private readonly PoolAssetStorage<ModelViewerActorSetupData> _actorSetupDataStorage;
+        private readonly SimpleAssetStorage<ModelViewerEnvironmentSetupData> _environmentSetupDataStorage;
 
         /// <summary>
         /// コンストラクタ
@@ -20,7 +21,8 @@ namespace SampleGame.Infrastructure.ModelViewer {
         public ModelViewerRepository(AssetManager assetManager) {
             _assetManager = assetManager;
             _unloadScope = new DisposableScope();
-            _actorSetupDataStorage = new PoolAssetStorage<ModelViewerPreviewActorSetupData>(_assetManager, 2);
+            _actorSetupDataStorage = new PoolAssetStorage<ModelViewerActorSetupData>(_assetManager, 2);
+            _environmentSetupDataStorage = new SimpleAssetStorage<ModelViewerEnvironmentSetupData>(_assetManager);
         }
 
         /// <summary>
@@ -32,11 +34,22 @@ namespace SampleGame.Infrastructure.ModelViewer {
         }
 
         /// <summary>
-        /// ActorDataの読み込み
+        /// ActorMasterの読み込み
         /// </summary>
-        public async UniTask<IPreviewActorMaster> LoadActorMasterAsync(string setupDataId, CancellationToken ct) {
+        public async UniTask<IActorMaster> LoadActorMasterAsync(string assetKey, CancellationToken ct) {
             var setupData = await _actorSetupDataStorage
-                .LoadAssetAsync(new ModelViewerPreviewActorSetupDataRequest(setupDataId))
+                .LoadAssetAsync(new ModelViewerActorSetupDataRequest(assetKey))
+                .ToUniTask(cancellationToken:ct);
+
+            return setupData;
+        }
+
+        /// <summary>
+        /// EnvironmentMasterの読み込み
+        /// </summary>
+        public async UniTask<IEnvironmentMaster> LoadEnvironmentMasterAsync(string assetKey, CancellationToken ct) {
+            var setupData = await _environmentSetupDataStorage
+                .LoadAssetAsync(new ModelViewerEnvironmentSetupDataRequest(assetKey))
                 .ToUniTask(cancellationToken:ct);
 
             return setupData;

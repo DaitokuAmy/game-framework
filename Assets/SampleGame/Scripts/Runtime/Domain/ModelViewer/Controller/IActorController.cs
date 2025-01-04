@@ -4,7 +4,12 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// プレビュー用のActor制御クラス
     /// </summary>
-    public interface IPreviewActorController {
+    public interface IActorController {
+        /// <summary>位置</summary>
+        Vector3 Position { get; }
+        /// <summary>向き</summary>
+        Quaternion Rotation { get; }
+        
         /// <summary>
         /// AnimationClipの切り替え
         /// </summary>

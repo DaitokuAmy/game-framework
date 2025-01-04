@@ -10,14 +10,14 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// プレビュー用のActor生成クラス
     /// </summary>
-    public class PreviewActorFactory : IPreviewActorFactory {
+    public class ActorFactory : IActorFactory {
         private readonly ModelViewerAppService _appService;
         private readonly ActorEntityManager _actorEntityManager;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public PreviewActorFactory() {
+        public ActorFactory() {
             _appService = Services.Get<ModelViewerAppService>();
             _actorEntityManager = Services.Get<ActorEntityManager>();
         }
@@ -25,7 +25,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// アクターの生成
         /// </summary>
-        async UniTask<IPreviewActorController> IPreviewActorFactory.CreateAsync(IReadOnlyPreviewActorModel model, CancellationToken ct) {
+        async UniTask<IActorController> IActorFactory.CreateAsync(IReadOnlyActorModel model, CancellationToken ct) {
             if (model == null) {
                 return null;
             }
@@ -33,7 +33,7 @@ namespace SampleGame.Domain.ModelViewer {
             var domainService = _appService.DomainService;
             var entity = await _actorEntityManager.CreatePreviewActorEntityAsync(1, model.Master.Prefab, domainService.SettingsModel.LayeredTime, ct);
             var actor = entity.GetActor<PreviewActor>();
-            var controller = new PreviewActorController(model, actor);
+            var controller = new ActorController(model, actor);
             controller.RegisterTask(TaskOrder.Logic);
             entity.AddLogic(controller);
             return controller;
@@ -42,7 +42,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// アクターの削除
         /// </summary>
-        void IPreviewActorFactory.Destroy(int id) {
+        void IActorFactory.Destroy(int id) {
             _actorEntityManager.DestroyEntity(id);
         }
     }

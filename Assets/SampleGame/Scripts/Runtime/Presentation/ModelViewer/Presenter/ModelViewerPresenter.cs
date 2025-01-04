@@ -1,5 +1,3 @@
-using Cysharp.Threading.Tasks;
-using GameFramework.ActorSystems;
 using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.LogicSystems;
@@ -35,14 +33,24 @@ namespace SampleGame.Presentation.ModelViewer {
             var ct = scope.Token;
 
             var cameraManager = Services.Get<CameraManager>();
+            var actorEntityManager = Services.Get<ActorEntityManager>();
             var domainService = _appService.DomainService;
             var modelViewerModel = domainService.ModelViewerModel;
             var settingsModel = domainService.SettingsModel;
-
-            // Environmentの切り替え
-            modelViewerModel.EnvironmentAssetKey
+            
+            // 環境の切り替え
+            modelViewerModel.CreatedEnvironmentSubject
                 .TakeUntil(scope)
-                .Subscribe(assetKey => { _environmentManager.ChangeEnvironmentAsync(assetKey, ct).Forget(); });
+                .Subscribe(dto => {
+                    // モデルビューアのSlot位置を変更
+                    actorEntityManager.RootTransform.position = dto.EnvironmentModel.Master.RootPosition;
+                    actorEntityManager.RootTransform.eulerAngles = dto.EnvironmentModel.Master.RootAngles;
+                    
+                    // AngleRootを変更
+                    var angleRoot = cameraManager.GetTargetPoint("AngleRoot");
+                    angleRoot.position = dto.EnvironmentModel.Master.RootPosition;
+                    angleRoot.eulerAngles = dto.EnvironmentModel.Master.RootAngles;
+                });
 
             // カメラの切り替え
             settingsModel.CameraControlType
@@ -79,6 +87,14 @@ namespace SampleGame.Presentation.ModelViewer {
 
             if (Keyboard.current[Key.DownArrow].wasPressedThisFrame) {
                 _appService.NextAnimationClip();
+            }
+            
+            // CameraのModelTransformを更新
+            var actorModel = _appService.DomainService.ActorModel;
+            if (actorModel != null) { 
+                var modelTrans = Services.Get<CameraManager>().GetTargetPoint("Model");
+                modelTrans.position = actorModel.Position;
+                modelTrans.rotation = actorModel.Rotation;
             }
         }
     }

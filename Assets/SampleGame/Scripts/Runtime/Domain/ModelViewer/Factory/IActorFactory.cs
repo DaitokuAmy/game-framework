@@ -5,11 +5,11 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// プレビュー用のActor生成インターフェース
     /// </summary>
-    public interface IPreviewActorFactory {
+    public interface IActorFactory {
         /// <summary>
         /// アクターの生成
         /// </summary>
-        UniTask<IPreviewActorController> CreateAsync(IReadOnlyPreviewActorModel model, CancellationToken ct);
+        UniTask<IActorController> CreateAsync(IReadOnlyActorModel model, CancellationToken ct);
         
         /// <summary>
         /// アクターの削除
