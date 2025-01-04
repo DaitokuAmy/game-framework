@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using GameFramework.ModelSystems;
 using UniRx;
@@ -9,7 +11,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// </summary>
     public interface IReadOnlyModelViewerModel {
         /// <summary>Actor初期化用データ</summary>
-        IModelViewerMaster Master { get; }
+        IModelViewerMaster MasterData { get; }
         /// <summary>アクターモデル</summary>
         IReadOnlyPreviewActorModel ActorModel { get; }
 
@@ -24,14 +26,15 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 表示用アクターモデル
     /// </summary>
-    public class ModelViewerModel : AutoIdModel<ModelViewerModel>, IReadOnlyModelViewerModel {
+    public class ModelViewerModel : SingleModel<ModelViewerModel>, IReadOnlyModelViewerModel {
         private ReactiveProperty<string> _environmentAssetKey;
+        private IPreviewActorFactory _actorFactory;
 
         private Subject<CreatedPreviewActorDto> _createdPreviewActorSubject;
         private Subject<DeletedPreviewActorDto> _deletedPreviewActorSubject;
 
         /// <summary>Actor初期化用データ</summary>
-        public IModelViewerMaster Master { get; private set; }
+        public IModelViewerMaster MasterData { get; private set; }
         /// <summary>アクターモデル</summary>
         public IReadOnlyPreviewActorModel ActorModel => ActorModelInternal;
 
@@ -48,8 +51,8 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        private ModelViewerModel(int id)
-            : base(id) {
+        private ModelViewerModel(object empty)
+            : base(empty) {
         }
 
         /// <summary>
@@ -68,25 +71,38 @@ namespace SampleGame.Domain.ModelViewer {
         /// データの設定
         /// </summary>
         public void Setup(IModelViewerMaster master) {
-            Master = master;
+            MasterData = master;
+        }
+
+        /// <summary>
+        /// ファクトリーの設定
+        /// </summary>
+        public void SetFactory(IPreviewActorFactory actorFactory) {
+            _actorFactory = actorFactory;
         }
 
         /// <summary>
         /// アクターモデルの変更
         /// </summary>
-        public void ChangeActorModel(IPreviewActorMaster master) {
+        public async UniTask ChangeActorModelAsync(IPreviewActorMaster master, CancellationToken ct) {
             DeleteActorModel();
 
-            if (master != null) {
-                // 生成
-                ActorModelInternal = PreviewActorModel.Create();
-                ActorModelInternal.Setup(master);
-
-                // 通知
-                _createdPreviewActorSubject.OnNext(new CreatedPreviewActorDto {
-                    ActorModel = ActorModel
-                });
+            if (master == null || _actorFactory == null) {
+                return;
             }
+
+            // モデル生成
+            ActorModelInternal = PreviewActorModel.Create();
+            ActorModelInternal.Setup(master);
+            
+            // アクター生成
+            var controller = await _actorFactory.CreateAsync(ActorModelInternal, ct);
+            ActorModelInternal.SetController(controller);
+
+            // 通知
+            _createdPreviewActorSubject.OnNext(new CreatedPreviewActorDto {
+                ActorModel = ActorModel
+            });
         }
 
         /// <summary>
@@ -95,6 +111,11 @@ namespace SampleGame.Domain.ModelViewer {
         public void DeleteActorModel() {
             if (ActorModelInternal == null) {
                 return;
+            }
+            
+            // アクター削除
+            if (_actorFactory != null) {
+                _actorFactory.Destroy(ActorModelInternal.Id);
             }
 
             // 通知

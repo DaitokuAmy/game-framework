@@ -6,6 +6,7 @@ using GameFramework.LogicSystems;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using UniRx;
+using UnityEngine.InputSystem;
 
 namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
@@ -38,35 +39,6 @@ namespace SampleGame.Presentation.ModelViewer {
             var modelViewerModel = domainService.ModelViewerModel;
             var settingsModel = domainService.SettingsModel;
 
-            // Actorの切り替え
-            modelViewerModel.CreatedPreviewActorSubject
-                .TakeUntil(scope)
-                .StartWith(() => new CreatedPreviewActorDto {
-                    ActorModel = modelViewerModel.ActorModel
-                })
-                .Subscribe(dto => {
-                    if (dto.ActorModel == null) {
-                        return;
-                    }
-
-                    var master = dto.ActorModel.Master;
-                    var entity = _actorEntityManager.CreatePreviewActorEntity(1, master, _appService.DomainService.SettingsModel.LayeredTime);
-                    var actor = entity.GetActor<PreviewActor>();
-                    var controller = new PreviewActorController(domainService.PreviewActorModel, actor);
-                    controller.RegisterTask(TaskOrder.Logic);
-                    entity.AddLogic(controller);
-                });
-
-            modelViewerModel.DeletedPreviewActorSubject
-                .TakeUntil(scope)
-                .Subscribe(dto => {
-                    if (dto.ActorModel == null) {
-                        return;
-                    }
-
-                    _actorEntityManager.DestroyEntity(1);
-                });
-
             // Environmentの切り替え
             modelViewerModel.EnvironmentAssetKey
                 .TakeUntil(scope)
@@ -87,6 +59,27 @@ namespace SampleGame.Presentation.ModelViewer {
                             break;
                     }
                 });
+        }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        protected override void UpdateInternal() {
+            base.UpdateInternal();
+            
+            // モーションの再適用
+            if (Keyboard.current[Key.Space].wasPressedThisFrame) {
+                _appService.ReplayAnimationClip();
+            }
+
+            // モーションのIndex更新
+            if (Keyboard.current[Key.UpArrow].wasPressedThisFrame) {
+                _appService.PreviousAnimationClip();
+            }
+
+            if (Keyboard.current[Key.DownArrow].wasPressedThisFrame) {
+                _appService.NextAnimationClip();
+            }
         }
     }
 }

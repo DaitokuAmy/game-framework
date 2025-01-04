@@ -37,15 +37,15 @@ namespace SampleGame.Editor {
             var assetKey = assetName.Substring("prfb_".Length);
 
             // Viewer用のSetupDataを作成
-            var setupDataPath = new PreviewActorSetupDataRequest(assetKey).Address;
+            var setupDataPath = new ModelViewerPreviewActorSetupDataRequest(assetKey).Address;
 
             // 既にある場合は何もしない
-            var destAsset = AssetDatabase.LoadAssetAtPath<PreviewActorSetupData>(setupDataPath);
+            var destAsset = AssetDatabase.LoadAssetAtPath<ModelViewerPreviewActorSetupData>(setupDataPath);
             if (!reset && destAsset != null) {
                 return;
             }
 
-            var setupData = ScriptableObject.CreateInstance<PreviewActorSetupData>();
+            var setupData = ScriptableObject.CreateInstance<ModelViewerPreviewActorSetupData>();
             setupData.name = $"dat_preview_actor_setup_{assetKey}";
             setupData.prefab = asset;
 
@@ -105,7 +105,7 @@ namespace SampleGame.Editor {
                 
                 // 設定に追加
                 setupData.meshAvatarInfos = avatarDict
-                    .Select(x => new PreviewActorSetupData.MeshAvatarInfo {
+                    .Select(x => new ModelViewerPreviewActorSetupData.MeshAvatarInfo {
                         key = x.Key,
                         prefabs = x.Value.ToArray(),
                         defaultIndex = 0

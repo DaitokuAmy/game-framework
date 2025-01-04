@@ -17,14 +17,10 @@ namespace SampleGame.Presentation.ModelViewer {
 
         private MotionHandle _additiveMotionHandle;
 
-        public IPreviewActorMaster SetupData { get; private set; }
-
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public PreviewActor(Body body, IPreviewActorMaster setupData)
-            : base(body) {
-            SetupData = setupData;
+        public PreviewActor(Body body) : base(body) {
             _motionController = body.GetController<MotionController>();
             _gimmickController = body.GetController<GimmickController>();
             _avatarController = body.GetController<AvatarController>();

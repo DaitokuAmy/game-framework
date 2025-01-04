@@ -41,7 +41,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>現在再生中の加算AnimationClipIndex</summary>
         public int CurrentAdditiveAnimationClipIndex { get; private set; }
         /// <summary>AnimationClipの総数</summary>
-        public int AnimationClipCount => Master != null ? Master.AnimationClips.Length : 0;
+        public int AnimationClipCount => Master?.AnimationClips.Count ?? 0;
 
         /// <summary>マスター</summary>
         public IPreviewActorMaster Master { get; private set; }
@@ -151,7 +151,7 @@ namespace SampleGame.Domain.ModelViewer {
             var prefab = default(GameObject);
             var locatorName = "";
             if (avatarInfo != null) {
-                prefab = index >= 0 && index < avatarInfo.Prefabs.Length ? avatarInfo.Prefabs[index] : null;
+                prefab = index >= 0 && index < avatarInfo.Prefabs.Count ? avatarInfo.Prefabs[index] : null;
                 locatorName = avatarInfo.LocatorName;
                 _currentMeshAvatars[key] = prefab;
             }
@@ -178,7 +178,7 @@ namespace SampleGame.Domain.ModelViewer {
 
             var clips = Master.AnimationClips;
 
-            if (index < 0 || index >= clips.Length) {
+            if (index < 0 || index >= clips.Count) {
                 return null;
             }
 

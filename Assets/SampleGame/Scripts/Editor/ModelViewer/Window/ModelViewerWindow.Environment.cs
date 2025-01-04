@@ -1,3 +1,4 @@
+using System.Linq;
 using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
 using UnityEngine;
@@ -31,7 +32,7 @@ namespace SampleGame.ModelViewer.Editor {
                 var prevColor = GUI.color;
                 
                 // Environmentの変更
-                var environmentIds = viewerModel.Master.EnvironmentAssetKeys;
+                var environmentIds = viewerModel.MasterData.EnvironmentAssetKeys.ToArray();
                 _environmentAssetKeyList.OnGUI(environmentIds, x => x, (key, index) => {
                     var current = viewerModel.EnvironmentAssetKey.Value == key;
                     GUI.color = current ? Color.green : Color.gray;

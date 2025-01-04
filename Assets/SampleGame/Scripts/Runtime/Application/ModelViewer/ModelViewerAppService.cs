@@ -15,7 +15,7 @@ namespace SampleGame.Application.ModelViewer {
         private DisposableScope _scope;
 
         public IReadOnlyModelViewerDomainService DomainService => _domainService;
-        
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -36,37 +36,32 @@ namespace SampleGame.Application.ModelViewer {
         /// <summary>
         /// 初期化
         /// </summary>
-        public async UniTask SetupAsync(CancellationToken ct) {
+        public async UniTask SetupAsync(IModelViewerMaster master, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
-            // 設定ファイル読み込み
-            var result = await _repository.LoadModelViewerMasterAsync(ct);
-            
             // 設定ファイルで初期化
-            _domainService.Setup(result);
+            _domainService.Setup(master);
         }
 
         /// <summary>
-        /// アクター制御用クラスの設定
+        /// ファクトリーの設定
         /// </summary>
-        public void SetActorController(IPreviewActorController controller) {
-            _domainService.SetActorController(controller);
+        public void SetFactory(IPreviewActorFactory actorFactory) {
+            _domainService.SetFactory(actorFactory);
         }
 
         /// <summary>
         /// 表示モデルの変更
         /// </summary>
         public void ChangePreviewActor(int index) {
-            var assetKeys = _domainService.ModelViewerModel.Master.ActorAssetKeys;
-            if (index < 0 || index >= assetKeys.Length) {
+            var assetKeys = _domainService.ModelViewerModel.MasterData.ActorAssetKeys;
+            if (index < 0 || index >= assetKeys.Count) {
                 return;
             }
-            
+
             // 設定ファイルを読み込み
             _repository.LoadActorMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => {
-                    _domainService.ChangePreviewActor(result);
-                })
+                .ContinueWith(result => { _domainService.ChangePreviewActor(result); })
                 .Forget();
         }
 
@@ -82,6 +77,46 @@ namespace SampleGame.Application.ModelViewer {
         /// </summary>
         public void ChangeAnimationClip(int clipIndex) {
             _domainService.ChangeAnimationClip(clipIndex);
+        }
+
+        /// <summary>
+        /// アニメーションクリップのリプレイ
+        /// </summary>
+        public void ReplayAnimationClip() {
+            var model = _domainService.PreviewActorModel;
+            if (model == null) {
+                return;
+            }
+            
+            _domainService.ChangeAnimationClip(model.CurrentAnimationClipIndex);
+        }
+
+        /// <summary>
+        /// アニメーションクリップを先に進める
+        /// </summary>
+        public void NextAnimationClip() {
+            var model = _domainService.PreviewActorModel;
+            if (model == null) {
+                return;
+            }
+
+            var index = model.CurrentAnimationClipIndex;
+            index = (index + 1) % model.AnimationClipCount;
+            _domainService.ChangeAnimationClip(index);
+        }
+
+        /// <summary>
+        /// アニメーションクリップを前に戻す
+        /// </summary>
+        public void PreviousAnimationClip() {
+            var model = _domainService.PreviewActorModel;
+            if (model == null) {
+                return;
+            }
+
+            var index = model.CurrentAnimationClipIndex;
+            index = (index - 1 + model.AnimationClipCount) % model.AnimationClipCount;
+            _domainService.ChangeAnimationClip(index);
         }
 
         /// <summary>

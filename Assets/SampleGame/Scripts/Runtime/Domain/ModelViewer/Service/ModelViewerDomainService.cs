@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -46,9 +48,9 @@ namespace SampleGame.Domain.ModelViewer {
         public ModelViewerDomainService() {
             _scope = new DisposableScope();
 
-            ModelViewerModelInternal = ModelViewer.ModelViewerModel.Create().ScopeTo(_scope);
-            RecordingModelInternal = ModelViewer.RecordingModel.Create().ScopeTo(_scope);
-            SettingsModelInternal = ModelViewer.SettingsModel.Create().ScopeTo(_scope);
+            ModelViewerModelInternal = ModelViewer.ModelViewerModel.Get();
+            RecordingModelInternal = ModelViewer.RecordingModel.Get();
+            SettingsModelInternal = ModelViewer.SettingsModel.Get();
         }
 
         /// <summary>
@@ -67,17 +69,17 @@ namespace SampleGame.Domain.ModelViewer {
         }
 
         /// <summary>
-        /// アクター制御用クラスの設定
+        /// ファクトリーの設定
         /// </summary>
-        public void SetActorController(IPreviewActorController controller) {
-            PreviewActorModelInternal.SetController(controller);
+        public void SetFactory(IPreviewActorFactory actorFactory) {
+            ModelViewerModelInternal.SetFactory(actorFactory);
         }
 
         /// <summary>
         /// 表示モデルの変更
         /// </summary>
         public void ChangePreviewActor(IPreviewActorMaster master) {
-            ModelViewerModelInternal.ChangeActorModel(master);
+            ModelViewerModelInternal.ChangeActorModelAsync(master, _scope.Token).Forget();
         }
 
         /// <summary>
@@ -129,11 +131,11 @@ namespace SampleGame.Domain.ModelViewer {
         /// 環境の変更
         /// </summary>
         public void ChangeEnvironment(int index) {
-            if (index < 0 || index >= ModelViewerModel.Master.EnvironmentAssetKeys.Length) {
+            if (index < 0 || index >= ModelViewerModel.MasterData.EnvironmentAssetKeys.Count) {
                 return;
             }
 
-            var assetKey = ModelViewerModel.Master.EnvironmentAssetKeys[index];
+            var assetKey = ModelViewerModel.MasterData.EnvironmentAssetKeys[index];
             ModelViewerModelInternal.ChangeEnvironmentAssetKey(assetKey);
         }
 

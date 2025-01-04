@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.AssetSystems;
 using GameFramework.BodySystems;
@@ -9,7 +7,6 @@ using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.LogicSystems;
 using GameFramework.SituationSystems;
-using GameFramework.UISystems;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure.ModelViewer;
@@ -17,7 +14,6 @@ using SampleGame.Presentation;
 using SampleGame.Presentation.ModelViewer;
 using UniRx;
 using UnityDebugSheet.Runtime.Core.Scripts;
-using UnityEditor;
 using UnityEngine;
 
 namespace SampleGame.ModelViewer {
@@ -37,6 +33,7 @@ namespace SampleGame.ModelViewer {
         }
 
         private int _debugPageId;
+        private ModelViewerConfigData _configData;
         private ModelViewerAppService _appService;
         private ModelViewerDomainService _domainService;
 
@@ -44,29 +41,45 @@ namespace SampleGame.ModelViewer {
         protected override string EmptySceneAssetPath => "Assets/SampleGame/Scenes/empty.unity";
 
         /// <summary>
+        /// 読み込み処理
+        /// </summary>
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+            yield return base.LoadRoutineInternal(handle, scope);
+
+            async UniTask LoadAsync(CancellationToken ct) {
+                // Config読み込み
+                var assetManager = Services.Get<AssetManager>();
+                await new ModelViewerConfigDataRequest()
+                    .LoadAsync(assetManager, scope, cancellationToken: ct)
+                    .ContinueWith(x => {
+                        _configData = x;
+                        ServiceContainer.Set(x).ScopeTo(scope);
+                    });
+            }
+
+            yield return LoadAsync(scope.Token).ToCoroutine();
+        }
+
+        /// <summary>
         /// 初期化処理
         /// </summary>
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
-            yield return SetupDomainRoutine(scope);
             yield return SetupInfrastructureRoutine(scope);
-            yield return SetupApplicationRoutine(scope);
             yield return SetupManagerRoutine(scope);
+            yield return SetupDomainRoutine(scope);
+            yield return SetupApplicationRoutine(scope);
+            yield return SetupFactoryRoutine(scope);
             yield return SetupPresentationRoutine(scope);
-
-            var settings = Services.Get<ModelViewerSettings>();
 
             // カメラ操作用Controllerの設定
             var cameraManager = Services.Get<CameraManager>();
-            cameraManager.SetCameraController("Default", new PreviewCameraController(settings.Camera));
-
-            // Editor用のSetupData自動更新処理
-            UpdateModelViewerSetupData(_domainService.ModelViewerModel.Master);
+            cameraManager.SetCameraController("Default", new PreviewCameraController(_configData.camera));
 
             // 初期値反映
-            _appService.ChangePreviewActor(_domainService.ModelViewerModel.Master.DefaultActorAssetKeyIndex);
-            _appService.ChangeEnvironment(_domainService.ModelViewerModel.Master.DefaultEnvironmentAssetKeyIndex);
+            _appService.ChangePreviewActor(_domainService.ModelViewerModel.MasterData.DefaultActorAssetKeyIndex);
+            _appService.ChangeEnvironment(_domainService.ModelViewerModel.MasterData.DefaultEnvironmentAssetKeyIndex);
         }
 
         /// <summary>
@@ -75,7 +88,6 @@ namespace SampleGame.ModelViewer {
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var ct = scope.Token;
             var appService = Services.Get<ModelViewerAppService>();
             var viewerModel = appService.DomainService.ModelViewerModel;
 
@@ -97,7 +109,7 @@ namespace SampleGame.ModelViewer {
 
                     motionsPageId = pageTuple.page.AddPageLinkButton("Motions", onLoad: motionsPageTuple => {
                         var clips = setupData.AnimationClips;
-                        for (var i = 0; i < clips.Length; i++) {
+                        for (var i = 0; i < clips.Count; i++) {
                             var index = i;
                             var clip = clips[i];
                             motionsPageTuple.page.AddButton(clip.name, clicked: () => { appService.ChangeAnimationClip(index); });
@@ -107,8 +119,8 @@ namespace SampleGame.ModelViewer {
 
                 // Environment
                 pageTuple.page.AddPageLinkButton("Environments", onLoad: fieldsPageTuple => {
-                    var environmentAssetKeys = viewerModel.Master.EnvironmentAssetKeys;
-                    for (var i = 0; i < environmentAssetKeys.Length; i++) {
+                    var environmentAssetKeys = viewerModel.MasterData.EnvironmentAssetKeys;
+                    for (var i = 0; i < environmentAssetKeys.Count; i++) {
                         var index = i;
                         fieldsPageTuple.page.AddButton(environmentAssetKeys[i],
                             clicked: () => appService.ChangeEnvironment(index));
@@ -117,8 +129,8 @@ namespace SampleGame.ModelViewer {
 
                 // PreviewActor
                 pageTuple.page.AddPageLinkButton("Models", onLoad: modelsPageTuple => {
-                    var actorAssetKeys = viewerModel.Master.ActorAssetKeys;
-                    for (var i = 0; i < actorAssetKeys.Length; i++) {
+                    var actorAssetKeys = viewerModel.MasterData.ActorAssetKeys;
+                    for (var i = 0; i < actorAssetKeys.Count; i++) {
                         var index = i;
                         modelsPageTuple.page.AddButton(actorAssetKeys[i], clicked: () => { appService.ChangePreviewActor(index); });
                     }
@@ -156,6 +168,17 @@ namespace SampleGame.ModelViewer {
         }
 
         /// <summary>
+        /// Infrastructure層の初期化
+        /// </summary>
+        private IEnumerator SetupInfrastructureRoutine(IScope scope) {
+            var assetManager = Services.Get<AssetManager>();
+            var repository = new ModelViewerRepository(assetManager);
+            ServiceContainer.Set<IModelViewerRepository>(repository);
+
+            yield break;
+        }
+
+        /// <summary>
         /// Managerの初期化
         /// </summary>
         private IEnumerator SetupManagerRoutine(IScope scope) {
@@ -181,19 +204,13 @@ namespace SampleGame.ModelViewer {
         /// Domain層の初期化
         /// </summary>
         private IEnumerator SetupDomainRoutine(IScope scope) {
+            // モデルの生成
+            ModelViewerModel.Create().ScopeTo(scope);
+            RecordingModel.Create().ScopeTo(scope);
+            SettingsModel.Create().ScopeTo(scope);
+            
             _domainService = new ModelViewerDomainService();
             ServiceContainer.Set(_domainService).ScopeTo(scope);
-
-            yield break;
-        }
-
-        /// <summary>
-        /// Infrastructure層の初期化
-        /// </summary>
-        private IEnumerator SetupInfrastructureRoutine(IScope scope) {
-            var assetManager = Services.Get<AssetManager>();
-            var repository = new ModelViewerRepository(assetManager);
-            ServiceContainer.Set<IModelViewerRepository>(repository);
 
             yield break;
         }
@@ -205,7 +222,16 @@ namespace SampleGame.ModelViewer {
             _appService = new ModelViewerAppService();
             ServiceContainer.Set(_appService).ScopeTo(scope);
 
-            yield return _appService.SetupAsync(scope.Token).ToCoroutine();
+            yield return _appService.SetupAsync(_configData.master, scope.Token).ToCoroutine();
+        }
+
+        /// <summary>
+        /// Factoryの初期化
+        /// </summary>
+        private IEnumerator SetupFactoryRoutine(IScope scope) {
+            var actorFactory = new PreviewActorFactory();
+            _appService.SetFactory(actorFactory);
+            yield break;
         }
 
         /// <summary>
@@ -225,30 +251,6 @@ namespace SampleGame.ModelViewer {
             SetupLogic(new ModelViewerPresenter());
 
             yield break;
-        }
-
-        /// <summary>
-        /// エディタ実行時用のModelViewerSetupDataの更新処理
-        /// </summary>
-        private void UpdateModelViewerSetupData(IModelViewerMaster master) {
-#if UNITY_EDITOR
-            if (master is not ModelViewerSetupData modelViewerSetup) {
-                return;
-            }
-
-            var ids = new HashSet<string>();
-            var guids = AssetDatabase.FindAssets($"t:{nameof(PreviewActorSetupData)}");
-            foreach (var guid in guids) {
-                var path = AssetDatabase.GUIDToAssetPath(guid);
-                var fileName = Path.GetFileNameWithoutExtension(path);
-                var assetKey = fileName.Replace("dat_preview_actor_setup_", "");
-                ids.Add(assetKey);
-            }
-
-            modelViewerSetup.actorAssetKeys = ids.OrderBy(x => x).ToArray();
-            EditorUtility.SetDirty(modelViewerSetup);
-            AssetDatabase.Refresh();
-#endif
         }
     }
 }

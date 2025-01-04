@@ -1,14 +1,15 @@
 using System;
+using System.Collections.Generic;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
 using IMeshAvatarInfo = SampleGame.Domain.ModelViewer.IPreviewActorMaster.IMeshAvatarInfo;
 
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
-    /// プレビュー用のActorデータ
+    /// ModelViewer用のアクター初期化データ
     /// </summary>
-    [CreateAssetMenu(fileName = "dat_preview_actor_setup_hoge.asset", menuName = "SampleGame/Model Viewer/Preview Actor Setup Data")]
-    public class PreviewActorSetupData : ScriptableObject, IPreviewActorMaster {
+    [CreateAssetMenu(fileName = "dat_preview_actor_setup_hoge.asset", menuName = "SampleGame/Model Viewer/Actor Setup Data")]
+    public class ModelViewerPreviewActorSetupData : ScriptableObject, IPreviewActorMaster {
         /// <summary>
         /// メッシュアバター情報
         /// </summary>
@@ -26,7 +27,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
             string IMeshAvatarInfo.Key => key;
             string IMeshAvatarInfo.LocatorName => locatorName;
             int IMeshAvatarInfo.DefaultIndex => defaultIndex;
-            GameObject[] IMeshAvatarInfo.Prefabs => prefabs;
+            IReadOnlyList<GameObject> IMeshAvatarInfo.Prefabs => prefabs;
         }
         
         [Tooltip("Body用のPrefab")]
@@ -41,7 +42,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
         public string Name => name.Replace("dat_preview_actor_setup_", "");
         public GameObject Prefab => prefab;
         public int DefaultAnimationClipIndex => defaultAnimationClipIndex;
-        public AnimationClip[] AnimationClips => animationClips;
-        public IMeshAvatarInfo[] MeshAvatarInfos => meshAvatarInfos;
+        public IReadOnlyList<AnimationClip> AnimationClips => animationClips;
+        public IReadOnlyList<IMeshAvatarInfo> MeshAvatarInfos => meshAvatarInfos;
     }
 }

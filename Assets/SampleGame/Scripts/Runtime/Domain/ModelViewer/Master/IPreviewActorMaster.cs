@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -16,7 +17,7 @@ namespace SampleGame.Domain.ModelViewer {
             /// <summary>デフォルトのアバターキー</summary>
             int DefaultIndex { get; }
             /// <summary>Mesh用Prefab</summary>
-            GameObject[] Prefabs { get; }
+            IReadOnlyList<GameObject> Prefabs { get; }
         }
 
         /// <summary>名前</summary>
@@ -26,8 +27,8 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>デフォルトのアニメーションクリップIndex</summary>
         int DefaultAnimationClipIndex { get; }
         /// <summary>アニメーションクリップリスト</summary>
-        AnimationClip[] AnimationClips { get; }
+        IReadOnlyList<AnimationClip> AnimationClips { get; }
         /// <summary>アバターメッシュ情報リスト</summary>
-        IMeshAvatarInfo[] MeshAvatarInfos { get; }
+        IReadOnlyList<IMeshAvatarInfo> MeshAvatarInfos { get; }
     }
 }

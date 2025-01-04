@@ -1,23 +1,27 @@
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
-    /// ModelViewerSetupData読み込みリクエスト
+    /// ModelViewerConfigData用のAssetRequest
     /// </summary>
-    public class ModelViewerSetupDataRequest : GameAssetRequest<ModelViewerSetupData> {
+    public class ModelViewerConfigDataRequest : GameAssetRequest<ModelViewerConfigData> {
+        // 読み込みAddress
         public override string Address { get; }
-        
-        public ModelViewerSetupDataRequest() {
-            Address = GetPath($"ModelViewer/Settings/dat_model_viewer_setup.asset");
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public ModelViewerConfigDataRequest() {
+            Address = GetPath("ModelViewer/Settings/dat_model_viewer_config.asset");
         }
     }
     
     /// <summary>
-    /// Preview用のActorSetupData読み込みリクエスト
+    /// ModelViewer用のActorSetupData読み込みリクエスト
     /// </summary>
-    public class PreviewActorSetupDataRequest : ActorAssetRequest<PreviewActorSetupData> {
+    public class ModelViewerPreviewActorSetupDataRequest : GameAssetRequest<ModelViewerPreviewActorSetupData> {
         public override string Address { get; }
         
-        public PreviewActorSetupDataRequest(string assetKey) {
-            Address = GetPath($"Preview/dat_preview_actor_setup_{assetKey}.asset");
+        public ModelViewerPreviewActorSetupDataRequest(string assetKey) {
+            Address = GetPath($"ModelViewer/PreviewActorSetup/dat_model_viewer_preview_actor_setup_{assetKey}.asset");
         }
     }
 }

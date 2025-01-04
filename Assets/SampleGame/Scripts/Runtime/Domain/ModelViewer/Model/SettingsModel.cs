@@ -19,7 +19,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 設定用モデル
     /// </summary>
-    public class SettingsModel : AutoIdModel<SettingsModel>, IReadOnlySettingsModel {
+    public class SettingsModel : SingleModel<SettingsModel>, IReadOnlySettingsModel {
         /// <summary>TimeScaleの最大値</summary>
         public const float TimeScaleMax = 10.0f;
 
@@ -36,8 +36,8 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        private SettingsModel(int id) 
-            : base(id) {}
+        private SettingsModel(object empty)
+            : base(empty) {}
 
         /// <summary>
         /// 初期化

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
 using UnityEditor;
@@ -42,7 +43,7 @@ namespace SampleGame.ModelViewer.Editor {
 
                 using (new EditorGUILayout.HorizontalScope("Box")) {
                     // Actorの変更
-                    var actorAssetKeys = viewerModel.Master.ActorAssetKeys;
+                    var actorAssetKeys = viewerModel.MasterData.ActorAssetKeys.ToArray();
                     _modelList.OnGUI(actorAssetKeys, x => x, (key, index) => {
                         var current = actorModel != null && actorModel.Master.Name == key;
                         GUI.color = current ? Color.green : Color.gray;
@@ -55,7 +56,7 @@ namespace SampleGame.ModelViewer.Editor {
 
                     if (actorModel != null) {
                         // ActorMotionの変更
-                        var animationClips = actorModel.Master != null ? actorModel.Master.AnimationClips : Array.Empty<AnimationClip>();
+                        var animationClips = actorModel.Master != null ? actorModel.Master.AnimationClips.ToArray() : Array.Empty<AnimationClip>();
                         _motionList.OnGUI(animationClips, x => x.name, (clip, index) => {
                             if (clip == null) {
                                 return;

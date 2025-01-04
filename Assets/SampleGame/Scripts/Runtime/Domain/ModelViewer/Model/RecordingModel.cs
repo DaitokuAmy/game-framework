@@ -15,7 +15,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 録画用モデル
     /// </summary>
-    public class RecordingModel : AutoIdModel<RecordingModel>, IReadOnlyRecordingModel {
+    public class RecordingModel : SingleModel<RecordingModel>, IReadOnlyRecordingModel {
         /// <summary>録画オプションマスク</summary>
         public RecordingOptions Options { get; private set; } = RecordingOptions.ActorRotation;
         /// <summary>回転時間</summary>
@@ -24,8 +24,8 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        private RecordingModel(int id) 
-            : base(id) {}
+        private RecordingModel(object empty) 
+            : base(empty) {}
         
         /// <summary>
         /// 録画オプションの変更

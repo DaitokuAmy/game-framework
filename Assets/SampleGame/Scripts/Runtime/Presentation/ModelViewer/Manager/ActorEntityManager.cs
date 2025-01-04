@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.ActorSystems;
@@ -62,8 +64,8 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// プレビューアクター用のアクターエンティティ生成
         /// </summary>
-        public ActorEntity CreatePreviewActorEntity(int id, IPreviewActorMaster master, LayeredTime parentLayeredTime) {
-            return CreatePreviewActorEntityInternal(id, master, parentLayeredTime);
+        public UniTask<ActorEntity> CreatePreviewActorEntityAsync(int id, GameObject prefab, LayeredTime parentLayeredTime, CancellationToken ct) {
+            return CreatePreviewActorEntityAsyncInternal(id, prefab, parentLayeredTime, ct);
         }
 
         /// <summary>
@@ -89,24 +91,24 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// アクターエンティティの生成
         /// </summary>
-        private ActorEntity CreatePreviewActorEntityInternal(int id, IPreviewActorMaster master, LayeredTime parentLayeredTime) {
+        private async UniTask<ActorEntity> CreatePreviewActorEntityAsyncInternal(int id, GameObject prefab, LayeredTime parentLayeredTime, CancellationToken ct) {
             var key = id;
 
             // 生成が完了いているのであればそれを返す
-            if (_createdEntities.TryGetValue(key, out var e)) {
-                return e;
+            if (_createdEntities.TryGetValue(key, out var entity)) {
+                return entity;
             }
 
-            var entity = new ActorEntity().ScopeTo(_scope);
+            entity = new ActorEntity().ScopeTo(_scope);
 
             // Body生成
-            var body = _bodyManager.CreateFromGameObject(InstantiatePrefab(master.Prefab));
+            var body = _bodyManager.CreateFromGameObject(InstantiatePrefab(prefab));
 
             // Bodyのリネーム
             RenameBodyGameObject(id, body);
 
             // Actorのセットアップ
-            var actor = new PreviewActor(body, master);
+            var actor = new PreviewActor(body);
 
             // 初期化
             body.UserId = key;

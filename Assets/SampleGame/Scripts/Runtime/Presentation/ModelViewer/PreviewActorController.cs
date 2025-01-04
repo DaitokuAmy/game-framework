@@ -1,9 +1,6 @@
-using GameFramework.Core;
 using GameFramework.ActorSystems;
-using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
@@ -49,39 +46,6 @@ namespace SampleGame.Presentation.ModelViewer {
             _actor.ChangeMotion(null);
             _actor.ChangeAdditiveMotion(null);
             _actor.ResetTransform();
-        }
-
-        /// <summary>
-        /// アクティブ時処理
-        /// </summary>
-        protected override void ActivateInternal(IScope scope) {
-            base.ActivateInternal(scope);
-
-            var appService = Services.Get<ModelViewerAppService>();
-            appService.SetActorController(this);
-        }
-
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        protected override void UpdateInternal() {
-            base.UpdateInternal();
-
-            var appService = Services.Get<ModelViewerAppService>();
-
-            // モーションの再適用
-            if (Keyboard.current[Key.Space].wasPressedThisFrame) {
-                _actor.ChangeMotion(_model.CurrentAnimationClip);
-            }
-
-            // モーションのIndex更新
-            if (Keyboard.current[Key.UpArrow].wasPressedThisFrame) {
-                appService.ChangeAnimationClip((_model.CurrentAnimationClipIndex - 1 + _model.AnimationClipCount) % _model.AnimationClipCount);
-            }
-
-            if (Keyboard.current[Key.DownArrow].wasPressedThisFrame) {
-                appService.ChangeAnimationClip((_model.CurrentAnimationClipIndex + 1) % _model.AnimationClipCount);
-            }
         }
     }
 }
