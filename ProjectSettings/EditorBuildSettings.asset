@@ -6,31 +6,20 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/SampleGame/Scenes/boot_game.unity
+    path: Assets/SampleGame/Scenes/entry.unity
     guid: 6ef15ed5621eab847934c319d962af1a
   - enabled: 1
-    path: Assets/SampleGame/Scenes/login.unity
-    guid: ecb2717d66d986d40884c63e028d650f
+    path: Assets/SampleGame/Scenes/empty.unity
+    guid: 8b51b8ccf83cb394f9b2e3266a6de5fa
   - enabled: 1
-    path: Assets/SampleGame/Scenes/title.unity
-    guid: 2a4f2dd423ca11048a18decc7513c7ec
-  - enabled: 1
-    path: Assets/SampleGame/Scenes/field.unity
+    path: Assets/SampleGame/Scenes/introduction.unity
     guid: b0ada2e260aa3234e91f5fbc3d919495
   - enabled: 1
     path: Assets/SampleGame/Scenes/battle.unity
     guid: d266e5241078a2c4a905808657d50d75
   - enabled: 1
-    path: Assets/Samples/Scenes/Debug/state_sample.unity
-    guid: d1c3109bdb54ad54c8a2b2838528e640
-  - enabled: 1
-    path: Assets/Samples/Scenes/Debug/situation_sample.unity
-    guid: 351f4ec71cea5fe4bae11270ce1f0895
-  - enabled: 1
-    path: Assets/Samples/Scenes/Debug/sample_a.unity
-    guid: ceffb69657d537e459ced01208dd479e
-  - enabled: 1
-    path: Assets/Samples/Scenes/Debug/sample_b.unity
-    guid: ca3c3b730d687c9488d961bdc8f496fc
+    path: Assets/SampleGame/Scenes/Develop/model_viewer.unity
+    guid: 4c509954e6d356b44b32236e4319bfbf
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 41ec11268afa736449f2e82e8de692ef, type: 2}
+  m_UseUCBPForAssetBundles: 0

@@ -1,5 +1,5 @@
 using System.Linq;
-using Cinemachine;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace GameFramework.CameraSystems {

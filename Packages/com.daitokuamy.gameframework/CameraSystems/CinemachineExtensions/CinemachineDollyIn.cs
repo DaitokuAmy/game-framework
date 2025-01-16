@@ -1,4 +1,4 @@
-using Cinemachine;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace GameFramework.CameraSystems {
@@ -7,7 +7,6 @@ namespace GameFramework.CameraSystems {
     /// </summary>
     [SaveDuringPlay]
     [AddComponentMenu("")]
-    [DocumentationSorting(DocumentationSortingAttribute.Level.UserRef)]
     [ExecuteAlways]
     public class CinemachineDollyIn : CinemachineExtension {
         [Tooltip("制御ステージ"), SaveDuringPlay]

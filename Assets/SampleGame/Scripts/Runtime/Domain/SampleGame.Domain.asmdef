@@ -1,0 +1,26 @@
+{
+    "name": "SampleGame.Domain",
+    "rootNamespace": "",
+    "references": [
+        "GUID:afebead123e02784da390b52d3e15019",
+        "GUID:f90b9b144169a2c408e5b8b7fd083f8e",
+        "GUID:d42c68197cc28dc4aa4c80f705b02be2",
+        "GUID:ff89bfa6c7558924ba1ed4cf64bd2d20",
+        "GUID:aafbca04a30d6314fa04811bbf9a60f3",
+        "GUID:a82a5cc92ab944743a5ed03ea597d0d4",
+        "GUID:cd95dc61d1665ab49b4763d88794bbde",
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285",
+        "GUID:b7ce230c26f0a4c31a26e8847a04cc87",
+        "GUID:f06555f75b070af458a003d92f9efb00",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

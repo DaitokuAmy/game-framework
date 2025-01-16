@@ -13,25 +13,16 @@ MonoBehaviour:
   m_Name: Default Local Group
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
-  m_Data:
-    m_SerializedData: []
   m_GUID: 8def2611f049b7145a6b63603d6050eb
   m_SerializeEntries:
-  - m_GUID: e6b290ad6e6418748ae192fdd9ac1649
-    m_Address: Assets/SampleGame/BodyAssets/Player/pl001/Models/prfb_pl001.prefab
+  - m_GUID: 4c509954e6d356b44b32236e4319bfbf
+    m_Address: Assets/SampleGame/Scenes/Development/model_viewer.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
-  - m_GUID: ea13caea2842aaa42969d5c8de8f4f4a
-    m_Address: Assets/SampleGame/BodyAssets/Player/pl002/Models/prfb_pl002.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-  - m_GUID: 10f2085c9d6ec8b4dac25a1072d78e5d
-    m_Address: Assets/SampleGame/BodyAssets/Player/pl003/Models/prfb_pl003.prefab
-    m_ReadOnly: 0
-    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ccde74308c09be146ace406d5c88cfe8, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 2ecdcc2cc3ec1fa418885c05f4637cf5, type: 2}
     - {fileID: 11400000, guid: 9bf4259637fac0f4e89cce928f6cb657, type: 2}
+    - {fileID: 11400000, guid: 2ecdcc2cc3ec1fa418885c05f4637cf5, type: 2}

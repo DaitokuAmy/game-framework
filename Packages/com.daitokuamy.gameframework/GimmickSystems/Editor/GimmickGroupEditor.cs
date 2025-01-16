@@ -223,7 +223,7 @@ namespace GameFramework.GimmickSystems.Editor {
         /// Prefabに出力
         /// </summary>
         private void ExportPrefab(GimmickGroup gimmickGroup, GameObject prefab) {
-            Core.Editor.EditorUtility.EditPrefab(prefab, obj => {
+            Core.Editor.EditorTool.EditPrefab(prefab, obj => {
                 var gimmickInfos = gimmickGroup.GimmickInfos.ToArray();
                 
                 // それぞれを対応する場所にコピー
@@ -239,7 +239,7 @@ namespace GameFramework.GimmickSystems.Editor {
                         }
 
                         var exportGimmick = exportGimmickInfo.gimmick;
-                        Core.Editor.EditorUtility.CopySerializedObjectForAttribute(gimmick, exportGimmick);
+                        Core.Editor.EditorTool.CopySerializedObjectForAttribute(gimmick, exportGimmick);
                     }
                 }
                 

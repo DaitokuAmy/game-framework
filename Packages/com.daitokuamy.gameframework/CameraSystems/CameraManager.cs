@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cinemachine;
+using Unity.Cinemachine;
 using GameFramework.Core;
 using GameFramework.TaskSystems;
 using UnityEngine;
@@ -147,10 +147,10 @@ namespace GameFramework.CameraSystems {
         /// カメラグループ情報
         /// </summary>
         private class CameraGroupInfo {
-            public GameObject prefab;
-            public CameraGroup cameraGroup;
-            public Dictionary<string, CameraHandler> handlers = new();
-            public Dictionary<string, Transform> targetPoints = new();
+            public GameObject Prefab;
+            public CameraGroup CameraGroup;
+            public Dictionary<string, CameraHandler> Handlers = new();
+            public Dictionary<string, Transform> TargetPoints = new();
         }
 
         [SerializeField, Tooltip("仮想カメラ用のBrain")]
@@ -169,7 +169,7 @@ namespace GameFramework.CameraSystems {
         // カメラグループのルートオブジェクト
         private GameObject _cameraGroupRoot;
         // Brainの初期状態のUpdateMethod
-        private CinemachineBrain.UpdateMethod _defaultUpdateMethod;
+        private CinemachineBrain.UpdateMethods _defaultUpdateMethod;
 
         // カメラグループ情報
         private Dictionary<string, CameraGroupInfo> _cameraGroupInfos = new();
@@ -407,13 +407,13 @@ namespace GameFramework.CameraSystems {
             cameraGroup.gameObject.SetActive(true);
             cameraGroup.name = groupKey;
             var groupInfo = new CameraGroupInfo();
-            groupInfo.cameraGroup = cameraGroup;
+            groupInfo.CameraGroup = cameraGroup;
             _cameraGroupInfos[groupKey] = groupInfo;
 
             // TargetPointsの生成
-            CreateTargetPointsInternal(groupInfo.targetPoints, cameraGroup.TargetPointRoot != null ? cameraGroup.TargetPointRoot.transform : null);
+            CreateTargetPointsInternal(groupInfo.TargetPoints, cameraGroup.TargetPointRoot != null ? cameraGroup.TargetPointRoot.transform : null);
             // CameraHandlerの生成
-            CreateCameraHandlersInternal(groupInfo.handlers, cameraGroup.CameraRoot.transform);
+            CreateCameraHandlersInternal(groupInfo.Handlers, cameraGroup.CameraRoot.transform);
         }
 
         /// <summary>
@@ -446,14 +446,14 @@ namespace GameFramework.CameraSystems {
             Initialize();
 
             if (_cameraGroupInfos.TryGetValue(key, out var info)) {
-                ClearCameraHandlersInternal(info.handlers);
-                ClearTargetPointsInternal(info.targetPoints);
-                if (info.cameraGroup != null) {
-                    if (info.prefab != null) {
-                        Destroy(info.cameraGroup.gameObject);
+                ClearCameraHandlersInternal(info.Handlers);
+                ClearTargetPointsInternal(info.TargetPoints);
+                if (info.CameraGroup != null) {
+                    if (info.Prefab != null) {
+                        Destroy(info.CameraGroup.gameObject);
                     }
                     else {
-                        info.cameraGroup.gameObject.SetActive(false);
+                        info.CameraGroup.gameObject.SetActive(false);
                     }
                 }
 
@@ -617,11 +617,11 @@ namespace GameFramework.CameraSystems {
 
             // Cameraの設定を戻す
             CinemachineCore.GetBlendOverride -= GetBlend;
-            _brain.m_UpdateMethod = _defaultUpdateMethod;
+            _brain.UpdateMethod = _defaultUpdateMethod;
 
             // カメラ情報を廃棄
             foreach (var info in _cameraGroupInfos) {
-                ClearCameraHandlersInternal(info.Value.handlers);
+                ClearCameraHandlersInternal(info.Value.Handlers);
             }
 
             _cameraGroupInfos.Clear();
@@ -651,7 +651,7 @@ namespace GameFramework.CameraSystems {
 
             // Controllerの更新
             foreach (var pair in _cameraGroupInfos) {
-                foreach (var p in pair.Value.handlers) {
+                foreach (var p in pair.Value.Handlers) {
                     if (p.Value.Controller == null) {
                         continue;
                     }
@@ -662,7 +662,7 @@ namespace GameFramework.CameraSystems {
 
             // Componentの更新
             foreach (var pair in _cameraGroupInfos) {
-                foreach (var p in pair.Value.handlers) {
+                foreach (var p in pair.Value.Handlers) {
                     if (p.Value.Component == null) {
                         continue;
                     }
@@ -715,7 +715,7 @@ namespace GameFramework.CameraSystems {
             }
 
             if (_cameraGroupInfos.TryGetValue(groupKey, out var info)) {
-                return info.handlers;
+                return info.Handlers;
             }
 
             return new();
@@ -730,7 +730,7 @@ namespace GameFramework.CameraSystems {
             }
 
             if (_cameraGroupInfos.TryGetValue(groupKey, out var info)) {
-                return info.targetPoints;
+                return info.TargetPoints;
             }
 
             return new();
@@ -821,17 +821,16 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// カメラのBlend値を取得(Callback)
         /// </summary>
-        /// <param name="fromCamera">前のカメラ</param>
-        /// <param name="toCamera">次のカメラ</param>
+        /// <param name="fromVcam">前のカメラ</param>
+        /// <param name="toVcam">次のカメラ</param>
         /// <param name="defaultBlend">現在のBlend情報</param>
         /// <param name="owner">CinemachineBrain</param>
-        private CinemachineBlendDefinition GetBlend(ICinemachineCamera fromCamera, ICinemachineCamera toCamera,
-            CinemachineBlendDefinition defaultBlend, MonoBehaviour owner) {
+        private CinemachineBlendDefinition GetBlend(ICinemachineCamera fromVcam, ICinemachineCamera toVcam, CinemachineBlendDefinition defaultBlend, UnityEngine.Object owner) {
             // Cameraに対するBlend情報を探す
-            _toCameraBlends.TryGetValue(toCamera, out var toBlend);
-            _fromCameraBlends.TryGetValue(fromCamera, out var fromBlend);
-            _toCameraBlends.Remove(toCamera);
-            _fromCameraBlends.Remove(fromCamera);
+            _toCameraBlends.TryGetValue(toVcam, out var toBlend);
+            _fromCameraBlends.TryGetValue(fromVcam, out var fromBlend);
+            _toCameraBlends.Remove(toVcam);
+            _fromCameraBlends.Remove(fromVcam);
 
             // Toが優先
             if (toBlend != null) {
@@ -855,8 +854,8 @@ namespace GameFramework.CameraSystems {
 
             _initialized = true;
 
-            _defaultUpdateMethod = _brain.m_UpdateMethod;
-            _brain.m_UpdateMethod = CinemachineBrain.UpdateMethod.ManualUpdate;
+            _defaultUpdateMethod = _brain.UpdateMethod;
+            _brain.UpdateMethod = CinemachineBrain.UpdateMethods.ManualUpdate;
             CinemachineCore.GetBlendOverride += GetBlend;
 
             // カメラグループのルート作成

@@ -1,7 +1,7 @@
-using Cinemachine.Utility;
 using System;
 using System.Linq;
-using Cinemachine;
+using System.Text;
+using Unity.Cinemachine;
 using GameFramework.Core;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace GameFramework.CameraSystems {
     [ExecuteAlways]
     [ExcludeFromPreset]
     [AddComponentMenu("Cinemachine/CinemachineRandomCamera")]
-    public class CinemachineBlendListCamera : CinemachineVirtualCameraBase {
+    public class CinemachineBlendListCamera : CinemachineVirtualCameraBase, ICinemachineMixer {
         /// <summary>
         /// カメラ情報
         /// </summary>
@@ -28,12 +28,10 @@ namespace GameFramework.CameraSystems {
         [Tooltip("Default object for the camera children to look at (the aim target), if not "
                  + "specified in a child camera.  May be empty if all of the children define targets of their own.")]
         [NoSaveDuringPlay]
-        [VcamTargetProperty]
         public Transform m_LookAt;
         [Tooltip("Default object for the camera children wants to move with (the body target), "
                  + "if not specified in a child camera.  May be empty if all of the children define targets of their own.")]
         [NoSaveDuringPlay]
-        [VcamTargetProperty]
         public Transform m_Follow;
         [Tooltip("抽選用のカメラ情報")]
         public CameraInfo[] m_CameraInfos;
@@ -48,12 +46,11 @@ namespace GameFramework.CameraSystems {
                     return "(none)";
                 }
 
-                var sb = CinemachineDebug.SBFromPool();
+                var sb = new StringBuilder();
                 sb.Append("[");
                 sb.Append(vcam.Name);
                 sb.Append("]");
                 var text = sb.ToString();
-                CinemachineDebug.ReturnToPool(sb);
                 return text;
             }
         }
@@ -92,7 +89,7 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// Live中のカメラかチェック
         /// </summary>
-        public override bool IsLiveChild(ICinemachineCamera vcam, bool dominantChildOnly = false) {
+        public bool IsLiveChild(ICinemachineCamera vcam, bool dominantChildOnly = false) {
             return vcam == LiveChild;
         }
 

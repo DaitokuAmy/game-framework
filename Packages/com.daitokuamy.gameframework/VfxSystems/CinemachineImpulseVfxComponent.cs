@@ -1,6 +1,6 @@
 #if USE_CINEMACHINE
 
-using Cinemachine;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace GameFramework.VfxSystems {
@@ -32,7 +32,7 @@ namespace GameFramework.VfxSystems {
                 _impulseSource.GenerateImpulse();
             }
 
-            if (_time >= _impulseSource.m_ImpulseDefinition.m_ImpulseDuration) {
+            if (_time >= _impulseSource.ImpulseDefinition.ImpulseDuration) {
                 ((IVfxComponent)this).Stop();
             }
         }

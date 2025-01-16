@@ -1,4 +1,4 @@
-using Cinemachine;
+using Unity.Cinemachine;
 using UnityEngine;
 
 namespace GameFramework.CameraSystems {
@@ -7,7 +7,6 @@ namespace GameFramework.CameraSystems {
     /// </summary>
     [SaveDuringPlay]
     [AddComponentMenu("")]
-    [DocumentationSorting(DocumentationSortingAttribute.Level.UserRef)]
     [ExecuteAlways]
     public class CinemachineCutBlender : CinemachineExtension {
         [Tooltip("制御ステージ")]
@@ -29,7 +28,7 @@ namespace GameFramework.CameraSystems {
             base.OnEnable();
 
             _currentTime = 0.0f;
-            var brain = CinemachineCore.Instance.FindPotentialTargetBrain(VirtualCamera);
+            var brain = CinemachineCore.FindPotentialTargetBrain(ComponentOwner);
             _fromPosition = brain != null ? brain.transform.position : null;
         }
 
@@ -54,7 +53,7 @@ namespace GameFramework.CameraSystems {
             // 元の位置からブレンドする
             var rate = m_Duration > 0.001f ? Mathf.Min(1.0f, _currentTime / m_Duration) : 1.0f;
             rate = m_TimeCurve != null && m_TimeCurve.keys.Length > 1 ? m_TimeCurve.Evaluate(rate) : rate;
-            var finalPosition = Vector3.Lerp(_fromPosition.Value, state.FinalPosition, (1.0f - m_BlendRate) + rate * m_BlendRate);
+            var finalPosition = Vector3.Lerp(_fromPosition.Value, state.GetFinalPosition(), (1.0f - m_BlendRate) + rate * m_BlendRate);
 
             // 位置をずらす
             state.PositionCorrection = finalPosition - state.RawPosition;

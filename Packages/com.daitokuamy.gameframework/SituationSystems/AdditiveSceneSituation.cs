@@ -34,7 +34,7 @@ namespace GameFramework.SituationSystems {
                 .SelectMany(x => x.GetComponentsInChildren<ServiceContainerInstaller>(true))
                 .ToArray();
             foreach (var installer in installers) {
-                installer.Install(ServiceContainer);
+                installer.Install(ServiceContainer, scope);
             }
         }
 
