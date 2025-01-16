@@ -248,7 +248,7 @@ namespace GameFramework.SituationSystems {
 
             var parentNode = CurrentNode.GetPrevious();
             if (parentNode == null || !parentNode.IsValid) {
-                return RootContainer.Back(new SituationContainer.TransitionOption { clearStack = true, forceBack = true }, overrideTransition, effects);
+                return RootContainer.Back(new SituationContainer.TransitionOption { clearStack = true, ForceBack = true }, overrideTransition, effects);
             }
 
             // 遷移中フラグをON
@@ -437,7 +437,7 @@ namespace GameFramework.SituationSystems {
                     return true;
                 }
 
-                var result = FindContainer(situation.ParentContainer.Owner, container, transitionSituations);
+                var result = FindContainer(situation.ParentContainer.RootSituation, container, transitionSituations);
                 transitionSituations.Add(situation);
                 return result;
             }
@@ -459,7 +459,7 @@ namespace GameFramework.SituationSystems {
                 var target = targetSituation;
                 while (target?.ParentContainer != null && target.ParentContainer.Current != target) {
                     situations.Insert(0, target);
-                    target = target.ParentContainer?.Owner;
+                    target = target.ParentContainer?.RootSituation;
                 }
             }
             // 遷移元があれば、遷移元と遷移先の共通Containerまでさかのぼる
@@ -470,12 +470,12 @@ namespace GameFramework.SituationSystems {
                     // 現階層を閉じる
                     yield return baseContainer.Transition(null,
                         new SituationContainer.TransitionOption {
-                            forceBack = true,
+                            ForceBack = true,
                             clearStack = true
                         }, overrideTransition: null, first ? new[] { enterEffect } : Array.Empty<ITransitionEffect>());
 
                     // 親のContainerを遷移対象してリトライ
-                    baseContainer = baseContainer.Owner.ParentContainer;
+                    baseContainer = baseContainer.RootSituation.ParentContainer;
                     situations.Clear();
                 }
             }
@@ -502,7 +502,7 @@ namespace GameFramework.SituationSystems {
 
                 yield return situation.ParentContainer.Transition(situation,
                     new SituationContainer.TransitionOption {
-                        forceBack = back,
+                        ForceBack = back,
                         clearStack = true
                     }, last ? overrideTransition : null, transitionEffects);
             }
@@ -525,7 +525,7 @@ namespace GameFramework.SituationSystems {
                     return true;
                 }
 
-                var result = FindContainer(situation.ParentContainer.Owner, container, transitionSituations);
+                var result = FindContainer(situation.ParentContainer.RootSituation, container, transitionSituations);
                 transitionSituations.Add(situation);
                 return result;
             }
@@ -545,7 +545,7 @@ namespace GameFramework.SituationSystems {
             while (target?.ParentContainer != null) {
                 situations.Insert(0, target);
                 parentContainers.Insert(0, target.ParentContainer);
-                target = target.ParentContainer?.Owner;
+                target = target.ParentContainer?.RootSituation;
             }
 
             // 入り演出を入れる
@@ -574,7 +574,7 @@ namespace GameFramework.SituationSystems {
 
                 yield return parentContainer.Transition(situation,
                     new SituationContainer.TransitionOption {
-                        forceBack = false,
+                        ForceBack = false,
                         clearStack = true
                     }, null, transitionEffects);
             }

@@ -28,13 +28,13 @@ namespace GameFramework.SituationSystems {
         // 例外
         public Exception Exception { get; private set; }
         // 遷移前のシチュエーション
-        public Situation Prev => (Situation)_transitionInfo?.prev;
+        public Situation Prev => (Situation)_transitionInfo?.Prev;
         // 遷移後のシチュエーション
-        public Situation Next => (Situation)_transitionInfo?.next;
+        public Situation Next => (Situation)_transitionInfo?.Next;
         // 戻り遷移か
-        public bool Back => _transitionInfo?.back ?? false;
+        public bool Back => _transitionInfo?.Back ?? false;
         // 遷移状態
-        public TransitionState TransitionState => _transitionInfo?.state ?? TransitionState.Invalid;
+        public TransitionState TransitionState => _transitionInfo?.State ?? TransitionState.Invalid;
         // IEnumerator用
         object IEnumerator.Current => null;
 
