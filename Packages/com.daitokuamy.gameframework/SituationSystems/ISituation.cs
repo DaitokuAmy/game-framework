@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using GameFramework.Core;
 
 namespace GameFramework.SituationSystems {
     /// <summary>
@@ -17,8 +19,18 @@ namespace GameFramework.SituationSystems {
     /// Release
     /// </summary>
     public interface ISituation {
+        /// <summary>インスタンス管理用</summary>
+        ServiceContainer ServiceContainer { get; }
         /// <summary>プリロード状態</summary>
         PreLoadState PreLoadState { get; }
+        /// <summary>親のSituation</summary>
+        ISituation Parent { get; }
+        /// <summary>子のSituationリスト</summary>
+        IReadOnlyList<ISituation> Children { get; }
+        /// <summary>RootSituationか(親を持たない)</summary>
+        bool IsRoot { get; }
+        /// <summary>LeafSituationか(子を持たない)</summary>
+        bool IsLeaf { get; }
 
         /// <summary>
         /// 待機処理
@@ -136,11 +148,17 @@ namespace GameFramework.SituationSystems {
         ITransition GetDefaultNextTransition();
 
         /// <summary>
-        /// 遷移可能かチェック
+        /// 該当Situationに遷移可能かチェック
         /// </summary>
         /// <param name="nextTransition">遷移するの子シチュエーション</param>
+        /// <returns>遷移可能か</returns>
+        bool CheckNextSituation(Situation nextTransition);
+
+        /// <summary>
+        /// 遷移可能かチェック
+        /// </summary>
         /// <param name="transition">遷移処理</param>
         /// <returns>遷移可能か</returns>
-        bool CheckNextTransition(Situation nextTransition, ITransition transition);
+        bool CheckTransition(ITransition transition);
     }
 }

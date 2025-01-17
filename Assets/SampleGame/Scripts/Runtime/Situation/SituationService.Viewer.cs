@@ -10,8 +10,8 @@ namespace SampleGame {
         /// <summary>
         /// Viewer関連のSituationの初期化
         /// </summary>
-        private void SetupViewerSituations(ISituationContainerProvider parentSituation, IScope scope) {
-            var modelViewerSituation = new ModelViewerSceneSituation().ScopeTo(scope);
+        private void SetupViewerSituations(Situation parentSituation, IScope scope) {
+            var modelViewerSituation = new ModelViewerSceneSituation();
             
             modelViewerSituation.SetParent(parentSituation);
             RegisterSituation(modelViewerSituation);

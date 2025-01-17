@@ -248,7 +248,7 @@ namespace GameFramework.SituationSystems {
 
             var parentNode = CurrentNode.GetPrevious();
             if (parentNode == null || !parentNode.IsValid) {
-                return RootContainer.Back(new SituationContainer.TransitionOption { clearStack = true, ForceBack = true }, overrideTransition, effects);
+                //return RootContainer.Back(new SituationContainer.TransitionOption { ForceBack = true }, overrideTransition, effects);
             }
 
             // 遷移中フラグをON
@@ -428,16 +428,16 @@ namespace GameFramework.SituationSystems {
         private IEnumerator TransitionNodeRoutine(SituationFlowNode node, SituationFlowNode nextNode, bool back, ITransition overrideTransition, ITransitionEffect[] effects) {
             // 該当Situationのコンテナ階層にターゲットのコンテナがあるかを探す
             bool FindContainer(Situation situation, SituationContainer container, List<Situation> transitionSituations) {
-                if (situation == null || situation.ParentContainer == null) {
+                if (situation == null || situation.Container == null) {
                     return false;
                 }
 
-                if (situation.ParentContainer == container) {
+                if (situation.Container == container) {
                     transitionSituations.Add(situation);
                     return true;
                 }
 
-                var result = FindContainer(situation.ParentContainer.RootSituation, container, transitionSituations);
+                var result = FindContainer(situation.Container.RootSituation, container, transitionSituations);
                 transitionSituations.Add(situation);
                 return result;
             }
@@ -457,9 +457,9 @@ namespace GameFramework.SituationSystems {
             // 遷移元がなければ、開く必要のあるシチュエーションをリスト化
             if (baseContainer == null) {
                 var target = targetSituation;
-                while (target?.ParentContainer != null && target.ParentContainer.Current != target) {
+                while (target?.Container != null && target.Container.Current != target) {
                     situations.Insert(0, target);
-                    target = target.ParentContainer?.RootSituation;
+                    target = target.Container?.RootSituation;
                 }
             }
             // 遷移元があれば、遷移元と遷移先の共通Containerまでさかのぼる
@@ -468,14 +468,13 @@ namespace GameFramework.SituationSystems {
                     var first = !effectEntered;
                     effectEntered = true;
                     // 現階層を閉じる
-                    yield return baseContainer.Transition(null,
-                        new SituationContainer.TransitionOption {
-                            ForceBack = true,
-                            clearStack = true
-                        }, overrideTransition: null, first ? new[] { enterEffect } : Array.Empty<ITransitionEffect>());
+                    // yield return baseContainer.Transition(null,
+                    //     new SituationContainer.TransitionOption {
+                    //         ForceBack = true
+                    //     }, overrideTransition: null, first ? new[] { enterEffect } : Array.Empty<ITransitionEffect>());
 
                     // 親のContainerを遷移対象してリトライ
-                    baseContainer = baseContainer.RootSituation.ParentContainer;
+                    baseContainer = baseContainer.RootSituation.Container;
                     situations.Clear();
                 }
             }
@@ -500,12 +499,14 @@ namespace GameFramework.SituationSystems {
                     }
                 }
 
-                yield return situation.ParentContainer.Transition(situation,
-                    new SituationContainer.TransitionOption {
-                        ForceBack = back,
-                        clearStack = true
-                    }, last ? overrideTransition : null, transitionEffects);
+                // yield return situation.Container.Transition(situation,
+                //     new SituationContainer.TransitionOption {
+                //         ForceBack = back,
+                //         clearStack = true
+                //     }, last ? overrideTransition : null, transitionEffects);
             }
+            
+            yield break;
         }
 
         /// <summary>
@@ -516,16 +517,16 @@ namespace GameFramework.SituationSystems {
         private IEnumerator ResetNodeRoutine(SituationFlowNode node, ITransitionEffect[] effects) {
             // 該当Situationのコンテナ階層にターゲットのコンテナがあるかを探す
             bool FindContainer(Situation situation, SituationContainer container, List<Situation> transitionSituations) {
-                if (situation == null || situation.ParentContainer == null) {
+                if (situation == null || situation.Container == null) {
                     return false;
                 }
 
-                if (situation.ParentContainer == container) {
+                if (situation.Container == container) {
                     transitionSituations.Add(situation);
                     return true;
                 }
 
-                var result = FindContainer(situation.ParentContainer.RootSituation, container, transitionSituations);
+                var result = FindContainer(situation.Container.RootSituation, container, transitionSituations);
                 transitionSituations.Add(situation);
                 return result;
             }
@@ -542,10 +543,10 @@ namespace GameFramework.SituationSystems {
 
             // ルートに戻るまでのシチュエーションをリスト化
             var target = targetSituation;
-            while (target?.ParentContainer != null) {
+            while (target?.Container != null) {
                 situations.Insert(0, target);
-                parentContainers.Insert(0, target.ParentContainer);
-                target = target.ParentContainer?.RootSituation;
+                parentContainers.Insert(0, target.Container);
+                target = target.Container?.RootSituation;
             }
 
             // 入り演出を入れる
@@ -559,7 +560,7 @@ namespace GameFramework.SituationSystems {
             // ルートまで解放する
             for (var i = situations.Count - 1; i >= 0; i--) {
                 var situation = situations[i];
-                situation.ParentContainer.Clear(true);
+                situation.Container.Clear();
             }
 
             // 遷移を行う
@@ -572,12 +573,13 @@ namespace GameFramework.SituationSystems {
                     transitionEffects = new[] { exitEffect };
                 }
 
-                yield return parentContainer.Transition(situation,
-                    new SituationContainer.TransitionOption {
-                        ForceBack = false,
-                        clearStack = true
-                    }, null, transitionEffects);
+                // yield return parentContainer.Transition(situation,
+                //     new SituationContainer.TransitionOption {
+                //         ForceBack = false
+                //     }, null, transitionEffects);
             }
+            
+            yield break;
         }
     }
 }

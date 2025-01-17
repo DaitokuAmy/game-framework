@@ -26,7 +26,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="useStack">Stack機能を使うか</param>
         public SituationRunner(bool useStack = false) {
             _rootCoroutineRunner = new CoroutineRunner();
-            _rootContainer = new SituationContainer(null, _rootCoroutineRunner, useStack);
+            //_rootContainer = new SituationContainer(null, _rootCoroutineRunner, useStack);
         }
 
         /// <summary>

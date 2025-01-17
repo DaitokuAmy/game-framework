@@ -12,11 +12,11 @@ namespace SampleGame {
         /// Situationの初期化処理
         /// </summary>
         private void SetupSituations(IScope scope) {
-            var mainSituation = new MainSituation().ScopeTo(scope);
-            mainSituation.SetParent(_situationRunner);
+            var mainSituation = new MainSituation();
+            _situationContainer.Setup(mainSituation);
             
-            SetupIntroductionSituations(mainSituation, scope);
-            SetupViewerSituations(_situationRunner, scope);
+            SetupIntroductionSituations(mainSituation);
+            SetupViewerSituations(mainSituation, scope);
         }
 
         /// <summary>

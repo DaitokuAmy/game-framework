@@ -10,8 +10,8 @@ namespace SampleGame {
         /// <summary>
         /// Introduction関連のSituationの初期化
         /// </summary>
-        private void SetupIntroductionSituations(ISituationContainerProvider parentSituation, IScope scope) {
-            var introductionSceneSituation = new IntroductionSceneSituation().ScopeTo(scope);
+        private void SetupIntroductionSituations(Situation parentSituation) {
+            var introductionSceneSituation = new IntroductionSceneSituation();
             introductionSceneSituation.SetParent(parentSituation);
 
             RegisterSituation(introductionSceneSituation);

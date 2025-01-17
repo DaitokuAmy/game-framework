@@ -35,7 +35,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>実行対象のSituation</summary>
         public Situation Situation => _situation;
         /// <summary>Situationが含まれているContainer</summary>
-        internal SituationContainer Container => _situation?.ParentContainer;
+        internal SituationContainer Container => _situation?.Container;
 
         /// <summary>フォールバック経由で遷移された時の通知</summary>
         public event Action<TransitionInfo> OnTransitionByFallbackEvent;

@@ -53,13 +53,21 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 遷移先チェック
+        /// 該当Situationに遷移可能かチェック
         /// </summary>
         /// <param name="nextTransition">遷移するの子シチュエーション</param>
+        /// <returns>遷移可能か</returns>
+        public override bool CheckNextSituation(Situation nextTransition) {
+            return nextTransition is SceneSituation;
+        }
+
+        /// <summary>
+        /// 遷移可能かチェック
+        /// </summary>
         /// <param name="transition">遷移処理</param>
         /// <returns>遷移可能か</returns>
-        public override bool CheckNextTransition(Situation nextTransition, ITransition transition) {
-            return nextTransition is SceneSituation && transition is OutInTransition;
+        public override bool CheckTransition(ITransition transition) {
+            return transition is OutInTransition;
         }
 
         /// <summary>

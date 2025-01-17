@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using GameFramework.Core;
 
 namespace GameFramework.SituationSystems {
@@ -28,9 +29,9 @@ namespace GameFramework.SituationSystems {
         // 例外
         public Exception Exception { get; private set; }
         // 遷移前のシチュエーション
-        public Situation Prev => (Situation)_transitionInfo?.Prev;
+        public Situation Prev => (Situation)_transitionInfo?.PrevSituations.FirstOrDefault();
         // 遷移後のシチュエーション
-        public Situation Next => (Situation)_transitionInfo?.Next;
+        public Situation Next => (Situation)_transitionInfo?.NextSituations.LastOrDefault();
         // 戻り遷移か
         public bool Back => _transitionInfo?.Back ?? false;
         // 遷移状態

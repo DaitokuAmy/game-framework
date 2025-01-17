@@ -8,7 +8,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション
     /// </summary>
-    public abstract class Situation : ISituation, ISituationContainerProvider, IDisposable {
+    public abstract class Situation : ISituation {
         /// <summary>
         /// 状態
         /// </summary>
@@ -22,6 +22,8 @@ namespace GameFramework.SituationSystems {
             OpenFinished, // オープン済
         }
 
+        // 親Situation
+        private Situation _parent;
         // 子Situation
         private readonly List<Situation> _children = new();
         // 読み込みスコープ
@@ -37,13 +39,6 @@ namespace GameFramework.SituationSystems {
         // 登録されているコンテナ
         private SituationContainer _container;
 
-        /// <summary>インターフェース用の子コンテナ返却プロパティ</summary>
-        SituationContainer ISituationContainerProvider.Container => _container;
-
-        /// <summary>親のSituation</summary>
-        public Situation Parent { get; private set; }
-        /// <summary>子Situationリスト</summary>
-        public IReadOnlyList<Situation> Children => _children;
         /// <summary>インスタンス管理用</summary>
         public ServiceContainer ServiceContainer { get; private set; }
         /// <summary>現在状態</summary>
@@ -52,6 +47,18 @@ namespace GameFramework.SituationSystems {
         public bool IsActive { get; private set; }
         /// <summary>プリロード状態</summary>
         public PreLoadState PreLoadState { get; private set; } = PreLoadState.None;
+        /// <summary>コンテナ返却プロパティ</summary>
+        public SituationContainer Container => _container;
+        /// <summary>RootSituationか</summary>
+        public bool IsRoot => _parent == null;
+        /// <summary>LeafSituationか</summary>
+        public bool IsLeaf => _children.Count <= 0;
+
+        /// <summary>親のSituation</summary>
+        ISituation ISituation.Parent => _parent;
+        /// <summary>子Situationリスト</summary>
+        IReadOnlyList<ISituation> ISituation.Children => _children;
+        
         /// <summary>登録されているFlow</summary>
         protected SituationFlow SituationFlow { get; private set; }
 
@@ -76,7 +83,7 @@ namespace GameFramework.SituationSystems {
 
             CurrentState = State.Standby;
             _container = container;
-            StandbyInternal(Parent);
+            StandbyInternal(_container);
         }
 
         /// <summary>
@@ -97,7 +104,7 @@ namespace GameFramework.SituationSystems {
             }
 
             _loadScope = new DisposableScope();
-            ServiceContainer = new ServiceContainer(Parent?.ServiceContainer ?? Services.Instance);
+            ServiceContainer = new ServiceContainer(_parent?.ServiceContainer ?? Services.Instance);
             CurrentState = State.Loading;
             yield return LoadRoutineInternal(handle, _loadScope);
             CurrentState = State.Loaded;
@@ -321,9 +328,8 @@ namespace GameFramework.SituationSystems {
             }
 
             var info = new SituationContainer.TransitionInfo {
-                Container = container,
-                Prev = this,
-                Next = null,
+                PrevSituations = new[] { this },
+                NextSituations = Array.Empty<Situation>(),
                 Back = false,
                 State = TransitionState.Canceled
             };
@@ -395,20 +401,28 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 遷移可能かチェック
+        /// 該当Situationに遷移可能かチェック
         /// </summary>
         /// <param name="nextTransition">遷移するの子シチュエーション</param>
+        /// <returns>遷移可能か</returns>
+        public virtual bool CheckNextSituation(Situation nextTransition) {
+            return true;
+        }
+
+        /// <summary>
+        /// 遷移可能かチェック
+        /// </summary>
         /// <param name="transition">遷移処理</param>
         /// <returns>遷移可能か</returns>
-        public virtual bool CheckNextTransition(Situation nextTransition, ITransition transition) {
+        public virtual bool CheckTransition(ITransition transition) {
             return true;
         }
 
         /// <summary>
         /// スタンバイ処理
         /// </summary>
-        /// <param name="parent">親シチュエーション</param>
-        protected virtual void StandbyInternal(Situation parent) {
+        /// <param name="container">登録されたコンテナ</param>
+        protected virtual void StandbyInternal(SituationContainer container) {
         }
 
         /// <summary>
@@ -550,32 +564,28 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 廃棄処理
-        /// </summary>
-        public void Dispose() {
-            if (_container != null) {
-                if (PreLoadState != PreLoadState.None) {
-                    _container.UnPreLoad(this);
-                }
-            }
-        }
-
-        /// <summary>
         /// 親の設定
         /// </summary>
         public void SetParent(Situation parent) {
+            if (parent == _parent) {
+                return;
+            } 
+            
             // 現在の親Containerがあったら抜ける
-            if (Parent != null) {
+            if (_parent != null) {
                 if (_container != null) {
                     ((ISituation)this).Release(_container);
                 }
 
-                Parent._children.Remove(this);
+                _parent._children.Remove(this);
             }
 
             if (parent == null) {
                 return;
             }
+            
+            // 親の設定
+            _parent = parent;
 
             // コンテナに登録
             parent._children.Add(this);
@@ -594,7 +604,7 @@ namespace GameFramework.SituationSystems {
                 return asyncOp.GetHandle();
             }
 
-            return _container.PreLoadAsync(this);
+            return _container.PreLoadAsync(GetType());
         }
 
         /// <summary>
@@ -605,7 +615,7 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
-            _container.UnPreLoad(this);
+            _container.UnPreLoad(GetType());
         }
     }
 }

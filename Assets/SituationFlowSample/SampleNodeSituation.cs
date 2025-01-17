@@ -65,31 +65,31 @@ namespace SituationFlowSample {
             Debug.Log($"Activate. [{GetType().Name}]");
 
             var sample = Services.Get<SituationFlowSample>();
-            sample.MenuView.BackSubject
-                .TakeUntil(scope)
-                .Subscribe(_ => Back());
+            // sample.MenuView.BackSubject
+            //     .TakeUntil(scope)
+            //     .Subscribe(_ => Back());
 
-            sample.MenuView.SelectedSubject
-                .TakeUntil(scope)
-                .Subscribe(index => {
-                    switch (index) {
-                        case 0:
-                            Transition<SampleNodeSituationA1>();
-                            break;
-                        case 1:
-                            Transition<SampleNodeSituationA2>();
-                            break;
-                        case 2:
-                            Transition<SampleNodeSituationB1>();
-                            break;
-                        case 3:
-                            Transition<SampleNodeSituationB21>();
-                            break;
-                        case 4:
-                            Transition<SampleNodeSituationB22>();
-                            break;
-                    }
-                });
+            // sample.MenuView.SelectedSubject
+            //     .TakeUntil(scope)
+            //     .Subscribe(index => {
+            //         switch (index) {
+            //             case 0:
+            //                 Transition<SampleNodeSituationA1>();
+            //                 break;
+            //             case 1:
+            //                 Transition<SampleNodeSituationA2>();
+            //                 break;
+            //             case 2:
+            //                 Transition<SampleNodeSituationB1>();
+            //                 break;
+            //             case 3:
+            //                 Transition<SampleNodeSituationB21>();
+            //                 break;
+            //             case 4:
+            //                 Transition<SampleNodeSituationB22>();
+            //                 break;
+            //         }
+            //     });
         }
 
         /// <summary>

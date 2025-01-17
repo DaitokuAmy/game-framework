@@ -15,20 +15,19 @@ namespace GameFramework.SituationSystems {
         /// 遷移オプション
         /// </summary>
         public class TransitionOption {
-            /// <summary>強制バック遷移</summary>
-            public bool ForceBack = false;
+            /// <summary>バック遷移</summary>
+            public bool Back = false;
         }
 
         /// <summary>
         /// 遷移情報
         /// </summary>
         public class TransitionInfo {
-            public SituationContainer Container;
             public IReadOnlyList<ISituation> PrevSituations;
             public IReadOnlyList<ISituation> NextSituations;
             public TransitionState State;
             public bool Back;
-            public ITransitionEffect[] Effects = new ITransitionEffect[0];
+            public IReadOnlyList<ITransitionEffect> Effects;
             public bool EffectActive;
         }
 
@@ -36,25 +35,29 @@ namespace GameFramework.SituationSystems {
         private readonly CoroutineRunner _coroutineRunner = new();
         // プリロードしているSituationリスト
         private readonly List<Situation> _preloadSituations = new();
-
+        // 現在稼働中のSituationのリスト
+        private readonly List<ISituation> _runningSituations = new();
         // 遷移中情報
         private TransitionInfo _transitionInfo;
 
         /// <summary>RootとなるSituation</summary>
         public Situation RootSituation { get; private set; }
         /// <summary>現在のシチュエーション</summary>
-        public Situation Current { get; private set; }
+        public Situation Current => _runningSituations.Count > 0 ? (Situation)_runningSituations[^1] : null;
 
         /// <summary>
-        /// コンストラクタ
+        /// 初期化
         /// </summary>
-        public SituationContainer(Situation rootSituation) {
-            if (rootSituation == null || rootSituation.Parent != null) {
+        public void Setup(Situation rootSituation) {
+            Clear();
+
+            if (rootSituation == null || !rootSituation.IsRoot) {
                 Debug.LogError($"Invalid root situation. {rootSituation}");
                 return;
             }
 
             RootSituation = rootSituation;
+            ((ISituation)rootSituation).Standby(this);
         }
 
         /// <summary>
@@ -74,25 +77,24 @@ namespace GameFramework.SituationSystems {
             }
 
             // 閉じるSituationのリスト化
-            var prevSituations = new List<Situation>();
-            var situation = Current;
+            var prevSituations = new List<ISituation>();
+            var situation = (ISituation)Current;
             while (situation != null) {
                 prevSituations.Add(situation);
-                situation = situation.Parent;
+                situation = (ISituation)situation.Parent;
             }
 
             // 開くSituationのリスト化
-            var nextSituations = new List<Situation>();
+            var nextSituations = new List<ISituation>();
             for (var i = prevSituations.Count - 1; i >= 0; i--) {
                 nextSituations.Add(prevSituations[i]);
             }
 
-            // 遷移はOutIn前提
-            var transition = (ITransition)new OutInTransition();
+            // 遷移はデフォルト
+            var transition = GetDefaultTransition(null);
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
-                Container = this,
                 Back = false,
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
@@ -147,9 +149,9 @@ namespace GameFramework.SituationSystems {
             }
 
             // 遷移先の共通親を探す
-            var baseParent = Current?.Parent;
+            var baseParent = prev?.Parent;
             while (baseParent != null) {
-                var p = situation.Parent;
+                var p = next.Parent;
                 while (p != null) {
                     if (p == baseParent) {
                         break;
@@ -166,10 +168,10 @@ namespace GameFramework.SituationSystems {
             }
 
             // 閉じるSituationリスト
-            var prevSituations = new List<Situation>();
-            if (Current != null) {
-                prevSituations.Add(Current);
-                var p = Current.Parent;
+            var prevSituations = new List<ISituation>();
+            if (prev != null) {
+                prevSituations.Add(prev);
+                var p = prev.Parent;
                 while (p != baseParent) {
                     prevSituations.Add(p);
                     p = p.Parent;
@@ -177,10 +179,10 @@ namespace GameFramework.SituationSystems {
             }
 
             // 開くSituationリスト
-            var nextSituations = new List<Situation>();
+            var nextSituations = new List<ISituation>();
             {
-                nextSituations.Insert(0, situation);
-                var p = situation.Parent;
+                nextSituations.Insert(0, next);
+                var p = next.Parent;
                 while (p != baseParent) {
                     nextSituations.Insert(0, p);
                     p = p.Parent;
@@ -191,20 +193,23 @@ namespace GameFramework.SituationSystems {
             var transition = overrideTransition ?? GetDefaultTransition(next);
 
             // 遷移可能チェック
-            if (!CheckTransition(next, transition)) {
+            if (!CheckTransition(prevSituations, nextSituations, transition)) {
                 return new TransitionHandle(
                     new Exception($"Cant transition. Situation:{nextName} Transition:{transition}"));
             }
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
-                Container = this,
-                Back = option != null && option.ForceBack,
+                Back = option != null && option.Back,
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,
                 Effects = effects
             };
+
+            // アクティブなSituationの更新
+            _runningSituations.Clear();
+            _runningSituations.AddRange(nextSituations);
 
             // コルーチンの登録
             _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => _transitionInfo = null);
@@ -245,13 +250,24 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// シチュエーションのプリロード
         /// </summary>
-        /// <param name="situation">プリロード対象のSituation</param>
-        public AsyncOperationHandle PreLoadAsync(Situation situation) {
+        public AsyncOperationHandle PreLoadAsync<TSituation>()
+            where TSituation : Situation {
+            return PreLoadAsync(typeof(TSituation));
+        }
+
+        /// <summary>
+        /// シチュエーションのプリロード
+        /// </summary>
+        public AsyncOperationHandle PreLoadAsync(Type situationType) {
+            var situation = FindSituation(situationType);
+            if (situation == null) {
+                return AsyncOperationHandle.CanceledHandle;
+            }
+
             var target = (ISituation)situation;
             var asyncOp = new AsyncOperator();
             if (target.PreLoadState == PreLoadState.None) {
                 _preloadSituations.Add(situation);
-                target.Standby(this);
                 _coroutineRunner.StartCoroutine(target.PreLoadRoutine(), () => { asyncOp.Completed(); }, () => { asyncOp.Aborted(); }, ex => { asyncOp.Aborted(ex); });
             }
             else {
@@ -264,12 +280,22 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// シチュエーションのプリロード解除
         /// </summary>
-        /// <param name="situation">プリロード解除対象のSituation</param>
-        public void UnPreLoad(Situation situation) {
-            var target = (ISituation)situation;
+        public void UnPreLoad<TSituation>() {
+            UnPreLoad(typeof(TSituation));
+        }
+
+        /// <summary>
+        /// シチュエーションのプリロード解除
+        /// </summary>
+        public void UnPreLoad(Type situationType) {
+            var target = FindSituation(situationType);
+            if (target == null) {
+                return;
+            }
+            
             if (target.PreLoadState != PreLoadState.None) {
                 target.UnPreLoad();
-                _preloadSituations.Remove(situation);
+                _preloadSituations.Remove(target);
             }
         }
 
@@ -292,23 +318,15 @@ namespace GameFramework.SituationSystems {
 
                 // エフェクト更新
                 if (_transitionInfo.EffectActive) {
-                    for (var i = 0; i < _transitionInfo.Effects.Length; i++) {
+                    for (var i = 0; i < _transitionInfo.Effects.Count; i++) {
                         _transitionInfo.Effects[i].Update();
                     }
                 }
             }
             // 現在有効なSituationの更新
             else {
-                // todo:あとでキャッシュする
-                var situations = new List<ISituation>();
-                var situation = Current;
-                while (situation != null) {
-                    situations.Add(situation);
-                    situation = situation.Parent;
-                }
-
-                for (var i = situations.Count - 1; i >= 0; i--) {
-                    situations[i].Update();
+                foreach (var situation in _runningSituations) {
+                    situation.Update();
                 }
             }
         }
@@ -330,16 +348,8 @@ namespace GameFramework.SituationSystems {
             }
             // 現在有効なSituationの更新
             else {
-                // todo:あとでキャッシュする
-                var situations = new List<ISituation>();
-                var situation = Current;
-                while (situation != null) {
-                    situations.Add(situation);
-                    situation = situation.Parent;
-                }
-
-                for (var i = situations.Count - 1; i >= 0; i--) {
-                    situations[i].LateUpdate();
+                foreach (var situation in _runningSituations) {
+                    situation.LateUpdate();
                 }
             }
         }
@@ -361,16 +371,8 @@ namespace GameFramework.SituationSystems {
             }
             // 現在有効なSituationの更新
             else {
-                // todo:あとでキャッシュする
-                var situations = new List<ISituation>();
-                var situation = Current;
-                while (situation != null) {
-                    situations.Add(situation);
-                    situation = situation.Parent;
-                }
-
-                for (var i = situations.Count - 1; i >= 0; i--) {
-                    situations[i].FixedUpdate();
+                foreach (var situation in _runningSituations) {
+                    situation.FixedUpdate();
                 }
             }
         }
@@ -381,6 +383,10 @@ namespace GameFramework.SituationSystems {
         public void Clear() {
             // PreLoad/PreRegister毎解放する
             void ForceRelease(ISituation situation) {
+                foreach (var child in situation.Children) {
+                    ForceRelease(child);
+                }
+
                 situation.UnPreLoad();
                 situation.Release(this);
             }
@@ -388,18 +394,21 @@ namespace GameFramework.SituationSystems {
             // PreLoad状態の物をUnPreLoad
             var preloadSituations = _preloadSituations.ToArray();
             foreach (var situation in preloadSituations) {
-                UnPreLoad(situation);
+                UnPreLoad(situation.GetType());
             }
 
-            // カレントの階層を全部クリア
-            var target = Current;
-            while (target != null) {
-                ForceRelease(target);
-                target = target.Parent;
-            }
+            // 有効なSituationを無くす
+            _runningSituations.Clear();
 
+            // Coroutineキャンセル
             _coroutineRunner.StopAllCoroutines();
             _transitionInfo = null;
+
+            // 全SituationのRelease
+            if (RootSituation != null) {
+                ForceRelease(RootSituation);
+                RootSituation = null;
+            }
         }
 
         /// <summary>
@@ -407,23 +416,42 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         public void Dispose() {
             Clear();
-            RootSituation = null;
         }
 
         /// <summary>
         /// 遷移チェック
         /// </summary>
-        private bool CheckTransition(ISituation nextSituation, ITransition transition) {
+        private bool CheckTransition(IReadOnlyList<ISituation> prevSituations, IReadOnlyList<ISituation> nextSituations, ITransition transition) {
             if (transition == null) {
                 return false;
             }
 
-            // null遷移は常に許可
-            if (nextSituation == null) {
+            // 空への遷移 or 空からの遷移は常に許可
+            if (prevSituations.Count <= 0 || nextSituations.Count <= 0) {
                 return true;
             }
 
-            return nextSituation.CheckNextTransition((Situation)nextSituation, transition);
+            // Leaf部分のチェック
+            var prevLeaf = prevSituations[0];
+            var nextLeaf = nextSituations[^1];
+            if (!prevLeaf.CheckNextSituation((Situation)nextLeaf)) {
+                return false;
+            }
+
+            // ルートのチェック
+            foreach (var situation in prevSituations) {
+                if (!situation.CheckTransition(transition)) {
+                    return false;
+                }
+            }
+
+            foreach (var situation in nextSituations) {
+                if (!situation.CheckTransition(transition)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -440,12 +468,17 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 該当型の階層一番下にあるSituationを探す
         /// </summary>
-        private Situation FindLeafSituation<T>()
-            where T : Situation {
-            var type = typeof(T);
+        public TSituation FindLeafSituation<TSituation>()
+            where TSituation : Situation {
+            return (TSituation)FindLeafSituation(typeof(TSituation));
+        }
 
-            Situation Find(Situation situation) {
-                if (situation.Children.Count == 0) {
+        /// <summary>
+        /// 該当型の階層一番下にあるSituationを探す
+        /// </summary>
+        public Situation FindLeafSituation(Type type) {
+            ISituation Find(ISituation situation) {
+                if (situation.IsLeaf) {
                     if (situation.GetType() == type) {
                         return situation;
                     }
@@ -465,7 +498,39 @@ namespace GameFramework.SituationSystems {
                 return null;
             }
 
-            return Find(RootSituation);
+            return (Situation)Find(RootSituation);
+        }
+
+        /// <summary>
+        /// 該当型のSituationを探す
+        /// </summary>
+        public TSituation FindSituation<TSituation>()
+            where TSituation : Situation {
+            return (TSituation)FindSituation(typeof(TSituation));
+        }
+
+        /// <summary>
+        /// 該当型のSituationを探す
+        /// </summary>
+        public Situation FindSituation(Type type) {
+            ISituation Find(ISituation situation) {
+                if (situation.GetType() == type) {
+                    return situation;
+                }
+
+                foreach (var child in situation.Children) {
+                    var result = Find(child);
+                    if (result == null) {
+                        continue;
+                    }
+
+                    return result;
+                }
+
+                return null;
+            }
+
+            return (Situation)Find(RootSituation);
         }
 
         /// <summary>
