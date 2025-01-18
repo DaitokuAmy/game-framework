@@ -10,7 +10,6 @@ namespace GameFramework.SituationSystems {
     /// シチュエーション遷移情報
     /// </summary>
     public class SituationFlow : IDisposable {
-        private readonly CoroutineRunner _coroutineRunner;
         private readonly SituationFlowNode _rootNode;
         private readonly SituationContainer _situationContainer;
         private readonly Dictionary<Type, SituationFlowNode> _globalFallbackNodes = new();
@@ -19,14 +18,13 @@ namespace GameFramework.SituationSystems {
         /// <summary>現在のNode</summary>
         public SituationFlowNode CurrentNode { get; private set; }
         /// <summary>トランジション中か</summary>
-        public bool IsTransitioning { get; private set; }
+        public bool IsTransitioning => _situationContainer.IsTransitioning;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public SituationFlow(SituationContainer container) {
             _rootNode = new SituationFlowNode(this, null, null);
-            _coroutineRunner = new CoroutineRunner();
             _situationContainer = container;
         }
 
@@ -38,18 +36,8 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
-            // コルーチンの削除
-            _coroutineRunner.Dispose();
-
             // 各種Nodeの開放
             _rootNode.Dispose();
-        }
-
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        public void Update() {
-            _coroutineRunner.Update();
         }
 
         /// <summary>
@@ -135,35 +123,29 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        public TransitionHandle Transition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             // 既に遷移中なら失敗
             if (IsTransitioning) {
-                return AsyncOperationHandle.CanceledHandle;
+                Debug.LogError("In transitioning");
+                return TransitionHandle.Empty;
             }
 
             // 同じ場所なら何もしない
             if (nextNode == CurrentNode) {
-                return AsyncOperationHandle.CompletedHandle;
+                return TransitionHandle.Empty;
             }
 
             // NextNodeがない
             if (nextNode == null) {
-                var exception = new KeyNotFoundException($"Next node is null.");
-                Debug.LogException(exception);
-                return AsyncOperator.CreateAbortedOperator(exception).GetHandle();
+                Debug.LogError("Next node is null.");
+                return TransitionHandle.Empty;
             }
-
-            // 遷移中フラグをON
-            IsTransitioning = true;
 
             // 現在のNodeを置き換えて遷移する
             CurrentNode = nextNode;
 
             // 遷移実行
-            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(CurrentNode, onSetup, false, overrideTransition, effects),
-                () => IsTransitioning = false,
-                () => IsTransitioning = false,
-                _ => IsTransitioning = false);
+            return _situationContainer.Transition(CurrentNode.Situation.GetType(), onSetup, null, overrideTransition, effects);
         }
 
         /// <summary>
@@ -189,40 +171,34 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Back(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        public TransitionHandle Back(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             // 既に遷移中なら失敗
             if (IsTransitioning) {
-                return AsyncOperationHandle.CanceledHandle;
+                Debug.LogError("In transitioning");
+                return TransitionHandle.Empty;
             }
 
             if (CurrentNode == null) {
                 Debug.LogWarning("Current situation is null.");
-                return AsyncOperator.CreateCompletedOperator().GetHandle();
+                return TransitionHandle.Empty;
             }
 
             if (CurrentNode == _rootNode || CurrentNode.GetPrevious() == _rootNode) {
                 Debug.LogWarning("Current situation is not back.");
-                return AsyncOperator.CreateCompletedOperator().GetHandle();
+                return TransitionHandle.Empty;
             }
 
             var parentNode = CurrentNode.GetPrevious();
             if (parentNode == null || !parentNode.IsValid) {
-                Debug.LogWarning("Current situation is top node.");
-                return AsyncOperator.CreateCompletedOperator().GetHandle();
+                Debug.LogWarning("Parent situation is invalid.");
+                return TransitionHandle.Empty;
             }
 
-            // 遷移中フラグをON
-            IsTransitioning = true;
-
             // 親Nodeがあればそこへ遷移
-            var prevNode = CurrentNode;
             CurrentNode = parentNode;
-
+            
             // 遷移実行
-            return _coroutineRunner.StartCoroutine(TransitionNodeRoutine(CurrentNode, onSetup, true, overrideTransition, effects),
-                () => IsTransitioning = false,
-                () => IsTransitioning = false,
-                _ => IsTransitioning = false);
+            return _situationContainer.Transition(CurrentNode.Situation.GetType(), onSetup, new SituationContainer.TransitionOption { Back = true }, overrideTransition, effects);
         }
 
         /// <summary>
@@ -249,14 +225,8 @@ namespace GameFramework.SituationSystems {
                 return AsyncOperator.CreateCompletedOperator().GetHandle();
             }
 
-            // 遷移中フラグをON
-            IsTransitioning = true;
-
             // リセット実行
-            return _coroutineRunner.StartCoroutine(ResetNodeRoutine(onSetup, effects),
-                () => IsTransitioning = false,
-                () => IsTransitioning = false,
-                _ => IsTransitioning = false);
+            return _situationContainer.Reset(onSetup, effects);
         }
 
         /// <summary>

@@ -44,6 +44,8 @@ namespace GameFramework.SituationSystems {
         public Situation RootSituation { get; private set; }
         /// <summary>現在のシチュエーション</summary>
         public Situation Current => _runningSituations.Count > 0 ? (Situation)_runningSituations[^1] : null;
+        /// <summary>遷移中か</summary>
+        public bool IsTransitioning => _transitionInfo != null;
 
         /// <summary>
         /// 初期化
@@ -72,7 +74,7 @@ namespace GameFramework.SituationSystems {
 
             var situationName = Current.GetType().Name;
 
-            if (_transitionInfo != null) {
+            if (IsTransitioning) {
                 return new TransitionHandle(new Exception($"In transit other. Situation:{situationName}"));
             }
 
@@ -136,7 +138,7 @@ namespace GameFramework.SituationSystems {
 
             var nextName = situation.GetType().Name;
 
-            if (_transitionInfo != null) {
+            if (IsTransitioning) {
                 return new TransitionHandle(new Exception($"In transit other. Situation:{nextName}"));
             }
 
@@ -319,7 +321,7 @@ namespace GameFramework.SituationSystems {
             // コルーチン更新
             _coroutineRunner.Update();
 
-            if (_transitionInfo != null) {
+            if (IsTransitioning) {
                 // 遷移中のシチュエーション更新
                 foreach (var situation in _transitionInfo.PrevSituations) {
                     situation.Update();
@@ -349,7 +351,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         public void LateUpdate() {
             // 遷移中のシチュエーション更新
-            if (_transitionInfo != null) {
+            if (IsTransitioning) {
                 // 遷移中のシチュエーション更新
                 foreach (var situation in _transitionInfo.PrevSituations) {
                     situation.LateUpdate();
@@ -372,7 +374,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         public void FixedUpdate() {
             // 遷移中のシチュエーション更新
-            if (_transitionInfo != null) {
+            if (IsTransitioning) {
                 // 遷移中のシチュエーション更新
                 foreach (var situation in _transitionInfo.PrevSituations) {
                     situation.FixedUpdate();

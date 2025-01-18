@@ -27,7 +27,7 @@ namespace SituationFlowSample {
             
             var situationRoot = new SampleSituationRoot();
             _situationContainer.Setup(situationRoot);
-            
+
             // シチュエーションAの依存的な階層構造構築
             // SituationA
             //   SituationA1
@@ -95,7 +95,6 @@ namespace SituationFlowSample {
                 _situationFlow.Reset();
             }
             
-            _situationFlow.Update();
             _situationContainer.Update();
         }
 
@@ -104,6 +103,13 @@ namespace SituationFlowSample {
         /// </summary>
         private void LateUpdate() {
             _situationContainer.LateUpdate();
+        }
+
+        /// <summary>
+        /// 固定更新処理
+        /// </summary>
+        private void FixedUpdate() {
+            _situationContainer.FixedUpdate();
         }
     }
 }

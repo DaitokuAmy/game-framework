@@ -18,6 +18,9 @@ namespace GameFramework.SituationSystems {
     /// シチュエーション遷移確認用ハンドル
     /// </summary>
     public struct TransitionHandle : IProcess {
+        /// <summary>無効なハンドル</summary>
+        public static readonly TransitionHandle Empty = new TransitionHandle();
+        
         // 制御用インスタンス
         private SituationContainer.TransitionInfo _transitionInfo;
 
