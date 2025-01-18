@@ -35,11 +35,11 @@ namespace SampleGame.Presentation {
             base.ActivateInternal(scope);
             
             // ボタンの監視
-            _decideButtonView.OnClickedSubject
+            _decideButtonView.ClickedSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Select((int)Result.Decide));
             
-            _cancelButtonView.OnClickedSubject
+            _cancelButtonView.ClickedSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Select((int)Result.Cancel));
         }

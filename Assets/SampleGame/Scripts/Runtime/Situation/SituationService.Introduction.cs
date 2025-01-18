@@ -13,8 +13,10 @@ namespace SampleGame {
         private void SetupIntroductionSituations(Situation parentSituation) {
             var introductionSceneSituation = new IntroductionSceneSituation();
             introductionSceneSituation.SetParent(parentSituation);
-
-            RegisterSituation(introductionSceneSituation);
+            var titleTopSituation = new TitleTopSituation();
+            titleTopSituation.SetParent(introductionSceneSituation);
+            var titleOptionSituation = new TitleOptionSituation();
+            titleOptionSituation.SetParent(introductionSceneSituation);
         }
     }
 }

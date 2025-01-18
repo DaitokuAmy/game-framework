@@ -251,7 +251,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6991263394736825539, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
       propertyPath: m_Name
-      value: prfb_ui_service_title_top
+      value: prfb_ui_service_introduction
       objectReference: {fileID: 0}
     - target: {fileID: 7987584177921985132, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
       propertyPath: m_Pivot.x

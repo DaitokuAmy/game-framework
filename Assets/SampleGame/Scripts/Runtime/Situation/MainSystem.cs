@@ -126,27 +126,21 @@ namespace SampleGame {
         /// <summary>
         /// 開始Situationへ遷移する
         /// </summary>
-        private IProcess TransitionStartSituation(object[] args) {
-            ParseArguments(args, out var situationType, out var onSetup, out var transitionEffects);
-            return _situationService.Transition(situationType, onSetup, null, transitionEffects);
+        private TransitionHandle TransitionStartSituation(object[] args) {
+            ParseArguments(args, out var situationType, out var onSetup);
+            return _situationService.Transition(situationType, onSetup, SituationService.TransitionType.SceneDefault);
         }
 
         /// <summary>
         /// 引数をパースする
         /// </summary>
-        private void ParseArguments(object[] args, out Type situationType, out Action<Situation> onSetup, out ITransitionEffect[] transitionEffects) {
-            situationType = typeof(IntroductionSceneSituation);
+        private void ParseArguments(object[] args, out Type situationType, out Action<Situation> onSetup) {
+            situationType = typeof(TitleTopSituation);
             onSetup = null;
-            transitionEffects = TransitionUtility.CreateLoadingTransitionEffects();
 
             // Entry経由
             if (args.Length <= 0) {
                 return;
-            }
-
-            // 遷移効果あり
-            if (args.Length >= 2) {
-                transitionEffects = args[1] as ITransitionEffect[];
             }
 
             // StarterのSituation指定あり

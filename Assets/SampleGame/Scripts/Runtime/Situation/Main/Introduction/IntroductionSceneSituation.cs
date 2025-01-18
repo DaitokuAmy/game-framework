@@ -10,11 +10,10 @@ using UniRx;
 
 namespace SampleGame.Introduction {
     /// <summary>
-    /// Title用のSceneSituation
+    /// Introduction用のSceneSituation
     /// </summary>
     public class IntroductionSceneSituation : SceneSituation {
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/introduction.unity";
-        protected override string EmptySceneAssetPath => "Assets/SampleGame/Scenes/empty.unity";
 
         /// <summary>
         /// 読み込み処理
@@ -30,22 +29,6 @@ namespace SampleGame.Introduction {
         }
 
         /// <summary>
-        /// アクティブ時処理
-        /// </summary>
-        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
-            base.ActivateInternal(handle, scope);
-
-            var situationService = Services.Get<SituationService>();
-            var uiManager = Services.Get<UIManager>();
-            var titleTopService = uiManager.GetService<TitleTopUIService>();
-            titleTopService.OnClickedStartButtonSubject
-                .TakeUntil(scope)
-                .Subscribe(_ => {
-                    //situationService.Transition<>()
-                });
-        }
-
-        /// <summary>
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
@@ -55,7 +38,7 @@ namespace SampleGame.Introduction {
                 return uiManager.LoadSceneAsync(assetKey).ScopeTo(unloadScope).ToUniTask(cancellationToken: ct);
             }
             
-            return UniTask.WhenAll(LoadAsync("ui_title"));
+            return UniTask.WhenAll(LoadAsync("ui_introduction"));
         }
     }
 }

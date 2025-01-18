@@ -11,6 +11,6 @@ namespace SampleGame.Presentation {
         private ButtonUIView _skipButtonView;
         
         /// <summary>スキップボタン押下通知</summary>
-        public IObservable<Unit> OnClickedSkipSubject => _skipButtonView.OnClickedSubject;
+        public IObservable<Unit> OnClickedSkipSubject => _skipButtonView.ClickedSubject;
     }
 }

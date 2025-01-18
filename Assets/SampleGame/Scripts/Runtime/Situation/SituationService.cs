@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.TaskSystems;
@@ -19,11 +18,7 @@ namespace SampleGame {
         // アクティブか
         bool ITask.IsActive => true;
 
-        private readonly Dictionary<Type, Situation> _situations;
-
-        /// <summary>
-        /// 現在のNodeが対象としているSituationを取得する
-        /// </summary>
+        /// <summary>現在のNodeが対象としているSituationを取得する</summary>
         public Situation CurrentNodeSituation => _situationFlow.CurrentNode?.Situation;
 
         /// <summary>
@@ -33,7 +28,6 @@ namespace SampleGame {
             _scope = new DisposableScope();
             _situationContainer = new SituationContainer().ScopeTo(_scope);
             _situationFlow = new SituationFlow(_situationContainer).ScopeTo(_scope);
-            _situations = new Dictionary<Type, Situation>();
         }
 
         /// <summary>
@@ -45,7 +39,6 @@ namespace SampleGame {
                 _taskRunner = null;
             }
 
-            _situations.Clear();
             _scope.Dispose();
         }
 
@@ -100,7 +93,7 @@ namespace SampleGame {
                 return;
             }
 
-            SetupSituations(_scope);
+            SetupContainer(_scope);
             SetupFlow(_scope);
             SetupDebug(_scope);
         }
@@ -108,65 +101,33 @@ namespace SampleGame {
         /// <summary>
         /// 指定したSituationへ遷移する
         /// </summary>
-        public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            return _situationFlow.Transition(type, onSetup, overrideTransition, effects);
+        public TransitionHandle Transition(Type type, Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) {
+            var (transition, effects) = GetTransitionInfo(transitionType);
+            return _situationFlow.Transition(type, onSetup, transition, effects);
         }
 
         /// <summary>
         /// 指定したSituationへ遷移する
         /// </summary>
-        public IProcess Transition<T>(Action<T> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) where T : Situation {
-            return _situationFlow.Transition<T>(x => {
-                if (x is T situation) {
-                    onSetup?.Invoke(situation);
-                }
-            }, overrideTransition, effects);
+        public TransitionHandle Transition<T>(Action<T> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) where T : Situation {
+            var (transition, effects) = GetTransitionInfo(transitionType);
+            return _situationFlow.Transition(onSetup, transition, effects);
         }
 
         /// <summary>
         /// 戻り遷移
         /// </summary>
-        public IProcess Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            return _situationFlow.Back(overrideTransition, effects);
+        public TransitionHandle Back(Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) {
+            var (transition, effects) = GetTransitionInfo(transitionType);
+            return _situationFlow.Back(onSetup, transition, effects);
         }
 
         /// <summary>
         /// 現在のSituationNodeをリセット
         /// </summary>
-        public IProcess Reset(Action<Situation> onSetup, params ITransitionEffect[] effects) {
+        public TransitionHandle Reset(Action<Situation> onSetup = null) {
+            var (_, effects) = GetTransitionInfo(TransitionType.SceneDefault);
             return _situationFlow.Reset(onSetup, effects);
-        }
-
-        /// <summary>
-        /// 現在のSituationNodeをリセット
-        /// </summary>
-        public IProcess Reset(params ITransitionEffect[] effects) {
-            return _situationFlow.Reset(null, effects);
-        }
-
-        /// <summary>
-        /// Situationを登録する
-        /// </summary>
-        private void RegisterSituation(Situation situation) {
-            if (situation == null) {
-                return;
-            }
-
-            var type = situation.GetType();
-            if (_situations.ContainsKey(type)) {
-                Debug.LogWarning($"Already registered Situation type:{type}");
-                return;
-            }
-            
-            _situations[type] = situation;
-        }
-
-        /// <summary>
-        /// 登録したSituationを取得する
-        /// </summary>
-        private Situation GetSituation<T>() where T : Situation {
-            var type = typeof(T);
-            return _situations.GetValueOrDefault(type);
         }
     }
 }

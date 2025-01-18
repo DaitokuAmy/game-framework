@@ -29,7 +29,7 @@ namespace SampleGame.Presentation {
             base.ActivateInternal(scope);
 
             // ボタンの監視
-            _closeButtonView.OnClickedSubject
+            _closeButtonView.ClickedSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => Select(-1));
         }
@@ -60,7 +60,7 @@ namespace SampleGame.Presentation {
                 var label = itemLabels[i];
                 var view = InstantiateView(_templateItemButtonView, _templateItemButtonView.transform.parent);
                 SetText(view, label);
-                view.OnClickedSubject
+                view.ClickedSubject
                     .TakeUntil(_setupScope)
                     .Subscribe(_ => { Select(index); });
                 _itemButtonViews.Add(view);

@@ -1,4 +1,5 @@
 using GameFramework.Core;
+using SampleGame.Battle;
 using SampleGame.Main;
 using SampleGame.Introduction;
 using SampleGame.ModelViewer;
@@ -9,23 +10,28 @@ namespace SampleGame {
     /// </summary>
     partial class SituationService {
         /// <summary>
-        /// Situationの初期化処理
+        /// Situationコンテナの初期化
         /// </summary>
-        private void SetupSituations(IScope scope) {
+        private void SetupContainer(IScope scope) {
             var mainSituation = new MainSituation();
-            _situationContainer.Setup(mainSituation);
             
             SetupIntroductionSituations(mainSituation);
-            SetupViewerSituations(mainSituation, scope);
+            SetupBattleSituations(mainSituation);
+            SetupViewerSituations(mainSituation);
+            
+            _situationContainer.Setup(mainSituation);
         }
 
         /// <summary>
-        /// 遷移処理の初期化
+        /// 遷移関係の初期化
         /// </summary>
         private void SetupFlow(IScope scope) {
-            var introductionNode = _situationFlow.ConnectRoot<IntroductionSceneSituation>();
-            var modelViewerNode = introductionNode.Connect<ModelViewerSceneSituation>();
-            _situationFlow.SetFallbackNode(modelViewerNode);
+            var titleTopNode = _situationFlow.ConnectRoot<TitleTopSituation>();
+            var titleOptionNode = titleTopNode.Connect<TitleOptionSituation>();
+            var modelViewerSceneNode = titleTopNode.Connect<ModelViewerSceneSituation>();
+            var battleSceneNode = titleTopNode.Connect<BattleSceneSituation>();
+            _situationFlow.SetFallbackNode(modelViewerSceneNode);
+            _situationFlow.SetFallbackNode(battleSceneNode);
         }
     }
 }

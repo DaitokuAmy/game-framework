@@ -4,7 +4,7 @@ namespace SampleGame.Introduction {
     /// </summary>
     public sealed class IntroductionMainSystemStarter : MainSystemStarter {
         protected override ISituationSetup GetSituationSetup() {
-            return new SituationSetup<IntroductionSceneSituation>();
+            return new SituationSetup<TitleTopSituation>();
         }
     }
 }

@@ -34,11 +34,11 @@ namespace SampleGame.Presentation {
         /// 開始時処理
         /// </summary>
         protected override void StartInternal(IScope scope) {
-            _leftButtonView.OnClickedSubject
+            _leftButtonView.ClickedSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => { ChangeIndex(_selectedIndex.Value - 1); });
 
-            _rightButtonView.OnClickedSubject
+            _rightButtonView.ClickedSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => { ChangeIndex(_selectedIndex.Value + 1); });
         }

@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
-using SampleGame.Introduction;
-using SampleGame.ModelViewer;
-using SampleGame.Presentation;
 using UnityDebugMenu;
+using UnityEngine;
 
 namespace SampleGame {
     /// <summary>
@@ -16,39 +16,42 @@ namespace SampleGame {
         /// </summary>
         private void SetupDebug(IScope scope) {
             var situationTypeIndex = 0;
-            var situationTypes = new[] {
-                typeof(IntroductionSceneSituation),
-                typeof(ModelViewerSceneSituation),
-            };
-            var situationLabels = situationTypes
+            var leafSituationTypes = new List<Type>();
+
+            void AddLeafSituationTypes(ISituation situation) {
+                if (situation.IsLeaf) {
+                    leafSituationTypes.Add(situation.GetType());
+                    return;
+                }
+
+                foreach (var child in situation.Children) {
+                    AddLeafSituationTypes(child);
+                }
+            }
+
+            AddLeafSituationTypes(_situationContainer.RootSituation);
+
+            var situationLabels = leafSituationTypes
                 .Select(x => x.Name.Replace("SceneSituation", "").Replace("Situation", ""))
                 .ToArray();
 
-            var backTypeIndex = 0;
-            var backTypeLabels = new[] { "Loading", "Cross", "Default" };
+            var transitionType = TransitionType.ScreenDefault;
             DebugMenu.AddWindowItem("Situation", _ => {
-                backTypeIndex = DebugMenuUtil.ArrowOrderField("戻り遷移タイプ", backTypeIndex, backTypeLabels);
-                if (DebugMenuUtil.ButtonField("", "戻る")) {
-                    switch (backTypeIndex) {
-                        case 0:
-                            Back(null, TransitionUtility.CreateLoadingTransitionEffects());
-                            break;
-                        case 1:
-                            Back(new CrossTransition());
-                            break;
-                        case 2:
-                            Back();
-                            break;
-                    }
+                transitionType = DebugMenuUtil.EnumArrowOrderField("遷移タイプ", transitionType);
+                situationTypeIndex = DebugMenuUtil.ArrowOrderField("シチュエーション", situationTypeIndex, situationLabels);
+
+                GUILayout.Space(10);
+
+                if (DebugMenuUtil.ButtonField("", "遷移")) {
+                    Transition(leafSituationTypes[situationTypeIndex], null, transitionType);
                 }
 
-                situationTypeIndex = DebugMenuUtil.ArrowOrderField("シチュエーション", situationTypeIndex, situationLabels);
-                if (DebugMenuUtil.ButtonField("", "遷移")) {
-                    Transition(situationTypes[situationTypeIndex], null, null, TransitionUtility.CreateLoadingTransitionEffects());
+                if (DebugMenuUtil.ButtonField("", "戻る")) {
+                    Back(null, transitionType);
                 }
 
                 if (DebugMenuUtil.ButtonField("", "リセット")) {
-                    Reset(TransitionUtility.CreateLoadingTransitionEffects());
+                    Reset();
                 }
             }).ScopeTo(scope);
         }
