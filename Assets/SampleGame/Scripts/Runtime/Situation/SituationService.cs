@@ -32,7 +32,7 @@ namespace SampleGame {
         public SituationService() {
             _scope = new DisposableScope();
             _situationContainer = new SituationContainer().ScopeTo(_scope);
-            _situationFlow = new SituationFlow().ScopeTo(_scope);
+            _situationFlow = new SituationFlow(_situationContainer).ScopeTo(_scope);
             _situations = new Dictionary<Type, Situation>();
         }
 
@@ -53,8 +53,8 @@ namespace SampleGame {
         /// タスク更新
         /// </summary>
         void ITask.Update() {
-            _situationContainer.Update();
             _situationFlow.Update();
+            _situationContainer.Update();
         }
 
         /// <summary>

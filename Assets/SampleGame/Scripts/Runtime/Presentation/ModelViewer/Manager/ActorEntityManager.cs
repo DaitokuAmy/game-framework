@@ -119,7 +119,8 @@ namespace SampleGame.Presentation.ModelViewer {
             entity.AddActor(actor);
 
             _createdEntities.Add(key, entity);
-
+            
+            await UniTask.CompletedTask;
             return entity;
         }
 

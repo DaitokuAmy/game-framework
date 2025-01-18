@@ -23,8 +23,8 @@ namespace SampleGame {
         /// 遷移処理の初期化
         /// </summary>
         private void SetupFlow(IScope scope) {
-            var introductionNode = _situationFlow.ConnectRoot(GetSituation<IntroductionSceneSituation>());
-            var modelViewerNode = introductionNode.Connect(GetSituation<ModelViewerSceneSituation>());
+            var introductionNode = _situationFlow.ConnectRoot<IntroductionSceneSituation>();
+            var modelViewerNode = introductionNode.Connect<ModelViewerSceneSituation>();
             _situationFlow.SetFallbackNode(modelViewerNode);
         }
     }

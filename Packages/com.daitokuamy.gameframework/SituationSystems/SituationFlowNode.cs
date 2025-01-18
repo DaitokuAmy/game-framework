@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 namespace GameFramework.SituationSystems {
     /// <summary>
@@ -11,17 +12,17 @@ namespace GameFramework.SituationSystems {
         /// 遷移情報
         /// </summary>
         public struct TransitionInfo {
-            public SituationFlowNode prevNode;
-            public SituationFlowNode nextNode;
-            public bool back;
+            public SituationFlowNode PrevNode;
+            public SituationFlowNode NextNode;
+            public bool Back;
         }
         
         /// <summary>
         /// 接続情報
         /// </summary>
         private class ConnectInfo {
-            public Action<TransitionInfo> onTransition;
-            public SituationFlowNode nextNode;
+            public Action<TransitionInfo> OnTransition;
+            public SituationFlowNode NextNode;
         }
 
         private readonly Dictionary<Type, ConnectInfo> _connectInfos = new();
@@ -34,8 +35,6 @@ namespace GameFramework.SituationSystems {
         public bool IsValid => _flow != null && _situation != null;
         /// <summary>実行対象のSituation</summary>
         public Situation Situation => _situation;
-        /// <summary>Situationが含まれているContainer</summary>
-        internal SituationContainer Container => _situation?.Container;
 
         /// <summary>フォールバック経由で遷移された時の通知</summary>
         public event Action<TransitionInfo> OnTransitionByFallbackEvent;
@@ -50,10 +49,6 @@ namespace GameFramework.SituationSystems {
             _flow = flow;
             _situation = situation;
             _previous = prev;
-
-            if (_situation is INodeSituation nodeSituation) {
-                nodeSituation.OnRegisterFlow(flow);
-            }
         }
 
         /// <summary>
@@ -76,14 +71,9 @@ namespace GameFramework.SituationSystems {
                     continue;
                 }
 
-                if (info.nextNode != null) {
-                    info.nextNode.Dispose();
+                if (info.NextNode != null) {
+                    info.NextNode.Dispose();
                 }
-            }
-
-            // 登録解除通知
-            if (_situation is INodeSituation nodeSituation) {
-                nodeSituation.OnUnregisterFlow(_flow);
             }
 
             _previous = null;
@@ -95,22 +85,29 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// シチュエーションノードの接続
         /// </summary>
-        /// <param name="situation">追加するSituationのインスタンス</param>
         /// <param name="overridePrevNode">戻り先ノードの上書き指定</param>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationFlowNode Connect(Situation situation, SituationFlowNode overridePrevNode, Action<TransitionInfo> onTransition = null) {
-            var type = situation.GetType();
+        public SituationFlowNode Connect<TSituation>(SituationFlowNode overridePrevNode, Action<TransitionInfo> onTransition = null)
+            where TSituation : Situation {
+            var type = typeof(TSituation);
+            
+            // Situationが無ければnullを返す
+            var situation = _flow.FindSituation(type);
+            if (situation == null) {
+                Debug.LogError($"Not found leaf situation. [{type.Name}]");
+                return null;
+            }
 
             // 既に同じTypeがあった場合は何もしない
             if (_connectInfos.TryGetValue(type, out var connectInfo)) {
-                return connectInfo.nextNode;
+                return connectInfo.NextNode;
             }
 
             // ノードの追加
             var nextNode = new SituationFlowNode(_flow, situation, overridePrevNode ?? this);
             connectInfo = new ConnectInfo {
-                onTransition = onTransition,
-                nextNode = nextNode
+                OnTransition = onTransition,
+                NextNode = nextNode
             };
             _connectInfos.Add(type, connectInfo);
             return nextNode;
@@ -119,10 +116,10 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// シチュエーションノードの接続
         /// </summary>
-        /// <param name="situation">追加するSituationのインスタンス</param>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationFlowNode Connect(Situation situation, Action<TransitionInfo> onTransition = null) {
-            return Connect(situation, null, onTransition);
+        public SituationFlowNode Connect<TSituation>(Action<TransitionInfo> onTransition = null)
+            where TSituation : Situation {
+            return Connect<TSituation>(null, onTransition);
         }
 
         /// <summary>
@@ -138,7 +135,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // ノードの削除
-            connectInfo.nextNode.Dispose();
+            connectInfo.NextNode.Dispose();
             _connectInfos.Remove(type);
             return true;
         }
@@ -158,7 +155,7 @@ namespace GameFramework.SituationSystems {
                 return null;
             }
 
-            return connectInfo.nextNode;
+            return connectInfo.NextNode;
         }
 
         /// <summary>
@@ -178,21 +175,21 @@ namespace GameFramework.SituationSystems {
             }
 
             var transitionInfo = new TransitionInfo {
-                prevNode = prevNode,
-                nextNode = this,
-                back = back
+                PrevNode = prevNode,
+                NextNode = this,
+                Back = back
             };
             
             // 戻り遷移の場合はConnect情報からイベントを探す
             if (back) {
                 if (_connectInfos.TryGetValue(prevNode.Situation.GetType(), out var connectInfo)) {
-                    connectInfo.onTransition?.Invoke(transitionInfo);
+                    connectInfo.OnTransition?.Invoke(transitionInfo);
                 }
             }
             // 進む遷移の場合は、前のノードのConnect情報からイベントを探す
             else {
                 if (prevNode._connectInfos.TryGetValue(Situation.GetType(), out var connectInfo)) {
-                    connectInfo.onTransition?.Invoke(transitionInfo);
+                    connectInfo.OnTransition?.Invoke(transitionInfo);
                 }
                 // 接続情報がなく遷移した場合は、Fallback遷移とみなして通知する
                 else {

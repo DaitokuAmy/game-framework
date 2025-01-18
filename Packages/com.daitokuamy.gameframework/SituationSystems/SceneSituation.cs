@@ -9,6 +9,9 @@ namespace GameFramework.SituationSystems {
     /// シーン遷移に使うシチュエーション
     /// </summary>
     public abstract class SceneSituation : Situation {
+        /// <summary>UnitySceneを保持するSituationか</summary>
+        public override bool HasScene => true;
+
         /// <summary>シーンのアセットパス</summary>
         protected abstract string SceneAssetPath { get; }
         /// <summary>アンロード時の空シーンのアセットパス(未指定だとアンロードでシーンを廃棄しない)</summary>
@@ -16,8 +19,26 @@ namespace GameFramework.SituationSystems {
 
         /// <summary>空シーンが指定されているか</summary>
         public bool HasEmptyScene => !string.IsNullOrEmpty(EmptySceneAssetPath);
+
         /// <summary>シーン情報</summary>
         protected Scene Scene { get; private set; }
+
+        /// <summary>
+        /// 親要素として適切かチェックする
+        /// </summary>
+        protected override bool CheckParent(ISituation parent) {
+            // 親にSceneを持ったSituationがある場合は許可しない
+            var p = parent;
+            while (p != null) {
+                if (p.HasScene) {
+                    return false;
+                }
+
+                p = p.Parent;
+            }
+
+            return base.CheckParent(parent);
+        }
 
         /// <summary>
         /// 読み込み処理
@@ -50,24 +71,6 @@ namespace GameFramework.SituationSystems {
             if (HasEmptyScene && Scene.IsValid()) {
                 SceneManager.LoadScene(EmptySceneAssetPath);
             }
-        }
-
-        /// <summary>
-        /// 該当Situationに遷移可能かチェック
-        /// </summary>
-        /// <param name="nextTransition">遷移するの子シチュエーション</param>
-        /// <returns>遷移可能か</returns>
-        public override bool CheckNextSituation(Situation nextTransition) {
-            return nextTransition is SceneSituation;
-        }
-
-        /// <summary>
-        /// 遷移可能かチェック
-        /// </summary>
-        /// <param name="transition">遷移処理</param>
-        /// <returns>遷移可能か</returns>
-        public override bool CheckTransition(ITransition transition) {
-            return transition is OutInTransition;
         }
 
         /// <summary>

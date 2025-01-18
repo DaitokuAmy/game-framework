@@ -31,6 +31,8 @@ namespace GameFramework.SituationSystems {
         bool IsRoot { get; }
         /// <summary>LeafSituationか(子を持たない)</summary>
         bool IsLeaf { get; }
+        /// <summary>UnitySceneを保持するSituationか</summary>
+        bool HasScene { get; }
 
         /// <summary>
         /// 待機処理
@@ -146,19 +148,5 @@ namespace GameFramework.SituationSystems {
         /// 次に遷移する際のデフォルト遷移方法を取得
         /// </summary>
         ITransition GetDefaultNextTransition();
-
-        /// <summary>
-        /// 該当Situationに遷移可能かチェック
-        /// </summary>
-        /// <param name="nextTransition">遷移するの子シチュエーション</param>
-        /// <returns>遷移可能か</returns>
-        bool CheckNextSituation(Situation nextTransition);
-
-        /// <summary>
-        /// 遷移可能かチェック
-        /// </summary>
-        /// <param name="transition">遷移処理</param>
-        /// <returns>遷移可能か</returns>
-        bool CheckTransition(ITransition transition);
     }
 }

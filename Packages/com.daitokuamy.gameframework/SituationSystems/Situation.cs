@@ -39,6 +39,9 @@ namespace GameFramework.SituationSystems {
         // 登録されているコンテナ
         private SituationContainer _container;
 
+        /// <summary>UnitySceneを保持するSituationか</summary>
+        public virtual bool HasScene => false;
+
         /// <summary>インスタンス管理用</summary>
         public ServiceContainer ServiceContainer { get; private set; }
         /// <summary>現在状態</summary>
@@ -58,7 +61,7 @@ namespace GameFramework.SituationSystems {
         ISituation ISituation.Parent => _parent;
         /// <summary>子Situationリスト</summary>
         IReadOnlyList<ISituation> ISituation.Children => _children;
-        
+
         /// <summary>登録されているFlow</summary>
         protected SituationFlow SituationFlow { get; private set; }
 
@@ -401,20 +404,9 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 該当Situationに遷移可能かチェック
+        /// 親要素として適切かチェックする
         /// </summary>
-        /// <param name="nextTransition">遷移するの子シチュエーション</param>
-        /// <returns>遷移可能か</returns>
-        public virtual bool CheckNextSituation(Situation nextTransition) {
-            return true;
-        }
-
-        /// <summary>
-        /// 遷移可能かチェック
-        /// </summary>
-        /// <param name="transition">遷移処理</param>
-        /// <returns>遷移可能か</returns>
-        public virtual bool CheckTransition(ITransition transition) {
+        protected virtual bool CheckParent(ISituation parent) {
             return true;
         }
 
@@ -569,8 +561,14 @@ namespace GameFramework.SituationSystems {
         public void SetParent(Situation parent) {
             if (parent == _parent) {
                 return;
-            } 
-            
+            }
+
+            // 接続親が適切かチェック
+            if (parent != null && !CheckParent(parent)) {
+                Debug.LogError($"Invalid parent. {GetType().Name} in {parent.GetType().Name}");
+                return;
+            }
+
             // 現在の親Containerがあったら抜ける
             if (_parent != null) {
                 if (_container != null) {
@@ -578,19 +576,18 @@ namespace GameFramework.SituationSystems {
                 }
 
                 _parent._children.Remove(this);
+                _parent = null;
             }
 
-            if (parent == null) {
-                return;
-            }
-            
             // 親の設定
             _parent = parent;
 
             // コンテナに登録
-            parent._children.Add(this);
-            if (parent._container != null) {
-                ((ISituation)this).Standby(parent._container);
+            if (_parent != null) {
+                _parent._children.Add(this);
+                if (_parent._container != null) {
+                    ((ISituation)this).Standby(_parent._container);
+                }
             }
         }
 

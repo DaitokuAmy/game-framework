@@ -123,15 +123,15 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 遷移実行
         /// </summary>
+        /// <param name="situationType">遷移予定のSituationの型</param>
         /// <param name="onSetup">初期化処理</param>
         /// <param name="option">遷移オプション</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition<TSituation>(Action<TSituation> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects)
-            where TSituation : Situation {
-            var situation = FindLeafSituation<TSituation>();
+        public TransitionHandle Transition(Type situationType, Action<Situation> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            var situation = FindLeafSituation(situationType);
             if (situation == null) {
-                return new TransitionHandle(new Exception($"Not found situation:{typeof(TSituation).Name}"));
+                return new TransitionHandle(new Exception($"Not found situation:{situationType.Name}"));
             }
 
             var nextName = situation.GetType().Name;
@@ -221,6 +221,18 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 遷移実行
         /// </summary>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="option">遷移オプション</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Transition<TSituation>(Action<TSituation> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            return Transition(typeof(TSituation), s => onSetup?.Invoke((TSituation)s), option, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Transition<TSituation>(ITransition overrideTransition, params ITransitionEffect[] effects)
@@ -288,14 +300,15 @@ namespace GameFramework.SituationSystems {
         /// シチュエーションのプリロード解除
         /// </summary>
         public void UnPreLoad(Type situationType) {
-            var target = FindSituation(situationType);
-            if (target == null) {
+            var situation = FindSituation(situationType);
+            if (situation == null) {
                 return;
             }
-            
-            if (target.PreLoadState != PreLoadState.None) {
+
+            var target = (ISituation)situation;
+            if (situation.PreLoadState != PreLoadState.None) {
                 target.UnPreLoad();
-                _preloadSituations.Remove(target);
+                _preloadSituations.Remove(situation);
             }
         }
 
@@ -431,22 +444,25 @@ namespace GameFramework.SituationSystems {
                 return true;
             }
 
-            // Leaf部分のチェック
-            var prevLeaf = prevSituations[0];
-            var nextLeaf = nextSituations[^1];
-            if (!prevLeaf.CheckNextSituation((Situation)nextLeaf)) {
-                return false;
-            }
-
-            // ルートのチェック
+            // SceneSituationが介在するかチェック
+            var sceneSituationTransition = false;
             foreach (var situation in prevSituations) {
-                if (!situation.CheckTransition(transition)) {
-                    return false;
+                if (situation is SceneSituation) {
+                    sceneSituationTransition = true;
+                    break;
                 }
             }
 
             foreach (var situation in nextSituations) {
-                if (!situation.CheckTransition(transition)) {
+                if (situation is SceneSituation) {
+                    sceneSituationTransition = true;
+                    break;
+                }
+            }
+            
+            // SceneSituationが介在する場合、OutInTransitionのみ許可
+            if (sceneSituationTransition) {
+                if (transition is not OutInTransition) {
                     return false;
                 }
             }
@@ -498,6 +514,11 @@ namespace GameFramework.SituationSystems {
                 return null;
             }
 
+            if (RootSituation == null) {
+                Debug.LogError("RootSituation is null.");
+                return null;
+            }
+
             return (Situation)Find(RootSituation);
         }
 
@@ -527,6 +548,11 @@ namespace GameFramework.SituationSystems {
                     return result;
                 }
 
+                return null;
+            }
+
+            if (RootSituation == null) {
+                Debug.LogError("RootSituation is null.");
                 return null;
             }
 

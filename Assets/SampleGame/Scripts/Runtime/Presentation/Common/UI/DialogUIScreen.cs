@@ -13,7 +13,7 @@ namespace SampleGame.Presentation {
     public abstract class DialogUIScreen : AnimatableUIScreen {
         [SerializeField, Tooltip("背面タッチ判定用のボタン")]
         private Button _backgroundButton;
-        
+
         private Subject<int> _selectedSubject = new();
 
         /// <summary>背面ボタンを使うか</summary>
@@ -38,7 +38,7 @@ namespace SampleGame.Presentation {
         /// </summary>
         protected override void StartInternal(IScope scope) {
             base.StartInternal(scope);
-            
+
             // 閉じておく
             CloseAsync(immediate: true);
         }
@@ -49,7 +49,7 @@ namespace SampleGame.Presentation {
         protected override void DisposeInternal() {
             _selectedSubject.OnCompleted();
             _selectedSubject.Dispose();
-            
+
             base.DisposeInternal();
         }
 
@@ -63,9 +63,7 @@ namespace SampleGame.Presentation {
                 _backgroundButton.OnClickAsObservable()
                     .TakeUntil(scope)
                     .Where(_ => UseBackgroundButton)
-                    .Subscribe(_ => {
-                        Select(BackgroundButtonIndex);
-                    });
+                    .Subscribe(_ => { Select(BackgroundButtonIndex); });
             }
         }
 
@@ -74,24 +72,24 @@ namespace SampleGame.Presentation {
         /// </summary>
         public async UniTask<int> OpenDialogAsync(CancellationToken ct = default) {
             ct.ThrowIfCancellationRequested();
-            
+
             // 開く
             await OpenAsync().ToUniTask(cancellationToken: ct);
-            
+
             // 選択待ち
             var result = -1;
             _selectedSubject
                 .TakeUntil(ct.ToScope())
                 .Subscribe(x => result = x);
-            
+
             // 閉じるのを監視
-            await UniTask.WaitWhile(() => CurrentOpenStatus == OpenStatus.Opened, cancellationToken:ct);
+            await UniTask.WaitWhile(() => CurrentOpenStatus == OpenStatus.Opened, cancellationToken: ct);
 
             // 閉じていない状態だったら閉じる
             if (CurrentOpenStatus == OpenStatus.Opening || CurrentOpenStatus == OpenStatus.Opened) {
-                CloseAsync();
+                CloseAsync().ToUniTask(cancellationToken: ct).Forget();
             }
-            
+
             return result;
         }
 
@@ -104,7 +102,7 @@ namespace SampleGame.Presentation {
                 Debug.LogWarning("Dialogを開いてない状態で結果選択が行われました");
                 return;
             }
-            
+
             _selectedSubject.OnNext(index);
             CloseAsync();
         }
