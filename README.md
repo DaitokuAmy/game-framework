@@ -287,6 +287,6 @@ _situation.SetFallbackNode(battleSceneNode); // こうする事で、ホーム�
 _situationFlow.Transition(homeNode, situation => /* 初期化処理 */);
 ```
 
-細かい使用方法は[サンプルコード](https://github.com/DaitokuAmy/game-framework/blob/main/Assets/SituationFlowSample/SituationFlowSample.cs)を参考にしてください  
+細かい使用方法は[サンプルコード](https://github.com/DaitokuAmy/game-framework/blob/main/Assets/SituationFlowSample/Scripts/SituationFlowSample.cs)を参考にしてください  
 
 
