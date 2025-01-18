@@ -54,25 +54,23 @@ game-frameworkでは、「Unityにおけるシーン管理」だけでは不足�
 - 常駐システムの生成/初期化やリセット処理
 
 ### Situation
-Unityのシーンでは管理しづらい階層的なシーン管理（ここではシチュエーション管理）を行います
+Unityのシーンでは管理しづらい階層的なシーン管理（ここではシチュエーション管理）を行います  
 
-例えば以下のような階層設計が可能です
-- TitleSceneSituation // title.unity
-  - TitleSetupSituation // タイトルロゴ
-  - TitleMainSituation // タイトルメニュー
-- HomeSceneSituation // home.unity
-  - HomeMainSituation // ホーム画面メイン
-  - EquipmentSituation // 装備画面
-- GameSceneSituation // game.unity
-  - GameStartSituation // ゲーム開始演出
-  - GameMainSituation // ゲームメイン
-  - GameResultSituation // ゲーム結果
+例えば以下のような階層設計が可能です  
+- MainSituation // 常駐部分
+  - IntroductionSceneSituation // introduction.unity
+    - TitleLogoSituation // タイトルロゴ
+    - TitleMenuSituation // タイトルメニュー
+  - OutGameSceneSituation // out_game.unity
+    - HomeSituation // ホーム画面
+    - EquipmentSituation // 装備画面
+  - BattleSceneSituation // battle.unity
 
 ### State
 Situationでは大きすぎるような簡易的な状態毎の定義を記述するために使用します
 
 例えば以下のような状態で使用します
-- GameMainSituation // ゲーム中
+- BattleSceneSituation // バトルシーン中
   - State.Playing // プレイ中
   - State.Pause // 一時停止中
   - State.CutIn // カットイン再生中
@@ -92,24 +90,22 @@ Situationでは大きすぎるような簡易的な状態毎の定義を記述�
 ```mermaid
 flowchart LR
 subgraph MainSystem
-  subgraph TitleSceneSituation
-    TitleSetupSituation --> TitleMainSituation
-  end
+  subgraph MainSituation
+    subgraph IntroductionSceneSituation
+      TitleMenuSituation <--> OptionSituation
+    end
 
-  subgraph HomeSceneSituation
-    HomeMainSituation <--> EquipmentSituation
-  end
-  
-  subgraph GameSceneSituation
-    subgraph GameMainSituation
+    subgraph OutGameSceneSituation
+      HomeSituation <--> EquipmentSituation
+    end
+    
+    subgraph BattleSceneSituation
       PlayingState <--> PauseState
       PlayingState <--> CutInState
     end
-  
-    GameStartSituation --> GameMainSituation --> GameResultSituation
+    
+    IntroductionSceneSituation --> OutGameSceneSituation <--> BattleSceneSituation
   end
-  
-  TitleSceneSituation --> HomeSceneSituation <--> GameSceneSituation
 end
 ```
 
@@ -160,100 +156,130 @@ UnityのTime.deltaTimeをラップした物で、これらをネスト管理す�
 - なぜネスト管理が必要なのか
   - Gameではスローの表現を多層的に行う事が多く、Unity標準のUnscaled機能などでは対応しきれない事が多いため
     - UIのTimeScale > 3D空間のTimeScale > 3DキャラのTimeScale > 3Dキャラの発射したObjectのTimeScale といったようなイメージ
+   
+### SituationContainer
+階層構築されたSituationを適切に遷移させる仕組みです  
+SituationContainer を経由して Situation を切り替える事で、適切なリソースのアンロードやロード、初期化等の関数を安全に提供できます  
+また、遷移演出や遷移方法(Close > Openアニメーションの流れなど)もカスタマイズ可能になっています  
+
+以下はSituationContainerにSituationをセットアップする際の記述例となります
+```csharp
+// Main
+var mainSituation = new MainSituation();
+
+// Introduction
+var introductionSceneSituation = new IntroductionSceneSituation();
+introductionSceneSituation.SetParent(mainSituation);
+var optionSituation = new OptionSituation();
+optionSituation.SetParent(introductionSceneSituation);
+var titleMenuSituation = new TitleMenuSituation();
+titleMenuSituation.SetParent(introductionSceneSituation);
+
+// OutGame
+var outGameSceneSituation = new OutGameSceneSituation();
+outGameSceneSituation.SetParent(mainSituation);
+var homeSituation = new HomeSituation();
+homeSituation.SetParent(outGameSceneSituation);
+var equipmentSituation = new EquipmentSituation();
+equipmentSituation.SetParent(outGameSceneSituation);
+
+// Battle
+var battleSceneSituation = new BattleSceneSituation();
+battleSceneSituation.SetParent(mainSituation);
+
+// ContainerにルートとなるSituationを設定し初期化
+_situationContainer = new SituationContainer();
+_situationContainer.Setup(mainSituation);
+```
+
+以下はSituationContainerを使って遷移を行う例です
+```csharp
+// 装備画面に遷移
+if (...) {
+  // CrossTransitionを指定すると、OpenアニメーションとCloseアニメーションを同時に流す遷移を行います
+  // ※ITransitionを実装する事で独自の手順の遷移方法をカスタマイズも可能
+  _situationContainer.Transition<EquipmentSituation>(new CrossTransition());
+}
+
+// バトル画面に遷移
+if (...) {
+  // 遷移中のOpen/Closeアニメーション以外の部分をLoading画面によって隠す機能もITransitionEffectを実装する事で独自にカスタマイズ可能
+  // ※LoadingTransitionEffectはgame-frameworkに存在しない仮想クラス
+  _situationContainer.Transition<BattleSceneSituation>(new LoadingTransitionEffect());
+}
+```
+
+SituationContainerは自身でUpdate等の実行を呼び出す設計になっているため、以下のようなコードも記述します  
+```csharp
+/// <summary>
+/// 廃棄時処理
+/// </summary>
+private void OnDestroy() {
+  _situationContainer.Dispose();
+}
+
+/// <summary>
+/// 更新処理
+/// </summary>
+private void Update() {
+  _situationContainer.Update();
+}
+
+/// <summary>
+/// 後更新処理
+/// </summary>
+private void LateUpdate() {
+  _situationContainer.LateUpdate();
+}
+
+/// <summary>
+/// 固定更新処理
+/// </summary>
+private void FixedUpdate() {
+  _situationContainer.FixedUpdate();
+}
+```
 
 ### SituationFlow
 Situation同士の遷移関係を定義するための仕組みです  
+簡単に言えば、SituationContainerを遷移ツリーに則って制御してくれる拡張機能です  
+戻るボタンなどの管理が必要な複雑な遷移がある場合に利用します  
 
 具体例でいうと、以下のように遷移関係を指定できるようになっています  
 ```csharp
-// タイトル画面 > ゲーム画面 > メニュー画面
-// タイトル画面 > オプション画面
+// Flowの生成
+_situationFlow = new SituationFlow(_situationContainer);
+
+// タイトルメニュー > ホーム > 装備画面
+//                         > バトル
+//                > オプション画面
 // の遷移関係を定義
-var titleNode = _situationFlow.ConnectRoot(_titleSituation);
-var gameNode = titleNode.Connect(_gameSituation);
-var menuNode = gameNode.Connect(_menuSituation);
-var optionNode = titleNode.Connect(_optionSituation);
+var titleMenuNode = _situationFlow.ConnectRoot<TitleMenuSituation>(); // ConnectRoot()接続すると、全画面から遷移できる物として登録可能
+var homeNode = titleMenuNode.Connect<HomeSituation>(); // Connect()接続すると、該当Nodeからの遷移可能先として登録可能
+var equipmentNode = homeNode.Connect<EquipmentSituation>();
+var battleSceneNode = homeNode.Connect<BattleSceneNode>();
+var optionNode = titleMenuNode.Connect<OptionSituation>();
 ```
 
 指定した後は、クラスの型を指定して遷移する事で、今の遷移状態の接続先に指定されているSituationに遷移します（接続していない場合はエラー）
 ```csharp
-// タイトル画面に遷移
-_situationFlow.Transition<TitleSituation>(situation => /* 遷移時のSituationインスタンスの初期化 */);
+// タイトルメニューに遷移
+_situationFlow.Transition<TitleMenuSituation>(situation => /* 遷移時のSituationインスタンスの初期化 */);
 
-// 接続関係の前に戻る
+// 遷移ツリー構造を事前に定義してあるので、現在のNode位置を元に前に戻る
 _situationFlow.Back();
 ```
 
 特徴として、この設計は「Situationをスタック管理していない」点があります  
 事前にツリー構造を定義しているため、現在位置(Node)の戻り先が特定可能なので、スタック管理が不要になっています  
+また、Situation1つを複数のNodeに紐づけられるため、様々な遷移ルートを事前に定義し網羅的に指定する事が可能になっています  
 
-また、以下のようにツリーでは表現しづらい、ショートカットのような遷移指定にも対応しています  
+以下のようなツリーでは表現しづらい、ショートカットのような遷移指定にも対応しています(Fallback機能)  
 ```csharp
-var gameNode = titleNode.Connect(_gameSituation); // この時点ではタイトル画面の次にゲーム画面を指した状態
-_situation.SetFallbackNode(gameNode); // こうする事で、タイトル画面以外から GameSituation を指定された場合、ここにダイレクトジャンプする指定が可能
+var battleSceneNode = homeNode.Connect<BattleSceneSituation>(); // この時点ではホームの次にバトル遷移を指した状態
+_situation.SetFallbackNode(battleSceneNode); // こうする事で、ホーム以外から BattleSceneSituation を指定された場合、ここにダイレクトジャンプする指定が可能
 ```
-※どのSituationからでもGameSituationに遷移する事が可能で、Fallback指定経由で遷移した場合はGameSituationの戻り先がTitleSituationになる  
-
-SituationのSetParentと併用する事で、ライフサイクルの管理（リソースやクラスの初期化/解放）と遷移の管理を別定義できるため、主に複雑な遷移のアプリケーションの際に利用します
-```csharp
-//---- リソーススコープを指定(以下の指定をする事で、常駐リソースの管理やアウトゲーム中のみに必要なクラスの初期化などを階層的に管理が可能になっています)
-// |Resident                                                          |
-// |Introduction          |OutGame                             |InGame|
-// |TitleTop|Option|Credit|HomeTop|PartyTop|UnitList|UnitDetail|
-// 常駐
-var residentSituation = new ResidentSituation();
-regidentSituation.SetParent(_situationRunner);
-
-// 導入用シーン
-var introductionSituation = new IntroductionSceneSituation();
-introductionSceneSituation.SetParent(regidentSituation);
-var titleTopSituation = new TitleTopSituation();
-titleTopSituation.SetParent(introductionSceneSituation);
-var optionSituation = new OptionSituation();
-optionSituation.SetParent(introductionSceneSituation);
-var creditSituation = new CreditSituation();
-creditSituation.SetParent(introductionSceneSituation);
-
-// アウトゲームシーン
-var outGameSceneSituation = new OutGameSceneSituation();
-outGameSceneSituation.SetParent(residentSituation);
-var homeTopSituation = new HomeTopSituation();
-homeTopSituation.SetParent(outGameSceneSituation);
-var partyTopSituation = new PartyTopSituation();
-partyTopSituation.SetParent(outGameSceneSituation);
-var unitListSituation = new UnitListSituation();
-unitListSituation.SetParent(outGameSceneSituation);
-var unitDetailSituation = new UnitDetailSituation();
-unitDetailSituation.SetParent(outGameSceneSituation);
-
-// インゲームシーン
-var inGameSceneSituation = new InGameSceneSituation();
-inGameSceneSituation.SetParent(residentSituation);
-
-//---- 遷移関係を指定(以下のように遷移関係を指定する事で、遷移に合わせて上記で指定したライフサイクルスコープが自動的に初期化、解放されるようになります)
-// タイトル > オプション
-// タイトル > クレジット
-// タイトル > ホームトップ
-var titleTopNode = _situationFlow.ConnectRoot(titleTopSituation);
-titleTopNode.Connect(optionSituation);
-titleTopNode.Connect(creditSituation);
-var homeTopNode = titleTopNode.Connect(homeSituation);
-
-// ホームトップ > パーティトップ
-// パーティトップ > ユニットリスト
-// パーティトップ > ユニット詳細
-// ユニットリスト > ユニット詳細]
-var partyTopNode = homeTopNode.Connect(partyTopSituation);
-var unitListNode = partyTopNode.Connect(unitListSituation);
-partyTopNode.Connect(unitDetailSituation);
-unitListNode.Connect(unitDetailSituation);
-
-// パーティトップのFallback指定(フッター遷移のように、アウトゲームの各種画面からパーティトップへの遷移を許す)
-_situationFlow.SetFallback(partyTopNode, homeTopNode);
-
-// ホームトップ > インゲーム
-var inGameNode = homeTopSituation.Connect(inGameSceneSituation);
-```
+※どのSituationからでもBattleSceneSituationに遷移する事が可能で、Fallback指定経由で遷移した場合はBattleSceneSituationの戻り先がHomeSituationになる  
 
 ちなみに、Nodeを直接指定して該当箇所に直接ジャンプする事も可能です  
 ```csharp
