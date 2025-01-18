@@ -53,7 +53,6 @@ namespace SampleGame {
         /// タスク更新
         /// </summary>
         void ITask.Update() {
-            _situationFlow.Update();
             _situationContainer.Update();
         }
 
