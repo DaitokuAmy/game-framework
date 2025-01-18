@@ -47,6 +47,9 @@ namespace GameFramework.SituationSystems {
         /// <summary>遷移中か</summary>
         public bool IsTransitioning => _transitionInfo != null;
 
+        /// <summary>カレント変更時の通知</summary>
+        public Action<Situation> ChangedCurrentEvent;
+
         /// <summary>
         /// 初期化
         /// </summary>
@@ -212,6 +215,7 @@ namespace GameFramework.SituationSystems {
             // アクティブなSituationの更新
             _runningSituations.Clear();
             _runningSituations.AddRange(nextSituations);
+            ChangedCurrentEvent?.Invoke(Current);
 
             // コルーチンの登録
             _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => _transitionInfo = null);
@@ -414,6 +418,7 @@ namespace GameFramework.SituationSystems {
 
             // 有効なSituationを無くす
             _runningSituations.Clear();
+            ChangedCurrentEvent?.Invoke(Current);
 
             // Coroutineキャンセル
             _coroutineRunner.StopAllCoroutines();

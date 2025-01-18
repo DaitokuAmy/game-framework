@@ -20,7 +20,7 @@ namespace SituationFlowSample {
         private Button _backButton;
 
         private readonly List<SelectionItemView> _itemViews = new();
-        
+
         private ObjectPool<SelectionItemView> _itemViewPool;
         private Subject<int> _selectedSubject = new();
         private DisposableScope _itemsScope = new();
@@ -40,7 +40,7 @@ namespace SituationFlowSample {
         /// </summary>
         public void SetupItems(int currentIndex, params string[] items) {
             CleanupItems();
-            
+
             // 項目を生成
             for (var i = 0; i < items.Length; i++) {
                 var itemView = _itemViewPool.Get();
@@ -50,6 +50,7 @@ namespace SituationFlowSample {
                     .TakeUntil(_itemsScope)
                     .Subscribe(_selectedSubject.OnNext);
                 itemView.IsCurrent = i == currentIndex;
+                _itemViews.Add(itemView);
             }
         }
 
@@ -58,10 +59,22 @@ namespace SituationFlowSample {
         /// </summary>
         public void CleanupItems() {
             _itemsScope.Clear();
-            
+
             var itemViews = _itemViews.ToArray();
             foreach (var itemView in itemViews) {
                 _itemViewPool.Release(itemView);
+            }
+
+            _itemViews.Clear();
+        }
+
+        /// <summary>
+        /// 項目の選択
+        /// </summary>
+        public void SelectItem(int itemIndex) {
+            for (var i = 0; i < _itemViews.Count; i++) {
+                var itemView = _itemViews[i];
+                itemView.IsCurrent = i == itemIndex;
             }
         }
 
@@ -80,13 +93,7 @@ namespace SituationFlowSample {
                 itemView.gameObject.SetActive(true);
                 itemView.Text = "";
                 itemView.transform.SetAsLastSibling();
-                _itemViews.Add(itemView);
-            }, itemView => {
-                _itemViews.Remove(itemView);
-                itemView.gameObject.SetActive(false);
-            }, itemView => {
-                Destroy(itemView.gameObject);
-            });
+            }, itemView => { itemView.gameObject.SetActive(false); }, itemView => { Destroy(itemView.gameObject); });
         }
 
         /// <summary>
@@ -102,9 +109,9 @@ namespace SituationFlowSample {
         private void OnDestroy() {
             _selectedSubject.OnCompleted();
             _selectedSubject.Dispose();
-            
+
             CleanupItems();
-            
+
             _itemViewPool.Dispose();
             _itemsScope.Dispose();
         }

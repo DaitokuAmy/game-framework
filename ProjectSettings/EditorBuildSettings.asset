@@ -20,6 +20,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/SampleGame/Scenes/Develop/model_viewer.unity
     guid: 4c509954e6d356b44b32236e4319bfbf
+  - enabled: 1
+    path: Assets/SituationFlowSample/Scenes/sampleB3.unity
+    guid: ce825f92d7f5a2647afa525872f92a5c
+  - enabled: 1
+    path: Assets/SituationFlowSample/Scenes/sampleC.unity
+    guid: a557262823fc1284ba7c4cdb0d4ae194
+  - enabled: 1
+    path: Assets/SituationFlowSample/Scenes/situation_flow_sample_empty.unity
+    guid: 2909d2dcb5b15934c93810a359896677
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 41ec11268afa736449f2e82e8de692ef, type: 2}
   m_UseUCBPForAssetBundles: 0

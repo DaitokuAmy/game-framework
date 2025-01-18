@@ -1,18 +1,31 @@
 {
-  "name": "GameFramework.SituationSystems",
-  "rootNamespace": "",
-  "references": [
-    "GUID:afebead123e02784da390b52d3e15019",
-    "GUID:cd95dc61d1665ab49b4763d88794bbde",
-    "GUID:54a1b6bd4302b8449a4bca44b72cfbfb"
-  ],
-  "includePlatforms": [],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "GameFramework.SituationSystems",
+    "rootNamespace": "",
+    "references": [
+        "GUID:afebead123e02784da390b52d3e15019",
+        "GUID:cd95dc61d1665ab49b4763d88794bbde",
+        "GUID:54a1b6bd4302b8449a4bca44b72cfbfb",
+        "GUID:77221876cc6b8244180b96e320b1bcd4",
+        "GUID:560b04d1a97f54a4e82edc0cbbb69285"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.cysharp.r3",
+            "expression": "",
+            "define": "USE_R3"
+        },
+        {
+            "name": "com.neuecc.unirx",
+            "expression": "",
+            "define": "USE_UNI_RX"
+        }
+    ],
+    "noEngineReferences": false
 }

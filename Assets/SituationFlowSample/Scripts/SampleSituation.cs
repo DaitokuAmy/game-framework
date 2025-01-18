@@ -1,0 +1,70 @@
+using System.Collections;
+using GameFramework.Core;
+using GameFramework.SituationSystems;
+using UnityEngine;
+
+namespace SituationFlowSample {
+    /// <summary>
+    /// サンプル用のSituation
+    /// </summary>
+    public abstract class SampleSituation : Situation {
+        private const float LoadDuration = 0.2f;
+        private const float SetupDuration = 0.05f;
+        
+        private GameObject _sampleObject;
+        
+        /// <summary>
+        /// 読み込み
+        /// </summary>
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+            Debug.Log($"Load Routine. [{GetType().Name}]");
+            yield return base.LoadRoutineInternal(handle, scope);
+            yield return new WaitForSeconds(LoadDuration);
+        }
+
+        /// <summary>
+        /// 初期化
+        /// </summary>
+        protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
+            Debug.Log($"Setup Routine. [{GetType().Name}]");
+            yield return base.SetupRoutineInternal(handle, scope);
+            yield return new WaitForSeconds(SetupDuration);
+        }
+
+        /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+            Debug.Log($"Activate. [{GetType().Name}]");
+            base.ActivateInternal(handle, scope);
+            _sampleObject = new GameObject($"Active Node:{GetType().Name}");
+            _sampleObject.transform.SetParent(Services.Get<SituationFlowSample>().transform);
+        }
+
+        /// <summary>
+        /// 非アクティブ時処理
+        /// </summary>
+        protected override void DeactivateInternal(TransitionHandle handle) {
+            Debug.Log($"Deactivate. [{GetType().Name}]");
+            Object.Destroy(_sampleObject);
+            _sampleObject = null;
+            base.DeactivateInternal(handle);
+        }
+
+        /// <summary>
+        /// 解放処理
+        /// </summary>
+        protected override void CleanupInternal(TransitionHandle handle) {
+            Debug.Log($"Cleanup. [{GetType().Name}]");
+            base.CleanupInternal(handle);
+        }
+
+        /// <summary>
+        /// アンロード処理
+        /// </summary>
+        protected override void UnloadInternal(TransitionHandle handle) {
+            Debug.Log($"Unload. [{GetType().Name}]");
+            base.UnloadInternal(handle);
+        }
+    }
+}

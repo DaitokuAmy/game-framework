@@ -64,7 +64,7 @@ namespace GameFramework.SituationSystems {
         /// 遷移実行
         /// </summary>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition<TSituation>(params ITransitionEffect[] effects)
+        public TransitionHandle Transition<TSituation>(params ITransitionEffect[] effects)
             where TSituation : Situation {
             return Transition<TSituation>(null, null, effects);
         }
@@ -74,7 +74,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition<TSituation>(ITransition overrideTransition = null, params ITransitionEffect[] effects)
+        public TransitionHandle Transition<TSituation>(ITransition overrideTransition = null, params ITransitionEffect[] effects)
             where TSituation : Situation {
             return Transition<TSituation>(null, overrideTransition, effects);
         }
@@ -85,7 +85,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition<TSituation>(Action<TSituation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+        public TransitionHandle Transition<TSituation>(Action<TSituation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
             where TSituation : Situation {
             var type = typeof(TSituation);
             return Transition(type, situation => onSetup?.Invoke((TSituation)situation), overrideTransition, effects);
@@ -98,19 +98,18 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        public TransitionHandle Transition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             // 同じ型なら何もしない
             if (CurrentNode != null && CurrentNode.Situation.GetType() == type) {
-                return AsyncOperationHandle.CompletedHandle;
+                return TransitionHandle.Empty;
             }
 
             // 遷移先Nodeの取得
             var nextNode = GetNextNode(type);
 
             if (nextNode == null) {
-                var exception = new KeyNotFoundException($"Not found situation tree node. [{type.Name}]");
-                Debug.LogException(exception);
-                return AsyncOperator.CreateAbortedOperator(exception).GetHandle();
+                Debug.LogError($"Not found situation tree node. [{type.Name}]");
+                return TransitionHandle.Empty;
             }
 
             return Transition(nextNode, onSetup, overrideTransition, effects);
@@ -152,7 +151,7 @@ namespace GameFramework.SituationSystems {
         /// 戻り遷移実行
         /// </summary>
         /// <param name="effects">遷移演出</param>
-        public IProcess Back(params ITransitionEffect[] effects) {
+        public TransitionHandle Back(params ITransitionEffect[] effects) {
             return Back(null, null, effects);
         }
 
@@ -161,7 +160,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        public TransitionHandle Back(ITransition overrideTransition = null, params ITransitionEffect[] effects) {
             return Back(null, overrideTransition, effects);
         }
 
@@ -205,7 +204,7 @@ namespace GameFramework.SituationSystems {
         /// 現在のSituationをリセットする
         /// </summary>
         /// <param name="effects">遷移演出</param>
-        public IProcess Reset(params ITransitionEffect[] effects) {
+        public TransitionHandle Reset(params ITransitionEffect[] effects) {
             return Reset(null, effects);
         }
 
@@ -214,15 +213,16 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="onSetup">初期化処理</param>
         /// <param name="effects">遷移演出</param>
-        public IProcess Reset(Action<Situation> onSetup = null, params ITransitionEffect[] effects) {
+        public TransitionHandle Reset(Action<Situation> onSetup = null, params ITransitionEffect[] effects) {
             // 既に遷移中なら失敗
             if (IsTransitioning) {
-                return AsyncOperationHandle.CanceledHandle;
+                Debug.LogError("In transitioning");
+                return TransitionHandle.Empty;
             }
 
             if (CurrentNode == null) {
                 Debug.LogWarning("Current situation is null.");
-                return AsyncOperator.CreateCompletedOperator().GetHandle();
+                return TransitionHandle.Empty;
             }
 
             // リセット実行

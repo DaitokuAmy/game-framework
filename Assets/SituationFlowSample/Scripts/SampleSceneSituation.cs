@@ -5,13 +5,16 @@ using UnityEngine;
 
 namespace SituationFlowSample {
     /// <summary>
-    /// サンプル用のSituation
+    /// サンプル用のSceneSituation
     /// </summary>
-    public abstract class SampleSituation : Situation {
+    public abstract class SampleSceneSituation : SceneSituation {
         private const float LoadDuration = 0.2f;
         private const float SetupDuration = 0.05f;
         
         private GameObject _sampleObject;
+
+        /// <summary>アンロード時の空シーンのアセットパス(未指定だとアンロードでシーンを廃棄しない)</summary>
+        protected override string EmptySceneAssetPath => "Assets/SituationFlowSample/Scenes/situation_flow_sample_empty.unity";
         
         /// <summary>
         /// 読み込み
@@ -38,6 +41,7 @@ namespace SituationFlowSample {
             Debug.Log($"Activate. [{GetType().Name}]");
             base.ActivateInternal(handle, scope);
             _sampleObject = new GameObject($"Active Node:{GetType().Name}");
+            _sampleObject.transform.SetParent(Services.Get<SituationFlowSample>().transform);
         }
 
         /// <summary>
