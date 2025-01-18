@@ -17,6 +17,8 @@ namespace GameFramework.SituationSystems {
         public class TransitionOption {
             /// <summary>バック遷移</summary>
             public bool Back = false;
+            /// <summary>遷移ステップ(どこまで遷移を進めるか)</summary>
+            public TransitionStep Step = TransitionStep.Complete;
         }
 
         /// <summary>
@@ -26,6 +28,7 @@ namespace GameFramework.SituationSystems {
             public IReadOnlyList<ISituation> PrevSituations;
             public IReadOnlyList<ISituation> NextSituations;
             public TransitionState State;
+            public TransitionStep Step;
             public bool Back;
             public IReadOnlyList<ITransitionEffect> Effects;
             public bool EffectActive;
@@ -37,6 +40,7 @@ namespace GameFramework.SituationSystems {
         private readonly List<Situation> _preloadSituations = new();
         // 現在稼働中のSituationのリスト
         private readonly List<ISituation> _runningSituations = new();
+        
         // 遷移中情報
         private TransitionInfo _transitionInfo;
 
@@ -95,8 +99,8 @@ namespace GameFramework.SituationSystems {
                 nextSituations.Add(prevSituations[i]);
             }
 
-            // 遷移はデフォルト
-            var transition = GetDefaultTransition(null);
+            // 遷移はOutIn専用
+            var transition = (ITransition)new OutInTransition();
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
@@ -104,6 +108,7 @@ namespace GameFramework.SituationSystems {
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,
+                Step = TransitionStep.Complete,
                 Effects = effects
             };
 
@@ -209,6 +214,7 @@ namespace GameFramework.SituationSystems {
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,
+                Step = option != null ? option.Step : TransitionStep.Complete,
                 Effects = effects
             };
 
@@ -652,8 +658,16 @@ namespace GameFramework.SituationSystems {
 
             yield return new MergedCoroutine(routines);
 
+            while (_transitionInfo.Step <= TransitionStep.Load) {
+                yield return null;
+            }
+
             for (var i = 0; i < _transitionInfo.NextSituations.Count; i++) {
                 yield return _transitionInfo.NextSituations[i].SetupRoutine(handle);
+            }
+            
+            while (_transitionInfo.Step <= TransitionStep.Setup) {
+                yield return null;
             }
         }
 
