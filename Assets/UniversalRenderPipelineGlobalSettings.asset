@@ -54,6 +54,7 @@ MonoBehaviour:
       - rid: 4601819571288801298
       - rid: 4601819571288801299
       - rid: 4601819571288801300
+      - rid: 8809080844451315712
     m_RuntimeSettings:
       m_List: []
   m_AssetVersion: 8
@@ -254,3 +255,7 @@ MonoBehaviour:
         m_setupCS: {fileID: 7200000, guid: 33be2e9a5506b2843bdb2bdff9cad5e1, type: 3}
         m_preTaaCS: {fileID: 7200000, guid: a679dba8ec4d9ce45884a270b0e22dda, type: 3}
         m_taaCS: {fileID: 7200000, guid: 3923900e2b41b5e47bc25bfdcbcdc9e6, type: 3}
+    - rid: 8809080844451315712
+      type: {class: UniversalRenderPipelineEditorAssets, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
+      data:
+        m_DefaultSettingsVolumeProfile: {fileID: 11400000, guid: eda47df5b85f4f249abf7abd73db2cb2, type: 2}

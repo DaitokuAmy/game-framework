@@ -9,10 +9,13 @@ namespace GameFramework.SituationSystems {
     /// 加算シーン遷移に使うシチュエーション
     /// </summary>
     public abstract class AdditiveSceneSituation : Situation {
-        // シーンのアセットパス
+        /// <summary>UnitySceneを保持するSituationか</summary>
+        public override bool HasScene => true;
+        
+        /// <summary>シーンのアセットパス</summary>
         protected abstract string SceneAssetPath { get; }
 
-        // シーン情報
+        /// <summary>シーン情報</summary>
         protected Scene Scene { get; private set; }
 
         /// <summary>

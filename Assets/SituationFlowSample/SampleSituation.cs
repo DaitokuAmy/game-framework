@@ -8,28 +8,36 @@ namespace SituationFlowSample {
     /// サンプル用のSituation
     /// </summary>
     public abstract class SampleSituation : Situation {
+        private const float LoadDuration = 0.2f;
+        private const float SetupDuration = 0.05f;
+        
+        private GameObject _sampleObject;
+        
         /// <summary>
         /// 読み込み
         /// </summary>
         protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
-            yield return base.LoadRoutineInternal(handle, scope);
             Debug.Log($"Load Routine. [{GetType().Name}]");
+            yield return base.LoadRoutineInternal(handle, scope);
+            yield return new WaitForSeconds(LoadDuration);
         }
 
         /// <summary>
         /// 初期化
         /// </summary>
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
-            yield return base.SetupRoutineInternal(handle, scope);
             Debug.Log($"Setup Routine. [{GetType().Name}]");
+            yield return base.SetupRoutineInternal(handle, scope);
+            yield return new WaitForSeconds(SetupDuration);
         }
 
         /// <summary>
         /// アクティブ時処理
         /// </summary>
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
-            base.ActivateInternal(handle, scope);
             Debug.Log($"Activate. [{GetType().Name}]");
+            base.ActivateInternal(handle, scope);
+            _sampleObject = new GameObject($"Active Node:{GetType().Name}");
         }
 
         /// <summary>
@@ -37,6 +45,8 @@ namespace SituationFlowSample {
         /// </summary>
         protected override void DeactivateInternal(TransitionHandle handle) {
             Debug.Log($"Deactivate. [{GetType().Name}]");
+            Object.Destroy(_sampleObject);
+            _sampleObject = null;
             base.DeactivateInternal(handle);
         }
 

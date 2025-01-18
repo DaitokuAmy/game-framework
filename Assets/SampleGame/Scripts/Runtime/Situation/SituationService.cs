@@ -11,7 +11,7 @@ namespace SampleGame {
     /// </summary>
     public partial class SituationService : IFixedUpdatableTask, ILateUpdatableTask, ITaskEventHandler, IDisposable {
         private readonly DisposableScope _scope;
-        private readonly SituationRunner _situationRunner;
+        private readonly SituationContainer _situationContainer;
         private readonly SituationFlow _situationFlow;
 
         private TaskRunner _taskRunner;
@@ -31,8 +31,8 @@ namespace SampleGame {
         /// </summary>
         public SituationService() {
             _scope = new DisposableScope();
-            _situationRunner = new SituationRunner().ScopeTo(_scope);
-            _situationFlow = new SituationFlow().ScopeTo(_scope);
+            _situationContainer = new SituationContainer().ScopeTo(_scope);
+            _situationFlow = new SituationFlow(_situationContainer).ScopeTo(_scope);
             _situations = new Dictionary<Type, Situation>();
         }
 
@@ -53,22 +53,22 @@ namespace SampleGame {
         /// タスク更新
         /// </summary>
         void ITask.Update() {
-            _situationRunner.Update();
             _situationFlow.Update();
+            _situationContainer.Update();
         }
 
         /// <summary>
         /// タスク後更新
         /// </summary>
         void ILateUpdatableTask.LateUpdate() {
-            _situationRunner.LateUpdate();
+            _situationContainer.LateUpdate();
         }
 
         /// <summary>
         /// 物理更新
         /// </summary>
         void IFixedUpdatableTask.FixedUpdate() {
-            _situationRunner.FixedUpdate();
+            _situationContainer.FixedUpdate();
         }
 
         /// <summary>
@@ -96,8 +96,8 @@ namespace SampleGame {
                 return;
             }
 
-            if (_situationRunner == null || _situationFlow == null) {
-                Debug.LogError("SituationRunner or SituationFlow is null");
+            if (_situationContainer == null || _situationFlow == null) {
+                Debug.LogError("SituationContainer or SituationFlow is null");
                 return;
             }
 

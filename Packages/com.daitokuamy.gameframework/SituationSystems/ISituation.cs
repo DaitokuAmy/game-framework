@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Collections.Generic;
+using GameFramework.Core;
 
 namespace GameFramework.SituationSystems {
     /// <summary>
@@ -17,10 +19,20 @@ namespace GameFramework.SituationSystems {
     /// Release
     /// </summary>
     public interface ISituation {
-        /// <summary>コンテナ登録されているか</summary>
-        bool PreRegistered { get; }
+        /// <summary>インスタンス管理用</summary>
+        ServiceContainer ServiceContainer { get; }
         /// <summary>プリロード状態</summary>
         PreLoadState PreLoadState { get; }
+        /// <summary>親のSituation</summary>
+        ISituation Parent { get; }
+        /// <summary>子のSituationリスト</summary>
+        IReadOnlyList<ISituation> Children { get; }
+        /// <summary>RootSituationか(親を持たない)</summary>
+        bool IsRoot { get; }
+        /// <summary>LeafSituationか(子を持たない)</summary>
+        bool IsLeaf { get; }
+        /// <summary>UnitySceneを保持するSituationか</summary>
+        bool HasScene { get; }
 
         /// <summary>
         /// 待機処理
@@ -123,18 +135,6 @@ namespace GameFramework.SituationSystems {
         void Release(SituationContainer container);
 
         /// <summary>
-        /// コンテナ事前登録
-        /// </summary>
-        /// <param name="container">事前登録するContainer</param>
-        void PreRegister(SituationContainer container);
-
-        /// <summary>
-        /// コンテナ事前登録解除
-        /// </summary>
-        /// <param name="container">事前登録されていたContainer</param>
-        void PreUnregister(SituationContainer container);
-
-        /// <summary>
         /// プリロード処理
         /// </summary>
         IEnumerator PreLoadRoutine();
@@ -148,13 +148,5 @@ namespace GameFramework.SituationSystems {
         /// 次に遷移する際のデフォルト遷移方法を取得
         /// </summary>
         ITransition GetDefaultNextTransition();
-
-        /// <summary>
-        /// 遷移可能かチェック
-        /// </summary>
-        /// <param name="nextTransition">遷移するの子シチュエーション</param>
-        /// <param name="transition">遷移処理</param>
-        /// <returns>遷移可能か</returns>
-        bool CheckNextTransition(Situation nextTransition, ITransition transition);
     }
 }

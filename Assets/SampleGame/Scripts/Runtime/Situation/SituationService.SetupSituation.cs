@@ -12,19 +12,19 @@ namespace SampleGame {
         /// Situationの初期化処理
         /// </summary>
         private void SetupSituations(IScope scope) {
-            var mainSituation = new MainSituation().ScopeTo(scope);
-            mainSituation.SetParent(_situationRunner);
+            var mainSituation = new MainSituation();
+            _situationContainer.Setup(mainSituation);
             
-            SetupIntroductionSituations(mainSituation, scope);
-            SetupViewerSituations(_situationRunner, scope);
+            SetupIntroductionSituations(mainSituation);
+            SetupViewerSituations(mainSituation, scope);
         }
 
         /// <summary>
         /// 遷移処理の初期化
         /// </summary>
         private void SetupFlow(IScope scope) {
-            var introductionNode = _situationFlow.ConnectRoot(GetSituation<IntroductionSceneSituation>());
-            var modelViewerNode = introductionNode.Connect(GetSituation<ModelViewerSceneSituation>());
+            var introductionNode = _situationFlow.ConnectRoot<IntroductionSceneSituation>();
+            var modelViewerNode = introductionNode.Connect<ModelViewerSceneSituation>();
             _situationFlow.SetFallbackNode(modelViewerNode);
         }
     }
