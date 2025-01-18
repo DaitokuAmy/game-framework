@@ -283,10 +283,10 @@ _situation.SetFallbackNode(battleSceneNode); // こうする事で、ホーム�
 
 ちなみに、Nodeを直接指定して該当箇所に直接ジャンプする事も可能です  
 ```csharp
-// 直接PartyTopNodeに遷移する
-_situationFlow.Transition(partyTopNode, situation => /* 初期化処理 */);
+// 直接HomeNodeに遷移する
+_situationFlow.Transition(homeNode, situation => /* 初期化処理 */);
 ```
 
-使用方法は[サンプルコード](https://github.com/DaitokuAmy/game-framework/blob/main/Assets/SituationFlowSample/SituationFlowSample.cs)を参考にしてください  
+細かい使用方法は[サンプルコード](https://github.com/DaitokuAmy/game-framework/blob/main/Assets/SituationFlowSample/SituationFlowSample.cs)を参考にしてください  
 
 
