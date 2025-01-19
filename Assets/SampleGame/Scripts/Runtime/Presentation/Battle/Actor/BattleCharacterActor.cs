@@ -7,6 +7,7 @@ namespace SampleGame.Presentation.Battle {
     /// </summary>
     public class BattleCharacterActor : CharacterActor {
         private BattleCharacterActorSetupData _setupData;
+        private Rigidbody _rigidbody;
         
         /// <summary>
         /// コンストラクタ
@@ -14,6 +15,7 @@ namespace SampleGame.Presentation.Battle {
         public BattleCharacterActor(Body body, BattleCharacterActorSetupData setupData)
             : base(body, setupData) {
             _setupData = setupData;
+            _rigidbody = body.GetComponent<Rigidbody>();
         }
 
         /// <summary>
@@ -24,6 +26,28 @@ namespace SampleGame.Presentation.Battle {
 
             // AnimationPropertyの反映
             UpdateAnimationProperties();
+        }
+
+        /// <summary>
+        /// 位置の設定
+        /// </summary>
+        protected override void SetPosition(Vector3 position) {
+            base.SetPosition(position);
+
+            if (_rigidbody != null) {
+                _rigidbody.MovePosition(position);
+            }
+        }
+
+        /// <summary>
+        /// 回転の設定
+        /// </summary>
+        protected override void SetRotation(Quaternion rotation) {
+            base.SetRotation(rotation);
+            
+            if (_rigidbody != null) {
+                _rigidbody.MoveRotation(rotation);
+            }
         }
 
         /// <summary>
