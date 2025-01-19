@@ -15,7 +15,8 @@ MonoBehaviour:
   master:
     defaultActorAssetKeyIndex: 0
     actorAssetKeys:
-    - ch001_00
+    - ch001_00_gunslinger001
+    - ch001_00_unitychan001
     defaultEnvironmentAssetKeyIndex: 1
     environmentAssetKeys:
     - fld000
