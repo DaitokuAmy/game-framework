@@ -174,9 +174,9 @@ namespace SampleGame.ModelViewer {
         private IEnumerator SetupInfrastructureRoutine(IScope scope) {
             var assetManager = Services.Get<AssetManager>();
             var repository = new ModelViewerRepository(assetManager);
-            ServiceContainer.Set<IModelViewerRepository>(repository);
-            var fieldSceneRepository = new FieldSceneRepository(assetManager);
-            ServiceContainer.Set(fieldSceneRepository);
+            ServiceContainer.Set<IModelViewerRepository>(repository).ScopeTo(scope);
+            var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
+            ServiceContainer.Set(environmentSceneRepository).ScopeTo(scope);
 
             yield break;
         }
@@ -185,17 +185,16 @@ namespace SampleGame.ModelViewer {
         /// Managerの初期化
         /// </summary>
         private IEnumerator SetupManagerRoutine(IScope scope) {
-            var repository = Services.Get<IModelViewerRepository>();
             var bodyBuilder = new BodyBuilder();
             var bodyManager = new BodyManager(bodyBuilder);
             bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.Set(bodyManager);
+            ServiceContainer.Set(bodyManager).ScopeTo(scope);
 
             var environmentManager = new EnvironmentManager();
-            ServiceContainer.Set(environmentManager);
+            ServiceContainer.Set(environmentManager).ScopeTo(scope);
 
-            var actorManager = new ActorEntityManager(bodyManager, repository);
-            ServiceContainer.Set(actorManager);
+            var actorManager = new ActorEntityManager(bodyManager);
+            ServiceContainer.Set(actorManager).ScopeTo(scope);
 
             var cameraManager = Services.Get<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
@@ -248,7 +247,7 @@ namespace SampleGame.ModelViewer {
                 logic.ScopeTo(scope);
 
                 if (addService) {
-                    ServiceContainer.Set(logic);
+                    ServiceContainer.Set(logic).ScopeTo(scope);
                 }
             }
 

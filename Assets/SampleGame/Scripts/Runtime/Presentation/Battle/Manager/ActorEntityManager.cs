@@ -4,13 +4,13 @@ using Cysharp.Threading.Tasks;
 using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.ActorSystems;
-using SampleGame.Application.ModelViewer;
-using SampleGame.Domain.ModelViewer;
+using SampleGame.Infrastructure;
+using SampleGame.Infrastructure.Battle;
 using UniRx;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace SampleGame.Presentation.ModelViewer {
+namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// Actor管理用クラス
     /// </summary>
@@ -19,6 +19,8 @@ namespace SampleGame.Presentation.ModelViewer {
         private readonly ReactiveDictionary<int, ActorEntity> _createdEntities;
         
         private readonly BodyManager _bodyManager;
+        private readonly BodyPrefabRepository _bodyBodyPrefabRepository;
+        private readonly BattleCharacterAssetRepository _battleCharacterAssetRepository;
         
         private bool _isDisposed;
 
@@ -38,6 +40,8 @@ namespace SampleGame.Presentation.ModelViewer {
             _createdEntities = new();
 
             _bodyManager = bodyManager;
+            _bodyBodyPrefabRepository = Services.Get<BodyPrefabRepository>();
+            _battleCharacterAssetRepository = Services.Get<BattleCharacterAssetRepository>();
         }
 
         /// <summary>
@@ -60,10 +64,10 @@ namespace SampleGame.Presentation.ModelViewer {
         }
 
         /// <summary>
-        /// プレビューアクター用のアクターエンティティ生成
+        /// バトルキャラアクター用のアクターエンティティ生成
         /// </summary>
-        public UniTask<ActorEntity> CreatePreviewActorEntityAsync(int id, GameObject prefab, LayeredTime parentLayeredTime, CancellationToken ct) {
-            return CreatePreviewActorEntityAsyncInternal(id, prefab, parentLayeredTime, ct);
+        public UniTask<ActorEntity> CreateBattleCharacterActorEntityAsync(int id, string assetKey, string actorAssetKey, LayeredTime parentLayeredTime, CancellationToken ct) {
+            return CreateBattleCharacterActorEntityAsyncInternal(id, assetKey, actorAssetKey, parentLayeredTime, ct);
         }
 
         /// <summary>
@@ -89,24 +93,26 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// アクターエンティティの生成
         /// </summary>
-        private async UniTask<ActorEntity> CreatePreviewActorEntityAsyncInternal(int id, GameObject prefab, LayeredTime parentLayeredTime, CancellationToken ct) {
+        private async UniTask<ActorEntity> CreateBattleCharacterActorEntityAsyncInternal(int id, string assetKey, string actorAssetKey, LayeredTime parentLayeredTime, CancellationToken ct) {
             var key = id;
 
             // 生成が完了いているのであればそれを返す
             if (_createdEntities.TryGetValue(key, out var entity)) {
                 return entity;
             }
+            
+            // todo:生成中のエラーハンドリング
 
             entity = new ActorEntity().ScopeTo(_scope);
 
             // Body生成
+            var prefab = await LoadBodyPrefabAsync(assetKey, ct);
             var body = _bodyManager.CreateFromGameObject(InstantiatePrefab(prefab));
-
-            // Bodyのリネーム
             RenameBodyGameObject(id, body);
 
-            // Actorのセットアップ
-            var actor = new PreviewActor(body);
+            // Actorの生成
+            var setupData = await _battleCharacterAssetRepository.LoadSetupDataAsync(actorAssetKey, ct);
+            var actor = new BattleCharacterActor(body, setupData);
 
             // 初期化
             body.UserId = key;
@@ -117,8 +123,6 @@ namespace SampleGame.Presentation.ModelViewer {
             entity.AddActor(actor);
 
             _createdEntities.Add(key, entity);
-            
-            await UniTask.CompletedTask;
             return entity;
         }
 
@@ -127,6 +131,17 @@ namespace SampleGame.Presentation.ModelViewer {
         /// </summary>
         private void RenameBodyGameObject(int id, Body body) {
             body.GameObject.name = $"{id}:{body.GameObject.name.Replace("(Clone)", "")}";
+        }
+
+        /// <summary>
+        /// BodyPrefabの読み込み
+        /// </summary>
+        private async UniTask<GameObject> LoadBodyPrefabAsync(string assetKey, CancellationToken ct) {
+            if (assetKey.StartsWith("ch")) {
+                return await _bodyBodyPrefabRepository.LoadCharacterPrefabAsync(assetKey, ct);
+            }
+
+            return null;
         }
     }
 }

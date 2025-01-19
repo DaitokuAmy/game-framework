@@ -117,9 +117,23 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 移動キャンセル
         /// </summary>
-        public void CancelMove() {
+        protected void CancelMove() {
             ResetMoveSpeedMultiplier();
             MoveController.Cancel();
+        }
+
+        /// <summary>
+        /// 指定方向に移動し続ける
+        /// </summary>
+        /// <param name="direction">移動向き</param>
+        /// <param name="speedMultiplier">移動速度倍率</param>
+        /// <param name="updateRotation">向きを更新するか</param>
+        protected void DirectionMove(Vector3 direction, float speedMultiplier = 1.0f, bool updateRotation = true) {
+            // 現在のアクションをキャンセル
+            CancelActionCancellationHandle();
+            
+            // 移動値を設定
+            MoveController.MoveToDirection<DirectionMoveResolver>(direction, speedMultiplier, updateRotation);
         }
 
         /// <summary>
@@ -129,7 +143,7 @@ namespace SampleGame.Presentation {
         /// <param name="distance">移動距離 (0未満指定で無限に移動)</param>
         /// <param name="speedMultiplier">移動速度倍率</param>
         /// <param name="ct">非同期キャンセル用トークン</param>
-        public async UniTask DirectionMoveAsync(Vector3 direction, float distance = -1.0f, float speedMultiplier = 1.0f, CancellationToken ct = default) {
+        protected async UniTask DirectionMoveAsync(Vector3 direction, float distance = -1.0f, float speedMultiplier = 1.0f, CancellationToken ct = default) {
             ct.ThrowIfCancellationRequested();
 
             IEnumerator Routine(CancellationToken token) {
@@ -142,7 +156,7 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// アクションの再生
         /// </summary>
-        public async UniTask PlayActionAsync(string actionKey, Action<ActorActionPlayer.Handle> onCreatedHandle, CancellationToken ct) {
+        protected async UniTask PlayActionAsync(string actionKey, Action<ActorActionPlayer.Handle> onCreatedHandle, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
             var actionInfo = FindActionInfo(actionKey);
@@ -164,7 +178,7 @@ namespace SampleGame.Presentation {
         /// <param name="navigator">移動方法を制御するナビゲーター</param>
         /// <param name="speedMultiplier">移動速度倍率</param>
         /// <param name="ct">非同期キャンセル用トークン</param>
-        public async UniTask NavigationMoveAsync(IActorNavigator navigator, float speedMultiplier = 1.0f, CancellationToken ct = default) {
+        protected async UniTask NavigationMoveAsync(IActorNavigator navigator, float speedMultiplier = 1.0f, CancellationToken ct = default) {
             ct.ThrowIfCancellationRequested();
 
             IEnumerator Routine(CancellationToken token) {
@@ -180,7 +194,7 @@ namespace SampleGame.Presentation {
         /// <param name="point">移動先座標</param>
         /// <param name="speedMultiplier">移動速度倍率</param>
         /// <param name="ct">非同期キャンセル用トークン</param>
-        public async UniTask MoveToPointAsync(Vector3 point, float speedMultiplier = 1.0f, CancellationToken ct = default) {
+        protected async UniTask MoveToPointAsync(Vector3 point, float speedMultiplier = 1.0f, CancellationToken ct = default) {
             ct.ThrowIfCancellationRequested();
 
             IEnumerator Routine(CancellationToken token) {
@@ -196,7 +210,7 @@ namespace SampleGame.Presentation {
         /// <param name="relativeVector">相対ベクトル</param>
         /// <param name="speedMultiplier">移動速度倍率</param>
         /// <param name="ct">非同期キャンセル用トークン</param>
-        public async UniTask RelativeMoveAsync(Vector3 relativeVector, float speedMultiplier = 1.0f, CancellationToken ct = default) {
+        protected async UniTask RelativeMoveAsync(Vector3 relativeVector, float speedMultiplier = 1.0f, CancellationToken ct = default) {
             ct.ThrowIfCancellationRequested();
 
             IEnumerator Routine(CancellationToken token) {

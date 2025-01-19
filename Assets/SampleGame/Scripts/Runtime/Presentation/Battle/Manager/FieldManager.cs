@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using SampleGame.Infrastructure;
 using UnityEngine.SceneManagement;
 
-namespace SampleGame.Presentation.ModelViewer {
+namespace SampleGame.Presentation.Battle {
     /// <summary>
-    /// 環境の管理用
+    /// フィールド管理用
     /// </summary>
-    public class EnvironmentManager : IDisposable {
+    public class FieldManager : IDisposable {
         private string _currentAssetKey = "";
         private DisposableScope _fieldScope = new();
         private EnvironmentSceneRepository _environmentSceneRepository;
@@ -22,7 +21,7 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public EnvironmentManager() {
+        public FieldManager() {
             _environmentSceneRepository = Services.Get<EnvironmentSceneRepository>();
         }
 
@@ -30,23 +29,23 @@ namespace SampleGame.Presentation.ModelViewer {
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            RemoveEnvironment();
+            RemoveField();
         }
 
         /// <summary>
-        /// 環境の変更
+        /// フィールドの変更
         /// </summary>
-        public async UniTask<Scene> ChangeEnvironmentAsync(string assetKey, CancellationToken ct) {
+        public async UniTask<Scene> ChangeFieldAsync(string assetKey, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
-            RemoveEnvironment();
+            RemoveField();
 
             if (string.IsNullOrEmpty(assetKey)) {
                 return default;
             }
 
             if (!string.IsNullOrEmpty(assetKey)) {
-                CurrentScene = await LoadEnvironmentAsync(assetKey, ct);
+                CurrentScene = await LoadFieldAsync(assetKey, ct);
             }
 
             return CurrentScene;
@@ -55,7 +54,7 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// 環境の削除
         /// </summary>
-        public void RemoveEnvironment() {
+        public void RemoveField() {
             if (!CurrentScene.IsValid()) {
                 return;
             }
@@ -70,9 +69,9 @@ namespace SampleGame.Presentation.ModelViewer {
         }
 
         /// <summary>
-        /// 環境の読み込み
+        /// フィールドの読み込み
         /// </summary>
-        private UniTask<Scene> LoadEnvironmentAsync(string assetKey, CancellationToken ct) {
+        private UniTask<Scene> LoadFieldAsync(string assetKey, CancellationToken ct) {
             _currentAssetKey = assetKey;
 
             if (assetKey.StartsWith("fld")) {

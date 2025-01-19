@@ -14,7 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GroupName: Default Local Group
   m_GUID: 8def2611f049b7145a6b63603d6050eb
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: a48447a7ca18c0f4f8b3f69e615da327
+    m_Address: Assets/SampleGame/ActorAssets/BattleCharacter/ch001/Data/dat_battle_character_actor_setup_ch001_00.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e90cc77ab40acd7449c212852d734a25
+    m_Address: Assets/SampleGame/BodyAssets/Character/ch001/prfb_ch001_00.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ccde74308c09be146ace406d5c88cfe8, type: 2}
   m_SchemaSet:

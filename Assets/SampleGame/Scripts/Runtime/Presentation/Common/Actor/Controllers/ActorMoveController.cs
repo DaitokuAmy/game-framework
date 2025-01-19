@@ -127,6 +127,34 @@ namespace SampleGame.Presentation {
         }
 
         /// <summary>
+        /// 向き指定移動
+        /// </summary>
+        public void MoveToDirection<TResolver>(Vector3 direction, float speedMultiplier, bool updateRotation = true)
+            where TResolver : IDirectionMoveResolver {
+            if (!_resolvers.TryGetValue(typeof(TResolver), out var resolver)) {
+                Debug.LogWarning($"Not found resolver. ({typeof(TResolver).Name})");
+                return;
+            }
+
+            _speedMultiplier = speedMultiplier;
+            
+            if (resolver is IDirectionMoveResolver directionMoveResolver) {
+                // 現在の移動をキャンセル
+                if (_activeResolver != resolver) {
+                    Cancel();
+                }
+                
+                // 移動値設定
+                directionMoveResolver.MoveToDirection(direction, _speedMultiplier, updateRotation);
+
+                // 移動できた場合はアクティブなリゾルバを登録
+                if (directionMoveResolver.IsMoving) {
+                    _activeResolver = resolver;
+                }
+            }
+        }
+
+        /// <summary>
         /// 指定向きへの移動(実行したら動き続ける)
         /// </summary>
         public AsyncOperationHandle MoveToDirectionAsync<TResolver>(Vector3 direction, float speedMultiplier, bool updateRotation = true)
