@@ -11,6 +11,8 @@ namespace GameFramework.SituationSystems {
     public abstract class SceneSituation : Situation {
         /// <summary>UnitySceneを保持するSituationか</summary>
         public override bool HasScene => true;
+        /// <summary>PreLoad可能か</summary>
+        public override bool CanPreLoad => false;
 
         /// <summary>シーンのアセットパス</summary>
         protected abstract string SceneAssetPath { get; }

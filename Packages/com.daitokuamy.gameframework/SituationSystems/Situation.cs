@@ -41,6 +41,13 @@ namespace GameFramework.SituationSystems {
 
         /// <summary>UnitySceneを保持するSituationか</summary>
         public virtual bool HasScene => false;
+        /// <summary>PreLoad可能か</summary>
+        public virtual bool CanPreLoad => true;
+
+        /// <summary>親のSituation</summary>
+        ISituation ISituation.Parent => _parent;
+        /// <summary>子Situationリスト</summary>
+        IReadOnlyList<ISituation> ISituation.Children => _children;
 
         /// <summary>インスタンス管理用</summary>
         public ServiceContainer ServiceContainer { get; private set; }
@@ -54,13 +61,10 @@ namespace GameFramework.SituationSystems {
         public SituationContainer Container => _container;
         /// <summary>RootSituationか</summary>
         public bool IsRoot => _parent == null;
-        /// <summary>LeafSituationか</summary>
-        public bool IsLeaf => _children.Count <= 0;
-
         /// <summary>親のSituation</summary>
-        ISituation ISituation.Parent => _parent;
+        public Situation Parent => _parent;
         /// <summary>子Situationリスト</summary>
-        IReadOnlyList<ISituation> ISituation.Children => _children;
+        public IReadOnlyList<Situation> Children => _children;
 
         /// <summary>登録されているFlow</summary>
         protected SituationFlow SituationFlow { get; private set; }
@@ -370,9 +374,13 @@ namespace GameFramework.SituationSystems {
             if (PreLoadState != PreLoadState.None) {
                 yield break;
             }
+            
+            var situation = (ISituation)this;
+            if (!situation.CanPreLoad) {
+                yield break;
+            }
 
             PreLoadState = PreLoadState.PreLoading;
-            var situation = (ISituation)this;
             yield return situation.LoadRoutine(new TransitionHandle(), true);
             PreLoadState = PreLoadState.PreLoaded;
         }
@@ -386,6 +394,10 @@ namespace GameFramework.SituationSystems {
             }
 
             var situation = (ISituation)this;
+            if (!situation.CanPreLoad) {
+                return;
+            }
+            
             PreLoadState = PreLoadState.None;
 
             // 稼働中ならUnloadは呼ばない

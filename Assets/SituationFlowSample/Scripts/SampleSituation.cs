@@ -7,11 +7,14 @@ namespace SituationFlowSample {
     /// <summary>
     /// サンプル用のSituation
     /// </summary>
-    public abstract class SampleSituation : Situation {
+    public abstract class SampleSituation : Situation, ISampleSituation {
         private const float LoadDuration = 0.2f;
         private const float SetupDuration = 0.05f;
         
         private GameObject _sampleObject;
+        
+        /// <summary>表示名</summary>
+        string ISampleSituation.DisplayName => GetType().Name.Replace("SampleSituation", "");
         
         /// <summary>
         /// 読み込み

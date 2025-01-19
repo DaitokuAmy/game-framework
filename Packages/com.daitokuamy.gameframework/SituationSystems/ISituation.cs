@@ -11,7 +11,7 @@ namespace GameFramework.SituationSystems {
     ///     SetupRoutine
     ///       OpenRoutine
     ///         Activate
-    ///           Update/LateUpdate
+    ///           Update/LateUpdate/FixedUpdate
     ///         Deactivate
     ///       CloseRoutine
     ///     Cleanup
@@ -29,10 +29,10 @@ namespace GameFramework.SituationSystems {
         IReadOnlyList<ISituation> Children { get; }
         /// <summary>RootSituationか(親を持たない)</summary>
         bool IsRoot { get; }
-        /// <summary>LeafSituationか(子を持たない)</summary>
-        bool IsLeaf { get; }
         /// <summary>UnitySceneを保持するSituationか</summary>
         bool HasScene { get; }
+        /// <summary>PreLoad可能か</summary>
+        bool CanPreLoad { get; }
 
         /// <summary>
         /// 待機処理

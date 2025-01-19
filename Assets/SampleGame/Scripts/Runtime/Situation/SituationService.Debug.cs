@@ -16,21 +16,7 @@ namespace SampleGame {
         /// </summary>
         private void SetupDebug(IScope scope) {
             var situationTypeIndex = 0;
-            var leafSituationTypes = new List<Type>();
-
-            void AddLeafSituationTypes(ISituation situation) {
-                if (situation.IsLeaf) {
-                    leafSituationTypes.Add(situation.GetType());
-                    return;
-                }
-
-                foreach (var child in situation.Children) {
-                    AddLeafSituationTypes(child);
-                }
-            }
-
-            AddLeafSituationTypes(_situationContainer.RootSituation);
-
+            var leafSituationTypes = _situationFlow.GetNodes().Select(x => x.Situation.GetType()).Distinct().ToArray();
             var situationLabels = leafSituationTypes
                 .Select(x => x.Name.Replace("SceneSituation", "").Replace("Situation", ""))
                 .ToArray();

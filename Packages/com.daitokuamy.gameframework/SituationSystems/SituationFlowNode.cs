@@ -36,6 +36,9 @@ namespace GameFramework.SituationSystems {
         /// <summary>実行対象のSituation</summary>
         public Situation Situation => _situation;
 
+        /// <summary>遷移先のノードリスト</summary>
+        internal SituationFlowNode[] NextNodes => _connectInfos.Select(x => x.Value.NextNode).ToArray();
+
         /// <summary>フォールバック経由で遷移された時の通知</summary>
         public event Action<TransitionInfo> OnTransitionByFallbackEvent;
 
@@ -94,7 +97,7 @@ namespace GameFramework.SituationSystems {
             // Situationが無ければnullを返す
             var situation = _flow.FindSituation(type);
             if (situation == null) {
-                Debug.LogError($"Not found leaf situation. [{type.Name}]");
+                Debug.LogError($"Not found situation. [{type.Name}]");
                 return null;
             }
 

@@ -7,7 +7,7 @@ namespace SituationFlowSample {
     /// <summary>
     /// サンプル用のSceneSituation
     /// </summary>
-    public abstract class SampleSceneSituation : SceneSituation {
+    public abstract class SampleSceneSituation : SceneSituation, ISampleSituation {
         private const float LoadDuration = 0.2f;
         private const float SetupDuration = 0.05f;
         
@@ -15,6 +15,9 @@ namespace SituationFlowSample {
 
         /// <summary>アンロード時の空シーンのアセットパス(未指定だとアンロードでシーンを廃棄しない)</summary>
         protected override string EmptySceneAssetPath => "Assets/SituationFlowSample/Scenes/situation_flow_sample_empty.unity";
+        
+        /// <summary>表示名</summary>
+        string ISampleSituation.DisplayName => GetType().Name.Replace("SampleSceneSituation", "");
         
         /// <summary>
         /// 読み込み

@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using GameFramework.Core;
-using GameFramework.CoroutineSystems;
 using UnityEngine;
 
 namespace GameFramework.SituationSystems {
@@ -123,28 +121,73 @@ namespace GameFramework.SituationSystems {
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Transition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            // 既に遷移中なら失敗
-            if (IsTransitioning) {
-                Debug.LogError("In transitioning");
+            return TransitionInternal(nextNode, false, onSetup, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// リフレッシュ遷移実行
+        /// </summary>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle RefreshTransition<TSituation>(params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            return RefreshTransition<TSituation>(null, null, effects);
+        }
+
+        /// <summary>
+        /// リフレッシュ遷移実行
+        /// </summary>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle RefreshTransition<TSituation>(ITransition overrideTransition = null, params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            return RefreshTransition<TSituation>(null, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// リフレッシュ遷移実行
+        /// </summary>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle RefreshTransition<TSituation>(Action<TSituation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            var type = typeof(TSituation);
+            return RefreshTransition(type, situation => onSetup?.Invoke((TSituation)situation), overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// リフレッシュ遷移実行
+        /// </summary>
+        /// <param name="type">遷移先を表すSituatonのType</param>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle RefreshTransition(Type type, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 同じ型なら何もしない
+            if (CurrentNode != null && CurrentNode.Situation.GetType() == type) {
                 return TransitionHandle.Empty;
             }
 
-            // 同じ場所なら何もしない
-            if (nextNode == CurrentNode) {
-                return TransitionHandle.Empty;
-            }
+            // 遷移先Nodeの取得
+            var nextNode = GetNextNode(type);
 
-            // NextNodeがない
             if (nextNode == null) {
-                Debug.LogError("Next node is null.");
+                Debug.LogError($"Not found situation tree node. [{type.Name}]");
                 return TransitionHandle.Empty;
             }
 
-            // 現在のNodeを置き換えて遷移する
-            CurrentNode = nextNode;
+            return RefreshTransition(nextNode, onSetup, overrideTransition, effects);
+        }
 
-            // 遷移実行
-            return _situationContainer.Transition(CurrentNode.Situation.GetType(), onSetup, null, overrideTransition, effects);
+        /// <summary>
+        /// リフレッシュ遷移実行
+        /// </summary>
+        /// <param name="nextNode">遷移先のNode</param>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle RefreshTransition(SituationFlowNode nextNode, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            return TransitionInternal(nextNode, true, onSetup, overrideTransition, effects);
         }
 
         /// <summary>
@@ -171,33 +214,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Back(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            // 既に遷移中なら失敗
-            if (IsTransitioning) {
-                Debug.LogError("In transitioning");
-                return TransitionHandle.Empty;
-            }
-
-            if (CurrentNode == null) {
-                Debug.LogWarning("Current situation is null.");
-                return TransitionHandle.Empty;
-            }
-
-            if (CurrentNode == _rootNode || CurrentNode.GetPrevious() == _rootNode) {
-                Debug.LogWarning("Current situation is not back.");
-                return TransitionHandle.Empty;
-            }
-
-            var parentNode = CurrentNode.GetPrevious();
-            if (parentNode == null || !parentNode.IsValid) {
-                Debug.LogWarning("Parent situation is invalid.");
-                return TransitionHandle.Empty;
-            }
-
-            // 親Nodeがあればそこへ遷移
-            CurrentNode = parentNode;
-            
-            // 遷移実行
-            return _situationContainer.Transition(CurrentNode.Situation.GetType(), onSetup, new SituationContainer.TransitionOption { Back = true }, overrideTransition, effects);
+            return BackInternal(onSetup, overrideTransition, effects);
         }
 
         /// <summary>
@@ -214,19 +231,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="onSetup">初期化処理</param>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Reset(Action<Situation> onSetup = null, params ITransitionEffect[] effects) {
-            // 既に遷移中なら失敗
-            if (IsTransitioning) {
-                Debug.LogError("In transitioning");
-                return TransitionHandle.Empty;
-            }
-
-            if (CurrentNode == null) {
-                Debug.LogWarning("Current situation is null.");
-                return TransitionHandle.Empty;
-            }
-
-            // リセット実行
-            return _situationContainer.Reset(onSetup, effects);
+            return ResetInternal(onSetup, effects);
         }
 
         /// <summary>
@@ -278,6 +283,31 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// 存在するノードの一覧を取得
+        /// </summary>
+        public SituationFlowNode[] GetNodes() {
+            var nodes = new List<SituationFlowNode>();
+
+            void AddNodes(SituationFlowNode node) {
+                if (node == null) {
+                    return;
+                }
+
+                nodes.Add(node);
+                foreach (var nextNode in node.NextNodes) {
+                    AddNodes(nextNode);
+                }
+            }
+
+            AddNodes(_rootNode);
+            
+            // Rootは除外
+            nodes.RemoveAt(0);
+
+            return nodes.ToArray();
+        }
+
+        /// <summary>
         /// 次の接続先に存在するタイプかチェック
         /// </summary>
         /// <param name="type">接続先の型</param>
@@ -321,7 +351,99 @@ namespace GameFramework.SituationSystems {
         /// 接続可能なSituationを探す
         /// </summary>
         internal Situation FindSituation(Type type) {
-            return _situationContainer.FindLeafSituation(type);
+            return _situationContainer.FindSituation(type);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="nextNode">遷移先のNode</param>
+        /// <param name="refresh">RootSituationから再構築するか</param>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        private TransitionHandle TransitionInternal(SituationFlowNode nextNode, bool refresh = false, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 既に遷移中なら失敗
+            if (IsTransitioning) {
+                Debug.LogError("In transitioning");
+                return TransitionHandle.Empty;
+            }
+
+            // 同じ場所なら何もしない
+            if (nextNode == CurrentNode) {
+                return TransitionHandle.Empty;
+            }
+
+            // NextNodeがない
+            if (nextNode == null) {
+                Debug.LogError("Next node is null.");
+                return TransitionHandle.Empty;
+            }
+
+            // 現在のNodeを置き換えて遷移する
+            CurrentNode = nextNode;
+
+            // 遷移実行
+            var option = new SituationContainer.TransitionOption();
+            option.Refresh = refresh;
+            return _situationContainer.Transition(CurrentNode.Situation.GetType(), onSetup, option, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 戻り遷移実行
+        /// </summary>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        private TransitionHandle BackInternal(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 既に遷移中なら失敗
+            if (IsTransitioning) {
+                Debug.LogError("In transitioning");
+                return TransitionHandle.Empty;
+            }
+
+            if (CurrentNode == null) {
+                Debug.LogWarning("Current situation is null.");
+                return TransitionHandle.Empty;
+            }
+
+            if (CurrentNode == _rootNode || CurrentNode.GetPrevious() == _rootNode) {
+                Debug.LogWarning("Current situation is not back.");
+                return TransitionHandle.Empty;
+            }
+
+            var parentNode = CurrentNode.GetPrevious();
+            if (parentNode == null || !parentNode.IsValid) {
+                Debug.LogWarning("Parent situation is invalid.");
+                return TransitionHandle.Empty;
+            }
+
+            // 親Nodeがあればそこへ遷移
+            CurrentNode = parentNode;
+
+            // 遷移実行
+            return _situationContainer.Transition(CurrentNode.Situation.GetType(), onSetup, new SituationContainer.TransitionOption { Back = true }, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 現在のSituationをリセットする
+        /// </summary>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="effects">遷移演出</param>
+        private TransitionHandle ResetInternal(Action<Situation> onSetup = null, params ITransitionEffect[] effects) {
+            // 既に遷移中なら失敗
+            if (IsTransitioning) {
+                Debug.LogError("In transitioning");
+                return TransitionHandle.Empty;
+            }
+
+            if (CurrentNode == null) {
+                Debug.LogWarning("Current situation is null.");
+                return TransitionHandle.Empty;
+            }
+
+            // リセット実行
+            return _situationContainer.Reset(onSetup, effects);
         }
 
         /// <summary>

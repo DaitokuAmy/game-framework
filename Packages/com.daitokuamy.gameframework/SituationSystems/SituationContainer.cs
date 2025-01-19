@@ -17,6 +17,8 @@ namespace GameFramework.SituationSystems {
         public class TransitionOption {
             /// <summary>バック遷移</summary>
             public bool Back = false;
+            /// <summary>Rootから再構築して遷移するか</summary>
+            public bool Refresh = false;
             /// <summary>遷移ステップ(どこまで遷移を進めるか)</summary>
             public TransitionStep Step = TransitionStep.Complete;
         }
@@ -40,7 +42,7 @@ namespace GameFramework.SituationSystems {
         private readonly List<Situation> _preloadSituations = new();
         // 現在稼働中のSituationのリスト
         private readonly List<ISituation> _runningSituations = new();
-        
+
         // 遷移中情報
         private TransitionInfo _transitionInfo;
 
@@ -139,7 +141,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Transition(Type situationType, Action<Situation> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            var situation = FindLeafSituation(situationType);
+            var situation = FindSituation(situationType);
             if (situation == null) {
                 return new TransitionHandle(new Exception($"Not found situation:{situationType.Name}"));
             }
@@ -159,29 +161,31 @@ namespace GameFramework.SituationSystems {
             }
 
             // 遷移先の共通親を探す
-            var baseParent = prev?.Parent;
-            while (baseParent != null) {
-                var p = next.Parent;
-                while (p != null) {
-                    if (p == baseParent) {
+            var baseParent = default(ISituation);
+            if (option == null || !option.Refresh) {
+                baseParent = prev;
+                while (baseParent != null) {
+                    var p = next;
+                    while (p != null) {
+                        if (p == baseParent) {
+                            break;
+                        }
+
+                        p = p.Parent;
+                    }
+
+                    if (p != null) {
                         break;
                     }
 
-                    p = p.Parent;
+                    baseParent = baseParent.Parent;
                 }
-
-                if (p != null) {
-                    break;
-                }
-
-                baseParent = baseParent.Parent;
             }
 
             // 閉じるSituationリスト
             var prevSituations = new List<ISituation>();
             if (prev != null) {
-                prevSituations.Add(prev);
-                var p = prev.Parent;
+                var p = prev;
                 while (p != baseParent) {
                     prevSituations.Add(p);
                     p = p.Parent;
@@ -191,8 +195,7 @@ namespace GameFramework.SituationSystems {
             // 開くSituationリスト
             var nextSituations = new List<ISituation>();
             {
-                nextSituations.Insert(0, next);
-                var p = next.Parent;
+                var p = next;
                 while (p != baseParent) {
                     nextSituations.Insert(0, p);
                     p = p.Parent;
@@ -220,8 +223,17 @@ namespace GameFramework.SituationSystems {
 
             // アクティブなSituationの更新
             _runningSituations.Clear();
-            _runningSituations.AddRange(nextSituations);
+            {
+                var s = next;
+                while (s != null) {
+                    _runningSituations.Insert(0, s);
+                    s = s.Parent;
+                }
+            }
             ChangedCurrentEvent?.Invoke(Current);
+            
+            // 初期化処理
+            onSetup?.Invoke(Current);
 
             // コルーチンの登録
             _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => _transitionInfo = null);
@@ -289,6 +301,11 @@ namespace GameFramework.SituationSystems {
             }
 
             var target = (ISituation)situation;
+            if (!target.CanPreLoad) {
+                Debug.LogWarning($"{situationType.Name} is not support preLoad.");
+                return AsyncOperationHandle.CanceledHandle;
+            }
+
             var asyncOp = new AsyncOperator();
             if (target.PreLoadState == PreLoadState.None) {
                 _preloadSituations.Add(situation);
@@ -314,6 +331,11 @@ namespace GameFramework.SituationSystems {
         public void UnPreLoad(Type situationType) {
             var situation = FindSituation(situationType);
             if (situation == null) {
+                return;
+            }
+
+            if (!situation.CanPreLoad) {
+                Debug.LogWarning($"{situationType.Name} is not support preLoad.");
                 return;
             }
 
@@ -472,7 +494,7 @@ namespace GameFramework.SituationSystems {
                     break;
                 }
             }
-            
+
             // SceneSituationが介在する場合、OutInTransitionのみ許可
             if (sceneSituationTransition) {
                 if (transition is not OutInTransition) {
@@ -492,47 +514,6 @@ namespace GameFramework.SituationSystems {
             }
 
             return nextSituation.GetDefaultNextTransition();
-        }
-
-        /// <summary>
-        /// 該当型の階層一番下にあるSituationを探す
-        /// </summary>
-        public TSituation FindLeafSituation<TSituation>()
-            where TSituation : Situation {
-            return (TSituation)FindLeafSituation(typeof(TSituation));
-        }
-
-        /// <summary>
-        /// 該当型の階層一番下にあるSituationを探す
-        /// </summary>
-        public Situation FindLeafSituation(Type type) {
-            ISituation Find(ISituation situation) {
-                if (situation.IsLeaf) {
-                    if (situation.GetType() == type) {
-                        return situation;
-                    }
-
-                    return null;
-                }
-
-                foreach (var child in situation.Children) {
-                    var result = Find(child);
-                    if (result == null) {
-                        continue;
-                    }
-
-                    return result;
-                }
-
-                return null;
-            }
-
-            if (RootSituation == null) {
-                Debug.LogError("RootSituation is null.");
-                return null;
-            }
-
-            return (Situation)Find(RootSituation);
         }
 
         /// <summary>
@@ -665,7 +646,7 @@ namespace GameFramework.SituationSystems {
             for (var i = 0; i < _transitionInfo.NextSituations.Count; i++) {
                 yield return _transitionInfo.NextSituations[i].SetupRoutine(handle);
             }
-            
+
             while (_transitionInfo.Step <= TransitionStep.Setup) {
                 yield return null;
             }
