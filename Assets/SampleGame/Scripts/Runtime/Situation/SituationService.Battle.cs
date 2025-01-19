@@ -11,8 +11,9 @@ namespace SampleGame {
         /// </summary>
         private void SetupBattleSituations(Situation parentSituation) {
             var battleSceneSituation = new BattleSceneSituation();
-            
             battleSceneSituation.SetParent(parentSituation);
+            var battlePauseSituation = new BattlePauseSituation();
+            battlePauseSituation.SetParent(battleSceneSituation);
         }
     }
 }

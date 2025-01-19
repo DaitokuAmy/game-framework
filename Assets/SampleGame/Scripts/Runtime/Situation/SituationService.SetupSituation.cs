@@ -30,6 +30,7 @@ namespace SampleGame {
             var titleOptionNode = titleTopNode.Connect<TitleOptionSituation>();
             var modelViewerSceneNode = titleTopNode.Connect<ModelViewerSceneSituation>();
             var battleSceneNode = titleTopNode.Connect<BattleSceneSituation>();
+            var battlePauseNode = battleSceneNode.Connect<BattlePauseSituation>();
             _situationFlow.SetFallbackNode(modelViewerSceneNode);
             _situationFlow.SetFallbackNode(battleSceneNode);
         }

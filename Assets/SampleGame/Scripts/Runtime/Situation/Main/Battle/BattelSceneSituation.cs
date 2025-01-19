@@ -82,10 +82,11 @@ namespace SampleGame.Battle {
             var uiManager = Services.Get<UIManager>();
             var battleHudUIService = uiManager.GetService<BattleHudUIService>();
 
+            // メニューボタン
             battleHudUIService.BattleHudUIScreen.ClickedMenuButtonSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => {
-                    situationService.Back();
+                    situationService.Transition<BattlePauseSituation>();
                 });
         }
 
