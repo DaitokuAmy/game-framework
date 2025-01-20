@@ -28,10 +28,6 @@ namespace SampleGame.Presentation {
                 }
             }
         }
-        /// <summary>地上にいるか</summary>
-        public bool IsGrounded { get; private set; }
-        /// <summary>地面の高さ</summary>
-        public float GroundHeight { get; set; }
         /// <summary>重力加速度</summary>
         public float Gravity { get; set; }
         /// <summary>現在の速度</summary>
@@ -42,12 +38,10 @@ namespace SampleGame.Presentation {
         /// </summary>
         /// <param name="actor">制御対象のActor</param>
         /// <param name="context">設定値</param>
-        /// <param name="groundHeight">地面の高さ</param>
         /// <param name="gravity">重力加速度</param>
-        public ActorVelocityController(IMovableActor actor, IActorVelocityControllerContext context, float groundHeight = 0.0f, float gravity = 9.8f) {
+        public ActorVelocityController(IMovableActor actor, IActorVelocityControllerContext context, float gravity = 9.8f) {
             _actor = actor;
             _context = context;
-            GroundHeight = groundHeight;
             Gravity = gravity;
         }
 
@@ -101,11 +95,10 @@ namespace SampleGame.Presentation {
         private void UpdateTransform(float deltaTime) {
             // 地上判定
             var position = _actor.GetPosition();
-            var isGrounded = position.y < Epsilon + GroundHeight;
+            var isGrounded = _actor.IsGrounded;
 
-            if (isGrounded) {
-                // 地上にいるなら速度のY軸をなくす
-                position.y = GroundHeight;
+            if (isGrounded && _velocity.y < 0) {
+                // 下方向に移動する際、地上にいるなら速度のY軸をなくす
                 _velocity.y = 0.0f;
             }
             else {
@@ -129,11 +122,8 @@ namespace SampleGame.Presentation {
             
             // 座標更新
             position += _velocity * deltaTime;
-            position.y = Mathf.Max(GroundHeight, position.y);
+            position.y = Mathf.Max(_actor.GroundHeight, position.y);
             _actor.SetPosition(position);
-            
-            // 地面にいるかの判定を更新
-            IsGrounded = isGrounded;
         }
     }
 }

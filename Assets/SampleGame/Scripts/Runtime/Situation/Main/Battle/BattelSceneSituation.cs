@@ -136,20 +136,24 @@ namespace SampleGame.Battle {
             if (actorEntityManager != null) {
                 if (actorEntityManager.Entities.TryGetValue(1, out var entity)) {
                     var actor = entity.GetActor<BattleCharacterActor>();
+                    var direction = Vector2.zero;
                     if (Input.GetKey(KeyCode.UpArrow)) {
-                        actor.Move(Vector2.up);
+                        direction += Vector2.up;
                     }
-                    else if (Input.GetKey(KeyCode.DownArrow)) {
-                        actor.Move(Vector2.down);
+                    if (Input.GetKey(KeyCode.DownArrow)) {
+                        direction += Vector2.down;
                     }
-                    else if (Input.GetKey(KeyCode.RightArrow)) {
-                        actor.Move(Vector2.right);
+                    if (Input.GetKey(KeyCode.RightArrow)) {
+                        direction += Vector2.right;
                     }
-                    else if (Input.GetKey(KeyCode.LeftArrow)) {
-                        actor.Move(Vector2.left);
+                    if (Input.GetKey(KeyCode.LeftArrow)) {
+                        direction += Vector2.left;
                     }
-                    else {
-                        actor.Move(Vector2.zero);
+                    
+                    actor.Move(direction);
+
+                    if (Input.GetKey(KeyCode.Space)) {
+                        actor.Jump();
                     }
                 }
             }

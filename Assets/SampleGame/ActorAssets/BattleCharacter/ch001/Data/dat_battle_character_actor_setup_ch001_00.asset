@@ -18,5 +18,17 @@ MonoBehaviour:
     maxSpeed: 1
     acceleration: 10
     brake: 10
+    airBrake: 0
     angularSpeed: 360
     moveThreshold: 0.05
+  JumpAction:
+    action:
+      layerIndex: 0
+      triggerPropertyName: OnAction
+      indexPropertyName: 
+      index: 0
+      lastStateName: Last
+      lastTag: 
+      exitTimeOffset: 0
+      sequenceClips: []
+    initVelocity: 0.6

@@ -133,6 +133,7 @@ namespace SampleGame.Presentation {
             CancelActionCancellationHandle();
             
             // 移動値を設定
+            SetMoveSpeedMultiplier(speedMultiplier);
             MoveController.MoveToDirection<DirectionMoveResolver>(direction, speedMultiplier, updateRotation);
         }
 

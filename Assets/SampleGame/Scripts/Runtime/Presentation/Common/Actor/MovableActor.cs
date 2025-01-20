@@ -6,6 +6,11 @@ namespace SampleGame.Presentation {
     /// アクター基底
     /// </summary>
     public abstract class MovableActor : ActionableActor, IMovableActor {
+        /// <summary>地上にいるか</summary>
+        public virtual bool IsGrounded => Body.Position.y <= float.Epsilon;
+        /// <summary>地上の高さ</summary>
+        public virtual float GroundHeight => 0.0f;
+        
         /// <summary>移動制御用クラス</summary>
         protected ActorMoveController MoveController { get; private set; }
         

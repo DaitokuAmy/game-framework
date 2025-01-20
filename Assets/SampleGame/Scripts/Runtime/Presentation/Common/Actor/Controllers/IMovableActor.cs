@@ -5,6 +5,11 @@ namespace SampleGame.Presentation {
     /// 移動制御用インターフェース
     /// </summary>
     public interface IMovableActor {
+        /// <summary>地面の高さ</summary>
+        float GroundHeight { get; }
+        /// <summary>地上にいるか</summary>
+        bool IsGrounded { get; }
+        
         /// <summary>
         /// 座標の取得
         /// </summary>

@@ -121,7 +121,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 4
-    m_ConditionEvent: Speed
+    m_ConditionEvent: MoveSpeedMultiplier
     m_EventTreshold: 0.01
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 0}
@@ -189,7 +189,7 @@ AnimatorState:
   m_TimeParameterActive: 0
   m_Motion: {fileID: -1090015742871603630}
   m_Tag: 
-  m_SpeedParameter: Speed
+  m_SpeedParameter: MoveSpeedMultiplier
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
@@ -419,7 +419,7 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: Speed
+  - m_Name: MoveSpeedMultiplier
     m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -528,7 +528,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 3
-    m_ConditionEvent: Speed
+    m_ConditionEvent: MoveSpeedMultiplier
     m_EventTreshold: 0.01
   m_DstStateMachine: {fileID: 1479824834511477146}
   m_DstState: {fileID: 0}
@@ -623,7 +623,7 @@ AnimatorTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 3
-    m_ConditionEvent: Speed
+    m_ConditionEvent: MoveSpeedMultiplier
     m_EventTreshold: 0.01
   m_DstStateMachine: {fileID: 1479824834511477146}
   m_DstState: {fileID: 0}

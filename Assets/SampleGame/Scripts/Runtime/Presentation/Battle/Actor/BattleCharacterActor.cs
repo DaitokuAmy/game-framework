@@ -8,7 +8,15 @@ namespace SampleGame.Presentation.Battle {
     public class BattleCharacterActor : CharacterActor {
         private BattleCharacterActorSetupData _setupData;
         private Rigidbody _rigidbody;
-        
+        private ActorVelocityController _velocityController;
+        private bool _isGrounded;
+        private float _groundHeight;
+
+        /// <summary>地上にいるか</summary>
+        public override bool IsGrounded => _isGrounded;
+        /// <summary>地面の高さ</summary>
+        public override float GroundHeight => _groundHeight;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -16,6 +24,15 @@ namespace SampleGame.Presentation.Battle {
             : base(body, setupData) {
             _setupData = setupData;
             _rigidbody = body.GetComponent<Rigidbody>();
+            _velocityController = new ActorVelocityController(this, _setupData.moveActionInfo);
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected override void DisposeInternal() {
+            _velocityController.Dispose();
+            base.DisposeInternal();
         }
 
         /// <summary>
@@ -23,6 +40,14 @@ namespace SampleGame.Presentation.Battle {
         /// </summary>
         protected override void UpdateInternal() {
             base.UpdateInternal();
+
+            var deltaTime = Body.DeltaTime;
+            
+            // 各種コントローラーの更新
+            _velocityController.Update(deltaTime);
+
+            // 地上状態の更新
+            UpdateGroundStatus();
 
             // AnimationPropertyの反映
             UpdateAnimationProperties();
@@ -44,7 +69,7 @@ namespace SampleGame.Presentation.Battle {
         /// </summary>
         protected override void SetRotation(Quaternion rotation) {
             base.SetRotation(rotation);
-            
+
             if (_rigidbody != null) {
                 _rigidbody.MoveRotation(rotation);
             }
@@ -57,7 +82,28 @@ namespace SampleGame.Presentation.Battle {
             // ベクトル変換
             var direction = new Vector3(inputDirection.x, 0.0f, inputDirection.y);
             direction = Body.Rotation * direction;
-            DirectionMove(direction, 1.0f, false);
+            DirectionMove(direction, direction.sqrMagnitude <= 0.001f ? 0.0f : 2.0f, false);
+        }
+        
+        /// <summary>
+        /// ジャンプ処理
+        /// </summary>
+        public void Jump() {
+            if (IsGrounded) { 
+                _velocityController.AddVelocity(Vector3.up * _setupData.JumpAction.initVelocity);
+            }
+        }
+
+        /// <summary>
+        /// 空中状態の更新
+        /// </summary>
+        private void UpdateGroundStatus() {
+            var results = new RaycastHit[4];
+            var groundMask = LayerMask.GetMask("Ground");
+            _isGrounded = Physics.RaycastNonAlloc(Body.Position + Vector3.up, Vector3.down, results, 2.0f, groundMask) > 0;
+            if (_isGrounded) {
+                _groundHeight = results[0].point.y;
+            }
         }
 
         /// <summary>
@@ -83,13 +129,18 @@ namespace SampleGame.Presentation.Battle {
                 moveDirection = Body.Transform.InverseTransformDirection(moveDirection);
 
                 UpdateDirection("MoveDir", moveDirection);
-                BasePlayableComponent.Playable.SetFloat("Speed", MoveController.SpeedMultiplier);
             }
             else {
                 BasePlayableComponent.Playable.SetFloat("MoveDirX", 0.0f);
                 BasePlayableComponent.Playable.SetFloat("MoveDirZ", 0.0f);
                 BasePlayableComponent.Playable.SetFloat("Speed", 0.0f);
             }
+
+            // 接地状態に関するパラメータ
+            var results = new RaycastHit[4];
+            var groundMask = LayerMask.GetMask("Ground");
+            bool air = !(Physics.RaycastNonAlloc(Body.Position + Vector3.up, Vector3.down, results, 2.0f, groundMask) > 0);
+            BasePlayableComponent.Playable.SetBool("Air", air);
         }
     }
 }
