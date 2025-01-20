@@ -599,9 +599,12 @@ namespace GameFramework.SituationSystems {
             }
 
             if (!immediate) {
+                var routines = new List<IEnumerator>();
                 for (var i = 0; i < _transitionInfo.PrevSituations.Count; i++) {
-                    yield return _transitionInfo.PrevSituations[i].CloseRoutine(handle);
+                    routines.Add(_transitionInfo.PrevSituations[i].CloseRoutine(handle));
                 }
+
+                yield return new MergedCoroutine(routines);
             }
 
             for (var i = 0; i < _transitionInfo.PrevSituations.Count; i++) {
@@ -664,9 +667,12 @@ namespace GameFramework.SituationSystems {
             }
 
             if (!immediate) {
+                var routines = new List<IEnumerator>();
                 for (var i = 0; i < _transitionInfo.NextSituations.Count; i++) {
-                    yield return _transitionInfo.NextSituations[i].OpenRoutine(handle);
+                    routines.Add(_transitionInfo.NextSituations[i].OpenRoutine(handle));
                 }
+
+                yield return new MergedCoroutine(routines);
             }
 
             for (var i = 0; i < _transitionInfo.NextSituations.Count; i++) {
