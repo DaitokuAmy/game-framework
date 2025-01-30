@@ -303,7 +303,7 @@ namespace GameFramework.UISystems {
                     service.Initialize();
                 }
 
-                prefabInfo.rootCanvases = instance.GetComponents<Canvas>()
+                prefabInfo.rootCanvases = instance.GetComponentsInChildren<Canvas>()
                     .Where(x => x.transform.parent is not RectTransform)
                     .ToArray();
                 prefabInfo.initialized = true;

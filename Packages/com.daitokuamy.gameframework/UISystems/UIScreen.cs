@@ -29,6 +29,8 @@ namespace GameFramework.UISystems {
         private DisposableScope _activeScope;
         // アニメーション中の状態保持用インスタンス
         private AnimationStatus _currentAnimationStatus;
+        // アニメーション操作したらONになるフラグ
+        private bool _dirtyOpenStatus;
 
         /// <summary>アクティブ化されているか</summary>
         public bool IsActivated { get; private set; }
@@ -69,6 +71,7 @@ namespace GameFramework.UISystems {
                 }
             }
 
+            _dirtyOpenStatus = true;
             _animationScope.Clear();
             _currentAnimationStatus = status;
 
@@ -139,6 +142,7 @@ namespace GameFramework.UISystems {
                 }
             }
 
+            _dirtyOpenStatus = true;
             _animationScope.Clear();
             _currentAnimationStatus = status;
 
@@ -198,11 +202,13 @@ namespace GameFramework.UISystems {
         protected override void StartInternal(IScope scope) {
             base.StartInternal(scope);
 
-            if (_openOnStart) {
-                OpenAsync();
-            }
-            else {
-                CloseAsync(immediate: true);
+            if (!_dirtyOpenStatus) {
+                if (_openOnStart) {
+                    OpenAsync();
+                }
+                else {
+                    CloseAsync(immediate: true);
+                }
             }
         }
 
@@ -262,13 +268,6 @@ namespace GameFramework.UISystems {
         protected override void DisposeInternal() {
             Deactivate();
             base.DisposeInternal();
-        }
-
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        private void OnDestroy() {
-            ((IDisposable)this).Dispose();
         }
 
         /// <summary>

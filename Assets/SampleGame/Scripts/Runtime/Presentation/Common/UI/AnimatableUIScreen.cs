@@ -30,14 +30,6 @@ namespace SampleGame.Presentation {
         }
 
         /// <summary>
-        /// 開始処理
-        /// </summary>
-        protected override void StartInternal(IScope scope) {
-            base.StartInternal(scope);
-            _animationPlayer.Skip(_openAnimation, true);
-        }
-
-        /// <summary>
         /// 後更新処理
         /// </summary>
         protected override void LateUpdateInternal(float deltaTime) {

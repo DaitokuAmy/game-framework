@@ -123,6 +123,13 @@ namespace GameFramework.CutsceneSystems {
                 _playingInfo.Dispose();
                 _playingInfo = null;
             }
+            
+            /// <summary>
+            /// Awaiter
+            /// </summary>
+            public HandleAwaiter GetAwaiter() {
+                return new HandleAwaiter(this);
+            }
 
             /// <summary>
             /// 継続実行するか
@@ -166,6 +173,11 @@ namespace GameFramework.CutsceneSystems {
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnCompleted(Action continuation) {
+                if (_handle.IsDone) {
+                    continuation.Invoke();
+                    return;
+                }
+                
                 _handle.OnStopEvent += continuation;
             }
 

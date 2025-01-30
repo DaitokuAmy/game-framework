@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using GameFramework.Core;
 using UnityEngine;
 
@@ -16,7 +18,7 @@ namespace GameFramework.UISystems {
             /// <summary>空のHandle</summary>
             public static readonly Handle Empty = new Handle();
 
-            private PlayingInfo _playingInfo;
+            private readonly PlayingInfo _playingInfo;
 
             /// <summary>有効なハンドルか</summary>
             public bool IsValid => _playingInfo != null && _playingInfo.IsValid;
@@ -29,6 +31,24 @@ namespace GameFramework.UISystems {
             Exception IProcess.Exception => null;
             /// <summary>完了チェック</summary>
             bool IProcess.IsDone => _playingInfo == null || IsFinished;
+            
+            /// <summary>終了通知</summary>
+            public event Action OnFinishedEvent {
+                add {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnFinishedEvent += value;
+                }
+                remove {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnFinishedEvent -= value;
+                }
+            }
 
             /// <summary>
             /// アニメーションスキップ
@@ -53,6 +73,13 @@ namespace GameFramework.UISystems {
             }
 
             /// <summary>
+            /// Awaiter取得
+            /// </summary>
+            public HandleAwaiter GetAwaiter() {
+                return new HandleAwaiter(this);
+            }
+
+            /// <summary>
             /// コンストラクタ
             /// </summary>
             internal Handle(PlayingInfo playingInfo) {
@@ -74,19 +101,67 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// 再生管理用ハンドル
+        /// </summary>
+        public readonly struct HandleAwaiter : INotifyCompletion {
+            private readonly Handle _handle;
+
+            /// <summary>完了しているか</summary>
+            public bool IsCompleted {
+                [DebuggerHidden]
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _handle.IsFinished;
+            }
+
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public HandleAwaiter(Handle handle) {
+                _handle = handle;
+            }
+
+            /// <summary>
+            /// Await開始時の処理
+            /// </summary>
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void OnCompleted(Action continuation) {
+                if (_handle.IsFinished) {
+                    continuation.Invoke();
+                    return;
+                }
+
+                _handle.OnFinishedEvent += continuation;
+            }
+
+            /// <summary>
+            /// 結果の取得
+            /// </summary>
+            [DebuggerHidden]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void GetResult() {
+            }
+        }
+
+        /// <summary>
         /// 再生中情報
         /// </summary>
         internal class PlayingInfo {
-            public IUIAnimation animation;
-            public bool first = true;
-            public float time;
-            public bool reverse;
-            public bool loop;
+            public IUIAnimation Animation;
+            public bool First = true;
+            public float Time;
+            public bool Reverse;
+            public bool Loop;
 
             /// <summary>有効なデータか</summary>
-            public bool IsValid => animation != null;
+            public bool IsValid => Animation != null;
             /// <summary>終了しているか</summary>
-            public bool IsFinished => !IsValid || (!loop && (reverse ? time <= 0.0f : time >= animation.Duration));
+            public bool IsFinished => !IsValid || (!Loop && (Reverse ? Time <= 0.0f : Time >= Animation.Duration));
+
+            /// <summary>終了通知</summary>
+            public event Action OnFinishedEvent;
 
             /// <summary>
             /// 即時終了
@@ -96,17 +171,22 @@ namespace GameFramework.UISystems {
                     return;
                 }
 
-                time = reverse ? 0.0f : animation.Duration - 0.001f;
-                loop = false;
+                Time = Reverse ? 0.0f : Animation.Duration - 0.001f;
+                Loop = false;
                 Apply();
-                animation = null;
+                Animation = null;
             }
 
             /// <summary>
             /// 停止
             /// </summary>
             public void Stop() {
-                animation = null;
+                if (!IsValid) {
+                    return;
+                }
+
+                Animation = null;
+                OnFinishedEvent?.Invoke();
             }
 
             /// <summary>
@@ -118,21 +198,21 @@ namespace GameFramework.UISystems {
                 }
 
                 // 初回は再生開始を通知
-                if (first) {
-                    animation.OnPlay();
-                    first = false;
+                if (First) {
+                    Animation.OnPlay();
+                    First = false;
                 }
 
-                var duration = animation.Duration;
-                time += reverse ? -deltaTime : deltaTime;
-                if (loop) {
-                    time = Mathf.Repeat(time, duration);
+                var duration = Animation.Duration;
+                Time += Reverse ? -deltaTime : deltaTime;
+                if (Loop) {
+                    Time = Mathf.Repeat(Time, duration);
                 }
                 else {
-                    time = Mathf.Clamp(time, 0.0f, duration);
+                    Time = Mathf.Clamp(Time, 0.0f, duration);
                 }
 
-                return true;
+                return !IsFinished;
             }
 
             /// <summary>
@@ -144,12 +224,12 @@ namespace GameFramework.UISystems {
                 }
 
                 // 初回は再生開始を通知
-                if (first) {
-                    animation.OnPlay();
-                    first = false;
+                if (First) {
+                    Animation.OnPlay();
+                    First = false;
                 }
 
-                animation.SetTime(time);
+                Animation.SetTime(Time);
             }
         }
 
@@ -184,7 +264,7 @@ namespace GameFramework.UISystems {
 
             // 同じUIAnimationがいたらそれは停止
             for (var i = 0; i < _playingInfos.Count; i++) {
-                if (_playingInfos[i].animation != animation) {
+                if (_playingInfos[i].Animation != animation) {
                     continue;
                 }
 
@@ -193,10 +273,10 @@ namespace GameFramework.UISystems {
 
             // 再生情報を構築してリストに登録
             var playingInfo = new PlayingInfo {
-                animation = animation,
-                time = Mathf.Clamp(reverse ? animation.Duration - startOffset : startOffset, 0.0f, animation.Duration),
-                reverse = reverse,
-                loop = loop
+                Animation = animation,
+                Time = Mathf.Clamp(reverse ? animation.Duration - startOffset : startOffset, 0.0f, animation.Duration),
+                Reverse = reverse,
+                Loop = loop
             };
 
             _playingInfos.Add(playingInfo);
@@ -231,7 +311,7 @@ namespace GameFramework.UISystems {
 
             // 同じUIAnimationがいたらそれは停止
             for (var i = 0; i < _playingInfos.Count; i++) {
-                if (_playingInfos[i].animation != animation) {
+                if (_playingInfos[i].Animation != animation) {
                     continue;
                 }
 
@@ -240,11 +320,11 @@ namespace GameFramework.UISystems {
 
             // 再生情報を構築してリストに登録
             var playingInfo = new PlayingInfo {
-                animation = animation,
-                time = reverse ? animation.Duration : 0.0f,
-                reverse = reverse
+                Animation = animation,
+                Time = reverse ? animation.Duration : 0.0f,
+                Reverse = reverse
             };
-            
+
             playingInfo.Skip();
         }
 
@@ -266,13 +346,16 @@ namespace GameFramework.UISystems {
                 var playingInfo = _playingInfos[i];
 
                 // アニメーション時間更新
-                if (!playingInfo.Update(deltaTime)) {
-                    // 完了していた場合は削除リストへ移す
-                    _removePlayerInfoIndices.Add(i);
-                }
+                var playing = playingInfo.Update(deltaTime);
 
                 // アニメーション反映
                 playingInfo.Apply();
+
+                // 完了していた場合は停止して削除リストへ
+                if (!playing) {
+                    playingInfo.Stop();
+                    _removePlayerInfoIndices.Add(i);
+                }
             }
 
             // 不要なAnimationをリストから除外
