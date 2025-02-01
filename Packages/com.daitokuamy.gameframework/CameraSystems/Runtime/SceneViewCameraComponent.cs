@@ -8,13 +8,21 @@ namespace GameFramework.CameraSystems {
     /// <summary>
     /// シーンビューと同期するカメラコンポーネント
     /// </summary>
-    public class SceneViewCameraComponent : SerializedCameraComponent<CinemachineVirtualCamera> {
+    public class SceneViewCameraComponent : SerializedCameraComponent<CinemachineCamera> {
         /// <summary>
         /// 初期化処理
         /// </summary>
         protected override void InitializeInternal() {
             // 基本的なコンポーネントは削除する
-            VirtualCamera.DestroyCinemachineComponent<CinemachineComponentBase>();
+            var bodyComponent = VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body);
+            if (bodyComponent != null) {
+                Destroy(bodyComponent);
+            }
+
+            var aimComponent = VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Aim);
+            if (aimComponent != null) {
+                Destroy(aimComponent);
+            }
         }
 
         /// <summary>
@@ -30,7 +38,7 @@ namespace GameFramework.CameraSystems {
                 var trans = VirtualCamera.transform;
                 trans.position = sceneViewCameraTrans.position;
                 trans.rotation = sceneViewCameraTrans.rotation;
-                VirtualCamera.m_Lens.FieldOfView = sceneViewCamera.fieldOfView;
+                VirtualCamera.Lens.FieldOfView = sceneViewCamera.fieldOfView;
             }
 #endif
         }

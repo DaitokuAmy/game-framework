@@ -21,7 +21,7 @@ namespace GameFramework.CutsceneSystems {
         /// <summary>
         /// 再生管理用ハンドル
         /// </summary>
-        public struct Handle : IDisposable, IProcess {
+        public struct Handle : IDisposable, IEventProcess {
             // 再生中の情報
             private PlayingInfo _playingInfo;
 
@@ -34,6 +34,23 @@ namespace GameFramework.CutsceneSystems {
             object IEnumerator.Current => null;
             /// <summary>エラー</summary>
             Exception IProcess.Exception => null;
+            /// <summary>終了通知</summary>
+            event Action IEventProcess.OnExitEvent {
+                add {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnStopEvent += value;
+                }
+                remove {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnStopEvent -= value;
+                }
+            }
             
             /// <summary>停止通知</summary>
             public event Action OnStopEvent {
@@ -123,13 +140,6 @@ namespace GameFramework.CutsceneSystems {
                 _playingInfo.Dispose();
                 _playingInfo = null;
             }
-            
-            /// <summary>
-            /// Awaiter
-            /// </summary>
-            public HandleAwaiter GetAwaiter() {
-                return new HandleAwaiter(this);
-            }
 
             /// <summary>
             /// 継続実行するか
@@ -142,51 +152,6 @@ namespace GameFramework.CutsceneSystems {
             /// 未使用
             /// </summary>
             void IEnumerator.Reset() {
-            }
-        }
-        
-        /// <summary>
-        /// 再生管理用ハンドル
-        /// </summary>
-        public readonly struct HandleAwaiter : INotifyCompletion {
-            private readonly Handle _handle;
-
-            /// <summary>完了しているか</summary>
-            public bool IsCompleted {
-                [DebuggerHidden]
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => !_handle.IsPlaying;
-            }
-
-            /// <summary>
-            /// コンストラクタ
-            /// </summary>
-            [DebuggerHidden]
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public HandleAwaiter(Handle handle) {
-                _handle = handle;
-            }
-        
-            /// <summary>
-            /// Await開始時の処理
-            /// </summary>
-            [DebuggerHidden]
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void OnCompleted(Action continuation) {
-                if (_handle.IsDone) {
-                    continuation.Invoke();
-                    return;
-                }
-                
-                _handle.OnStopEvent += continuation;
-            }
-
-            /// <summary>
-            /// 結果の取得
-            /// </summary>
-            [DebuggerHidden]
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void GetResult() {
             }
         }
 

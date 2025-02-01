@@ -29,7 +29,7 @@ namespace GameFramework.Core {
     /// <summary>
     /// IProcess用の拡張メソッド
     /// </summary>
-    public static class ProcessExtensions {        
+    public static class ProcessExtensions {
         /// <summary>
         /// IProcessの合成
         /// </summary>
@@ -71,6 +71,20 @@ namespace GameFramework.Core {
             where T1 : T2 {
             var handle = (AsyncStatusHandle<T2>)new AsyncStatusProvider<T2>(() => source.IsDone, () => source.Exception, () => source.Result);
             return handle;
+        }
+
+        /// <summary>
+        /// IEventProcess用のAwaiter取得
+        /// </summary>
+        public static EventProcessAwaiter GetAwaiter(this IEventProcess source) {
+            return new EventProcessAwaiter(source);
+        }
+
+        /// <summary>
+        /// IEventProcess用のAwaiter取得
+        /// </summary>
+        public static EventProcessAwaiter<T> GetAwaiter<T>(this IEventProcess<T> source) {
+            return new EventProcessAwaiter<T>(source);
         }
         
 #if USE_UNI_TASK

@@ -26,7 +26,7 @@ namespace GameFramework.CameraSystems {
             public Vector3 followOffset;
             public Vector3 lookAtOffset;
         }
-        
+
         /// <summary>
         /// カメラ追従用のスロット
         /// </summary>
@@ -39,24 +39,23 @@ namespace GameFramework.CameraSystems {
             [Tooltip("カメラ注視点を決めるためのTransform")]
             public Transform lookAt;
         }
-        
+
         [SerializeField, Tooltip("カメラ追従対象の設定")]
         private Slot[] _slots;
 
-        // Cinemachine用のキャッシュ
-        private CinemachineTransposer _transposer;
-        private CinemachineComposer _composer;
+        private CinemachineFollow _follow;
+        private CinemachineRotationComposer _composer;
 
         private int _slotIndex;
 
-        // 注視点オフセット
+        /// <summary>注視点オフセット</summary>
         public Vector3 LookAtOffset { get; set; }
-        // フォローオフセット
+        /// <summary>フォローオフセット</summary>
         public Vector3 FollowOffset { get; set; }
-        // スクリーンオフセット(中央:0,0)
+        /// <summary>スクリーンオフセット(中央:0,0)</summary>
         public Vector2 ScreenOffset { get; set; }
 
-        // 現在のSlot
+        /// <summary>現在のSlot</summary>
         private Slot CurrentSlot {
             get {
                 if (_slotIndex < 0 || _slotIndex >= _slots.Length) {
@@ -82,7 +81,7 @@ namespace GameFramework.CameraSystems {
                 Debug.LogWarning($"[{nameof(LookAtMotionCameraComponent)}]Invalid slot index. ({slotIndex})");
                 return;
             }
-            
+
             // アニメーション部分初期化
             SetupInternal(time, context.clip, parent, relativePosition, relativeRotation, layeredTime);
 
@@ -117,7 +116,7 @@ namespace GameFramework.CameraSystems {
         /// <param name="relativeRotation">相対向き</param>
         /// <param name="layeredTime">時間軸コントロール用</param>
         public void Setup(AnimationClip animationClip, Transform parent, Vector3 relativePosition, Quaternion relativeRotation, LayeredTime layeredTime = null) {
-            Setup(new Context{ clip = animationClip }, 0, 0.0f, parent, relativePosition, relativeRotation, layeredTime);
+            Setup(new Context { clip = animationClip }, 0, 0.0f, parent, relativePosition, relativeRotation, layeredTime);
         }
 
         /// <summary>
@@ -125,28 +124,30 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         protected override void InitializeInternal() {
             base.InitializeInternal();
-            
-            // CinemacineComponentの取得(無ければ追加)
-            T AddOrGetComponent<T>()
+
+            T AddOrGetComponent<T>(CinemachineCore.Stage stage)
                 where T : CinemachineComponentBase {
-                var comp = VirtualCamera.GetCinemachineComponent<T>();
-                if (comp == null) {
-                    comp = VirtualCamera.AddCinemachineComponent<T>();
+                var bodyComponent = VirtualCamera.GetCinemachineComponent(stage);
+                if (bodyComponent != null) {
+                    if (bodyComponent is T component) {
+                        return component;
+                    }
+
+                    Destroy(bodyComponent);
                 }
 
-                return comp;
+                return VirtualCamera.gameObject.AddComponent<T>();
             }
 
             // 操作に必要なコンポーネント追加
-            _transposer = AddOrGetComponent<CinemachineTransposer>();
-            _transposer.m_XDamping = 0.0f;
-            _transposer.m_YDamping = 0.0f;
-            _transposer.m_ZDamping = 0.0f;
-            
-            _composer = AddOrGetComponent<CinemachineComposer>();
-            _composer.m_HorizontalDamping = 0.0f;
-            _composer.m_VerticalDamping = 0.0f;
-            
+            _follow = AddOrGetComponent<CinemachineFollow>(CinemachineCore.Stage.Body);
+            _follow.TrackerSettings.PositionDamping = Vector3.zero;
+            _follow.TrackerSettings.RotationDamping = Vector3.zero;
+            _follow.TrackerSettings.QuaternionDamping = 0.0f;
+
+            _composer = AddOrGetComponent<CinemachineRotationComposer>(CinemachineCore.Stage.Aim);
+            _composer.Damping = Vector2.zero;
+
             // カメラを全部非アクティブ化
             var cameras = GetComponentsInChildren<Camera>(true);
             foreach (var cam in cameras) {
@@ -159,7 +160,7 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         protected override void UpdateInternal(float deltaTime) {
             base.UpdateInternal(deltaTime);
-            
+
             UpdateVirtualCamera();
         }
 
@@ -187,15 +188,38 @@ namespace GameFramework.CameraSystems {
 
             var slotCamera = slot.camera;
             if (slotCamera != null) {
-                VirtualCamera.m_Lens.NearClipPlane = slotCamera.nearClipPlane;
-                VirtualCamera.m_Lens.FarClipPlane = slotCamera.farClipPlane;
-                VirtualCamera.m_Lens.FieldOfView = slotCamera.fieldOfView;
+                VirtualCamera.Lens.NearClipPlane = slotCamera.nearClipPlane;
+                VirtualCamera.Lens.FarClipPlane = slotCamera.farClipPlane;
+                VirtualCamera.Lens.FieldOfView = slotCamera.fieldOfView;
+
+                if (slotCamera.orthographic) {
+                    VirtualCamera.Lens.OrthographicSize = slotCamera.orthographicSize;
+                    VirtualCamera.Lens.ModeOverride = LensSettings.OverrideModes.Orthographic;
+                }
+                else if (slotCamera.usePhysicalProperties) {
+                    VirtualCamera.Lens.FieldOfView = slotCamera.fieldOfView;
+                    VirtualCamera.Lens.PhysicalProperties.FocusDistance = slotCamera.focusDistance;
+                    VirtualCamera.Lens.PhysicalProperties.SensorSize = slotCamera.sensorSize;
+                    VirtualCamera.Lens.PhysicalProperties.LensShift = slotCamera.lensShift;
+                    VirtualCamera.Lens.PhysicalProperties.BarrelClipping = slotCamera.barrelClipping;
+                    VirtualCamera.Lens.PhysicalProperties.Curvature = slotCamera.curvature;
+                    VirtualCamera.Lens.PhysicalProperties.Anamorphism = slotCamera.anamorphism;
+                    VirtualCamera.Lens.PhysicalProperties.Aperture = slotCamera.aperture;
+                    VirtualCamera.Lens.PhysicalProperties.ShutterSpeed = slotCamera.shutterSpeed;
+                    VirtualCamera.Lens.PhysicalProperties.Iso = slotCamera.iso;
+                    VirtualCamera.Lens.PhysicalProperties.BladeCount = slotCamera.bladeCount;
+                    VirtualCamera.Lens.PhysicalProperties.GateFit = slotCamera.gateFit;
+                    VirtualCamera.Lens.ModeOverride = LensSettings.OverrideModes.Physical;
+                }
+                else {
+                    VirtualCamera.Lens.FieldOfView = slotCamera.fieldOfView;
+                    VirtualCamera.Lens.ModeOverride = LensSettings.OverrideModes.None;
+                }
             }
 
-            _transposer.m_FollowOffset = FollowOffset;
-            _composer.m_TrackedObjectOffset = LookAtOffset;
-            _composer.m_ScreenX = 0.5f + ScreenOffset.x;
-            _composer.m_ScreenY = 0.5f + ScreenOffset.y;
+            _follow.FollowOffset = FollowOffset;
+            _composer.TargetOffset = LookAtOffset;
+            _composer.Composition.ScreenPosition = new Vector2(0.5f, 0.5f) + ScreenOffset;
         }
     }
 }

@@ -1,19 +1,14 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace GameFramework.Core {
     /// <summary>
     /// 一連の処理を表すインターフェース
     /// </summary>
     public interface IProcess : IEnumerator {
-        // 完了しているか
+        /// <summary>完了しているか</summary>
         bool IsDone { get; }
-        // エラー内容
+        /// <summary>エラー内容</summary>
         Exception Exception { get; }
     }
 
@@ -21,11 +16,27 @@ namespace GameFramework.Core {
     /// 一連の処理を表すインターフェース
     /// </summary>
     public interface IProcess<T> : IEnumerator {
-        // 結果
+        /// <summary>結果</summary>
         T Result { get; }
-        // 完了しているか
+        /// <summary>完了しているか</summary>
         bool IsDone { get; }
-        // エラー内容
+        /// <summary>エラー内容</summary>
         Exception Exception { get; }
+    }
+    
+    /// <summary>
+    /// 完了通知付き、一連の処理を表すインターフェース
+    /// </summary>
+    public interface IEventProcess : IProcess {
+        /// <summary>終了通知</summary>
+        event Action OnExitEvent;
+    }
+    
+    /// <summary>
+    /// 完了通知付き、一連の処理を表すインターフェース
+    /// </summary>
+    public interface IEventProcess<T> : IProcess<T> {
+        /// <summary>終了通知</summary>
+        event Action<T> OnExitEvent;
     }
 }

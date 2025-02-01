@@ -14,7 +14,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// Animation再生制御用ハンドル
         /// </summary>
-        public struct Handle : IDisposable, IProcess {
+        public struct Handle : IDisposable, IEventProcess {
             /// <summary>空のHandle</summary>
             public static readonly Handle Empty = new Handle();
 
@@ -31,6 +31,24 @@ namespace GameFramework.UISystems {
             Exception IProcess.Exception => null;
             /// <summary>完了チェック</summary>
             bool IProcess.IsDone => _playingInfo == null || IsFinished;
+            
+            /// <summary>終了通知</summary>
+            event Action IEventProcess.OnExitEvent {
+                add {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnFinishedEvent += value;
+                }
+                remove {
+                    if (_playingInfo == null) {
+                        return;
+                    }
+
+                    _playingInfo.OnFinishedEvent -= value;
+                }
+            }
             
             /// <summary>終了通知</summary>
             public event Action OnFinishedEvent {
@@ -73,13 +91,6 @@ namespace GameFramework.UISystems {
             }
 
             /// <summary>
-            /// Awaiter取得
-            /// </summary>
-            public HandleAwaiter GetAwaiter() {
-                return new HandleAwaiter(this);
-            }
-
-            /// <summary>
             /// コンストラクタ
             /// </summary>
             internal Handle(PlayingInfo playingInfo) {
@@ -97,51 +108,6 @@ namespace GameFramework.UISystems {
             /// 未使用
             /// </summary>
             void IEnumerator.Reset() {
-            }
-        }
-
-        /// <summary>
-        /// 再生管理用ハンドル
-        /// </summary>
-        public readonly struct HandleAwaiter : INotifyCompletion {
-            private readonly Handle _handle;
-
-            /// <summary>完了しているか</summary>
-            public bool IsCompleted {
-                [DebuggerHidden]
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _handle.IsFinished;
-            }
-
-            /// <summary>
-            /// コンストラクタ
-            /// </summary>
-            [DebuggerHidden]
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public HandleAwaiter(Handle handle) {
-                _handle = handle;
-            }
-
-            /// <summary>
-            /// Await開始時の処理
-            /// </summary>
-            [DebuggerHidden]
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void OnCompleted(Action continuation) {
-                if (_handle.IsFinished) {
-                    continuation.Invoke();
-                    return;
-                }
-
-                _handle.OnFinishedEvent += continuation;
-            }
-
-            /// <summary>
-            /// 結果の取得
-            /// </summary>
-            [DebuggerHidden]
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void GetResult() {
             }
         }
 

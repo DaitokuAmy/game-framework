@@ -8,7 +8,7 @@ namespace GameFramework.CameraSystems {
     /// <summary>
     /// スプライン制御用カメラコンポーネントの規定
     /// </summary>
-    public class SplineCameraComponent : SerializedCameraComponent<CinemachineVirtualCamera> {
+    public class SplineCameraComponent : SerializedCameraComponent<CinemachineCamera> {
         // 初期化用コンテキスト
         [Serializable]
         public struct Context {
@@ -68,8 +68,8 @@ namespace GameFramework.CameraSystems {
         /// カメラ更新処理
         /// </summary>
         protected override void UpdateInternal(float deltaTime) {
-            var dt = _layeredTime != null ? _layeredTime.DeltaTime : deltaTime;
-            _currentTime += deltaTime;
+            var dt = _layeredTime?.DeltaTime ?? deltaTime;
+            _currentTime += dt;
             ApplyCameraTransform();
         }
 

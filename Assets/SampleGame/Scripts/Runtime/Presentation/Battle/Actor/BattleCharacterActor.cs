@@ -133,7 +133,7 @@ namespace SampleGame.Presentation.Battle {
             else {
                 BasePlayableComponent.Playable.SetFloat("MoveDirX", 0.0f);
                 BasePlayableComponent.Playable.SetFloat("MoveDirZ", 0.0f);
-                BasePlayableComponent.Playable.SetFloat("Speed", 0.0f);
+                BasePlayableComponent.Playable.SetFloat("MoveSpeedMultiplier", 0.0f);
             }
 
             // 接地状態に関するパラメータ

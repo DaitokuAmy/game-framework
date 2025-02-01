@@ -155,37 +155,39 @@ namespace GameFramework.CameraSystems.Editor {
                 }
 
                 // Cameraに含まれないComponent/Extensionを全削除
-                void RemoveComponentsAndExtensions(CinemachineVirtualCameraBase[] cameras) {
-                    foreach (var cam in cameras) {
-                        var vcam = cam as CinemachineVirtualCamera;
-                        if (vcam == null) {
+                void RemoveComponentsAndExtensions(CinemachineVirtualCameraBase[] cams) {
+                    foreach (var cam in cams) {
+                        var vCam = cam as CinemachineCamera;
+                        if (vCam == null) {
                             continue;
                         }
 
-                        var path = Core.Editor.EditorTool.GetTransformPath(cameraGroup.transform, vcam.transform);
+                        var path = Core.Editor.EditorTool.GetTransformPath(cameraGroup.transform, vCam.transform);
                         var exportTarget = exportRoot.Find(path);
                         if (exportTarget == null) {
                             Debug.LogWarning($"Not found export path. [{path}]");
                             continue;
                         }
 
-                        var exportVcam = exportTarget.GetComponent<CinemachineVirtualCamera>();
-                        if (exportVcam == null) {
-                            Debug.LogWarning($"Not found export virtual camera. [{path}]");
+                        var exportVCam = exportTarget.GetComponent<CinemachineCamera>();
+                        if (exportVCam == null) {
+                            Debug.LogWarning($"Not found export cinemachine camera. [{path}]");
                             continue;
                         }
 
                         // Componentの種類チェック
-                        var sourceComponent = vcam.GetCinemachineComponent<CinemachineComponentBase>();
-                        var exportComponent = exportVcam.GetCinemachineComponent<CinemachineComponentBase>();
-                        if (exportComponent != null && sourceComponent.GetType() != exportComponent.GetType()) {
-                            // 違っていたら削除する
-                            exportVcam.DestroyCinemachineComponent<CinemachineComponentBase>();
+                        foreach (CinemachineCore.Stage stage in Enum.GetValues(typeof(CinemachineCore.Stage))) {
+                            var sourceComponent = vCam.GetCinemachineComponent(stage);
+                            var exportComponent = exportVCam.GetCinemachineComponent(stage);
+                            if (sourceComponent != null && exportComponent != null && sourceComponent.GetType() != exportComponent.GetType()) {
+                                // 違っていたら削除する
+                                Destroy(exportComponent);
+                            }
                         }
 
                         // Extensionを全部削除
-                        var sourceExtensions = vcam.GetComponentsInChildren<CinemachineExtension>(true);
-                        var exportExtensions = exportVcam.GetComponentsInChildren<CinemachineExtension>(true);
+                        var sourceExtensions = vCam.GetComponentsInChildren<CinemachineExtension>(true);
+                        var exportExtensions = exportVCam.GetComponentsInChildren<CinemachineExtension>(true);
                         foreach (var ext in exportExtensions) {
                             var contains = sourceExtensions.Any(x => x.GetType() == ext.GetType());
                             if (contains) {

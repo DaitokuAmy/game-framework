@@ -8,7 +8,7 @@ namespace GameFramework.CameraSystems {
     /// <summary>
     /// モーション制御用カメラコンポーネントの規定
     /// </summary>
-    public abstract class MotionCameraComponentBase : SerializedCameraComponent<CinemachineVirtualCamera> {
+    public abstract class MotionCameraComponentBase : SerializedCameraComponent<CinemachineCamera> {
         [SerializeField, Tooltip("再生起点にするためのTransform")]
         private Transform _rootTransform;
         [SerializeField, Tooltip("モーション再生用のAnimator")]

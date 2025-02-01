@@ -5,7 +5,7 @@ namespace GameFramework.CameraSystems {
     /// <summary>
     /// ビューワー用のカメラコンポーネント
     /// </summary>
-    public class PreviewCameraComponent : SerializedCameraComponent<CinemachineVirtualCamera> {
+    public class PreviewCameraComponent : SerializedCameraComponent<CinemachineCamera> {
         [SerializeField, Tooltip("距離")]
         private float _distance = 10.0f;
         [SerializeField, Tooltip("注視点オフセット")]
@@ -14,11 +14,11 @@ namespace GameFramework.CameraSystems {
         private float _angleX;
         [SerializeField, Tooltip("Y軸回転"), Range(0.0f, 360.0f)]
         private float _angleY;
-        
+
         // FOV
         public float Fov {
-            get => VirtualCamera.m_Lens.FieldOfView;
-            set => VirtualCamera.m_Lens.FieldOfView = value;
+            get => VirtualCamera.Lens.FieldOfView;
+            set => VirtualCamera.Lens.FieldOfView = value;
         }
         // 距離
         public float Distance {
@@ -47,13 +47,13 @@ namespace GameFramework.CameraSystems {
         }
         // ニアクリップ
         public float NearClip {
-            get => VirtualCamera.m_Lens.NearClipPlane;
-            set => VirtualCamera.m_Lens.NearClipPlane = Mathf.Clamp(value, 0.01f, FarClip);
+            get => VirtualCamera.Lens.NearClipPlane;
+            set => VirtualCamera.Lens.NearClipPlane = Mathf.Clamp(value, 0.01f, FarClip);
         }
         // ファークリップ
         public float FarClip {
-            get => VirtualCamera.m_Lens.FarClipPlane;
-            set => VirtualCamera.m_Lens.FarClipPlane = Mathf.Clamp(value, NearClip, float.MaxValue);
+            get => VirtualCamera.Lens.FarClipPlane;
+            set => VirtualCamera.Lens.FarClipPlane = Mathf.Clamp(value, NearClip, float.MaxValue);
         }
 
         /// <summary>
@@ -61,7 +61,15 @@ namespace GameFramework.CameraSystems {
         /// </summary>
         protected override void InitializeInternal() {
             // 基本的なコンポーネントは削除する
-            VirtualCamera.DestroyCinemachineComponent<CinemachineComponentBase>();
+            var bodyComponent = VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body);
+            if (bodyComponent != null) {
+                Destroy(bodyComponent);
+            }
+
+            var aimComponent = VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Aim);
+            if (aimComponent != null) {
+                Destroy(aimComponent);
+            }
         }
 
         /// <summary>
@@ -70,14 +78,14 @@ namespace GameFramework.CameraSystems {
         protected override void UpdateInternal(float deltaTime) {
             var trans = VirtualCamera.transform;
             var lookAt = VirtualCamera.LookAt;
-            
+
             // 相対位置計算
             var relativePosition = Quaternion.Euler(_angleX, _angleY, 0.0f) * Vector3.back * _distance;
 
             // LookAtを元に位置を計算
             var basePosition = lookAt != null ? lookAt.position : Vector3.zero;
             basePosition += Quaternion.Euler(0.0f, _angleY, 0.0f) * _lookAtOffset;
-            
+
             // 姿勢に反映
             trans.position = basePosition + relativePosition;
             trans.LookAt(basePosition);
