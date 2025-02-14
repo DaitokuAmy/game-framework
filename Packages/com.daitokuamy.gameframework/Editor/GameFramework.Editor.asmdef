@@ -1,12 +1,10 @@
 {
-    "name": "SampleGame.Domain",
+    "name": "GameFramework.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:560b04d1a97f54a4e82edc0cbbb69285",
-        "GUID:b7ce230c26f0a4c31a26e8847a04cc87",
-        "GUID:f06555f75b070af458a003d92f9efb00",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:a8aee891689d13c4eba2c7d06bd50ee8"
+        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
+        "GUID:ba8c092d026123a418fb4bfb797a7bd8",
+        "GUID:4307f53044263cf4b835bd812fc161a4"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
