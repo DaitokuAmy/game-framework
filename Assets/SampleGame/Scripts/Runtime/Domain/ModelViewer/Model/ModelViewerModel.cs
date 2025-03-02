@@ -3,7 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using GameFramework.ModelSystems;
-using UniRx;
+using R3;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -18,13 +18,13 @@ namespace SampleGame.Domain.ModelViewer {
         IReadOnlyActorModel ActorModel { get; }
         
         /// <summary>環境生成通知</summary>
-        IObservable<CreatedEnvironmentDto> CreatedEnvironmentSubject { get; }
+        Observable<CreatedEnvironmentDto> CreatedEnvironmentSubject { get; }
         /// <summary>環境削除通知</summary>
-        IObservable<DeletedEnvironmentDto> DeletedEnvironmentSubject { get; }
+        Observable<DeletedEnvironmentDto> DeletedEnvironmentSubject { get; }
         /// <summary>アクター生成通知</summary>
-        IObservable<CreatedActorDto> CreatedActorSubject { get; }
+        Observable<CreatedActorDto> CreatedActorSubject { get; }
         /// <summary>アクター削除通知</summary>
-        IObservable<DeletedActorDto> DeletedActorSubject { get; }
+        Observable<DeletedActorDto> DeletedActorSubject { get; }
     }
 
     /// <summary>
@@ -49,13 +49,13 @@ namespace SampleGame.Domain.ModelViewer {
         public IReadOnlyActorModel ActorModel => ActorModelInternal;
 
         /// <summary>環境生成通知</summary>
-        public IObservable<CreatedEnvironmentDto> CreatedEnvironmentSubject => _createdEnvironmentSubject;
+        public Observable<CreatedEnvironmentDto> CreatedEnvironmentSubject => _createdEnvironmentSubject;
         /// <summary>環境削除通知</summary>
-        public IObservable<DeletedEnvironmentDto> DeletedEnvironmentSubject => _deletedEnvironmentSubject;
+        public Observable<DeletedEnvironmentDto> DeletedEnvironmentSubject => _deletedEnvironmentSubject;
         /// <summary>アクター生成通知</summary>
-        public IObservable<CreatedActorDto> CreatedActorSubject => _createdActorSubject;
+        public Observable<CreatedActorDto> CreatedActorSubject => _createdActorSubject;
         /// <summary>アクター削除通知</summary>
-        public IObservable<DeletedActorDto> DeletedActorSubject => _deletedActorSubject;
+        public Observable<DeletedActorDto> DeletedActorSubject => _deletedActorSubject;
 
         /// <summary>環境モデル</summary>
         internal EnvironmentModel EnvironmentModelInternal { get; private set; }

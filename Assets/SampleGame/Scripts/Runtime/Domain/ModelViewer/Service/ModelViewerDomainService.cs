@@ -154,5 +154,19 @@ namespace SampleGame.Domain.ModelViewer {
         public void SetTimeScale(float timeScale) {
             SettingsModelInternal.SetTimeScale(timeScale);
         }
+        
+        /// <summary>
+        /// 録画オプションの変更
+        /// </summary>
+        public void SetRecordingOptions(RecordingOptions recordingOptions) {
+            RecordingModelInternal.SetOptions(recordingOptions);
+        }
+
+        /// <summary>
+        /// 回転時間の設定
+        /// </summary>
+        public void SetRecordingRotationDuration(float duration) {
+            RecordingModelInternal.SetRotationDuration(duration);
+        }
     }
 }

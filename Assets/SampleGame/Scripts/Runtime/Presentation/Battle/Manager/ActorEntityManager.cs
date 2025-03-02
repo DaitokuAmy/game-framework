@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.BodySystems;
@@ -6,7 +7,7 @@ using GameFramework.Core;
 using GameFramework.ActorSystems;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.Battle;
-using UniRx;
+using R3;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -16,7 +17,7 @@ namespace SampleGame.Presentation.Battle {
     /// </summary>
     public class ActorEntityManager : IDisposable {
         private readonly DisposableScope _scope;
-        private readonly ReactiveDictionary<int, ActorEntity> _createdEntities;
+        private readonly Dictionary<int, ActorEntity> _createdEntities;
         
         private readonly BodyManager _bodyManager;
         private readonly BodyPrefabRepository _bodyBodyPrefabRepository;
@@ -27,7 +28,7 @@ namespace SampleGame.Presentation.Battle {
         /// <summary>配置ルート</summary>
         public Transform RootTransform { get; private set; }
         /// <summary>ActorEntityリスト</summary>
-        public IReadOnlyReactiveDictionary<int, ActorEntity> Entities => _createdEntities;
+        public IReadOnlyDictionary<int, ActorEntity> Entities => _createdEntities;
 
         /// <summary>
         /// コンストラクタ
@@ -55,7 +56,7 @@ namespace SampleGame.Presentation.Battle {
             _isDisposed = true;
 
             _scope.Dispose();
-            _createdEntities.Dispose();
+            _createdEntities.Clear();
 
             if (RootTransform != null) {
                 Object.Destroy(RootTransform.gameObject);

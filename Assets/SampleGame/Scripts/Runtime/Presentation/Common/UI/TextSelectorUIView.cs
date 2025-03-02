@@ -15,11 +15,11 @@ namespace SampleGame.Presentation {
         /// <summary>選択中のラベル</summary>
         public string SelectedLabel {
             get {
-                if (SelectedIndex.Value < 0) {
+                if (SelectedIndex < 0) {
                     return "";
                 }
 
-                return _labels[SelectedIndex.Value];
+                return _labels[SelectedIndex];
             }
         }
 

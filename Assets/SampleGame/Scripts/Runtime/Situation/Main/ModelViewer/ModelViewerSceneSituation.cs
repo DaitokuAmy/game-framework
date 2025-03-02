@@ -7,13 +7,14 @@ using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.LogicSystems;
 using GameFramework.SituationSystems;
+using R3;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
 using SampleGame.Presentation;
 using SampleGame.Presentation.ModelViewer;
-using UniRx;
+using R3;
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityEngine;
 
@@ -140,7 +141,7 @@ namespace SampleGame.ModelViewer {
                 // Actor生成監視
                 viewerModel.CreatedActorSubject
                     .TakeUntil(scope)
-                    .StartWith(() => new CreatedActorDto {
+                    .Prepend(() => new CreatedActorDto {
                         ActorModel = viewerModel.ActorModel
                     })
                     .Subscribe(dto => {

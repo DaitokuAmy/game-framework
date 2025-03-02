@@ -29,7 +29,7 @@ namespace SampleGame.ModelViewer.Editor {
 
                 // カメラ制御タイプ
                 using (var scope = new EditorGUI.ChangeCheckScope()) {
-                    var cameraControlType = settingsModel.CameraControlType.Value;
+                    var cameraControlType = settingsModel.CameraControlType;
                     cameraControlType = (CameraControlType)EditorGUILayout.EnumPopup("Camera Control Type", cameraControlType);
                     if (scope.changed) {
                         appService.ChangeCameraControlType(cameraControlType);

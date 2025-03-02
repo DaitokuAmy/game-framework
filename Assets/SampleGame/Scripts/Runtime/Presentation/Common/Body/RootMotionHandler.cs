@@ -25,6 +25,9 @@ namespace SampleGame.Presentation {
                 if (_rigidbody != null) {
                     _rigidbody.Move(_animator.rootPosition, _animator.rootRotation);
                 }
+
+                transform.position = _animator.rootPosition;
+                transform.rotation = _animator.rootRotation;
             }
         }
     }

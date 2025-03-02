@@ -1,7 +1,6 @@
-using System;
 using GameFramework.Core;
 using GameFramework.UISystems;
-using UniRx;
+using R3;
 using UnityEngine;
 
 namespace SampleGame.Presentation {
@@ -15,7 +14,7 @@ namespace SampleGame.Presentation {
         private static ResidentUIService UIService => Manager?.GetService<ResidentUIService>();
 
         /// <summary>ブロックスクリーンのタップ検知</summary>
-        public static IObservable<Unit> OnClickedBlockingSubject => UIService.BlockScreen.OnClickedSubject;
+        public static Observable<Unit> OnClickedBlockingSubject => UIService.BlockScreen.OnClickedSubject;
 
         /// <summary>
         /// ローディングの表示

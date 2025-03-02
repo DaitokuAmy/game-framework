@@ -13,7 +13,7 @@ using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.Battle;
 using SampleGame.Presentation;
 using SampleGame.Presentation.Battle;
-using UniRx;
+using R3;
 using UnityEngine;
 
 namespace SampleGame.Battle {
@@ -152,8 +152,8 @@ namespace SampleGame.Battle {
                     
                     actor.Move(direction);
 
-                    if (Input.GetKey(KeyCode.Space)) {
-                        actor.Jump();
+                    if (Input.GetKeyDown(KeyCode.Space)) {
+                        actor.JumpAsync(CancellationToken.None).Forget();
                     }
                 }
             }

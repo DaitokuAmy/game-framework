@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
+using R3;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
@@ -29,7 +30,7 @@ namespace SampleGame.ModelViewer.Editor {
                 // Actor生成監視
                 viewerModel.CreatedActorSubject
                     .TakeUntil(scope)
-                    .StartWith(() => new CreatedActorDto {
+                    .Prepend(() => new CreatedActorDto {
                         ActorModel = viewerModel.ActorModel
                     })
                     .Subscribe(dto => {

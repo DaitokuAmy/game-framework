@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Threading;
+using ActionSequencer;
 using Cysharp.Threading.Tasks;
 using GameFramework.ActorSystems;
 using GameFramework.BodySystems;
@@ -35,6 +36,9 @@ namespace SampleGame.Presentation {
         /// アクティブ時処理
         /// </summary>
         protected override void ActivateInternal(IScope scope) {
+            var baseMotionHandle = CreateBaseMotionHandle();
+            BasePlayableComponent = baseMotionHandle.Change(SetupData.baseController, 0.0f, false);
+            
             base.ActivateInternal(scope);
 
             // 移動解決用のクラスを設定
@@ -46,9 +50,6 @@ namespace SampleGame.Presentation {
             scope.OnExpired += () => MoveController.RemoveResolver<WarpMoveResolver>();
             MoveController.AddResolver(new DirectionMoveResolver(SetupData.moveActionInfo));
             scope.OnExpired += () => MoveController.RemoveResolver<DirectionMoveResolver>();
-
-            var baseMotionHandle = CreateBaseMotionHandle();
-            BasePlayableComponent = baseMotionHandle.Change(SetupData.baseController, 0.0f, false);
 
             ResetMoveSpeedMultiplier();
         }
@@ -62,6 +63,15 @@ namespace SampleGame.Presentation {
             if (_navMeshAgent != null) {
                 _navMeshAgent.nextPosition = position;
             }
+        }
+
+        /// <summary>
+        /// ActionPlayerResolverの追加
+        /// </summary>
+        protected override void AddActionPlayerResolvers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
+            base.AddActionPlayerResolvers(actionPlayer, motionHandle);
+            actionPlayer.AddResolver(new TriggerStateActorActionResolver(BasePlayableComponent.Playable, (SequenceController)SequenceController));
+            actionPlayer.AddResolver(new CrossFadeStateActorActionResolver(BasePlayableComponent.Playable, (SequenceController)SequenceController));
         }
 
         /// <summary>
@@ -129,29 +139,9 @@ namespace SampleGame.Presentation {
         /// <param name="speedMultiplier">移動速度倍率</param>
         /// <param name="updateRotation">向きを更新するか</param>
         protected void DirectionMove(Vector3 direction, float speedMultiplier = 1.0f, bool updateRotation = true) {
-            // 現在のアクションをキャンセル
-            CancelActionCancellationHandle();
-            
             // 移動値を設定
             SetMoveSpeedMultiplier(speedMultiplier);
             MoveController.MoveToDirection<DirectionMoveResolver>(direction, speedMultiplier, updateRotation);
-        }
-
-        /// <summary>
-        /// 指定方向に移動し続ける
-        /// </summary>
-        /// <param name="direction">移動向き</param>
-        /// <param name="distance">移動距離 (0未満指定で無限に移動)</param>
-        /// <param name="speedMultiplier">移動速度倍率</param>
-        /// <param name="ct">非同期キャンセル用トークン</param>
-        protected async UniTask DirectionMoveAsync(Vector3 direction, float distance = -1.0f, float speedMultiplier = 1.0f, CancellationToken ct = default) {
-            ct.ThrowIfCancellationRequested();
-
-            IEnumerator Routine(CancellationToken token) {
-                yield return DirectionMoveRoutine(direction, distance, speedMultiplier, token);
-            }
-
-            await PlayActionAsyncInternal(Routine, null, ct);
         }
 
         /// <summary>
@@ -168,6 +158,20 @@ namespace SampleGame.Presentation {
             IEnumerator Routine(CancellationToken token) {
                 // アクション再生
                 yield return PlayActionRoutine(ActionPlayer, actionInfo.action.GetAction(), onCreatedHandle, (action, outBlendDuration) => ChangeDefaultMotionInternal(outBlendDuration), token);
+            }
+
+            await PlayActionAsyncInternal(Routine, null, ct);
+        }
+
+        /// <summary>
+        /// アクションの再生
+        /// </summary>
+        protected async UniTask PlayActionAsync(IActorAction actorAction, Action<ActorActionPlayer.Handle> onCreatedHandle, CancellationToken ct) {
+            ct.ThrowIfCancellationRequested();
+
+            IEnumerator Routine(CancellationToken token) {
+                // アクション再生
+                yield return PlayActionRoutine(ActionPlayer, actorAction, onCreatedHandle, (action, outBlendDuration) => ChangeDefaultMotionInternal(outBlendDuration), token);
             }
 
             await PlayActionAsyncInternal(Routine, null, ct);

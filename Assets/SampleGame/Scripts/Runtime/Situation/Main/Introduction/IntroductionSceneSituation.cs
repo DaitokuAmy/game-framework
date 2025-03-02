@@ -6,7 +6,7 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Presentation.Introduction;
-using UniRx;
+using R3;
 
 namespace SampleGame.Introduction {
     /// <summary>

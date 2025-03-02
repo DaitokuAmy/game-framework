@@ -5,7 +5,7 @@ using GameFramework.UISystems;
 using SampleGame.Battle;
 using SampleGame.ModelViewer;
 using SampleGame.Presentation.Introduction;
-using UniRx;
+using R3;
 
 namespace SampleGame.Introduction {
     /// <summary>

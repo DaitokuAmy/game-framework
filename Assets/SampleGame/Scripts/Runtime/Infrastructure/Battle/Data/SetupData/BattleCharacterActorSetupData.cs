@@ -19,7 +19,11 @@ namespace SampleGame.Presentation.Battle {
             public float initVelocity = 10.0f;
         }
 
+        [Tooltip("地上状態とする高さ")]
+        public float groundHeight = 0.1f;
+        [Tooltip("空中状態とする高さ")]
+        public float airHeight = 0.2f;
         [Tooltip("ジャンプアクション情報")]
-        public JumpActionInfo JumpAction;
+        public JumpActionInfo jumpAction;
     }
 }

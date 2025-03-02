@@ -3,7 +3,7 @@ using GameFramework.Core;
 using GameFramework.LogicSystems;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
-using UniRx;
+using R3;
 using UnityEngine.InputSystem;
 
 namespace SampleGame.Presentation.ModelViewer {
@@ -53,8 +53,9 @@ namespace SampleGame.Presentation.ModelViewer {
                 });
 
             // カメラの切り替え
-            settingsModel.CameraControlType
+            settingsModel.ChangedCameraControlTypeSubject
                 .TakeUntil(scope)
+                .Prepend(settingsModel.CameraControlType)
                 .Subscribe(type => {
                     switch (type) {
                         case CameraControlType.Default:

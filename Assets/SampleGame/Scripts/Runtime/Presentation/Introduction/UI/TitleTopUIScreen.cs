@@ -1,5 +1,5 @@
 using System;
-using UniRx;
+using R3;
 using UnityEngine;
 
 namespace SampleGame.Presentation.Introduction {
@@ -15,10 +15,10 @@ namespace SampleGame.Presentation.Introduction {
         private ButtonUIView _modelViewerButtonView;
 
         /// <summary>開始ボタン押下時通知</summary>
-        public IObservable<Unit> ClickedStartButtonSubject => _startButtonView.ClickedSubject;
+        public Observable<Unit> ClickedStartButtonSubject => _startButtonView.ClickedSubject;
         /// <summary>オプションボタン押下通知</summary>
-        public IObservable<Unit> ClickedOptionButtonSubject => _optionButtonView.ClickedSubject;
+        public Observable<Unit> ClickedOptionButtonSubject => _optionButtonView.ClickedSubject;
         /// <summary>モデルビューアーボタン押下通知</summary>
-        public IObservable<Unit> ClickedModelViewerButtonSubject => _modelViewerButtonView.ClickedSubject;
+        public Observable<Unit> ClickedModelViewerButtonSubject => _modelViewerButtonView.ClickedSubject;
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
-using UniRx;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,7 +19,7 @@ namespace SampleGame.Presentation {
         /// <summary>背面ボタンを使うか</summary>
         public bool UseBackgroundButton { get; set; } = true;
         /// <summary>選択時通知</summary>
-        public IObservable<int> SelectedSubject => _selectedSubject;
+        public Observable<int> SelectedSubject => _selectedSubject;
 
         /// <summary>背面タッチをした時に返却するIndex</summary>
         protected virtual int BackgroundButtonIndex => 0;

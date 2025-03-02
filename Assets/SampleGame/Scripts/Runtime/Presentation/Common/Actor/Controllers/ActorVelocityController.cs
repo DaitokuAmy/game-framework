@@ -21,6 +21,10 @@ namespace SampleGame.Presentation {
         public bool IsActive {
             get => _isActive;
             set {
+                if (value == _isActive) {
+                    return;
+                }
+                
                 _isActive = value;
                 if (!_isActive) {
                     // 非アクティブにする際は速度をリセット

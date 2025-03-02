@@ -2,7 +2,7 @@ using System;
 using GameFramework.Core;
 using GameFramework.UISystems;
 using TMPro;
-using UniRx;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,7 +32,7 @@ namespace SampleGame.Presentation {
         private bool _disableStatus;
 
         /// <summary>ボタン押下通知</summary>
-        public IObservable<Unit> ClickedSubject => _button.OnClickAsObservable();
+        public Observable<Unit> ClickedSubject => _button.OnClickAsObservable();
         /// <summary>表示テキスト</summary>
         public string Text {
             get => _text != null ? _text.text : "";

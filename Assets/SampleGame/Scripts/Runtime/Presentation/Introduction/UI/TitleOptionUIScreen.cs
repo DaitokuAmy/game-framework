@@ -1,5 +1,5 @@
 using System;
-using UniRx;
+using R3;
 using UnityEngine;
 
 namespace SampleGame.Presentation.Introduction {
@@ -11,6 +11,6 @@ namespace SampleGame.Presentation.Introduction {
         private ButtonUIView _backButtonView;
         
         /// <summary>戻るボタン押下通知</summary>
-        public IObservable<Unit> ClickedBackButtonSubject => _backButtonView.ClickedSubject;
+        public Observable<Unit> ClickedBackButtonSubject => _backButtonView.ClickedSubject;
     }
 }

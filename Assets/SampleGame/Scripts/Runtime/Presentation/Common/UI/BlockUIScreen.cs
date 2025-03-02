@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
 using GameFramework.UISystems;
-using UniRx;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -55,7 +55,7 @@ namespace SampleGame.Presentation {
         private readonly List<BlockInfo> _blockInfos = new();
 
         /// <summary>ブロック中のタップ検知</summary>
-        public IObservable<Unit> OnClickedSubject => _button != null ? _button.OnClickAsObservable() : Observable.Empty<Unit>();
+        public Observable<Unit> OnClickedSubject => _button != null ? _button.OnClickAsObservable() : Observable.Empty<Unit>();
 
         /// <summary>
         /// 初期化処理

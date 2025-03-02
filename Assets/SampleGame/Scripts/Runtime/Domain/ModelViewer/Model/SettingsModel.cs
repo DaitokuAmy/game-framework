@@ -1,6 +1,6 @@
 using GameFramework.Core;
 using GameFramework.ModelSystems;
-using UniRx;
+using R3;
 using UnityEngine;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -9,11 +9,16 @@ namespace SampleGame.Domain.ModelViewer {
     /// </summary>
     public interface IReadOnlySettingsModel {
         /// <summary>現在のアクターアセットキー</summary>
-        IReadOnlyReactiveProperty<string> CurrentActorAssetKey { get; }
+        string CurrentActorAssetKey { get; }
         /// <summary>カメラ操作タイプ</summary>
-        IReadOnlyReactiveProperty<CameraControlType> CameraControlType { get; }
+        CameraControlType CameraControlType { get; }
         /// <summary>時間管理</summary>
         LayeredTime LayeredTime { get; }
+        
+        /// <summary>アクターアセットキー変更通知</summary>
+        Observable<string> ChangedCurrentActorAssetKeySubject { get; }
+        /// <summary>カメラ操作タイプの変更通知</summary>
+        Observable<CameraControlType> ChangedCameraControlTypeSubject { get; }
     }
     
     /// <summary>
@@ -23,15 +28,20 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>TimeScaleの最大値</summary>
         public const float TimeScaleMax = 10.0f;
 
-        private ReactiveProperty<string> _currentActorAssetKey;
-        private ReactiveProperty<CameraControlType> _cameraControlType;
+        private Subject<string> _changedCurrentActorAssetKeySubject;
+        private Subject<CameraControlType> _changedCameraControlTypeSubject;
 
         /// <summary>現在のアクターアセットキー</summary>
-        public IReadOnlyReactiveProperty<string> CurrentActorAssetKey => _currentActorAssetKey;
+        public string CurrentActorAssetKey { get; private set; }
         /// <summary>カメラ操作タイプ</summary>
-        public IReadOnlyReactiveProperty<CameraControlType> CameraControlType => _cameraControlType;
+        public CameraControlType CameraControlType { get; private set; }
         /// <summary>時間管理</summary>
         public LayeredTime LayeredTime { get; private set; }
+
+        /// <summary>アクターアセットキー変更通知</summary>
+        public Observable<string> ChangedCurrentActorAssetKeySubject => _changedCurrentActorAssetKeySubject;
+        /// <summary>カメラ操作タイプの変更通知</summary>
+        public Observable<CameraControlType> ChangedCameraControlTypeSubject => _changedCameraControlTypeSubject;
 
         /// <summary>
         /// コンストラクタ
@@ -50,14 +60,16 @@ namespace SampleGame.Domain.ModelViewer {
         /// Camera制御タイプの変更
         /// </summary>
         public void ChangeCameraControlType(CameraControlType type) {
-            _cameraControlType.Value = type;
+            CameraControlType = type;
+            _changedCameraControlTypeSubject.OnNext(CameraControlType);
         }
 
         /// <summary>
         /// アクターアセットキーの変更
         /// </summary>
         public void ChangeActorAssetKey(string actorAssetKey) {
-            _currentActorAssetKey.Value = actorAssetKey;
+            CurrentActorAssetKey = actorAssetKey;
+            _changedCurrentActorAssetKeySubject.OnNext(CurrentActorAssetKey);
         }
 
         /// <summary>
@@ -74,8 +86,11 @@ namespace SampleGame.Domain.ModelViewer {
             LayeredTime = new LayeredTime();
             LayeredTime.ScopeTo(scope);
 
-            _currentActorAssetKey = new ReactiveProperty<string>().ScopeTo(scope);
-            _cameraControlType = new ReactiveProperty<CameraControlType>(ModelViewer.CameraControlType.Default).ScopeTo(scope);
+            _changedCurrentActorAssetKeySubject = new Subject<string>().ScopeTo(scope);
+            _changedCameraControlTypeSubject = new Subject<CameraControlType>().ScopeTo(scope);
+
+            CurrentActorAssetKey = "";
+            CameraControlType = CameraControlType.Default;
         }
     }
 }

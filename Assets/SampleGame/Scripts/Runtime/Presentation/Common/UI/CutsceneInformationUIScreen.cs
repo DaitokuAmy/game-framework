@@ -1,5 +1,5 @@
 using System;
-using UniRx;
+using R3;
 using UnityEngine;
 
 namespace SampleGame.Presentation {
@@ -11,6 +11,6 @@ namespace SampleGame.Presentation {
         private ButtonUIView _skipButtonView;
         
         /// <summary>スキップボタン押下通知</summary>
-        public IObservable<Unit> OnClickedSkipSubject => _skipButtonView.ClickedSubject;
+        public Observable<Unit> OnClickedSkipSubject => _skipButtonView.ClickedSubject;
     }
 }

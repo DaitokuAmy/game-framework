@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using GameFramework.Core;
 using TMPro;
 using UnityEngine;
-using UniRx;
+using R3;
 
 namespace SampleGame.Presentation {
     /// <summary>

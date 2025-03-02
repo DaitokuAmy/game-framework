@@ -1,7 +1,7 @@
 using GameFramework.Core;
 using GameFramework.UISystems;
 using UnityEngine;
-using UniRx;
+using R3;
 
 namespace SampleGame.Presentation {
     /// <summary>
@@ -15,20 +15,29 @@ namespace SampleGame.Presentation {
         [SerializeField, Tooltip("項目をリピートするか")]
         private bool _repeat;
 
-        private readonly IntReactiveProperty _selectedIndex = new(-1);
-
         private int _itemCount;
+
+        private Subject<int> _changedSelectedIndexSubject;
 
         /// <summary>要素数</summary>
         public int ItemCount {
             get => _itemCount;
             protected set {
                 _itemCount = Mathf.Max(0, value);
-                ChangeIndex(Mathf.Clamp(_selectedIndex.Value, _itemCount > 0 ? 0 : -1, _itemCount - 1));
+                ChangeIndex(Mathf.Clamp(SelectedIndex, _itemCount > 0 ? 0 : -1, _itemCount - 1));
             }
         }
         /// <summary>選択中のIndex</summary>
-        public IReadOnlyReactiveProperty<int> SelectedIndex => _selectedIndex;
+        public int SelectedIndex { get; private set; } = -1;
+
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
+        protected override void InitializeInternal(IScope scope) {
+            base.InitializeInternal(scope);
+
+            _changedSelectedIndexSubject = new Subject<int>().ScopeTo(scope);
+        }
 
         /// <summary>
         /// 開始時処理
@@ -36,11 +45,11 @@ namespace SampleGame.Presentation {
         protected override void StartInternal(IScope scope) {
             _leftButtonView.ClickedSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { ChangeIndex(_selectedIndex.Value - 1); });
+                .Subscribe(_ => { ChangeIndex(SelectedIndex - 1); });
 
             _rightButtonView.ClickedSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { ChangeIndex(_selectedIndex.Value + 1); });
+                .Subscribe(_ => { ChangeIndex(SelectedIndex + 1); });
         }
 
         /// <summary>
@@ -72,7 +81,7 @@ namespace SampleGame.Presentation {
                 index = Mathf.Clamp(index, -1, _itemCount - 1);
             }
 
-            var currentIndex = _selectedIndex.Value;
+            var currentIndex = SelectedIndex;
             if (currentIndex == index) {
                 return;
             }
@@ -80,7 +89,8 @@ namespace SampleGame.Presentation {
             OnChangedIndex(index);
             _leftButtonView.Interactable = _repeat || index > 0;
             _rightButtonView.Interactable = _repeat || index < _itemCount - 1;
-            _selectedIndex.Value = index;
+            SelectedIndex = index;
+            _changedSelectedIndexSubject.OnNext(SelectedIndex);
         }
     }
 }
