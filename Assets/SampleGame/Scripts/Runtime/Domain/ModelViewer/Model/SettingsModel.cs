@@ -14,6 +14,8 @@ namespace SampleGame.Domain.ModelViewer {
         CameraControlType CameraControlType { get; }
         /// <summary>時間管理</summary>
         LayeredTime LayeredTime { get; }
+        /// <summary>モーション再生時に位置をリセットするか</summary>
+        bool ResetOnPlay { get; }
         
         /// <summary>アクターアセットキー変更通知</summary>
         Observable<string> ChangedCurrentActorAssetKeySubject { get; }
@@ -37,6 +39,8 @@ namespace SampleGame.Domain.ModelViewer {
         public CameraControlType CameraControlType { get; private set; }
         /// <summary>時間管理</summary>
         public LayeredTime LayeredTime { get; private set; }
+        /// <summary>モーション再生時に位置をリセットするか</summary>
+        public bool ResetOnPlay { get; private set; }
 
         /// <summary>アクターアセットキー変更通知</summary>
         public Observable<string> ChangedCurrentActorAssetKeySubject => _changedCurrentActorAssetKeySubject;
@@ -77,6 +81,13 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         public void SetTimeScale(float timeScale) {
             LayeredTime.LocalTimeScale = Mathf.Clamp(timeScale, 0.0f, TimeScaleMax);
+        }
+
+        /// <summary>
+        /// ResetOnPlayの設定
+        /// </summary>
+        public void SetResetOnPlay(bool reset) {
+            ResetOnPlay = reset;;
         }
 
         /// <summary>

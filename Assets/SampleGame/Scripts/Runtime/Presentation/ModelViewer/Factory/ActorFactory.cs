@@ -31,7 +31,7 @@ namespace SampleGame.Domain.ModelViewer {
             }
 
             var domainService = _appService.DomainService;
-            var entity = await _actorEntityManager.CreatePreviewActorEntityAsync(1, model.Master.Prefab, domainService.SettingsModel.LayeredTime, ct);
+            var entity = await _actorEntityManager.CreatePreviewActorEntityAsync(model.Id, model.Master.Prefab, domainService.SettingsModel.LayeredTime, ct);
             var actor = entity.GetActor<PreviewActor>();
             var controller = new ActorController(model, actor);
             controller.RegisterTask(TaskOrder.Logic);

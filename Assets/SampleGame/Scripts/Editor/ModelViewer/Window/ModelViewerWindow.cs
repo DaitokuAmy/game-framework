@@ -201,7 +201,7 @@ namespace SampleGame.ModelViewer.Editor {
         /// <summary>
         /// 開く処理
         /// </summary>
-        [MenuItem("Window/SampleGame/Model Viewer")]
+        [MenuItem("Window/Sample Game/Model Viewer")]
         private static void Open() {
             GetWindow<ModelViewerWindow>("Model Viewer");
         }

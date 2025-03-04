@@ -110,6 +110,10 @@ namespace SampleGame.Presentation.Battle {
             var prefab = await LoadBodyPrefabAsync(assetKey, ct);
             var body = _bodyManager.CreateFromGameObject(InstantiatePrefab(prefab));
             RenameBodyGameObject(id, body);
+            
+            // 座標の初期化
+            body.LocalPosition = Vector3.zero;
+            body.LocalRotation = Quaternion.identity;
 
             // Actorの生成
             var setupData = await _battleCharacterAssetRepository.LoadSetupDataAsync(actorAssetKey, ct);

@@ -9,6 +9,9 @@ namespace SampleGame.Domain.ModelViewer {
     /// 読み取り専用インターフェース
     /// </summary>
     public interface IReadOnlyActorModel {
+        /// <summary>識別子</summary>
+        int Id { get; }
+
         /// <summary>現在再生中のAnimationClipIndex</summary>
         int CurrentAnimationClipIndex { get; }
         /// <summary>現在再生中の加算AnimationClipIndex</summary>
@@ -92,7 +95,7 @@ namespace SampleGame.Domain.ModelViewer {
             }
 
             // 初期状態のクリップを設定
-            ChangeAnimationClip(master.DefaultAnimationClipIndex);
+            ChangeAnimationClip(master.DefaultAnimationClipIndex, true);
             ToggleAdditiveAnimationClip(-1);
         }
 
@@ -118,7 +121,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// アニメーションクリップの変更
         /// ※同じClipを設定したら再度再生
         /// </summary>
-        public void ChangeAnimationClip(int clipIndex) {
+        public void ChangeAnimationClip(int clipIndex, bool reset) {
             CurrentAnimationClipIndex = -1;
             CurrentAnimationClip = null;
             var clip = GetAnimationClip(clipIndex);
@@ -128,6 +131,10 @@ namespace SampleGame.Domain.ModelViewer {
             }
 
             if (IsActive) {
+                if (reset) {
+                    _actorController.ResetActor();
+                }
+
                 _actorController.ChangeAnimationClip(CurrentAnimationClip);
             }
         }

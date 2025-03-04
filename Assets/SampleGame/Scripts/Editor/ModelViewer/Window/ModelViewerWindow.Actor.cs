@@ -34,11 +34,20 @@ namespace SampleGame.ModelViewer.Editor {
                 var appService = Services.Get<ModelViewerAppService>();
                 var viewerModel = appService.DomainService.ModelViewerModel;
                 var actorModel = appService.DomainService.ActorModel;
+                var settingsModel = appService.DomainService.SettingsModel;
 
                 var prevColor = GUI.color;
 
                 if (GUILayout.Button("状態リセット", GUILayout.Width(300.0f))) {
                     appService.ResetActor();
+                }
+
+                using (var scope = new EditorGUI.ChangeCheckScope()) {
+                    var resetOnPlay = settingsModel.ResetOnPlay;
+                    resetOnPlay = GUILayout.Toggle(resetOnPlay, "再生時リセット");
+                    if (scope.changed) {
+                        appService.SetResetOnPlay(resetOnPlay);
+                    }
                 }
 
                 using (new EditorGUILayout.HorizontalScope("Box")) {

@@ -101,7 +101,7 @@ namespace SampleGame.Domain.ModelViewer {
                 return;
             }
             
-            ActorModelInternal.ChangeAnimationClip(clipIndex);
+            ActorModelInternal.ChangeAnimationClip(clipIndex, SettingsModel.ResetOnPlay);
         }
 
         /// <summary>
@@ -153,6 +153,13 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         public void SetTimeScale(float timeScale) {
             SettingsModelInternal.SetTimeScale(timeScale);
+        }
+
+        /// <summary>
+        /// ResetOnPlayの設定
+        /// </summary>
+        public void SetResetOnPlay(bool reset) {
+            SettingsModelInternal.SetResetOnPlay(reset);
         }
         
         /// <summary>

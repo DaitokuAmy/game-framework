@@ -48,8 +48,6 @@ namespace SampleGame.Presentation.ModelViewer {
         /// アクターのリセット
         /// </summary>
         void IActorController.ResetActor() {
-            _actor.ChangeMotion(null);
-            _actor.ChangeAdditiveMotion(null);
             _actor.ResetTransform();
         }
     }

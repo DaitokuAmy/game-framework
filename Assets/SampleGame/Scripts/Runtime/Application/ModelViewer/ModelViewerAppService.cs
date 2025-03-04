@@ -169,6 +169,13 @@ namespace SampleGame.Application.ModelViewer {
         public void SetTimeScale(float timeScale) {
             _domainService.SetTimeScale(timeScale);
         }
+
+        /// <summary>
+        /// ResetOnPlayの設定
+        /// </summary>
+        public void SetResetOnPlay(bool reset) {
+            _domainService.SetResetOnPlay(reset);
+        }
         
         /// <summary>
         /// 録画オプションの変更
