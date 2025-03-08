@@ -4,7 +4,7 @@ using GameFramework.SituationSystems;
 using GameFramework.TaskSystems;
 using UnityEngine;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationService
     /// </summary>

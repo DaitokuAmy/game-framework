@@ -2,7 +2,7 @@ using System;
 using GameFramework.SituationSystems;
 using SampleGame.Presentation;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationServiceのstaticメソッド機能置き場
     /// </summary>

@@ -1,7 +1,6 @@
 using GameFramework.SituationSystems;
-using SampleGame.Battle;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// Battle関連のSituationService処理
     /// </summary>

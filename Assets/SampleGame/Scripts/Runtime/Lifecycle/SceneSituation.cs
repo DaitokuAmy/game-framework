@@ -1,4 +1,4 @@
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// SceneSituation基底
     /// </summary>

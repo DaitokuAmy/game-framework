@@ -1,7 +1,7 @@
 using System;
 using GameFramework.SituationSystems;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// メインシステム起動用のStarter基底
     /// </summary>

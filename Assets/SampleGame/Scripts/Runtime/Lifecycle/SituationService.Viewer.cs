@@ -1,8 +1,6 @@
-using GameFramework.Core;
 using GameFramework.SituationSystems;
-using SampleGame.ModelViewer;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// Viewer関連のSituationService処理
     /// </summary>

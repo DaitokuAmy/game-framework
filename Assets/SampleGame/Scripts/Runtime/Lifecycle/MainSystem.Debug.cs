@@ -4,7 +4,7 @@ using GameFramework.UISystems;
 using UnityDebugMenu;
 using UnityEngine;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// メインシステム（Debug用処理）
     /// </summary>

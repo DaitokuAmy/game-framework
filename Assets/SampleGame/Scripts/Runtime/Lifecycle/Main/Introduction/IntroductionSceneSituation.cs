@@ -5,10 +5,8 @@ using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
-using SampleGame.Presentation.Introduction;
-using R3;
 
-namespace SampleGame.Introduction {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// Introduction用のSceneSituation
     /// </summary>

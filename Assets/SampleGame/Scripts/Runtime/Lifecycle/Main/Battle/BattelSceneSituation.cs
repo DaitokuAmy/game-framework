@@ -16,7 +16,7 @@ using SampleGame.Presentation.Battle;
 using R3;
 using UnityEngine;
 
-namespace SampleGame.Battle {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// Battle用のSceneSituation
     /// </summary>

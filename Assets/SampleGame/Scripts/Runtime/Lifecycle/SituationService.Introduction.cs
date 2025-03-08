@@ -1,8 +1,6 @@
-using GameFramework.Core;
 using GameFramework.SituationSystems;
-using SampleGame.Introduction;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// Introduction関連のSituationService処理
     /// </summary>

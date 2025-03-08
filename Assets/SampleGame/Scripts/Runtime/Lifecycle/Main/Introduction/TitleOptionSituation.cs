@@ -2,25 +2,23 @@ using System.Collections;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
-using SampleGame.Battle;
-using SampleGame.ModelViewer;
 using SampleGame.Presentation.Introduction;
 using R3;
 
-namespace SampleGame.Introduction {
+namespace SampleGame.Lifecycle {
     /// <summary>
-    /// TitleTop用のSituation
+    /// TitleOption用のSituation
     /// </summary>
-    public class TitleTopSituation : Situation {
+    public class TitleOptionSituation : Situation {
         /// <summary>
         /// 開く処理
         /// </summary>
         protected override IEnumerator OpenRoutineInternal(TransitionHandle handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
-
+            
             var uiManager = Services.Get<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
-            yield return introductionUIService.TitleTopUIScreen.OpenAsync();
+            yield return introductionUIService.TitleOptionUIScreen.OpenAsync();
         }
 
         /// <summary>
@@ -28,21 +26,21 @@ namespace SampleGame.Introduction {
         /// </summary>
         protected override void PostOpenInternal(TransitionHandle handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
-
+            
             var uiManager = Services.Get<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
-            introductionUIService.TitleTopUIScreen.OpenAsync(immediate: true);
+            introductionUIService.TitleOptionUIScreen.OpenAsync(immediate: true);
         }
-
+        
         /// <summary>
         /// 閉じる処理
         /// </summary>
         protected override IEnumerator CloseRoutineInternal(TransitionHandle handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
-
+            
             var uiManager = Services.Get<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
-            yield return introductionUIService.TitleTopUIScreen.CloseAsync();
+            yield return introductionUIService.TitleOptionUIScreen.CloseAsync();
         }
 
         /// <summary>
@@ -50,10 +48,10 @@ namespace SampleGame.Introduction {
         /// </summary>
         protected override void PostCloseInternal(TransitionHandle handle) {
             base.PostCloseInternal(handle);
-
+            
             var uiManager = Services.Get<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
-            introductionUIService.TitleTopUIScreen.CloseAsync(immediate: true);
+            introductionUIService.TitleOptionUIScreen.CloseAsync(immediate: true);
         }
 
         /// <summary>
@@ -65,21 +63,13 @@ namespace SampleGame.Introduction {
             var situationService = Services.Get<SituationService>();
             var uiManager = Services.Get<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
-
-            // スタートボタン
-            introductionUIService.TitleTopUIScreen.ClickedStartButtonSubject
+            
+            // 戻るボタン
+            introductionUIService.TitleOptionUIScreen.ClickedBackButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<BattleSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
-
-            // オプションボタン
-            introductionUIService.TitleTopUIScreen.ClickedOptionButtonSubject
-                .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<TitleOptionSituation>(transitionType: SituationService.TransitionType.ScreenCross); });
-
-            // モデルビューアーボタン
-            introductionUIService.TitleTopUIScreen.ClickedModelViewerButtonSubject
-                .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<ModelViewerSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
+                .Subscribe(_ => {
+                    situationService.Back(transitionType: SituationService.TransitionType.ScreenCross);
+                });
         }
     }
 }

@@ -14,11 +14,10 @@ using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
 using SampleGame.Presentation;
 using SampleGame.Presentation.ModelViewer;
-using R3;
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityEngine;
 
-namespace SampleGame.ModelViewer {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// モデルビューアシーン
     /// </summary>

@@ -1,4 +1,4 @@
-namespace SampleGame.ModelViewer {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// ModelViewerを直接開始するためのStarter
     /// </summary>

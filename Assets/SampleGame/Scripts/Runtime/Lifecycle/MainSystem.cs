@@ -7,12 +7,11 @@ using GameFramework.SituationSystems;
 using GameFramework.TaskSystems;
 using GameFramework.UISystems;
 using SampleGame.Infrastructure;
-using SampleGame.Introduction;
 using SampleGame.Presentation;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// アプリケーションのメインシステム
     /// </summary>

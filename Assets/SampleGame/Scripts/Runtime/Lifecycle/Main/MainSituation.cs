@@ -1,15 +1,11 @@
 using System.Collections;
-using Cysharp.Threading.Tasks;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
-using GameFramework.UISystems;
-using SampleGame.Application;
 using SampleGame.Infrastructure;
-using SampleGame.Presentation;
 using UnityEngine;
 
-namespace SampleGame.Main {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// ランタイムの動作の基盤となるSituation
     /// </summary>

@@ -1,12 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
-using GameFramework.SituationSystems;
 using UnityDebugMenu;
 using UnityEngine;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationService
     /// </summary>

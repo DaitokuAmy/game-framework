@@ -1,7 +1,7 @@
 using System;
 using GameFramework.SituationSystems;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// Situationの初期化処理のインタフェース
     /// </summary>

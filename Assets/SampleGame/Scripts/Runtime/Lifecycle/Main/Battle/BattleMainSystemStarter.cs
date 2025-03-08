@@ -1,4 +1,4 @@
-namespace SampleGame.Battle {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// メインシステム起動用のStarter
     /// </summary>

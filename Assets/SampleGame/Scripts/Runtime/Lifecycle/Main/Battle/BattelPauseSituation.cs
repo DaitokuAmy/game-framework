@@ -2,10 +2,9 @@ using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
-using SampleGame.Introduction;
 using SampleGame.Presentation;
 
-namespace SampleGame.Battle {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// Battle用の一時停止中Situation
     /// </summary>

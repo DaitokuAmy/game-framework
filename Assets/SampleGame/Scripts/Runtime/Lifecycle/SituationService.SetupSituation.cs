@@ -1,10 +1,6 @@
 using GameFramework.Core;
-using SampleGame.Battle;
-using SampleGame.Main;
-using SampleGame.Introduction;
-using SampleGame.ModelViewer;
 
-namespace SampleGame {
+namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationService
     /// </summary>
