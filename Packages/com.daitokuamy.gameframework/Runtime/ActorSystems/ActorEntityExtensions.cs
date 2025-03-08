@@ -1,5 +1,6 @@
 using GameFramework.BodySystems;
 using GameFramework.ModelSystems;
+using UnityEngine.SceneManagement;
 
 namespace GameFramework.ActorSystems {
     /// <summary>
@@ -28,6 +29,30 @@ namespace GameFramework.ActorSystems {
         public static ActorEntity RemoveBody(this ActorEntity source, bool dispose = true) {
             var component = source.AddOrGetComponent<BodyComponent>();
             return component.RemoveBody(dispose);
+        }
+        
+        /// <summary>
+        /// Sceneの検索
+        /// </summary>
+        public static Scene GetScene(this ActorEntity source) {
+            var component = source.AddOrGetComponent<SceneComponent>();
+            return component.Scene;
+        }
+
+        /// <summary>
+        /// Sceneの設定
+        /// </summary>
+        public static ActorEntity SetScene(this ActorEntity source, Scene scene, bool prevDispose = true) {
+            var component = source.AddOrGetComponent<SceneComponent>();
+            return component.SetScene(scene, prevDispose);
+        }
+
+        /// <summary>
+        /// Sceneの設定
+        /// </summary>
+        public static ActorEntity RemoveScene(this ActorEntity source, bool dispose = true) {
+            var component = source.AddOrGetComponent<SceneComponent>();
+            return component.RemoveScene(dispose);
         }
 
         /// <summary>
