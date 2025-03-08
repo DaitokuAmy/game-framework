@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using SampleGame.Infrastructure;
 using UnityEditor;
 using UnityEngine;
 
-namespace SampleGame.Editor {
+namespace GameFramework.TableSystems.Editor {
     /// <summary>
     /// ScriptableTableData用のエディタ拡張
     /// </summary>

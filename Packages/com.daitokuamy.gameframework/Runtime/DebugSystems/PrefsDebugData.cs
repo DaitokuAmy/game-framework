@@ -1,23 +1,23 @@
 using System;
 using UnityEngine;
 
-namespace SampleGame.Infrastructure {
+namespace GameFramework.DebugSystems {
     /// <summary>
     /// PlayerPrefs保存型のDebugデータ
     /// </summary>
     [Serializable]
-    public class PrefsDebugData<T> where T : PrefsDebugData<T>, new() {
-        private static T _instance;
+    public abstract class PrefsDebugData<T> where T : PrefsDebugData<T>, new() {
+        private static T s_instance;
 
         private static string Key => $"DebugData__{typeof(T).FullName}";
         protected static T Instance {
             get {
-                if (_instance == null) {
-                    _instance = new T();
+                if (s_instance == null) {
+                    s_instance = new T();
                     LoadValues();
                 }
 
-                return _instance;
+                return s_instance;
             }
         }
 
@@ -25,11 +25,11 @@ namespace SampleGame.Infrastructure {
         /// インスタンスの値をPlayerPrefsに保存
         /// </summary>
         protected static void SaveValues() {
-            if (_instance == null) {
+            if (s_instance == null) {
                 return;
             }
 
-            PlayerPrefs.SetString(Key, JsonUtility.ToJson(_instance));
+            PlayerPrefs.SetString(Key, JsonUtility.ToJson(s_instance));
             PlayerPrefs.Save();
         }
 
@@ -37,11 +37,11 @@ namespace SampleGame.Infrastructure {
         /// インスタンスの値をPlayerPrefsから読み込み
         /// </summary>
         protected static void LoadValues() {
-            if (_instance == null) {
+            if (s_instance == null) {
                 return;
             }
 
-            JsonUtility.FromJsonOverwrite(PlayerPrefs.GetString(Key), _instance);
+            JsonUtility.FromJsonOverwrite(PlayerPrefs.GetString(Key), s_instance);
         }
     }
 }

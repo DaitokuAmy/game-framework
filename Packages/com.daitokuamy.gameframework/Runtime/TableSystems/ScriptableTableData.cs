@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using SampleGame.Domain;
 using UnityEngine;
 
-namespace SampleGame.Infrastructure {
+namespace GameFramework.TableSystems {
     /// <summary>
     /// 要素をID管理するのテーブルデータ
     /// </summary>

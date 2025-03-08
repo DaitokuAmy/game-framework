@@ -1,4 +1,4 @@
-namespace SampleGame.Domain {
+namespace GameFramework.TableSystems {
     /// <summary>
     /// TableDataに保持される要素のインターフェース
     /// </summary>

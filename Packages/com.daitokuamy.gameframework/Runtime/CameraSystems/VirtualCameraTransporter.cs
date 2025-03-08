@@ -8,9 +8,9 @@ namespace GameFramework.CameraSystems {
     [ExecuteAlways]
     public class VirtualCameraTransporter : MonoBehaviour {
         [SerializeField, Tooltip("制御元になっているカメラ")]
-        private Camera _camera;
+        private Camera _source;
         [SerializeField, Tooltip("転送先の仮想カメラ")]
-        private CinemachineCamera _target;
+        private CinemachineCamera _destination;
 
         /// <summary>
         /// 後更新処理
@@ -23,40 +23,39 @@ namespace GameFramework.CameraSystems {
         /// カメラの情報を反映
         /// </summary>
         private void ApplyCamera() {
-            if (_camera == null || _target == null) {
+            if (_source == null || _destination == null) {
                 return;
             }
 
-            _camera.enabled = false;
-            _target.Lens.NearClipPlane = _camera.nearClipPlane;
-            _target.Lens.FarClipPlane = _camera.farClipPlane;
+            _destination.Lens.NearClipPlane = _source.nearClipPlane;
+            _destination.Lens.FarClipPlane = _source.farClipPlane;
 
-            if (_camera.orthographic) {
-                _target.Lens.OrthographicSize = _camera.orthographicSize;
-                _target.Lens.ModeOverride = LensSettings.OverrideModes.Orthographic;
+            if (_source.orthographic) {
+                _destination.Lens.OrthographicSize = _source.orthographicSize;
+                _destination.Lens.ModeOverride = LensSettings.OverrideModes.Orthographic;
             }
-            else if (_camera.usePhysicalProperties) {
-                _target.Lens.FieldOfView = _camera.fieldOfView;
-                _target.Lens.PhysicalProperties.FocusDistance = _camera.focusDistance;
-                _target.Lens.PhysicalProperties.SensorSize = _camera.sensorSize;
-                _target.Lens.PhysicalProperties.LensShift = _camera.lensShift;
-                _target.Lens.PhysicalProperties.BarrelClipping = _camera.barrelClipping;
-                _target.Lens.PhysicalProperties.Curvature = _camera.curvature;
-                _target.Lens.PhysicalProperties.Anamorphism = _camera.anamorphism;
-                _target.Lens.PhysicalProperties.Aperture = _camera.aperture;
-                _target.Lens.PhysicalProperties.ShutterSpeed = _camera.shutterSpeed;
-                _target.Lens.PhysicalProperties.Iso = _camera.iso;
-                _target.Lens.PhysicalProperties.BladeCount = _camera.bladeCount;
-                _target.Lens.PhysicalProperties.GateFit = _camera.gateFit;
-                _target.Lens.ModeOverride = LensSettings.OverrideModes.Physical;
+            else if (_source.usePhysicalProperties) {
+                _destination.Lens.FieldOfView = _source.fieldOfView;
+                _destination.Lens.PhysicalProperties.FocusDistance = _source.focusDistance;
+                _destination.Lens.PhysicalProperties.SensorSize = _source.sensorSize;
+                _destination.Lens.PhysicalProperties.LensShift = _source.lensShift;
+                _destination.Lens.PhysicalProperties.BarrelClipping = _source.barrelClipping;
+                _destination.Lens.PhysicalProperties.Curvature = _source.curvature;
+                _destination.Lens.PhysicalProperties.Anamorphism = _source.anamorphism;
+                _destination.Lens.PhysicalProperties.Aperture = _source.aperture;
+                _destination.Lens.PhysicalProperties.ShutterSpeed = _source.shutterSpeed;
+                _destination.Lens.PhysicalProperties.Iso = _source.iso;
+                _destination.Lens.PhysicalProperties.BladeCount = _source.bladeCount;
+                _destination.Lens.PhysicalProperties.GateFit = _source.gateFit;
+                _destination.Lens.ModeOverride = LensSettings.OverrideModes.Physical;
             }
             else {
-                _target.Lens.FieldOfView = _camera.fieldOfView;
-                _target.Lens.ModeOverride = LensSettings.OverrideModes.None;
+                _destination.Lens.FieldOfView = _source.fieldOfView;
+                _destination.Lens.ModeOverride = LensSettings.OverrideModes.None;
             }
 
-            var cameraTrans = _camera.transform;
-            var targetTrans = _target.transform;
+            var cameraTrans = _source.transform;
+            var targetTrans = _destination.transform;
             targetTrans.position = cameraTrans.position;
             targetTrans.rotation = cameraTrans.rotation;
         }
