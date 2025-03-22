@@ -164,8 +164,8 @@ namespace GameFramework.BodySystems {
             }
 #endif
 
-            // Rigidbodyがついている場合、ColliderController追加
-            if (gameObject.GetComponent<Rigidbody>() != null) {
+            // Rigidbody or ColliderPartsがついている場合、ColliderController追加
+            if (gameObject.GetComponentInChildren<ColliderParts>() != null || gameObject.GetComponent<Rigidbody>() != null) {
                 TryAddComponent<ColliderController>(gameObject);
             }
 
