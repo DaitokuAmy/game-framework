@@ -52,7 +52,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="acceleration">加速度</param>
         /// <param name="gravity">重力加速度</param>
         /// <param name="maxDistance">最大飛翔距離</param>
-        /// <param name="tilt">オブジェクトの傾き</param>
+        /// <param name="roll">オブジェクトの傾き</param>
         public ShotBulletProjectile(Vector3 startPoint, Quaternion startRotation, MinMaxFloat startSpeed, MinMaxFloat acceleration, float gravity, float maxDistance, MinMaxFloat roll) {
             _startPoint = startPoint;
             _startRotation = startRotation;

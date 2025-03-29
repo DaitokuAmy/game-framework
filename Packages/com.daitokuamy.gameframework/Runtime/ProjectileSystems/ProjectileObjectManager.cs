@@ -220,6 +220,8 @@ namespace GameFramework.ProjectileSystems {
         private List<PlayingInfo> _playingInfos = new();
         // Poolを有効にするフラグ
         private bool _activePool = true;
+        // Null指定用
+        private GameObject _nullTemplate;
 
         /// <summary>デフォルト指定のLayer</summary>
         public int DefaultLayer { get; set; } = 0;
@@ -244,6 +246,11 @@ namespace GameFramework.ProjectileSystems {
             dispatcher.Setup(this);
             UnityEngine.Object.DontDestroyOnLoad(root);
             _rootTransform = root.transform;
+            
+            // NullTemplateの生成
+            _nullTemplate = new GameObject("Null");
+            _nullTemplate.transform.SetParent(_rootTransform, false);
+            _nullTemplate.SetActive(false);
         }
 
         /// <summary>
@@ -278,8 +285,7 @@ namespace GameFramework.ProjectileSystems {
             Action<Vector3, Quaternion> onUpdatedTransform = null,
             Action onExit = null) {
             if (prefab == null) {
-                Debug.LogWarning("Projectile object prefab is null.");
-                return new Handle();
+                prefab = _nullTemplate;
             }
 
             // Poolの初期化
@@ -443,8 +449,7 @@ namespace GameFramework.ProjectileSystems {
             Action<Vector3, Vector3, Quaternion> onUpdatedTransform = null,
             Action onExit = null) {
             if (prefab == null) {
-                Debug.LogWarning("Projectile object prefab is null.");
-                return new Handle();
+                prefab = _nullTemplate;
             }
 
             // Poolの初期化
@@ -602,6 +607,11 @@ namespace GameFramework.ProjectileSystems {
 
             _bulletPools.Clear();
             _beamPools.Clear();
+
+            if (_nullTemplate != null) {
+                UnityEngine.Object.Destroy(_nullTemplate);
+                _nullTemplate = null;
+            }
 
             if (_rootTransform != null) {
                 UnityEngine.Object.Destroy(_rootTransform.gameObject);
