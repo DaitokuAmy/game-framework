@@ -57,6 +57,13 @@ namespace GameFramework.SituationSystems {
         public Action<Situation> ChangedCurrentEvent;
 
         /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        public void Dispose() {
+            Clear();
+        }
+
+        /// <summary>
         /// 初期化
         /// </summary>
         public void Setup(Situation rootSituation) {
@@ -221,22 +228,8 @@ namespace GameFramework.SituationSystems {
                 Effects = effects
             };
 
-            // アクティブなSituationの更新
-            _runningSituations.Clear();
-            {
-                var s = next;
-                while (s != null) {
-                    _runningSituations.Insert(0, s);
-                    s = s.Parent;
-                }
-            }
-            ChangedCurrentEvent?.Invoke(Current);
-            
-            // 初期化処理
-            onSetup?.Invoke(Current);
-
             // コルーチンの登録
-            _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => _transitionInfo = null);
+            _coroutineRunner.StartCoroutine(TransitionRoutine(next, onSetup, transition), () => _transitionInfo = null);
 
             // ハンドルの返却
             return new TransitionHandle(_transitionInfo);
@@ -460,10 +453,61 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
-        /// 廃棄時処理
+        /// 該当型のSituationを探す
         /// </summary>
-        public void Dispose() {
-            Clear();
+        public TSituation FindSituation<TSituation>()
+            where TSituation : Situation {
+            return (TSituation)FindSituation(typeof(TSituation));
+        }
+
+        /// <summary>
+        /// 該当型のSituationを探す
+        /// </summary>
+        public Situation FindSituation(Type type) {
+            ISituation Find(ISituation situation) {
+                if (situation.GetType() == type) {
+                    return situation;
+                }
+
+                foreach (var child in situation.Children) {
+                    var result = Find(child);
+                    if (result == null) {
+                        continue;
+                    }
+
+                    return result;
+                }
+
+                return null;
+            }
+
+            if (RootSituation == null) {
+                Debug.LogError("RootSituation is null.");
+                return null;
+            }
+
+            return (Situation)Find(RootSituation);
+        }
+
+        /// <summary>
+        /// 遷移ルーチン
+        /// </summary>
+        private IEnumerator TransitionRoutine(ISituation nextSituation, Action<Situation> onSetup, ITransition transition) {
+            // アクティブなSituationの更新
+            _runningSituations.Clear();
+            {
+                var s = nextSituation;
+                while (s != null) {
+                    _runningSituations.Insert(0, s);
+                    s = s.Parent;
+                }
+            }
+            ChangedCurrentEvent?.Invoke(Current);
+            
+            // 初期化処理
+            onSetup?.Invoke(Current);
+
+            yield return transition.TransitRoutine(this);
         }
 
         /// <summary>
@@ -514,43 +558,6 @@ namespace GameFramework.SituationSystems {
             }
 
             return nextSituation.GetDefaultNextTransition();
-        }
-
-        /// <summary>
-        /// 該当型のSituationを探す
-        /// </summary>
-        public TSituation FindSituation<TSituation>()
-            where TSituation : Situation {
-            return (TSituation)FindSituation(typeof(TSituation));
-        }
-
-        /// <summary>
-        /// 該当型のSituationを探す
-        /// </summary>
-        public Situation FindSituation(Type type) {
-            ISituation Find(ISituation situation) {
-                if (situation.GetType() == type) {
-                    return situation;
-                }
-
-                foreach (var child in situation.Children) {
-                    var result = Find(child);
-                    if (result == null) {
-                        continue;
-                    }
-
-                    return result;
-                }
-
-                return null;
-            }
-
-            if (RootSituation == null) {
-                Debug.LogError("RootSituation is null.");
-                return null;
-            }
-
-            return (Situation)Find(RootSituation);
         }
 
         /// <summary>
