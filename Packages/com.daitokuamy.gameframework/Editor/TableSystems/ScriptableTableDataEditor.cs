@@ -24,6 +24,12 @@ namespace GameFramework.TableSystems.Editor {
                         if (idProp != null) {
                             idProp.intValue = i + 1;
                         }
+                        else {
+                            idProp = elementProp.FindPropertyRelative("_id");
+                            if (idProp != null) {
+                                idProp.intValue = i + 1;
+                            }
+                        }
                     }
 
                     serializedObject.ApplyModifiedProperties();
