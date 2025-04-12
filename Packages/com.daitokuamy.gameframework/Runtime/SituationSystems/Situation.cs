@@ -188,11 +188,6 @@ namespace GameFramework.SituationSystems {
             if (IsActive) {
                 UpdateInternal();
             }
-
-            // 子の更新
-            foreach (ISituation child in _children) {
-                child.Update();
-            }
         }
 
         /// <summary>
@@ -210,11 +205,6 @@ namespace GameFramework.SituationSystems {
             if (CurrentState == State.OpenFinished) {
                 LateUpdateInternal();
             }
-
-            // 子の更新
-            foreach (ISituation child in _children) {
-                child.LateUpdate();
-            }
         }
 
         /// <summary>
@@ -231,11 +221,6 @@ namespace GameFramework.SituationSystems {
             // FixedUpdateはActive中のみ
             if (CurrentState == State.OpenFinished) {
                 FixedUpdateInternal();
-            }
-
-            // 子の更新
-            foreach (ISituation child in _children) {
-                child.FixedUpdate();
             }
         }
 
