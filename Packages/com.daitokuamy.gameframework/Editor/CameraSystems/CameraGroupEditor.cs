@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using GameFramework.Core.Editor;
 using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
@@ -201,7 +202,8 @@ namespace GameFramework.CameraSystems.Editor {
                 }
 
                 CopyComponents(cameras, prop => {
-                    if (prop.propertyPath == "m_Follow" || prop.propertyPath == "m_LookAt") {
+                    var attributes = EditorTool.GetPropertyAttributes(prop);
+                    if (attributes.Any(x => x is NoSaveDuringPlayAttribute)) {
                         return false;
                     }
 
@@ -225,7 +227,14 @@ namespace GameFramework.CameraSystems.Editor {
                     return nextCamera;
                 });
                 RemoveComponentsAndExtensions(cameras);
-                CopyComponents(components, null, (x, y) => {
+                CopyComponents(components, prop => {
+                    var attributes = EditorTool.GetPropertyAttributes(prop);
+                    if (attributes.Any(x => x is NoSaveDuringPlayAttribute)) {
+                        return false;
+                    }
+
+                    return true;
+                }, (x, y) => {
                     var prevComponents = y.GetComponents<CinemachineComponentBase>();
                     foreach (var prevComponent in prevComponents) {
                         if (prevComponent.Stage == x.Stage) {
@@ -237,7 +246,14 @@ namespace GameFramework.CameraSystems.Editor {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent(x.GetType()) as CinemachineComponentBase;
                 });
-                CopyComponents(extensions, null, (x, y) => {
+                CopyComponents(extensions, prop => {
+                    var attributes = EditorTool.GetPropertyAttributes(prop);
+                    if (attributes.Any(x => x is NoSaveDuringPlayAttribute)) {
+                        return false;
+                    }
+
+                    return true;
+                }, (x, y) => {
                     // 出力先Componentがなければ追加する
                     return y.AddComponent(x.GetType()) as CinemachineExtension;
                 });

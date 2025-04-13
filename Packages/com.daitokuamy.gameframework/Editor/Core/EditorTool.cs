@@ -316,16 +316,47 @@ namespace GameFramework.Core.Editor {
             destObj.Update();
 
             var itr = sourceObj.GetIterator();
-            while (itr.NextVisible(true)) {
+            var enterChildren = true;
+            while (itr.NextVisible(enterChildren)) {
                 if (checkFunc != null && !checkFunc.Invoke(itr)) {
+                    enterChildren = false;
                     continue;
                 }
 
                 var sourceProperty = sourceObj.FindProperty(itr.propertyPath);
                 destObj.CopyFromSerializedPropertyIfDifferent(sourceProperty);
+                enterChildren = true;
             }
 
             destObj.ApplyModifiedProperties();
+        }
+
+        /// <summary>
+        /// プロパティに設定されたAttributeを取得
+        /// </summary>
+        public static Attribute[] GetPropertyAttributes(SerializedProperty prop) {
+            if (prop == null) {
+                return Array.Empty<Attribute>();
+            }
+
+            var targetType = prop.serializedObject.targetObject.GetType();
+            var splitNames = prop.propertyPath.Split('.');
+            var fieldInfo = default(FieldInfo);
+
+            foreach (var splitName in splitNames) {
+                fieldInfo = targetType.GetField(splitName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+                if (fieldInfo == null) {
+                    return Array.Empty<Attribute>();
+                }
+
+                targetType = fieldInfo.FieldType;
+            }
+
+            if (fieldInfo != null) {
+                return (Attribute[])fieldInfo.GetCustomAttributes(typeof(Attribute), true);
+            }
+
+            return Array.Empty<Attribute>();
         }
     }
 }
