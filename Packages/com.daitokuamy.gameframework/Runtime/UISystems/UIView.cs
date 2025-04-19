@@ -31,6 +31,8 @@ namespace GameFramework.UISystems {
         public RectTransform RectTransform { get; private set; }
         /// <summary>所属しているUIServiceへの参照</summary>
         protected UIService Service { get; private set; }
+        /// <summary>現在更新中のDeltaTime</summary>
+        protected float DeltaTime { get; private set; }
 
         /// <summary>
         /// 初期化処理
@@ -105,6 +107,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
         void IUIView.Update(float deltaTime) {
+            DeltaTime = deltaTime;
             _coroutineRunner.Update();
 
             if (IsActive) {
