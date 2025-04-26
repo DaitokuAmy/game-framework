@@ -193,9 +193,28 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 戻り遷移実行
         /// </summary>
+        /// <param name="depth">何階層戻るか</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Back(int depth, params ITransitionEffect[] effects) {
+            return Back(depth, null, null, effects);
+        }
+
+        /// <summary>
+        /// 戻り遷移実行
+        /// </summary>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Back(params ITransitionEffect[] effects) {
             return Back(null, null, effects);
+        }
+
+        /// <summary>
+        /// 戻り遷移実行
+        /// </summary>
+        /// <param name="depth">何階層戻るか</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Back(int depth, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            return Back(depth, null, overrideTransition, effects);
         }
 
         /// <summary>
@@ -214,7 +233,18 @@ namespace GameFramework.SituationSystems {
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
         public TransitionHandle Back(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            return BackInternal(onSetup, overrideTransition, effects);
+            return Back(1, onSetup, overrideTransition, effects);
+        }
+
+        /// <summary>
+        /// 戻り遷移実行
+        /// </summary>
+        /// <param name="depth">何階層戻るか</param>
+        /// <param name="onSetup">初期化処理</param>
+        /// <param name="overrideTransition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle Back(int depth, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            return BackInternal(depth, onSetup, overrideTransition, effects);
         }
 
         /// <summary>
@@ -392,10 +422,16 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 戻り遷移実行
         /// </summary>
+        /// <param name="depth">何階層戻るか</param>
         /// <param name="onSetup">初期化処理</param>
         /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        private TransitionHandle BackInternal(Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+        private TransitionHandle BackInternal(int depth, Action<Situation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
+            // 階層が無効なら無視
+            if (depth <= 0) {
+                return TransitionHandle.Empty;
+            }
+            
             // 既に遷移中なら失敗
             if (IsTransitioning) {
                 Debug.LogError("In transitioning");
@@ -412,14 +448,24 @@ namespace GameFramework.SituationSystems {
                 return TransitionHandle.Empty;
             }
 
-            var parentNode = CurrentNode.GetPrevious();
-            if (parentNode == null || !parentNode.IsValid) {
-                Debug.LogWarning("Parent situation is invalid.");
+            // 戻り先の取得
+            var backNode = CurrentNode;
+            for (var i = 0; i < depth; i++) {
+                var b = backNode.GetPrevious();
+                if (b == null || !b.IsValid) {
+                    break;
+                }
+
+                backNode = b;
+            }
+
+            // 遷移先がなければ終わり
+            if (CurrentNode == backNode) {
                 return TransitionHandle.Empty;
             }
 
             // 親Nodeがあればそこへ遷移
-            CurrentNode = parentNode;
+            CurrentNode = backNode;
 
             // 遷移実行
             return _situationContainer.Transition(CurrentNode.Situation.GetType(), onSetup, new SituationContainer.TransitionOption { Back = true }, overrideTransition, effects);
