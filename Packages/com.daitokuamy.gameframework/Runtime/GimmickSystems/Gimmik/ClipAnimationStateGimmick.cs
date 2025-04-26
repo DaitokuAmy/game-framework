@@ -79,6 +79,17 @@ namespace GameFramework.GimmickSystems {
         }
 
         /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected override void DisposeInternal() {
+            if (_graph.IsValid()) {
+                _graph.Destroy();
+            }
+            
+            base.DisposeInternal();
+        }
+
+        /// <summary>
         /// ステートの変更処理
         /// </summary>
         /// <param name="prev">変更前のステート</param>
