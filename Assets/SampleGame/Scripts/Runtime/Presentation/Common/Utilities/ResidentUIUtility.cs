@@ -9,7 +9,7 @@ namespace SampleGame.Presentation {
     /// </summary>
     public static class ResidentUIUtility {
         /// <summary>UIManager</summary>
-        private static UIManager Manager  => Services.Get<UIManager>();
+        private static UIManager Manager  => Services.Resolve<UIManager>();
         /// <summary>ResidentUI用のService</summary>
         private static ResidentUIService UIService => Manager?.GetService<ResidentUIService>();
 

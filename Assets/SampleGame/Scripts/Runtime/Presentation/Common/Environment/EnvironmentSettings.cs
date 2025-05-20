@@ -37,7 +37,7 @@ namespace SampleGame.Presentation {
                 }
             }
             else {
-                var manager = Services.Get<EnvironmentManager>();
+                var manager = Services.Resolve<EnvironmentManager>();
                 if (manager != null) {
                     manager.ForceApply();
                 }
@@ -74,7 +74,7 @@ namespace SampleGame.Presentation {
                 return;
             }
 
-            var manager = Services.Get<EnvironmentManager>();
+            var manager = Services.Resolve<EnvironmentManager>();
             if (manager != null) {
                 var context = _data.CreateContext();
                 context.Sun = _sun;
@@ -95,7 +95,7 @@ namespace SampleGame.Presentation {
         /// </summary>
         private void OnDisable() {
             if (_handle.IsValid) {
-                var manager = Services.Get<EnvironmentManager>();
+                var manager = Services.Resolve<EnvironmentManager>();
                 if (manager != null) {
                     manager.Remove(_handle);
                 }

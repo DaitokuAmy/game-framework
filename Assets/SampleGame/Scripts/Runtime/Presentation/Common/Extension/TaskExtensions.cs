@@ -10,7 +10,7 @@ namespace SampleGame.Presentation {
         /// タスクへ登録
         /// </summary>
         public static void RegisterTask(this ITask source, TaskOrder order) {
-            var taskRunner = Services.Get<TaskRunner>();
+            var taskRunner = Services.Resolve<TaskRunner>();
             if (source == null || taskRunner == null) return;
             taskRunner.Register(source, order);
         }
@@ -19,7 +19,7 @@ namespace SampleGame.Presentation {
         /// タスクから登録除外
         /// </summary>
         public static void UnregisterTask(this ITask source) {
-            var taskRunner = Services.Get<TaskRunner>();
+            var taskRunner = Services.Resolve<TaskRunner>();
             if (source == null || taskRunner == null) return;
             taskRunner.Unregister(source);
         }

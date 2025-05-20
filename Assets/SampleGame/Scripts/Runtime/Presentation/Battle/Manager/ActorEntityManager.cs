@@ -41,8 +41,8 @@ namespace SampleGame.Presentation.Battle {
             _createdEntities = new();
 
             _bodyManager = bodyManager;
-            _bodyBodyPrefabRepository = Services.Get<BodyPrefabRepository>();
-            _battleCharacterAssetRepository = Services.Get<BattleCharacterAssetRepository>();
+            _bodyBodyPrefabRepository = Services.Resolve<BodyPrefabRepository>();
+            _battleCharacterAssetRepository = Services.Resolve<BattleCharacterAssetRepository>();
         }
 
         /// <summary>

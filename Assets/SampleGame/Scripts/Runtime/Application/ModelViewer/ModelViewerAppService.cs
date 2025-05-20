@@ -20,8 +20,8 @@ namespace SampleGame.Application.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public ModelViewerAppService() {
-            _domainService = Services.Get<ModelViewerDomainService>();
-            _repository = Services.Get<IModelViewerRepository>();
+            _domainService = Services.Resolve<ModelViewerDomainService>();
+            _repository = Services.Resolve<IModelViewerRepository>();
             _scope = new DisposableScope();
         }
 

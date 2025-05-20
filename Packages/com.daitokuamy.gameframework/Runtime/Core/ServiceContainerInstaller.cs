@@ -15,7 +15,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         public void Install(IServiceContainer container, IScope scope = null) {
             foreach (var component in _installServices) {
-                container.Set(component).ScopeTo(scope);
+                container.RegisterInstance(component).ScopeTo(scope);
             }
         }
     }

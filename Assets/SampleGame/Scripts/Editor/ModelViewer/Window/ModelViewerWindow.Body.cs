@@ -55,7 +55,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// GUI描画
             /// </summary>
             protected override void OnGUIInternal() {
-                var entityManager = Services.Get<ActorEntityManager>();
+                var entityManager = Services.Resolve<ActorEntityManager>();
                 if (!entityManager.Entities.TryGetValue(1, out var entity)) {
                     return;
                 }

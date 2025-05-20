@@ -235,7 +235,7 @@ namespace SampleGame.ModelViewer.Editor {
                 return;
             }
 
-            var appService = Services.Get<ModelViewerAppService>();
+            var appService = Services.Resolve<ModelViewerAppService>();
             if (appService == null) {
                 EditorGUILayout.HelpBox("Not found ModelViewerAppService", MessageType.Error);
                 ClearPanels();

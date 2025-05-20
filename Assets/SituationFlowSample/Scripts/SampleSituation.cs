@@ -41,7 +41,7 @@ namespace SituationFlowSample {
             Debug.Log($"Activate. [{GetType().Name}]");
             base.ActivateInternal(handle, scope);
             _sampleObject = new GameObject($"Active Node:{GetType().Name}");
-            _sampleObject.transform.SetParent(Services.Get<SituationFlowSample>().transform);
+            _sampleObject.transform.SetParent(Services.Resolve<SituationFlowSample>().transform);
         }
 
         /// <summary>

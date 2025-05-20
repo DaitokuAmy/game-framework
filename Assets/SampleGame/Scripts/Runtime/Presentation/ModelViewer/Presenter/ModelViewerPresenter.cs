@@ -19,9 +19,9 @@ namespace SampleGame.Presentation.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public ModelViewerPresenter() {
-            _appService = Services.Get<ModelViewerAppService>();
-            _actorEntityManager = Services.Get<ActorEntityManager>();
-            _environmentManager = Services.Get<EnvironmentManager>();
+            _appService = Services.Resolve<ModelViewerAppService>();
+            _actorEntityManager = Services.Resolve<ActorEntityManager>();
+            _environmentManager = Services.Resolve<EnvironmentManager>();
         }
 
         /// <summary>
@@ -32,8 +32,8 @@ namespace SampleGame.Presentation.ModelViewer {
 
             var ct = scope.Token;
 
-            var cameraManager = Services.Get<CameraManager>();
-            var actorEntityManager = Services.Get<ActorEntityManager>();
+            var cameraManager = Services.Resolve<CameraManager>();
+            var actorEntityManager = Services.Resolve<ActorEntityManager>();
             var domainService = _appService.DomainService;
             var modelViewerModel = domainService.ModelViewerModel;
             var settingsModel = domainService.SettingsModel;
@@ -93,7 +93,7 @@ namespace SampleGame.Presentation.ModelViewer {
             // CameraのModelTransformを更新
             var actorModel = _appService.DomainService.ActorModel;
             if (actorModel != null) { 
-                var modelTrans = Services.Get<CameraManager>().GetTargetPoint("Model");
+                var modelTrans = Services.Resolve<CameraManager>().GetTargetPoint("Model");
                 modelTrans.position = actorModel.Position;
                 modelTrans.rotation = actorModel.Rotation;
             }

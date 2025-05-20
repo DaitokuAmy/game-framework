@@ -61,8 +61,8 @@ namespace SampleGame.Lifecycle {
             yield return SetupPresentationRoutine(scope);
 
             // todo:テスト
-            yield return Services.Get<FieldManager>().ChangeFieldAsync("fld001", scope.Token).ToCoroutine();
-            yield return Services.Get<ActorEntityManager>().CreateBattleCharacterActorEntityAsync(1, "ch001_00", "ch001_00", null, scope.Token).ToCoroutine();
+            yield return Services.Resolve<FieldManager>().ChangeFieldAsync("fld001", scope.Token).ToCoroutine();
+            yield return Services.Resolve<ActorEntityManager>().CreateBattleCharacterActorEntityAsync(1, "ch001_00", "ch001_00", null, scope.Token).ToCoroutine();
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator OpenRoutineInternal(TransitionHandle handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
-            var uiManager = Services.Get<UIManager>();
+            var uiManager = Services.Resolve<UIManager>();
             var battleHudUIService = uiManager.GetService<BattleHudUIService>();
             yield return battleHudUIService.BattleHudUIScreen.OpenAsync();
         }
@@ -82,7 +82,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostOpenInternal(TransitionHandle handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
 
-            var uiManager = Services.Get<UIManager>();
+            var uiManager = Services.Resolve<UIManager>();
             var battleHudUIService = uiManager.GetService<BattleHudUIService>();
             battleHudUIService.BattleHudUIScreen.OpenAsync(immediate: true);
         }
@@ -93,7 +93,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator CloseRoutineInternal(TransitionHandle handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
 
-            var uiManager = Services.Get<UIManager>();
+            var uiManager = Services.Resolve<UIManager>();
             var battleHudUIService = uiManager.GetService<BattleHudUIService>();
             yield return battleHudUIService.BattleHudUIScreen.CloseAsync();
         }
@@ -104,7 +104,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostCloseInternal(TransitionHandle handle) {
             base.PostCloseInternal(handle);
 
-            var uiManager = Services.Get<UIManager>();
+            var uiManager = Services.Resolve<UIManager>();
             var battleHudUIService = uiManager.GetService<BattleHudUIService>();
             battleHudUIService.BattleHudUIScreen.CloseAsync(immediate: true);
         }
@@ -115,8 +115,8 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = Services.Get<SituationService>();
-            var uiManager = Services.Get<UIManager>();
+            var situationService = Services.Resolve<SituationService>();
+            var uiManager = Services.Resolve<UIManager>();
             var battleHudUIService = uiManager.GetService<BattleHudUIService>();
 
             // メニューボタン
@@ -132,7 +132,7 @@ namespace SampleGame.Lifecycle {
             base.UpdateInternal();
 
             // todo:テスト
-            var actorEntityManager = Services.Get<ActorEntityManager>();
+            var actorEntityManager = Services.Resolve<ActorEntityManager>();
             if (actorEntityManager != null) {
                 if (actorEntityManager.Entities.TryGetValue(1, out var entity)) {
                     var actor = entity.GetActor<BattleCharacterActor>();
@@ -163,7 +163,7 @@ namespace SampleGame.Lifecycle {
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
-            var uiManager = Services.Get<UIManager>();
+            var uiManager = Services.Resolve<UIManager>();
 
             UniTask LoadAsync(string assetKey) {
                 return uiManager.LoadSceneAsync(assetKey).ScopeTo(unloadScope).ToUniTask(cancellationToken: ct);
@@ -176,13 +176,13 @@ namespace SampleGame.Lifecycle {
         /// Infrastructure初期化
         /// </summary>
         private IEnumerator SetupInfrastructureRoutine(IScope scope) {
-            var assetManager = Services.Get<AssetManager>();
+            var assetManager = Services.Resolve<AssetManager>();
             var battleCharacterAssetRepository = new BattleCharacterAssetRepository(assetManager);
-            ServiceContainer.Set(battleCharacterAssetRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(battleCharacterAssetRepository).ScopeTo(scope);
             var bodyPrefabRepository = new BodyPrefabRepository(assetManager);
-            ServiceContainer.Set(bodyPrefabRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(bodyPrefabRepository).ScopeTo(scope);
             var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
-            ServiceContainer.Set(environmentSceneRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(environmentSceneRepository).ScopeTo(scope);
             yield break;
         }
 
@@ -193,15 +193,15 @@ namespace SampleGame.Lifecycle {
             var bodyBuilder = new BodyBuilder();
             var bodyManager = new BodyManager(bodyBuilder);
             bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.Set(bodyManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(bodyManager).ScopeTo(scope);
 
             var fieldManager = new FieldManager();
-            ServiceContainer.Set(fieldManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(fieldManager).ScopeTo(scope);
 
             var actorEntityManager = new ActorEntityManager(bodyManager);
-            ServiceContainer.Set(actorEntityManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(actorEntityManager).ScopeTo(scope);
 
-            var cameraManager = Services.Get<CameraManager>();
+            var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
             yield break;
         }

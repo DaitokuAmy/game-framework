@@ -49,12 +49,12 @@ namespace SampleGame.Lifecycle {
 
             async UniTask LoadAsync(CancellationToken ct) {
                 // Config読み込み
-                var assetManager = Services.Get<AssetManager>();
+                var assetManager = Services.Resolve<AssetManager>();
                 await new ModelViewerConfigDataRequest()
                     .LoadAsync(assetManager, scope, cancellationToken: ct)
                     .ContinueWith(x => {
                         _configData = x;
-                        ServiceContainer.Set(x).ScopeTo(scope);
+                        ServiceContainer.RegisterInstance(x).ScopeTo(scope);
                     });
             }
 
@@ -75,7 +75,7 @@ namespace SampleGame.Lifecycle {
             yield return SetupPresentationRoutine(scope);
 
             // カメラ操作用Controllerの設定
-            var cameraManager = Services.Get<CameraManager>();
+            var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.SetCameraController("Default", new PreviewCameraController(_configData.camera));
 
             // 初期値反映
@@ -89,11 +89,11 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var appService = Services.Get<ModelViewerAppService>();
+            var appService = Services.Resolve<ModelViewerAppService>();
             var viewerModel = appService.DomainService.ModelViewerModel;
 
             // DebugPage初期化
-            var debugSheet = Services.Get<DebugSheet>();
+            var debugSheet = Services.Resolve<DebugSheet>();
             var rootPage = debugSheet.GetOrCreateInitialPage();
             var motionsPageId = -1;
             _debugPageId = rootPage.AddPageLinkButton("Model Viewer", onLoad: pageTuple => {
@@ -159,7 +159,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         protected override void DeactivateInternal(TransitionHandle handle) {
             // Debugページ削除
-            var debugSheet = Services.Get<DebugSheet>();
+            var debugSheet = Services.Resolve<DebugSheet>();
             if (debugSheet != null) {
                 var rootPage = debugSheet.GetOrCreateInitialPage();
                 rootPage.RemoveItem(_debugPageId);
@@ -172,11 +172,11 @@ namespace SampleGame.Lifecycle {
         /// Infrastructure層の初期化
         /// </summary>
         private IEnumerator SetupInfrastructureRoutine(IScope scope) {
-            var assetManager = Services.Get<AssetManager>();
+            var assetManager = Services.Resolve<AssetManager>();
             var repository = new ModelViewerRepository(assetManager);
-            ServiceContainer.Set<IModelViewerRepository>(repository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance<IModelViewerRepository>(repository).ScopeTo(scope);
             var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
-            ServiceContainer.Set(environmentSceneRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(environmentSceneRepository).ScopeTo(scope);
 
             yield break;
         }
@@ -188,15 +188,15 @@ namespace SampleGame.Lifecycle {
             var bodyBuilder = new BodyBuilder();
             var bodyManager = new BodyManager(bodyBuilder);
             bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.Set(bodyManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(bodyManager).ScopeTo(scope);
 
             var environmentManager = new EnvironmentManager();
-            ServiceContainer.Set(environmentManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(environmentManager).ScopeTo(scope);
 
             var actorManager = new ActorEntityManager(bodyManager);
-            ServiceContainer.Set(actorManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(actorManager).ScopeTo(scope);
 
-            var cameraManager = Services.Get<CameraManager>();
+            var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
 
             yield break;
@@ -212,7 +212,7 @@ namespace SampleGame.Lifecycle {
             SettingsModel.Create().ScopeTo(scope);
             
             _domainService = new ModelViewerDomainService();
-            ServiceContainer.Set(_domainService).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(_domainService).ScopeTo(scope);
 
             yield break;
         }
@@ -222,7 +222,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private IEnumerator SetupApplicationRoutine(IScope scope) {
             _appService = new ModelViewerAppService();
-            ServiceContainer.Set(_appService).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(_appService).ScopeTo(scope);
 
             yield return _appService.SetupAsync(_configData.master, scope.Token).ToCoroutine();
         }
@@ -247,7 +247,7 @@ namespace SampleGame.Lifecycle {
                 logic.ScopeTo(scope);
 
                 if (addService) {
-                    ServiceContainer.Set(logic).ScopeTo(scope);
+                    ServiceContainer.RegisterInstance(logic).ScopeTo(scope);
                 }
             }
 

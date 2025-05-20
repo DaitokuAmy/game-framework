@@ -25,7 +25,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// 初期化処理
             /// </summary>
             protected override void InitializeInternal(IScope scope) {
-                var viewerModel = Services.Get<ModelViewerAppService>().DomainService.ModelViewerModel;
+                var viewerModel = Services.Resolve<ModelViewerAppService>().DomainService.ModelViewerModel;
                 
                 // Actor生成監視
                 viewerModel.CreatedActorSubject
@@ -64,7 +64,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// GUI描画
             /// </summary>
             protected override void OnGUIInternal() {
-                var appService = Services.Get<ModelViewerAppService>();
+                var appService = Services.Resolve<ModelViewerAppService>();
                 var actorModel = appService.DomainService.ActorModel;
                 var prevColor = GUI.color;
 

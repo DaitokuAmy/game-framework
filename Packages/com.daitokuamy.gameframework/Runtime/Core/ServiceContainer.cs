@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 
 namespace GameFramework.Core {
@@ -9,22 +8,20 @@ namespace GameFramework.Core {
     /// </summary>
     public class ServiceContainer : IServiceContainer {
         /// <summary>
-        /// Serviceの登録を廃棄するためのDisposable
+        /// 登録解除用Disposable
         /// </summary>
         private class Disposable : IDisposable {
-            public static readonly Disposable Empty = new Disposable(null, null, -1);
-            
+            public static readonly Disposable Empty = new(null, null);
+
             private IServiceContainer _container;
             private Type _type;
-            private int _index;
-            
+
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public Disposable(IServiceContainer container, Type type, int index) {
+            public Disposable(IServiceContainer container, Type type) {
                 _container = container;
                 _type = type;
-                _index = index;
             }
 
             /// <summary>
@@ -35,33 +32,25 @@ namespace GameFramework.Core {
                     return;
                 }
 
-                if (_index >= 0) {
-                    _container.Remove(_type, _index);
-                }
-                else {
-                    _container.Remove(_type);
-                }
-
+                _container.Remove(_type);
                 _type = null;
                 _container = null;
-                _index = -1;
             }
         }
-        
-        // 管理用サービス
-        private Dictionary<Type, object> _services = new Dictionary<Type, object>();
-        private Dictionary<Type, List<object>> _serviceLists = new Dictionary<Type, List<object>>();
 
-        // 登録解除用の廃棄可能インスタンスリスト(登録順)
-        private List<IDisposable> _disposableServices = new List<IDisposable>();
+        /// <summary>
+        /// 登録されたサービスの情報
+        /// </summary>
+        private class RegisteredServiceInfo {
+            public Type Type;
+            public object Instance;
+            public Func<object> CreateFunc;
+        }
 
-        // 自動Disposeフラグ
-        private bool _autoDispose;
-
-        // 親のContainer
-        private IServiceContainer _parent;
-        // 子のContainer
-        private List<IServiceContainer> _children = new List<IServiceContainer>();
+        private readonly bool _autoDispose;
+        private readonly List<IServiceContainer> _children = new();
+        private readonly Dictionary<Type, RegisteredServiceInfo> _registeredServiceInfos = new();
+        private readonly List<IDisposable> _disposableServices = new();
 
         /// <summary>
         /// コンストラクタ
@@ -74,9 +63,8 @@ namespace GameFramework.Core {
             }
 
             _autoDispose = autoDispose;
-            _parent = parent;
 
-            if (_parent is ServiceContainer container) {
+            if (parent is ServiceContainer container) {
                 container._children.Add(this);
             }
         }
@@ -88,192 +76,44 @@ namespace GameFramework.Core {
             ClearInternal();
         }
 
-        /// <summary>
-        /// サービスの設定
-        /// </summary>
-        /// <param name="type">紐づけ用の型</param>
-        /// <param name="service">登録するインスタンス</param>
-        public IDisposable Set<TClass>(Type type, TClass service)
-            where TClass : class {
-            if (_services.ContainsKey(type)) {
-                Debug.LogError($"Already set service. Type:{type}");
-                return Disposable.Empty;
-            }
-
-            _services[type] = service;
-            if (service is IDisposable disposable) {
-                _disposableServices.Add(disposable);
-            }
-
-            return new Disposable(this, type, -1);
-        }
-
-        /// <summary>
-        /// サービスの設定
-        /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        public IDisposable Set<T, TClass>(TClass service)
-            where TClass : class {
-            return Set(typeof(T), service);
-        }
-
-        /// <summary>
-        /// サービスの設定
-        /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        public IDisposable Set<TClass>(TClass service)
-            where TClass : class {
-            return Set(service.GetType(), service);
-        }
-
-        /// <summary>
-        /// サービスの設定(複数登録するバージョン）
-        /// </summary>
-        /// <param name="type">紐づけ用の型</param>
-        /// <param name="service">登録するインスタンス</param>
-        /// <param name="index">インデックス</param>
-        public IDisposable Set<TClass>(Type type, TClass service, int index)
-            where TClass : class {
-            if (!_serviceLists.TryGetValue(type, out var list)) {
-                list = new List<object>();
-                _serviceLists[type] = list;
-            }
-
-            while (index >= list.Count) {
-                list.Add(null);
-            }
-
-            if (list[index] != null) {
-                Debug.LogError($"Already set service. Type:{type} Index:{index}");
-                return Disposable.Empty;
-            }
-
-            list[index] = service;
-            if (service is IDisposable disposable) {
-                _disposableServices.Add(disposable);
-            }
-
-            return new Disposable(this, type, index);
-        }
-
-        /// <summary>
-        /// サービスの設定(複数登録するバージョン）
-        /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        /// <param name="index">インデックス</param>
-        public IDisposable Set<T, TClass>(TClass service, int index)
-            where TClass : class {
-            return Set(typeof(T), service, index);
-        }
-
-        /// <summary>
-        /// サービスの設定(複数登録するバージョン）
-        /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        /// <param name="index">インデックス</param>
-        public IDisposable Set<TClass>(TClass service, int index)
-            where TClass : class {
-            return Set(service.GetType(), service, index);
-        }
-
-        /// <summary>
-        /// コンテナ内のクリア
-        /// </summary>
+        /// <inheritdoc/>
         void IServiceContainer.Clear() {
             ClearInternal();
         }
 
-        /// <summary>
-        /// サービスの取得
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// </summary>
-        object IServiceContainer.Get(Type type) {
+        /// <inheritdoc/>
+        object IServiceContainer.Resolve(Type type) {
             for (var i = _children.Count - 1; i >= 0; i--) {
-                var result = _children[i].Get(type);
-                if (result != default) {
+                var result = _children[i].Resolve(type);
+                if (result != null) {
                     return result;
                 }
             }
 
-            if (_services.TryGetValue(type, out var service)) {
-                return service;
-            }
-
-            foreach (var pair in _services) {
-                if (type.IsAssignableFrom(pair.Key)) {
-                    return pair.Value;
-                }
+            if (_registeredServiceInfos.TryGetValue(type, out var info)) {
+                return GetInstance(info);
             }
 
             return null;
         }
 
-        /// <summary>
-        /// サービスの取得
-        /// </summary>
-        T IServiceContainer.Get<T>() {
-            return (T)((IServiceContainer)this).Get(typeof(T));
+        /// <inheritdoc/>
+        T IServiceContainer.Resolve<T>() {
+            return (T)((IServiceContainer)this).Resolve(typeof(T));
         }
 
-        /// <summary>
-        /// サービスの取得(複数登録するバージョン）
-        /// </summary>
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// <param name="index">インデックス</param>
-        object IServiceContainer.Get(Type type, int index) {
-            for (var i = _children.Count - 1; i >= 0; i--) {
-                var result = _children[i].Get(type, index);
-                if (result != default) {
-                    return result;
-                }
-            }
-
-            _serviceLists.TryGetValue(type, out var list);
-
-            if (list == null) {
-                foreach (var pair in _serviceLists) {
-                    if (type.IsAssignableFrom(pair.Key)) {
-                        list = pair.Value;
-                    }
-                }
-            }
-
-            if (list != null) {
-                if (index < list.Count) {
-                    return list[index];
-                }
-
-                Debug.LogError($"Invalid service index. Type:{type} Index:{index}");
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// サービスの取得(複数登録するバージョン）
-        /// </summary>
-        /// <param name="index">インデックス</param>
-        T IServiceContainer.Get<T>(int index) {
-            return (T)((IServiceContainer)this).Get(typeof(T), index);
-        }
-
-        /// <summary>
-        /// サービスの削除
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// </summary>
+        /// <inheritdoc/>
         void IServiceContainer.Remove(Type type) {
-            if (!_services.TryGetValue(type, out var service)) {
+            if (!_registeredServiceInfos.Remove(type, out var info)) {
                 return;
             }
 
             if (_autoDispose) {
-                if (service is IDisposable disposable) {
+                if (info.Instance is IDisposable disposable) {
+                    info.Instance = null;
                     disposable.Dispose();
-                    _disposableServices.Remove(disposable);
                 }
             }
-
-            _services.Remove(type);
         }
 
         /// <summary>
@@ -284,35 +124,137 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
-        /// サービスの削除
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// <param name="index">インデックス</param>
+        /// タイプ登録
         /// </summary>
-        void IServiceContainer.Remove(Type type, int index) {
-            if (!_serviceLists.TryGetValue(type, out var list)) {
-                return;
+        /// <param name="interfaceType">取得に使う型</param>
+        /// <param name="classType">生成するクラス型</param>
+        /// <param name="createFunc">生成用関数</param>
+        /// <returns>登録解除用のDisposable</returns>
+        public IDisposable Register(Type interfaceType, Type classType, Func<object> createFunc = null) {
+            if (_registeredServiceInfos.TryGetValue(interfaceType, out var info)) {
+                Debug.LogError($"Already registered type. Type:{interfaceType}");
+                return Disposable.Empty;
             }
 
-            if (index < 0 || index >= list.Count) {
-                return;
+            if (!interfaceType.IsAssignableFrom(classType)) {
+                Debug.LogError($"Not assignable. Type:{interfaceType}, InstanceType:{classType}");
+                return R3.Disposable.Empty;
             }
 
-            if (_autoDispose) {
-                if (list[index] is IDisposable disposable) {
-                    disposable.Dispose();
-                    _disposableServices.Remove(disposable);
-                }
-            }
+            info = new RegisteredServiceInfo {
+                Type = classType,
+                CreateFunc = createFunc,
+            };
 
-            list[index] = null;
+            _registeredServiceInfos[interfaceType] = info;
+            return new Disposable(this, interfaceType);
         }
 
         /// <summary>
-        /// サービスの削除
-        /// <param name="index">インデックス</param>
+        /// タイプ登録
         /// </summary>
-        void IServiceContainer.Remove<T>(int index) {
-            ((IServiceContainer)this).Remove(typeof(T), index);
+        /// <param name="classType">生成するクラス型</param>
+        /// <param name="createFunc">生成用関数</param>
+        /// <returns>登録解除用のDisposable</returns>
+        public IDisposable Register(Type classType, Func<object> createFunc = null) {
+            if (_registeredServiceInfos.TryGetValue(classType, out var info)) {
+                Debug.LogError($"Already registered type. Type:{classType}");
+                return Disposable.Empty;
+            }
+
+            info = new RegisteredServiceInfo {
+                Type = classType,
+                CreateFunc = createFunc,
+            };
+
+            _registeredServiceInfos[classType] = info;
+            return new Disposable(this, classType);
+        }
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        public IDisposable Register<TInterface, T>(Func<T> createFunc = null) {
+            return Register(typeof(TInterface), typeof(T), () => createFunc);
+        }
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        public IDisposable Register<T>(Func<T> createFunc = null) {
+            return Register(typeof(T), () => createFunc);
+        }
+
+        /// <summary>
+        /// インスタンス登録
+        /// </summary>
+        /// <param name="type">登録するタイプ</param>
+        /// <param name="instance">登録するインスタンス</param>
+        /// <returns>登録解除用のDisposable</returns>
+        public IDisposable RegisterInstance(Type type, object instance) {
+            if (instance == null) {
+                return Disposable.Empty;
+            }
+
+            if (!type.IsAssignableFrom(instance.GetType())) {
+                Debug.LogError($"Not assignable. Type:{type}, InstanceType:{instance.GetType()}");
+                return R3.Disposable.Empty;
+            }
+
+            if (_registeredServiceInfos.TryGetValue(type, out var info)) {
+                Debug.LogError($"Already registered type. Type:{type}");
+                return Disposable.Empty;
+            }
+
+            info = new RegisteredServiceInfo {
+                Type = type,
+                CreateFunc = null,
+                Instance = instance,
+            };
+
+            _registeredServiceInfos[type] = info;
+
+            if (instance is IDisposable disposable) {
+                _disposableServices.Add(disposable);
+            }
+
+            return new Disposable(this, type);
+        }
+
+        /// <summary>
+        /// インスタンス登録
+        /// </summary>
+        /// <param name="instance">登録するインスタンス</param>
+        /// <returns>登録解除用のDisposable</returns>
+        public IDisposable RegisterInstance(object instance) {
+            return RegisterInstance(instance.GetType(), instance);
+        }
+
+        /// <summary>
+        /// インスタンス登録
+        /// </summary>
+        /// <param name="instance">登録するインスタンス</param>
+        /// <returns>登録解除用のDisposable</returns>
+        public IDisposable RegisterInstance<T>(object instance) {
+            return RegisterInstance(typeof(T), instance);
+        }
+
+        /// <summary>
+        /// 削除処理
+        /// </summary>
+        /// <param name="type">登録時の型</param>
+        public void Remove(Type type) {
+            if (!_registeredServiceInfos.Remove(type, out var info)) {
+                return;
+            }
+
+            if (info.Instance is IDisposable disposable) {
+                disposable.Dispose();
+            }
         }
 
         /// <summary>
@@ -340,8 +282,33 @@ namespace GameFramework.Core {
 
             // サービス参照をクリア
             _disposableServices.Clear();
-            _services.Clear();
-            _serviceLists.Clear();
+            _registeredServiceInfos.Clear();
+        }
+
+        /// <summary>
+        /// 登録したサービス情報からインスタンスを取得
+        /// </summary>
+        private object GetInstance(RegisteredServiceInfo info) {
+            if (info == null) {
+                return null;
+            }
+
+            if (info.Instance != null) {
+                return info.Instance;
+            }
+
+            if (info.CreateFunc != null) {
+                info.Instance = info.CreateFunc();
+            }
+            else {
+                info.Instance = Activator.CreateInstance(info.Type);
+            }
+
+            if (info.Instance is IDisposable disposable) {
+                _disposableServices.Add(disposable);
+            }
+
+            return info.Instance;
         }
     }
 }

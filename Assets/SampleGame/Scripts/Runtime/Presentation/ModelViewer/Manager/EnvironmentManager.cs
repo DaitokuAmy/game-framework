@@ -23,7 +23,7 @@ namespace SampleGame.Presentation.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public EnvironmentManager() {
-            _environmentSceneRepository = Services.Get<EnvironmentSceneRepository>();
+            _environmentSceneRepository = Services.Resolve<EnvironmentSceneRepository>();
         }
 
         /// <summary>

@@ -18,8 +18,8 @@ namespace SampleGame.Domain.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public ActorFactory() {
-            _appService = Services.Get<ModelViewerAppService>();
-            _actorEntityManager = Services.Get<ActorEntityManager>();
+            _appService = Services.Resolve<ModelViewerAppService>();
+            _actorEntityManager = Services.Resolve<ActorEntityManager>();
         }
         
         /// <summary>

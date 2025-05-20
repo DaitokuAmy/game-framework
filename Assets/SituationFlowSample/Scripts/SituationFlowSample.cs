@@ -30,7 +30,7 @@ namespace SituationFlowSample {
         private void Start() {
             DontDestroyOnLoad(gameObject);
 
-            Services.Instance.Set(this);
+            Services.Instance.RegisterInstance(this);
 
             var situationRoot = new SampleSituationRoot();
 

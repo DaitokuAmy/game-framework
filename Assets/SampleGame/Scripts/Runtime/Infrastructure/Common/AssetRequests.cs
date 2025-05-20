@@ -26,7 +26,7 @@ namespace SampleGame.Infrastructure {
         public async UniTask<T> LoadAsync(IScope unloadScope, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
-            var handle = LoadAsync(Services.Get<AssetManager>(), unloadScope);
+            var handle = LoadAsync(Services.Resolve<AssetManager>(), unloadScope);
             await handle.ToUniTask(cancellationToken: ct);
             if (!handle.IsValid) {
                 Debug.LogException(new KeyNotFoundException($"Load failed. {Address}"));
@@ -76,7 +76,7 @@ namespace SampleGame.Infrastructure {
         public async UniTask<Scene> LoadAsync(bool activate, IScope unloadScope, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
-            var handle = LoadAsync(Services.Get<AssetManager>(), unloadScope);
+            var handle = LoadAsync(Services.Resolve<AssetManager>(), unloadScope);
             if (!handle.IsValid) {
                 Debug.LogException(new KeyNotFoundException($"Load failed. {Address}"));
                 return default;

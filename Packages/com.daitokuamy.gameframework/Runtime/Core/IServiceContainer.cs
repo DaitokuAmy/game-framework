@@ -9,77 +9,47 @@ namespace GameFramework.Core {
         /// コンテナのクリア
         /// </summary>
         void Clear();
-
+        
         /// <summary>
-        /// サービスの設定
+        /// サービスの登録
         /// </summary>
-        /// <param name="type">紐づけ用の型</param>
-        /// <param name="service">登録するインスタンス</param>
-        IDisposable Set<TClass>(Type type, TClass service)
-            where TClass : class;
-
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        IDisposable Register<TInterface, T>(Func<T> createFunc = null);
+        
         /// <summary>
-        /// サービスの設定
+        /// サービスの登録
         /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        IDisposable Set<T, TClass>(TClass service)
-            where TClass : class;
-
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        IDisposable Register<T>(Func<T> createFunc = null);
+        
         /// <summary>
-        /// サービスの設定
+        /// サービスの登録
         /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        IDisposable Set<TClass>(TClass service)
-            where TClass : class;
-
+        /// <param name="service">インスタンス</param>
+        /// <returns>登録解除用Disposable</returns>
+        IDisposable RegisterInstance<T>(object service);
+        
         /// <summary>
-        /// サービスの設定(複数登録するバージョン）
+        /// サービスの登録
         /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        /// <param name="index">インデックス</param>
-        IDisposable Set<T, TClass>(TClass service, int index)
-            where TClass : class;
-
-        /// <summary>
-        /// サービスの設定(複数登録するバージョン）
-        /// </summary>
-        /// <param name="type">紐づけ用の型</param>
-        /// <param name="service">登録するインスタンス</param>
-        /// <param name="index">インデックス</param>
-        IDisposable Set<TClass>(Type type, TClass service, int index)
-            where TClass : class;
-
-        /// <summary>
-        /// サービスの設定(複数登録するバージョン）
-        /// </summary>
-        /// <param name="service">登録するインスタンス</param>
-        /// <param name="index">インデックス</param>
-        IDisposable Set<TClass>(TClass service, int index)
-            where TClass : class;
-
-        /// <summary>
-        /// サービスの取得
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// </summary>
-        object Get(Type type);
+        /// <param name="service">インスタンス</param>
+        /// <returns>登録解除用Disposable</returns>
+        IDisposable RegisterInstance(object service);
 
         /// <summary>
         /// サービスの取得
         /// </summary>
-        T Get<T>();
-
-        /// <summary>
-        /// サービスの取得(複数登録するバージョン）
-        /// </summary>
         /// <param name="type">登録したインスタンスのタイプ</param>
-        /// <param name="index">インデックス</param>
-        object Get(Type type, int index);
+        /// <returns>サービスインスタンス</returns>
+        object Resolve(Type type);
 
         /// <summary>
-        /// サービスの取得(複数登録するバージョン）
+        /// サービスの取得
         /// </summary>
-        /// <param name="index">インデックス</param>
-        T Get<T>(int index);
+        /// <returns>サービスインスタンス</returns>
+        T Resolve<T>();
 
         /// <summary>
         /// サービスの削除
@@ -91,18 +61,5 @@ namespace GameFramework.Core {
         /// サービスの削除
         /// </summary>
         void Remove<T>();
-
-        /// <summary>
-        /// サービスの削除
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// <param name="index">インデックス</param>
-        /// </summary>
-        void Remove(Type type, int index);
-
-        /// <summary>
-        /// サービスの削除
-        /// <param name="index">インデックス</param>
-        /// </summary>
-        void Remove<T>(int index);
     }
 }

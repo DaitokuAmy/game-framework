@@ -22,7 +22,7 @@ namespace SampleGame.Presentation.Battle {
         /// コンストラクタ
         /// </summary>
         public FieldManager() {
-            _environmentSceneRepository = Services.Get<EnvironmentSceneRepository>();
+            _environmentSceneRepository = Services.Resolve<EnvironmentSceneRepository>();
         }
 
         /// <summary>

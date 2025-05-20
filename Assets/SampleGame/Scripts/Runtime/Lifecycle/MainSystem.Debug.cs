@@ -26,7 +26,7 @@ namespace SampleGame.Lifecycle {
             DebugMenu.AddWindowItem("Common/UI", _ => {
                 using (var changeCheckScope = new DebugMenuUtil.ChangeCheckScope()) {
                     if (DebugMenuUtil.ButtonField("Canvas Toggle", "実行")) {
-                        var uiManager = Services.Get<UIManager>();
+                        var uiManager = Services.Resolve<UIManager>();
                         var canvases = uiManager.GetCanvases();
                         if (canvases.Length > 0) {
                             var active = canvases[0].gameObject.activeSelf;

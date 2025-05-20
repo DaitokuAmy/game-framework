@@ -33,7 +33,7 @@ namespace SampleGame.Lifecycle {
             _situationService = new SituationService();
             _situationService.Initialize();
             _situationService.RegisterTask(TaskOrder.Logic);
-            Services.Instance.Set(_situationService);
+            Services.Instance.RegisterInstance(_situationService);
 
             // 開始Situationへの遷移
             yield return TransitionStartSituation(args);
@@ -52,29 +52,29 @@ namespace SampleGame.Lifecycle {
 
             // 各種システム初期化
             _taskRunner = new TaskRunner();
-            Services.Instance.Set(_taskRunner);
+            Services.Instance.RegisterInstance(_taskRunner);
 
             var environmentManager = new EnvironmentManager(new EnvironmentResolver());
             environmentManager.RegisterTask(TaskOrder.PostSystem);
-            Services.Instance.Set(environmentManager);
+            Services.Instance.RegisterInstance(environmentManager);
 
             // Addressables初期化
             yield return Addressables.InitializeAsync();
 
             var assetManager = new AssetManager();
             assetManager.Initialize(new AddressablesAssetProvider(), new ResourcesAssetProvider(), new AssetDatabaseAssetProvider());
-            Services.Instance.Set(assetManager);
+            Services.Instance.RegisterInstance(assetManager);
 
             var uiManager = new UIManager();
             uiManager.Initialize(new UIAssetLoader(assetManager));
             uiManager.RegisterTask(TaskOrder.UI);
-            Services.Instance.Set(uiManager);
+            Services.Instance.RegisterInstance(uiManager);
 
             // SituationServiceの初期化
             _situationService = new SituationService();
             _situationService.Initialize();
             _situationService.RegisterTask(TaskOrder.Logic);
-            Services.Instance.Set(_situationService);
+            Services.Instance.RegisterInstance(_situationService);
 
             // Debug初期化
             SetupDebug();

@@ -8,10 +8,9 @@ namespace GameFramework.Core {
     /// インスタンス提供用のルートコンテナ
     /// </summary>
     public sealed class Services : ServiceContainer {
-        // シングルトン用インスタンス
         private static IServiceContainer s_instance;
 
-        // シングルトン用インスタンス取得
+        /// <summary>シングルトン用インスタンス取得</summary>
         public static IServiceContainer Instance {
             get {
                 if (s_instance == null) {
@@ -24,34 +23,19 @@ namespace GameFramework.Core {
 
         /// <summary>
         /// サービスの取得
-        /// <param name="type">登録したインスタンスのタイプ</param>
         /// </summary>
-        public static object Get(Type type) {
-            return Instance.Get(type);
+        /// <param name="type">登録したインスタンスのタイプ</param>
+        /// <returns>サービスインスタンス</returns>
+        public static object Resolve(Type type) {
+            return Instance.Resolve(type);
         }
 
         /// <summary>
         /// サービスの取得
         /// </summary>
-        public static T Get<T>() {
-            return Instance.Get<T>();
-        }
-
-        /// <summary>
-        /// サービスの取得(複数登録するバージョン）
-        /// </summary>
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// <param name="index">インデックス</param>
-        public static object Get(Type type, int index) {
-            return Instance.Get(type, index);
-        }
-
-        /// <summary>
-        /// サービスの取得(複数登録するバージョン）
-        /// </summary>
-        /// <param name="index">インデックス</param>
-        public static T Get<T>(int index) {
-            return Instance.Get<T>(index);
+        /// <returns>サービスインスタンス</returns>
+        public static T Resolve<T>() {
+            return Instance.Resolve<T>();
         }
 
 #if UNITY_EDITOR

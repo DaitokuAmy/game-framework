@@ -61,7 +61,7 @@ namespace SampleGame.Presentation.ModelViewer {
             IsRecording = true;
 
             var op = new AsyncOperator();
-            var domainService = Services.Get<ModelViewerAppService>().DomainService;
+            var domainService = Services.Resolve<ModelViewerAppService>().DomainService;
             var recordingModel = domainService.RecordingModel;
             var actorName = domainService.ModelViewerModel.ActorModel.Master.DisplayName;
             _coroutineRunner.StartCoroutine(
@@ -134,9 +134,9 @@ namespace SampleGame.Presentation.ModelViewer {
         /// 録画ルーチン
         /// </summary>
         private IEnumerator RecordRoutine(string assetKey, float rotationDuration, RecordingOptions flags) {
-            var slot = Services.Get<ActorEntityManager>().RootTransform;
-            var cameraComponent = Services.Get<CameraManager>().GetCameraComponent<PreviewCameraComponent>("Default");
-            var appService = Services.Get<ModelViewerAppService>();
+            var slot = Services.Resolve<ActorEntityManager>().RootTransform;
+            var cameraComponent = Services.Resolve<CameraManager>().GetCameraComponent<PreviewCameraComponent>("Default");
+            var appService = Services.Resolve<ModelViewerAppService>();
 
             void SetSlotAngle(float angle) {
                 if (slot == null) {

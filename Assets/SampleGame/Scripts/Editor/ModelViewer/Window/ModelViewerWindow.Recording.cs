@@ -27,7 +27,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// GUI描画
             /// </summary>
             protected override void OnGUIInternal() {
-                var appService = Services.Get<ModelViewerAppService>();
+                var appService = Services.Resolve<ModelViewerAppService>();
                 var recordingModel = appService.DomainService.RecordingModel;
 
                 // オプション
@@ -49,7 +49,7 @@ namespace SampleGame.ModelViewer.Editor {
                 }
 
                 // 録画開始
-                var recordingController = Services.Get<RecordingController>();
+                var recordingController = Services.Resolve<RecordingController>();
                 using (new EditorGUI.DisabledScope(recordingController.IsRecording)) {
                     if (GUILayout.Button("Record")) {
                         recordingController.RecordAsync()

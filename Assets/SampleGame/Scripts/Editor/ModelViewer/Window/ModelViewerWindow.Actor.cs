@@ -31,7 +31,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// GUI描画
             /// </summary>
             protected override void OnGUIInternal() {
-                var appService = Services.Get<ModelViewerAppService>();
+                var appService = Services.Resolve<ModelViewerAppService>();
                 var viewerModel = appService.DomainService.ModelViewerModel;
                 var actorModel = appService.DomainService.ActorModel;
                 var settingsModel = appService.DomainService.SettingsModel;

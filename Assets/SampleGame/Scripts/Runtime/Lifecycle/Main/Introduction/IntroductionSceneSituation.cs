@@ -30,7 +30,7 @@ namespace SampleGame.Lifecycle {
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
-            var uiManager = Services.Get<UIManager>();
+            var uiManager = Services.Resolve<UIManager>();
 
             UniTask LoadAsync(string assetKey) {
                 return uiManager.LoadSceneAsync(assetKey).ScopeTo(unloadScope).ToUniTask(cancellationToken: ct);

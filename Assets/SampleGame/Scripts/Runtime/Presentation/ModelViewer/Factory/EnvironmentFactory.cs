@@ -16,7 +16,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public EnvironmentFactory() {
-            _environmentManager = Services.Get<EnvironmentManager>();
+            _environmentManager = Services.Resolve<EnvironmentManager>();
         }
         
         /// <summary>
