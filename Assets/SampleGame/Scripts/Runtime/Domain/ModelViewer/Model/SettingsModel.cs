@@ -95,10 +95,10 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         protected override void OnCreatedInternal(IScope scope) {
             LayeredTime = new LayeredTime();
-            LayeredTime.ScopeTo(scope);
+            LayeredTime.RegisterTo(scope);
 
-            _changedCurrentActorAssetKeySubject = new Subject<string>().ScopeTo(scope);
-            _changedCameraControlTypeSubject = new Subject<CameraControlType>().ScopeTo(scope);
+            _changedCurrentActorAssetKeySubject = new Subject<string>().RegisterTo(scope);
+            _changedCameraControlTypeSubject = new Subject<CameraControlType>().RegisterTo(scope);
 
             CurrentActorAssetKey = "";
             CameraControlType = CameraControlType.Default;

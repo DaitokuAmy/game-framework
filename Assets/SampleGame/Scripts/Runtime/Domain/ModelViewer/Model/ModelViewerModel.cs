@@ -75,10 +75,10 @@ namespace SampleGame.Domain.ModelViewer {
         protected override void OnCreatedInternal(IScope scope) {
             base.OnCreatedInternal(scope);
 
-            _createdEnvironmentSubject = new Subject<CreatedEnvironmentDto>().ScopeTo(scope);
-            _deletedEnvironmentSubject = new Subject<DeletedEnvironmentDto>().ScopeTo(scope);
-            _createdActorSubject = new Subject<CreatedActorDto>().ScopeTo(scope);
-            _deletedActorSubject = new Subject<DeletedActorDto>().ScopeTo(scope);
+            _createdEnvironmentSubject = new Subject<CreatedEnvironmentDto>().RegisterTo(scope);
+            _deletedEnvironmentSubject = new Subject<DeletedEnvironmentDto>().RegisterTo(scope);
+            _createdActorSubject = new Subject<CreatedActorDto>().RegisterTo(scope);
+            _deletedActorSubject = new Subject<DeletedActorDto>().RegisterTo(scope);
         }
 
         /// <summary>

@@ -30,7 +30,7 @@ namespace GameFramework.UISystems {
         /// 開く処理
         /// </summary>
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public new AnimationHandle OpenAsync(TransitionType transitionType, bool immediate) {
+        public AnimationHandle OpenAsync(TransitionType transitionType, bool immediate) {
             return base.OpenAsync(transitionType, immediate);
         }
 
@@ -38,7 +38,7 @@ namespace GameFramework.UISystems {
         /// 閉じる処理
         /// </summary>
         [Browsable(false), EditorBrowsable(EditorBrowsableState.Never)]
-        public new AnimationHandle CloseAsync(TransitionType transitionType, bool immediate) {
+        public AnimationHandle CloseAsync(TransitionType transitionType, bool immediate) {
             return base.CloseAsync(transitionType, immediate);
         }
 

@@ -20,9 +20,10 @@ namespace GameFramework.UISystems {
         /// プレファブ管理用ハンドル(Disposeでアンロードされる)
         /// </summary>
         public struct AssetHandle : IProcess, IDisposable {
+            private readonly Exception _exception;
+            
             private UIManager _uIManager;
             private AssetInfo _assetInfo;
-            private Exception _exception;
 
             /// <summary>読み込み完了しているか</summary>
             public bool IsDone => _assetInfo == null || _assetInfo.IsDone;
@@ -81,13 +82,16 @@ namespace GameFramework.UISystems {
         /// アセット情報
         /// </summary>
         internal abstract class AssetInfo {
-            public string key;
-            public bool initialized;
-            public Coroutine coroutine;
-            public List<Type> serviceTypes = new();
-            public Canvas[] rootCanvases;
+            public readonly List<Type> ServiceTypes = new();
+            
+            public string Key;
+            public bool Initialized;
+            public Coroutine Coroutine;
+            public Canvas[] RootCanvases;
 
+            /// <summary>読み込み完了しているか</summary>
             public abstract bool IsDone { get; }
+            /// <summary>エラー情報</summary>
             public abstract Exception Exception { get; }
 
             public abstract void Release();
@@ -97,14 +101,14 @@ namespace GameFramework.UISystems {
         /// シーン情報
         /// </summary>
         internal class SceneInfo : AssetInfo {
-            public SceneAssetHandle assetHandle;
+            public SceneAssetHandle AssetHandle;
 
-            public override bool IsDone => initialized && assetHandle.IsDone;
-            public override Exception Exception => assetHandle.Exception;
+            public override bool IsDone => Initialized && AssetHandle.IsDone;
+            public override Exception Exception => AssetHandle.Exception;
 
             public override void Release() {
-                SceneManager.UnloadSceneAsync(assetHandle.Scene);
-                assetHandle.Release();
+                SceneManager.UnloadSceneAsync(AssetHandle.Scene);
+                AssetHandle.Release();
             }
         }
 
@@ -112,15 +116,22 @@ namespace GameFramework.UISystems {
         /// プレファブ情報
         /// </summary>
         internal class PrefabInfo : AssetInfo {
-            public AssetHandle<GameObject> assetHandle;
+            public AssetHandle<GameObject> AssetHandle;
 
-            public override bool IsDone => initialized && assetHandle.IsDone;
-            public override Exception Exception => assetHandle.Exception;
+            public override bool IsDone => Initialized && AssetHandle.IsDone;
+            public override Exception Exception => AssetHandle.Exception;
 
             public override void Release() {
-                assetHandle.Release();
+                AssetHandle.Release();
             }
         }
+
+        // UIService管理用
+        private readonly Dictionary<Type, IUIService> _services = new();
+        // シーン管理用
+        private readonly Dictionary<string, SceneInfo> _sceneInfos = new();
+        // プレファブ管理用
+        private readonly Dictionary<string, PrefabInfo> _prefabInfos = new();
 
         // コルーチン制御
         private CoroutineRunner _coroutineRunner;
@@ -128,14 +139,6 @@ namespace GameFramework.UISystems {
         private IUIAssetLoader _loader;
         // 時間管理用
         private LayeredTime _layeredTime;
-
-        // UIService管理用
-        private Dictionary<Type, IUIService> _services = new();
-        // シーン管理用
-        private Dictionary<string, SceneInfo> _sceneInfos = new();
-        // プレファブ管理用
-        private Dictionary<string, PrefabInfo> _prefabInfos = new();
-
         // Prefabインスタンス格納用Root
         private GameObject _rootObject;
 
@@ -210,8 +213,8 @@ namespace GameFramework.UISystems {
             // 読み込み処理
             var handle = _loader.GetSceneAssetHandle(assetKey);
             sceneInfo = new SceneInfo();
-            sceneInfo.key = assetKey;
-            sceneInfo.assetHandle = handle;
+            sceneInfo.Key = assetKey;
+            sceneInfo.AssetHandle = handle;
             _sceneInfos.Add(assetKey, sceneInfo);
 
             IEnumerator Routine() {
@@ -241,19 +244,19 @@ namespace GameFramework.UISystems {
                             continue;
                         }
 
-                        sceneInfo.serviceTypes.Add(serviceType);
+                        sceneInfo.ServiceTypes.Add(serviceType);
                         _services[serviceType] = service;
                         service.Initialize();
                     }
                 }
 
-                sceneInfo.rootCanvases = rootCanvases.ToArray();
-                sceneInfo.initialized = true;
+                sceneInfo.RootCanvases = rootCanvases.ToArray();
+                sceneInfo.Initialized = true;
             }
 
             // コルーチンの開始
             var coroutine = _coroutineRunner.StartCoroutine(Routine());
-            sceneInfo.coroutine = coroutine;
+            sceneInfo.Coroutine = coroutine;
 
             return new AssetHandle(this, sceneInfo);
         }
@@ -275,8 +278,8 @@ namespace GameFramework.UISystems {
             // 読み込み処理
             var handle = _loader.GetPrefabAssetHandle(assetKey);
             prefabInfo = new PrefabInfo();
-            prefabInfo.key = assetKey;
-            prefabInfo.assetHandle = handle;
+            prefabInfo.Key = assetKey;
+            prefabInfo.AssetHandle = handle;
             _prefabInfos.Add(assetKey, prefabInfo);
 
             IEnumerator Routine() {
@@ -298,20 +301,20 @@ namespace GameFramework.UISystems {
                         continue;
                     }
 
-                    prefabInfo.serviceTypes.Add(serviceType);
+                    prefabInfo.ServiceTypes.Add(serviceType);
                     _services[serviceType] = service;
                     service.Initialize();
                 }
 
-                prefabInfo.rootCanvases = instance.GetComponentsInChildren<Canvas>()
+                prefabInfo.RootCanvases = instance.GetComponentsInChildren<Canvas>()
                     .Where(x => x.transform.parent is not RectTransform)
                     .ToArray();
-                prefabInfo.initialized = true;
+                prefabInfo.Initialized = true;
             }
 
             // コルーチンの開始
             var coroutine = _coroutineRunner.StartCoroutine(Routine());
-            prefabInfo.coroutine = coroutine;
+            prefabInfo.Coroutine = coroutine;
 
             return new AssetHandle(this, prefabInfo);
         }
@@ -339,8 +342,8 @@ namespace GameFramework.UISystems {
         /// 現在存在するCanvasの一覧を取得
         /// </summary>
         public Canvas[] GetCanvases() {
-            return _prefabInfos.SelectMany(x => x.Value.rootCanvases)
-                .Concat(_sceneInfos.SelectMany(x => x.Value.rootCanvases))
+            return _prefabInfos.SelectMany(x => x.Value.RootCanvases)
+                .Concat(_sceneInfos.SelectMany(x => x.Value.RootCanvases))
                 .ToArray();
         }
 
@@ -349,12 +352,12 @@ namespace GameFramework.UISystems {
         /// </summary>
         private void RemoveAssetInfo(AssetInfo assetInfo) {
             if (assetInfo is SceneInfo) {
-                if (!_sceneInfos.Remove(assetInfo.key)) {
+                if (!_sceneInfos.Remove(assetInfo.Key)) {
                     return;
                 }
             }
             else if (assetInfo is PrefabInfo) {
-                if (!_prefabInfos.Remove(assetInfo.key)) {
+                if (!_prefabInfos.Remove(assetInfo.Key)) {
                     return;
                 }
             }
@@ -362,11 +365,11 @@ namespace GameFramework.UISystems {
                 return;
             }
 
-            if (assetInfo.coroutine != null) {
-                _coroutineRunner.StopCoroutine(assetInfo.coroutine);
+            if (assetInfo.Coroutine != null) {
+                _coroutineRunner.StopCoroutine(assetInfo.Coroutine);
             }
 
-            foreach (var serviceType in assetInfo.serviceTypes) {
+            foreach (var serviceType in assetInfo.ServiceTypes) {
                 _services[serviceType].Dispose();
                 _services.Remove(serviceType);
             }

@@ -121,7 +121,7 @@ namespace SampleGame.Presentation.ModelViewer {
             // 加算レイヤーの追加
             if (_motionController != null) {
                 _additiveMotionHandle = _motionController.AddExtensionLayer(true, weight: 1.0f);
-                _additiveMotionHandle.ScopeTo(scope);
+                _additiveMotionHandle.RegisterTo(scope);
             }
         }
     }

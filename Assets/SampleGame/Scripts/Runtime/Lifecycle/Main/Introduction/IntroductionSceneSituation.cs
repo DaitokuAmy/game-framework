@@ -33,7 +33,7 @@ namespace SampleGame.Lifecycle {
             var uiManager = Services.Resolve<UIManager>();
 
             UniTask LoadAsync(string assetKey) {
-                return uiManager.LoadSceneAsync(assetKey).ScopeTo(unloadScope).ToUniTask(cancellationToken: ct);
+                return uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
             }
             
             return UniTask.WhenAll(LoadAsync("ui_introduction"));

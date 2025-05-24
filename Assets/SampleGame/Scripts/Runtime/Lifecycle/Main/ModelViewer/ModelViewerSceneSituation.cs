@@ -54,7 +54,7 @@ namespace SampleGame.Lifecycle {
                     .LoadAsync(assetManager, scope, cancellationToken: ct)
                     .ContinueWith(x => {
                         _configData = x;
-                        ServiceContainer.RegisterInstance(x).ScopeTo(scope);
+                        ServiceContainer.RegisterInstance(x).RegisterTo(scope);
                     });
             }
 
@@ -174,9 +174,9 @@ namespace SampleGame.Lifecycle {
         private IEnumerator SetupInfrastructureRoutine(IScope scope) {
             var assetManager = Services.Resolve<AssetManager>();
             var repository = new ModelViewerRepository(assetManager);
-            ServiceContainer.RegisterInstance<IModelViewerRepository>(repository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance<IModelViewerRepository>(repository).RegisterTo(scope);
             var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
-            ServiceContainer.RegisterInstance(environmentSceneRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(environmentSceneRepository).RegisterTo(scope);
 
             yield break;
         }
@@ -188,13 +188,13 @@ namespace SampleGame.Lifecycle {
             var bodyBuilder = new BodyBuilder();
             var bodyManager = new BodyManager(bodyBuilder);
             bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.RegisterInstance(bodyManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(bodyManager).RegisterTo(scope);
 
             var environmentManager = new EnvironmentManager();
-            ServiceContainer.RegisterInstance(environmentManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(environmentManager).RegisterTo(scope);
 
             var actorManager = new ActorEntityManager(bodyManager);
-            ServiceContainer.RegisterInstance(actorManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
 
             var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
@@ -207,12 +207,12 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private IEnumerator SetupDomainRoutine(IScope scope) {
             // モデルの生成
-            ModelViewerModel.Create().ScopeTo(scope);
-            RecordingModel.Create().ScopeTo(scope);
-            SettingsModel.Create().ScopeTo(scope);
+            ModelViewerModel.Create().RegisterTo(scope);
+            RecordingModel.Create().RegisterTo(scope);
+            SettingsModel.Create().RegisterTo(scope);
             
             _domainService = new ModelViewerDomainService();
-            ServiceContainer.RegisterInstance(_domainService).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(_domainService).RegisterTo(scope);
 
             yield break;
         }
@@ -222,7 +222,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private IEnumerator SetupApplicationRoutine(IScope scope) {
             _appService = new ModelViewerAppService();
-            ServiceContainer.RegisterInstance(_appService).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(_appService).RegisterTo(scope);
 
             yield return _appService.SetupAsync(_configData.master, scope.Token).ToCoroutine();
         }
@@ -244,10 +244,10 @@ namespace SampleGame.Lifecycle {
             void SetupLogic(Logic logic, bool addService = false) {
                 logic.Activate();
                 logic.RegisterTask(TaskOrder.Logic);
-                logic.ScopeTo(scope);
+                logic.RegisterTo(scope);
 
                 if (addService) {
-                    ServiceContainer.RegisterInstance(logic).ScopeTo(scope);
+                    ServiceContainer.RegisterInstance(logic).RegisterTo(scope);
                 }
             }
 

@@ -61,7 +61,7 @@ namespace GameFramework.CoroutineSystems {
                     },
                     x => { done = true; }
                 )
-                .ScopeTo(scope);
+                .RegisterTo(scope);
 
             // 完了待ち
             while (!done && exception == null) {
@@ -97,7 +97,7 @@ namespace GameFramework.CoroutineSystems {
                     },
                     () => { done = true; }
                 )
-                .ScopeTo(scope);
+                .RegisterTo(scope);
 
             // 完了待ち
             while (!done && exception == null) {

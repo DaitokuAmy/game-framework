@@ -26,8 +26,8 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         public SituationService() {
             _scope = new DisposableScope();
-            _situationContainer = new SituationContainer().ScopeTo(_scope);
-            _situationFlow = new SituationFlow(_situationContainer).ScopeTo(_scope);
+            _situationContainer = new SituationContainer().RegisterTo(_scope);
+            _situationFlow = new SituationFlow(_situationContainer).RegisterTo(_scope);
         }
 
         /// <summary>

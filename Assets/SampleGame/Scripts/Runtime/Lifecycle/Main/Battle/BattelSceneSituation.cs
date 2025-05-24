@@ -166,7 +166,7 @@ namespace SampleGame.Lifecycle {
             var uiManager = Services.Resolve<UIManager>();
 
             UniTask LoadAsync(string assetKey) {
-                return uiManager.LoadSceneAsync(assetKey).ScopeTo(unloadScope).ToUniTask(cancellationToken: ct);
+                return uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
             }
 
             return UniTask.WhenAll(LoadAsync("ui_battle"));
@@ -178,11 +178,11 @@ namespace SampleGame.Lifecycle {
         private IEnumerator SetupInfrastructureRoutine(IScope scope) {
             var assetManager = Services.Resolve<AssetManager>();
             var battleCharacterAssetRepository = new BattleCharacterAssetRepository(assetManager);
-            ServiceContainer.RegisterInstance(battleCharacterAssetRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(battleCharacterAssetRepository).RegisterTo(scope);
             var bodyPrefabRepository = new BodyPrefabRepository(assetManager);
-            ServiceContainer.RegisterInstance(bodyPrefabRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(bodyPrefabRepository).RegisterTo(scope);
             var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
-            ServiceContainer.RegisterInstance(environmentSceneRepository).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(environmentSceneRepository).RegisterTo(scope);
             yield break;
         }
 
@@ -193,13 +193,13 @@ namespace SampleGame.Lifecycle {
             var bodyBuilder = new BodyBuilder();
             var bodyManager = new BodyManager(bodyBuilder);
             bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.RegisterInstance(bodyManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(bodyManager).RegisterTo(scope);
 
             var fieldManager = new FieldManager();
-            ServiceContainer.RegisterInstance(fieldManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(fieldManager).RegisterTo(scope);
 
             var actorEntityManager = new ActorEntityManager(bodyManager);
-            ServiceContainer.RegisterInstance(actorEntityManager).ScopeTo(scope);
+            ServiceContainer.RegisterInstance(actorEntityManager).RegisterTo(scope);
 
             var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);

@@ -1,35 +1,30 @@
 using System;
 using System.Globalization;
-using UnityEngine;
 
 namespace GameFramework.Core {
     /// <summary>
     /// 千分率計算用
     /// </summary>
     [Serializable]
-    public struct Permil {
-        // 千分率の1.0
+    public struct Permil : IEquatable<Permil>, IComparable<Permil> {
+        /// <summary>千分率の1.0</summary>
         public const int One = 1000;
 
-        // int型の千分率の素の値
-        [SerializeField]
-        private int _value;
-
         /// <summary>permil値</summary>
-        public int Value => _value;
+        public int Value;
 
         #region operators
 
         public static bool operator ==(Permil a, Permil b) {
-            return a._value == b._value;
+            return a.Value == b.Value;
         }
 
         public static bool operator ==(Permil a, float b) {
-            return a._value == (int)(b * One);
+            return a.Value == (int)(b * One);
         }
 
         public static bool operator ==(float a, Permil b) {
-            return (int)(a * One) == b._value;
+            return (int)(a * One) == b.Value;
         }
 
         public static bool operator !=(Permil a, Permil b) {
@@ -45,27 +40,27 @@ namespace GameFramework.Core {
         }
 
         public static bool operator <(Permil a, Permil b) {
-            return a._value < b._value;
+            return a.Value < b.Value;
         }
 
         public static bool operator <(Permil a, float b) {
-            return a._value < b * One;
+            return a.Value < b * One;
         }
 
         public static bool operator <(float a, Permil b) {
-            return a * One < b._value;
+            return a * One < b.Value;
         }
 
         public static bool operator >(Permil a, Permil b) {
-            return a._value > b._value;
+            return a.Value > b.Value;
         }
 
         public static bool operator >(Permil a, float b) {
-            return a._value > b * One;
+            return a.Value > b * One;
         }
 
         public static bool operator >(float a, Permil b) {
-            return a * One > b._value;
+            return a * One > b.Value;
         }
 
         public static bool operator <=(Permil a, Permil b) {
@@ -93,87 +88,87 @@ namespace GameFramework.Core {
         }
 
         public static Permil operator +(Permil a, Permil b) {
-            return new Permil(a._value + b._value);
+            return new Permil(a.Value + b.Value);
         }
 
         public static Permil operator +(Permil a, float b) {
-            return new Permil(a._value + (int)(b * One));
+            return new Permil(a.Value + (int)(b * One));
         }
 
         public static Permil operator +(float a, Permil b) {
-            return new Permil((int)(a * One) + b._value);
+            return new Permil((int)(a * One) + b.Value);
         }
 
         public static Permil operator +(Permil a, int b) {
-            return new Permil(a._value + b * One);
+            return new Permil(a.Value + b * One);
         }
 
         public static Permil operator +(int a, Permil b) {
-            return new Permil(a * One + b._value);
+            return new Permil(a * One + b.Value);
         }
 
         public static Permil operator -(Permil a, Permil b) {
-            return new Permil(a._value - b._value);
+            return new Permil(a.Value - b.Value);
         }
 
         public static Permil operator -(Permil a, float b) {
-            return new Permil(a._value - (int)(b * One));
+            return new Permil(a.Value - (int)(b * One));
         }
 
         public static Permil operator -(float a, Permil b) {
-            return new Permil((int)(a * One) - b._value);
+            return new Permil((int)(a * One) - b.Value);
         }
 
         public static Permil operator -(Permil a, int b) {
-            return new Permil(a._value - b * One);
+            return new Permil(a.Value - b * One);
         }
 
         public static Permil operator -(int a, Permil b) {
-            return new Permil(a * One - b._value);
+            return new Permil(a * One - b.Value);
         }
 
         public static Permil operator *(Permil a, Permil b) {
-            return new Permil(a._value * b._value / One);
+            return new Permil(a.Value * b.Value / One);
         }
 
         public static Permil operator *(Permil a, float b) {
-            return new Permil(a._value * (int)(b * One) / One);
+            return new Permil(a.Value * (int)(b * One) / One);
         }
 
         public static Permil operator *(float a, Permil b) {
-            return new Permil((int)(a * One) * b._value / One);
+            return new Permil((int)(a * One) * b.Value / One);
         }
 
         public static Permil operator *(Permil a, int b) {
-            return new Permil(a._value * b);
+            return new Permil(a.Value * b);
         }
 
         public static Permil operator *(int a, Permil b) {
-            return new Permil(a * b._value);
+            return new Permil(a * b.Value);
         }
 
         public static Permil operator /(Permil a, Permil b) {
-            return new Permil(a._value / b._value * One);
+            return new Permil(a.Value / b.Value * One);
         }
 
         public static Permil operator /(Permil a, float b) {
-            return new Permil(a._value / (int)(b * One) * One);
+            return new Permil(a.Value / (int)(b * One) * One);
         }
 
         public static Permil operator /(float a, Permil b) {
-            return new Permil((int)(a * One) / b._value * One);
+            return new Permil((int)(a * One) / b.Value * One);
         }
 
         public static Permil operator /(Permil a, int b) {
-            return new Permil(a._value / (b * One) * One);
+            return new Permil(a.Value / (b * One) * One);
         }
 
         public static Permil operator /(int a, Permil b) {
-            return new Permil((a * One) / b._value * One);
+            return new Permil((a * One) / b.Value * One);
         }
 
         public static explicit operator int(Permil permil) {
-            return permil._value / One;
+            return permil.Value / One;
         }
 
         public static implicit operator Permil(int value) {
@@ -185,7 +180,7 @@ namespace GameFramework.Core {
         }
 
         public static implicit operator float(Permil permil) {
-            return permil._value / (float)One;
+            return permil.Value / (float)One;
         }
 
         #endregion
@@ -203,7 +198,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="permil">千分率の値(1000を1.0とした物)</param>
         public Permil(int permil) {
-            _value = permil;
+            Value = permil;
         }
 
         /// <summary>
@@ -211,7 +206,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="value">1.0を基準とした浮動小数値</param>
         public Permil(float value) {
-            _value = (int)(value * One);
+            Value = (int)(value * One);
         }
 
         /// <summary>
@@ -222,42 +217,56 @@ namespace GameFramework.Core {
                 return false;
             }
 
-            return _value == permil._value;
+            return Value == permil.Value;
         }
 
         /// <summary>
         /// ハッシュコードの生成
         /// </summary>
         public override int GetHashCode() {
-            return _value.GetHashCode();
+            return Value.GetHashCode();
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
         public override string ToString() {
-            return (_value / (float)One).ToString(CultureInfo.InvariantCulture);
+            return (Value / (float)One).ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
         public string ToString(string format) {
-            return (_value / (float)One).ToString(format);
+            return (Value / (float)One).ToString(format);
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
         public string ToString(IFormatProvider provider) {
-            return (_value / (float)One).ToString(provider);
+            return (Value / (float)One).ToString(provider);
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
         public string ToString(string format, IFormatProvider provider) {
-            return (_value / (float)One).ToString(format, provider);
+            return (Value / (float)One).ToString(format, provider);
+        }
+
+        /// <summary>
+        /// 比較
+        /// </summary>
+        public bool Equals(Permil other) {
+            return Value == other.Value;
+        }
+
+        /// <summary>
+        /// 比較
+        /// </summary>
+        public int CompareTo(Permil other) {
+            return Value.CompareTo(other.Value);
         }
     }
 }

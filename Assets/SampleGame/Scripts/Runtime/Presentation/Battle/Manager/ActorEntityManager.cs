@@ -104,7 +104,7 @@ namespace SampleGame.Presentation.Battle {
             
             // todo:生成中のエラーハンドリング
 
-            entity = new ActorEntity().ScopeTo(_scope);
+            entity = new ActorEntity().RegisterTo(_scope);
 
             // Body生成
             var prefab = await LoadBodyPrefabAsync(assetKey, ct);

@@ -98,7 +98,7 @@ namespace SampleGame.Presentation.ModelViewer {
                 return entity;
             }
 
-            entity = new ActorEntity().ScopeTo(_scope);
+            entity = new ActorEntity().RegisterTo(_scope);
 
             // Body生成
             var body = _bodyManager.CreateFromGameObject(InstantiatePrefab(prefab));

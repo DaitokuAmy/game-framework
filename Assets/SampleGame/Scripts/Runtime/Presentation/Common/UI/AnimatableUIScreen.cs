@@ -26,7 +26,7 @@ namespace SampleGame.Presentation {
         /// </summary>
         protected override void InitializeInternal(IScope scope) {
             base.InitializeInternal(scope);
-            _animationPlayer = new UIAnimationPlayer().ScopeTo(scope);
+            _animationPlayer = new UIAnimationPlayer().RegisterTo(scope);
         }
 
         /// <summary>

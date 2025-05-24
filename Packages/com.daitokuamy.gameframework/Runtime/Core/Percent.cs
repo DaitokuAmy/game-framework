@@ -1,35 +1,30 @@
 using System;
 using System.Globalization;
-using UnityEngine;
 
 namespace GameFramework.Core {
     /// <summary>
     /// 百分率計算用
     /// </summary>
     [Serializable]
-    public struct Percent {
-        // 百分率の1.0
+    public struct Percent : IEquatable<Percent>, IComparable<Percent> {
+        /// <summary>百分率の1.0</summary>
         public const int One = 100;
 
-        // int型の百分率の素の値
-        [SerializeField]
-        private int _value;
-
         /// <summary>percent値</summary>
-        public int Value => _value;
+        public int Value;
 
         #region operators
 
         public static bool operator ==(Percent a, Percent b) {
-            return a._value == b._value;
+            return a.Value == b.Value;
         }
 
         public static bool operator ==(Percent a, float b) {
-            return a._value == (int)(b * One);
+            return a.Value == (int)(b * One);
         }
 
         public static bool operator ==(float a, Percent b) {
-            return (int)(a * One) == b._value;
+            return (int)(a * One) == b.Value;
         }
 
         public static bool operator !=(Percent a, Percent b) {
@@ -45,27 +40,27 @@ namespace GameFramework.Core {
         }
 
         public static bool operator <(Percent a, Percent b) {
-            return a._value < b._value;
+            return a.Value < b.Value;
         }
 
         public static bool operator <(Percent a, float b) {
-            return a._value < b * One;
+            return a.Value < b * One;
         }
 
         public static bool operator <(float a, Percent b) {
-            return a * One < b._value;
+            return a * One < b.Value;
         }
 
         public static bool operator >(Percent a, Percent b) {
-            return a._value > b._value;
+            return a.Value > b.Value;
         }
 
         public static bool operator >(Percent a, float b) {
-            return a._value > b * One;
+            return a.Value > b * One;
         }
 
         public static bool operator >(float a, Percent b) {
-            return a * One > b._value;
+            return a * One > b.Value;
         }
 
         public static bool operator <=(Percent a, Percent b) {
@@ -93,87 +88,87 @@ namespace GameFramework.Core {
         }
 
         public static Percent operator +(Percent a, Percent b) {
-            return new Percent(a._value + b._value);
+            return new Percent(a.Value + b.Value);
         }
 
         public static Percent operator +(Percent a, float b) {
-            return new Percent(a._value + (int)(b * One));
+            return new Percent(a.Value + (int)(b * One));
         }
 
         public static Percent operator +(float a, Percent b) {
-            return new Percent((int)(a * One) + b._value);
+            return new Percent((int)(a * One) + b.Value);
         }
 
         public static Percent operator +(Percent a, int b) {
-            return new Percent(a._value + b * One);
+            return new Percent(a.Value + b * One);
         }
 
         public static Percent operator +(int a, Percent b) {
-            return new Percent(a * One + b._value);
+            return new Percent(a * One + b.Value);
         }
 
         public static Percent operator -(Percent a, Percent b) {
-            return new Percent(a._value - b._value);
+            return new Percent(a.Value - b.Value);
         }
 
         public static Percent operator -(Percent a, float b) {
-            return new Percent(a._value - (int)(b * One));
+            return new Percent(a.Value - (int)(b * One));
         }
 
         public static Percent operator -(float a, Percent b) {
-            return new Percent((int)(a * One) - b._value);
+            return new Percent((int)(a * One) - b.Value);
         }
 
         public static Percent operator -(Percent a, int b) {
-            return new Percent(a._value - b * One);
+            return new Percent(a.Value - b * One);
         }
 
         public static Percent operator -(int a, Percent b) {
-            return new Percent(a * One - b._value);
+            return new Percent(a * One - b.Value);
         }
 
         public static Percent operator *(Percent a, Percent b) {
-            return new Percent(a._value * b._value / One);
+            return new Percent(a.Value * b.Value / One);
         }
 
         public static Percent operator *(Percent a, float b) {
-            return new Percent(a._value * (int)(b * One) / One);
+            return new Percent(a.Value * (int)(b * One) / One);
         }
 
         public static Percent operator *(float a, Percent b) {
-            return new Percent((int)(a * One) * b._value / One);
+            return new Percent((int)(a * One) * b.Value / One);
         }
 
         public static Percent operator *(Percent a, int b) {
-            return new Percent(a._value * b);
+            return new Percent(a.Value * b);
         }
 
         public static Percent operator *(int a, Percent b) {
-            return new Percent(a * b._value);
+            return new Percent(a * b.Value);
         }
 
         public static Percent operator /(Percent a, Percent b) {
-            return new Percent(a._value / b._value * One);
+            return new Percent(a.Value / b.Value * One);
         }
 
         public static Percent operator /(Percent a, float b) {
-            return new Percent(a._value / (int)(b * One) * One);
+            return new Percent(a.Value / (int)(b * One) * One);
         }
 
         public static Percent operator /(float a, Percent b) {
-            return new Percent((int)(a * One) / b._value * One);
+            return new Percent((int)(a * One) / b.Value * One);
         }
 
         public static Percent operator /(Percent a, int b) {
-            return new Percent(a._value / (b * One) * One);
+            return new Percent(a.Value / (b * One) * One);
         }
 
         public static Percent operator /(int a, Percent b) {
-            return new Percent((a * One) / b._value * One);
+            return new Percent((a * One) / b.Value * One);
         }
 
         public static explicit operator int(Percent percent) {
-            return percent._value / One;
+            return percent.Value / One;
         }
 
         public static implicit operator Percent(int value) {
@@ -185,7 +180,7 @@ namespace GameFramework.Core {
         }
 
         public static implicit operator float(Percent percent) {
-            return percent._value / (float)One;
+            return percent.Value / (float)One;
         }
 
         #endregion
@@ -203,7 +198,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="percent">百分率の値(100を1.0とした物)</param>
         public Percent(int percent) {
-            _value = percent;
+            Value = percent;
         }
 
         /// <summary>
@@ -211,7 +206,7 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="value">1.0を基準とした浮動小数値</param>
         public Percent(float value) {
-            _value = (int)(value * One);
+            Value = (int)(value * One);
         }
 
         /// <summary>
@@ -222,42 +217,56 @@ namespace GameFramework.Core {
                 return false;
             }
 
-            return _value == percent._value;
+            return Value == percent.Value;
         }
 
         /// <summary>
         /// ハッシュコードの生成
         /// </summary>
         public override int GetHashCode() {
-            return _value.GetHashCode();
+            return Value.GetHashCode();
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
         public override string ToString() {
-            return (_value / (float)One).ToString(CultureInfo.InvariantCulture);
+            return (Value / (float)One).ToString(CultureInfo.InvariantCulture);
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
         public string ToString(string format) {
-            return (_value / (float)One).ToString(format);
+            return (Value / (float)One).ToString(format);
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
-        public string ToString(System.IFormatProvider provider) {
-            return (_value / (float)One).ToString(provider);
+        public string ToString(IFormatProvider provider) {
+            return (Value / (float)One).ToString(provider);
         }
 
         /// <summary>
         /// 文字列変換
         /// </summary>
-        public string ToString(string format, System.IFormatProvider provider) {
-            return (_value / (float)One).ToString(format, provider);
+        public string ToString(string format, IFormatProvider provider) {
+            return (Value / (float)One).ToString(format, provider);
+        }
+
+        /// <summary>
+        /// 比較
+        /// </summary>
+        public bool Equals(Percent other) {
+            return Value == other.Value;
+        }
+
+        /// <summary>
+        /// 比較
+        /// </summary>
+        public int CompareTo(Percent other) {
+            return Value.CompareTo(other.Value);
         }
     }
 }

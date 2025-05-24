@@ -27,7 +27,7 @@ namespace GameFramework.Core {
         /// <summary>
         /// IDisposableのScope登録
         /// </summary>
-        public static T ScopeTo<T>(this T source, IScope scope)
+        public static T RegisterTo<T>(this T source, IScope scope)
             where T : IDisposable {
             if (scope == null) {
                 return source;
@@ -40,7 +40,7 @@ namespace GameFramework.Core {
         /// <summary>
         /// GameObjectのScope登録
         /// </summary>
-        public static GameObject ScopeTo(this GameObject source, IScope scope, bool immediate = false) {
+        public static GameObject RegisterTo(this GameObject source, IScope scope, bool immediate = false) {
             scope.OnExpired += () => {
                 if (source != null) {
                     if (immediate) {
@@ -57,7 +57,7 @@ namespace GameFramework.Core {
         /// <summary>
         /// ComponentのScope登録
         /// </summary>
-        public static T ScopeTo<T>(this Component source, IScope scope, bool immediate = false)
+        public static T RegisterTo<T>(this Component source, IScope scope, bool immediate = false)
             where T : Component {
             scope.OnExpired += () => {
                 if (source != null) {

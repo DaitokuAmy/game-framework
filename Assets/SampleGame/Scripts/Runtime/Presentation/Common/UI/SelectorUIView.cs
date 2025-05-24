@@ -36,7 +36,7 @@ namespace SampleGame.Presentation {
         protected override void InitializeInternal(IScope scope) {
             base.InitializeInternal(scope);
 
-            _changedSelectedIndexSubject = new Subject<int>().ScopeTo(scope);
+            _changedSelectedIndexSubject = new Subject<int>().RegisterTo(scope);
         }
 
         /// <summary>

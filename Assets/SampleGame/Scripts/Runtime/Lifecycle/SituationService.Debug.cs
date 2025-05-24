@@ -36,7 +36,7 @@ namespace SampleGame.Lifecycle {
                 if (DebugMenuUtil.ButtonField("", "リセット")) {
                     Reset();
                 }
-            }).ScopeTo(scope);
+            }).RegisterTo(scope);
         }
     }
 }

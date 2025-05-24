@@ -32,8 +32,8 @@ namespace SampleGame.Lifecycle {
         private void SetupRepositories(IScope scope) {
             var assetManager = Services.Resolve<AssetManager>();
             
-            var tableRepository = new TableRepository(assetManager).ScopeTo(scope);
-            ServiceContainer.RegisterInstance(tableRepository).ScopeTo(scope);
+            var tableRepository = new TableRepository(assetManager).RegisterTo(scope);
+            ServiceContainer.RegisterInstance(tableRepository).RegisterTo(scope);
         }
         
         /// <summary>

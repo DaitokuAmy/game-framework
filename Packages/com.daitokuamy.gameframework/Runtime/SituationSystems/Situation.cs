@@ -22,10 +22,11 @@ namespace GameFramework.SituationSystems {
             OpenFinished, // オープン済
         }
 
-        // 親Situation
-        private Situation _parent;
         // 子Situation
         private readonly List<Situation> _children = new();
+        
+        // 親Situation
+        private Situation _parent;
         // 読み込みスコープ
         private DisposableScope _loadScope;
         // 初期化スコープ
