@@ -177,7 +177,7 @@ namespace GameFramework.Core {
         /// <param name="createFunc">生成処理</param>
         /// <returns>登録解除用Disposable</returns>
         public IDisposable Register<TInterface, T>(Func<T> createFunc = null) {
-            return Register(typeof(TInterface), typeof(T), () => createFunc);
+            return Register(typeof(TInterface), typeof(T), createFunc != null ? () => createFunc.Invoke() : null);
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace GameFramework.Core {
         /// <param name="createFunc">生成処理</param>
         /// <returns>登録解除用Disposable</returns>
         public IDisposable Register<T>(Func<T> createFunc = null) {
-            return Register(typeof(T), () => createFunc);
+            return Register(typeof(T), createFunc != null ? () => createFunc.Invoke() : null);
         }
 
         /// <summary>
