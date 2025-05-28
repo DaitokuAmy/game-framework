@@ -9,7 +9,7 @@ namespace SampleGame.Presentation {
     /// </summary>
     public class BodyEffectRangeEvent : RangeSequenceEvent {
         [Tooltip("エフェクトの再生情報")]
-        public VfxManager.Context context;
+        public VfxContext context;
 
         [Header("ロケーター情報")]
         [Tooltip("座標基準となるLocator名")]

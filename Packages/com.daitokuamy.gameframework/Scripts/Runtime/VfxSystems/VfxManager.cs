@@ -14,43 +14,25 @@ namespace GameFramework.VfxSystems {
     /// </summary>
     public class VfxManager : DisposableLateUpdatableTask {
         /// <summary>
-        /// 再生に使用するContext
-        /// </summary>
-        [Serializable]
-        public struct Context {
-            [Tooltip("再生対象のPrefab")]
-            public GameObject prefab;
-            [Tooltip("基準Transformからの相対座標")]
-            public Vector3 relativePosition;
-            [Tooltip("座標を毎フレーム更新するか")]
-            public bool constraintPosition;
-            [Tooltip("基準Transformからの相対角度")]
-            public Vector3 relativeAngles;
-            [Tooltip("回転を毎フレーム更新するか")]
-            public bool constraintRotation;
-            [Tooltip("スケール")]
-            public Vector3 localScale;
-        }
-
-        /// <summary>
         /// 再生管理用ハンドル
         /// </summary>
         public struct Handle : IDisposable, IProcess {
-            // 再生中の情報
             private PlayingInfo _playingInfo;
-
-            // 有効なハンドルか
-            public bool IsValid => _playingInfo != null && _playingInfo.Initialized;
-            // 再生中か
-            public bool IsPlaying => _playingInfo != null && _playingInfo.IsPlaying();
-            // 未使用
+            /// <summary>未使用</summary>
             object IEnumerator.Current => null;
-            // 完了しているか
+            /// <summary>完了しているか</summary>
             bool IProcess.IsDone => !IsPlaying;
-            // エラー
+            /// <summary>エラー</summary>
             Exception IProcess.Exception => null;
 
-            // 制御座標
+            /// <summary>有効なハンドルか</summary>
+            public bool IsValid => !IsDisposed && _playingInfo.Initialized;
+            /// <summary>再生中か</summary>
+            public bool IsPlaying => !IsDisposed && _playingInfo.IsPlaying();
+            /// <summary>廃棄済みか</summary>
+            public bool IsDisposed => _playingInfo == null;
+
+            /// <summary>制御座標</summary>
             public Vector3 ContextPosition {
                 get {
                     if (_playingInfo == null) {
@@ -67,7 +49,7 @@ namespace GameFramework.VfxSystems {
                     _playingInfo.SetContextPosition(value);
                 }
             }
-            // 制御向き
+            /// <summary>制御向き</summary>
             public Quaternion ContextRotation {
                 get {
                     if (_playingInfo == null) {
@@ -84,7 +66,7 @@ namespace GameFramework.VfxSystems {
                     _playingInfo.SetContextRotation(value);
                 }
             }
-            // 制御スケール
+            /// <summary>制御スケール</summary>
             public Vector3 ContextLocalScale {
                 get {
                     if (_playingInfo == null) {
@@ -110,32 +92,10 @@ namespace GameFramework.VfxSystems {
             }
 
             /// <summary>
-            /// 再生
-            /// </summary>
-            public void Play() {
-                if (_playingInfo == null) {
-                    return;
-                }
-
-                _playingInfo.Play();
-            }
-
-            /// <summary>
-            /// 停止
-            /// </summary>
-            public void Stop(bool immediate = false, bool autoDispose = false) {
-                if (_playingInfo == null) {
-                    return;
-                }
-
-                _playingInfo.Stop(immediate, autoDispose);
-            }
-
-            /// <summary>
             /// 廃棄時処理
             /// </summary>
             public void Dispose() {
-                if (_playingInfo == null) {
+                if (IsDisposed) {
                     return;
                 }
 
@@ -155,6 +115,28 @@ namespace GameFramework.VfxSystems {
             /// </summary>
             void IEnumerator.Reset() {
             }
+
+            /// <summary>
+            /// 再生
+            /// </summary>
+            public void Play() {
+                if (IsDisposed) {
+                    return;
+                }
+
+                _playingInfo.Play();
+            }
+
+            /// <summary>
+            /// 停止
+            /// </summary>
+            public void Stop(bool immediate = false, bool autoDispose = false) {
+                if (IsDisposed) {
+                    return;
+                }
+
+                _playingInfo.Stop(immediate, autoDispose);
+            }
         }
 
         /// <summary>
@@ -169,21 +151,21 @@ namespace GameFramework.VfxSystems {
             // Lodレベル通知用インターフェース
             private ILodProvider _lodProvider;
             // 操作用の情報
-            private Context _context;
+            private VfxContext _context;
             // 自動廃棄するか
             private bool _autoDispose;
             // Transform更新フラグ
             private bool _transformDirty;
 
-            // 制御対象Object情報
+            /// <summary>制御対象Object情報</summary>
             public ObjectInfo ObjectInfo { get; private set; }
-            // 廃棄済みか
+            /// <summary>廃棄済みか</summary>
             public bool Initialized { get; private set; }
 
             /// <summary>
             /// 初期化処理
             /// </summary>
-            public void Setup(ObjectInfo objectInfo, Context context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, ILodProvider lodProvider, int layer, bool autoDispose) {
+            public void Setup(ObjectInfo objectInfo, VfxContext context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, ILodProvider lodProvider, int layer, bool autoDispose) {
                 Cleanup();
 
                 ObjectInfo = objectInfo;
@@ -195,38 +177,33 @@ namespace GameFramework.VfxSystems {
                 _autoDispose = autoDispose;
                 _transformDirty = true;
 
-                void SetLayer(Transform trans, int layer) {
+                void SetLayer(Transform trans, int value) {
                     if (trans == null) {
                         return;
                     }
 
-                    trans.gameObject.layer = layer;
-
-                    foreach (Transform child in trans) {
-                        SetLayer(child, layer);
+                    trans.gameObject.layer = value;
+                    
+                    for (var i = 0; i < trans.childCount; i++) {
+                        SetLayer(trans.GetChild(i), value);
                     }
                 }
 
                 // 再帰的にレイヤー設定
-                SetLayer(objectInfo.root.transform, layer);
+                SetLayer(objectInfo.Root.transform, layer);
 
                 Initialized = true;
 
                 if (layeredTime != null) {
                     layeredTime.ChangedTimeScaleEvent += OnChangedTimeScale;
-                    OnChangedTimeScale(layeredTime.TimeScale);
-                }
-                else {
-                    OnChangedTimeScale(1.0f);
                 }
 
                 if (lodProvider != null) {
-                    lodProvider.ChangedLodLevelEvent += ChangedLodLevelEvent;
-                    ChangedLodLevelEvent(lodProvider.LodLevel);
+                    lodProvider.ChangedLodLevelEvent += OnChangedLodLevel;
                 }
-                else {
-                    ChangedLodLevelEvent(0);
-                }
+
+                OnChangedTimeScale(layeredTime?.TimeScale ?? 1.0f);
+                OnChangedLodLevel(lodProvider?.LodLevel ?? 0);
             }
 
             /// <summary>
@@ -241,20 +218,15 @@ namespace GameFramework.VfxSystems {
 
                 if (_layeredTime != null) {
                     _layeredTime.ChangedTimeScaleEvent -= OnChangedTimeScale;
-                    OnChangedTimeScale(1.0f);
-                }
-                else {
-                    OnChangedTimeScale(1.0f);
                 }
 
                 if (_lodProvider != null) {
-                    _lodProvider.ChangedLodLevelEvent -= ChangedLodLevelEvent;
-                    ChangedLodLevelEvent(0);
+                    _lodProvider.ChangedLodLevelEvent -= OnChangedLodLevel;
                 }
-                else {
-                    ChangedLodLevelEvent(0);
-                }
-                
+
+                OnChangedTimeScale(1.0f);
+                OnChangedLodLevel(0);
+
                 Initialized = false;
             }
 
@@ -270,8 +242,8 @@ namespace GameFramework.VfxSystems {
                 _transformDirty = false;
 
                 var deltaTime = _layeredTime != null ? _layeredTime.DeltaTime : Time.deltaTime;
-                for (var i = 0; i < ObjectInfo.components.Length; i++) {
-                    var component = ObjectInfo.components[i];
+                for (var i = 0; i < ObjectInfo.Components.Length; i++) {
+                    var component = ObjectInfo.Components[i];
                     if (!component.IsPlaying) {
                         continue;
                     }
@@ -298,40 +270,6 @@ namespace GameFramework.VfxSystems {
             }
 
             /// <summary>
-            /// 座標の更新
-            /// </summary>
-            private void UpdatePosition() {
-                var rootTrans = ObjectInfo.root.transform;
-                if (_positionRoot != null) {
-                    rootTrans.position = _positionRoot.TransformPoint(_context.relativePosition);
-                }
-                else {
-                    rootTrans.position = _context.relativePosition;
-                }
-            }
-
-            /// <summary>
-            /// 回転の更新
-            /// </summary>
-            private void UpdateRotation() {
-                var rootTrans = ObjectInfo.root.transform;
-                if (_rotationRoot != null) {
-                    rootTrans.rotation = _rotationRoot.rotation * Quaternion.Euler(_context.relativeAngles);
-                }
-                else {
-                    rootTrans.rotation = Quaternion.Euler(_context.relativeAngles);
-                }
-            }
-
-            /// <summary>
-            /// 拡縮の更新
-            /// </summary>
-            private void UpdateScale() {
-                var rootTrans = ObjectInfo.root.transform;
-                rootTrans.localScale = _context.localScale;
-            }
-
-            /// <summary>
             /// 再生処理
             /// </summary>
             public void Play() {
@@ -344,9 +282,9 @@ namespace GameFramework.VfxSystems {
                 UpdateRotation();
                 UpdateScale();
                 _transformDirty = false;
-                
-                for (var i = 0; i < ObjectInfo.components.Length; i++) {
-                    var component = ObjectInfo.components[i];
+
+                for (var i = 0; i < ObjectInfo.Components.Length; i++) {
+                    var component = ObjectInfo.Components[i];
                     component.Play();
                 }
             }
@@ -362,8 +300,8 @@ namespace GameFramework.VfxSystems {
                 // 停止時にAutoDisposeが指定されたら上書きする
                 _autoDispose |= autoDispose;
 
-                for (var i = 0; i < ObjectInfo.components.Length; i++) {
-                    var component = ObjectInfo.components[i];
+                for (var i = 0; i < ObjectInfo.Components.Length; i++) {
+                    var component = ObjectInfo.Components[i];
                     if (immediate) {
                         component.StopImmediate();
                     }
@@ -450,14 +388,48 @@ namespace GameFramework.VfxSystems {
                     return false;
                 }
 
-                for (var i = 0; i < ObjectInfo.components.Length; i++) {
-                    var component = ObjectInfo.components[i];
+                for (var i = 0; i < ObjectInfo.Components.Length; i++) {
+                    var component = ObjectInfo.Components[i];
                     if (component.IsPlaying) {
                         return true;
                     }
                 }
 
                 return false;
+            }
+
+            /// <summary>
+            /// 座標の更新
+            /// </summary>
+            private void UpdatePosition() {
+                var rootTrans = ObjectInfo.Root.transform;
+                if (_positionRoot != null) {
+                    rootTrans.position = _positionRoot.TransformPoint(_context.relativePosition);
+                }
+                else {
+                    rootTrans.position = _context.relativePosition;
+                }
+            }
+
+            /// <summary>
+            /// 回転の更新
+            /// </summary>
+            private void UpdateRotation() {
+                var rootTrans = ObjectInfo.Root.transform;
+                if (_rotationRoot != null) {
+                    rootTrans.rotation = _rotationRoot.rotation * Quaternion.Euler(_context.relativeAngles);
+                }
+                else {
+                    rootTrans.rotation = Quaternion.Euler(_context.relativeAngles);
+                }
+            }
+
+            /// <summary>
+            /// 拡縮の更新
+            /// </summary>
+            private void UpdateScale() {
+                var rootTrans = ObjectInfo.Root.transform;
+                rootTrans.localScale = _context.localScale;
             }
 
             /// <summary>
@@ -468,8 +440,8 @@ namespace GameFramework.VfxSystems {
                     return;
                 }
 
-                for (var i = 0; i < ObjectInfo.components.Length; i++) {
-                    var component = ObjectInfo.components[i];
+                for (var i = 0; i < ObjectInfo.Components.Length; i++) {
+                    var component = ObjectInfo.Components[i];
                     component.SetSpeed(timeScale);
                 }
             }
@@ -477,13 +449,13 @@ namespace GameFramework.VfxSystems {
             /// <summary>
             /// LodLevelの変更通知
             /// </summary>
-            private void ChangedLodLevelEvent(int level) {
+            private void OnChangedLodLevel(int level) {
                 if (!Initialized) {
                     return;
                 }
 
-                for (var i = 0; i < ObjectInfo.components.Length; i++) {
-                    var component = ObjectInfo.components[i];
+                for (var i = 0; i < ObjectInfo.Components.Length; i++) {
+                    var component = ObjectInfo.Components[i];
                     component.SetLodLevel(level);
                 }
             }
@@ -493,9 +465,9 @@ namespace GameFramework.VfxSystems {
         /// プール用Objectの情報
         /// </summary>
         public class ObjectInfo {
-            public GameObject prefab;
-            public GameObject root;
-            public IVfxComponent[] components;
+            public GameObject Prefab;
+            public GameObject Root;
+            public IVfxComponent[] Components;
         }
 
         // Poolキャパシティ
@@ -503,15 +475,16 @@ namespace GameFramework.VfxSystems {
         private readonly int _poolMaxCapacity;
 
         // 生成したGameObjectを保持するためのTransform
-        private Transform _rootTransform;
+        private readonly Transform _rootTransform;
         // インスタンスキャッシュ用のPool
-        private Dictionary<GameObject, ObjectPool<ObjectInfo>> _objectPools = new();
+        private readonly Dictionary<GameObject, ObjectPool<ObjectInfo>> _objectPools = new();
         // PlayingInfoインスタンス使いまわし用のPool
-        private ObjectPool<PlayingInfo> _playingInfoPool;
+        private readonly ObjectPool<PlayingInfo> _playingInfoPool;
         // 管理用再生中情報
-        private List<PlayingInfo> _playingInfos = new();
+        private readonly List<PlayingInfo> _playingInfos = new();
         // 変数領域確保用のParticleSystemリスト
-        private List<ParticleSystem> _workParticleSystems = new();
+        private readonly List<ParticleSystem> _workParticleSystems = new();
+
         // Poolを有効にするフラグ
         private bool _activePool = true;
 
@@ -537,6 +510,38 @@ namespace GameFramework.VfxSystems {
         }
 
         /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected override void DisposeInternal() {
+            Clear();
+
+            _playingInfoPool.Dispose();
+            if (_rootTransform != null) {
+                Object.Destroy(_rootTransform.gameObject);
+            }
+        }
+
+        /// <summary>
+        /// 後更新処理
+        /// </summary>
+        protected override void LateUpdateInternal() {
+            // 再生中情報の更新
+            for (var i = _playingInfos.Count - 1; i >= 0; i--) {
+                var info = _playingInfos[i];
+
+                // 更新処理
+                info.Update();
+
+                // 廃棄対象ならPoolに戻す
+                if (!info.Initialized) {
+                    _playingInfos.RemoveAt(i);
+                    _playingInfoPool.Release(info);
+                    ReturnObjectInfo(info.ObjectInfo);
+                }
+            }
+        }
+
+        /// <summary>
         /// Poolの有効状態を変更(Debug用)
         /// </summary>
         public void SetActivePool(bool active) {
@@ -558,7 +563,7 @@ namespace GameFramework.VfxSystems {
         /// <param name="layeredTime">再生速度をコントロールするためのLayeredTime</param>
         /// <param name="lodProvider">Lodレベル提供用インターフェース</param>
         /// <param name="layer">指定するLayer</param>
-        public Handle Get(Context context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null, ILodProvider lodProvider = null, int layer = -1) {
+        public Handle Get(VfxContext context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null, ILodProvider lodProvider = null, int layer = -1) {
             // 再生情報の生成
             var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, lodProvider, layer, false);
             // Handle化して返却
@@ -574,7 +579,7 @@ namespace GameFramework.VfxSystems {
         /// <param name="layeredTime">再生速度をコントロールするためのLayeredTime</param>
         /// <param name="lodProvider">Lodレベル提供用インターフェース</param>
         /// <param name="layer">指定するLayer</param>
-        public Handle Play(Context context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null, ILodProvider lodProvider = null, int layer = -1) {
+        public Handle Play(VfxContext context, Transform positionRoot = null, Transform rotationRoot = null, LayeredTime layeredTime = null, ILodProvider lodProvider = null, int layer = -1) {
             // 再生情報の生成
             var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, lodProvider, layer, true);
             // 再生
@@ -605,40 +610,8 @@ namespace GameFramework.VfxSystems {
                 pool.Dispose();
             }
 
-            _playingInfoPool.Dispose();
-
+            _playingInfoPool.Clear();
             _objectPools.Clear();
-        }
-
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        protected override void DisposeInternal() {
-            Clear();
-
-            if (_rootTransform != null) {
-                Object.Destroy(_rootTransform.gameObject);
-            }
-        }
-
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        protected override void LateUpdateInternal() {
-            // 再生中情報の更新
-            for (var i = _playingInfos.Count - 1; i >= 0; i--) {
-                var info = _playingInfos[i];
-
-                // 更新処理
-                info.Update();
-
-                // 廃棄対象ならPoolに戻す
-                if (!info.Initialized) {
-                    _playingInfos.RemoveAt(i);
-                    _playingInfoPool.Release(info);
-                    ReturnObjectInfo(info.ObjectInfo);
-                }
-            }
         }
 
         /// <summary>
@@ -651,7 +624,7 @@ namespace GameFramework.VfxSystems {
         /// <param name="lodProvider">Lodレベル提供用インターフェース</param>
         /// <param name="autoDispose">再生完了時に自動で廃棄するか</param>
         /// <param name="layer">レイヤー</param>
-        private PlayingInfo CreatePlayingInfo(Context context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, ILodProvider lodProvider, int layer, bool autoDispose) {
+        private PlayingInfo CreatePlayingInfo(VfxContext context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, ILodProvider lodProvider, int layer, bool autoDispose) {
             // Instance生成
             var objectInfo = GetObjectInfo(context.prefab);
             if (objectInfo == null) {
@@ -694,8 +667,12 @@ namespace GameFramework.VfxSystems {
         /// ObjectInfoの返却
         /// </summary>
         private void ReturnObjectInfo(ObjectInfo objectInfo) {
-            if (!_objectPools.TryGetValue(objectInfo.prefab, out var pool)) {
-                Debug.unityLogger.LogWarning(nameof(VfxManager), $"Not found object pool. {objectInfo.prefab.name}");
+            if (objectInfo.Prefab == null) {
+                return;
+            }
+
+            if (!_objectPools.TryGetValue(objectInfo.Prefab, out var pool)) {
+                Debug.unityLogger.LogWarning(nameof(VfxManager), $"Not found object pool. {objectInfo.Prefab.name}");
                 return;
             }
 
@@ -709,16 +686,23 @@ namespace GameFramework.VfxSystems {
         private ObjectPool<ObjectInfo> CreatePool(GameObject prefab, bool activePool) {
             // 中身の生成
             void CreateContent(ObjectInfo objectInfo) {
-                if (objectInfo == null || objectInfo.prefab == null) {
+                if (objectInfo == null || objectInfo.Prefab == null) {
                     return;
                 }
 
-                var instance = Object.Instantiate(objectInfo.prefab, _rootTransform);
-                var vfxComponents = instance.GetComponentsInChildren<IVfxComponent>(true)
-                    .ToList();
+                var instance = Object.Instantiate(objectInfo.Prefab, _rootTransform);
+                var foundComponents = instance.GetComponentsInChildren<IVfxComponent>(true);
                 _workParticleSystems.Clear();
                 FindRootParticleSystems(instance.transform, _workParticleSystems);
-                vfxComponents.AddRange(_workParticleSystems.Select(x => new ParticleSystemVfxComponent(x)));
+                var vfxComponents = new List<IVfxComponent>(foundComponents.Length + _workParticleSystems.Count);
+                for (var i = 0; i < foundComponents.Length; ++i) {
+                    vfxComponents.Add(foundComponents[i]);
+                }
+
+                for (var i = 0; i < _workParticleSystems.Count; ++i) {
+                    vfxComponents.Add(new ParticleSystemVfxComponent(_workParticleSystems[i]));
+                }
+
                 instance.SetActive(false);
 
                 // Componentを一度停止状態にしておく
@@ -726,24 +710,24 @@ namespace GameFramework.VfxSystems {
                     component.StopImmediate();
                 }
 
-                objectInfo.root = instance;
-                objectInfo.components = vfxComponents.ToArray();
+                objectInfo.Root = instance;
+                objectInfo.Components = vfxComponents.ToArray();
             }
 
             // 中身の削除
             void DestroyContent(ObjectInfo objectInfo) {
-                if (objectInfo == null || objectInfo.root == null) {
+                if (objectInfo == null || objectInfo.Root == null) {
                     return;
                 }
 
-                Object.Destroy(objectInfo.root);
-                objectInfo.root = null;
-                objectInfo.components = null;
+                Object.Destroy(objectInfo.Root);
+                objectInfo.Root = null;
+                objectInfo.Components = null;
             }
 
             var pool = new ObjectPool<ObjectInfo>(() => {
                     var objectInfo = new ObjectInfo();
-                    objectInfo.prefab = prefab;
+                    objectInfo.Prefab = prefab;
 
                     if (activePool) {
                         CreateContent(objectInfo);
@@ -752,18 +736,18 @@ namespace GameFramework.VfxSystems {
                     return objectInfo;
                 }, info => {
                     if (activePool) {
-                        info.root.SetActive(true);
+                        info.Root.SetActive(true);
                     }
                     else {
                         CreateContent(info);
-                        info.root.SetActive(true);
+                        info.Root.SetActive(true);
                     }
                 }, info => {
                     if (activePool) {
-                        info.root.SetActive(false);
+                        info.Root.SetActive(false);
                     }
                     else {
-                        info.root.SetActive(false);
+                        info.Root.SetActive(false);
                         DestroyContent(info);
                     }
                 },

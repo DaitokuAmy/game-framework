@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.cysharp.observablecollections": "1.1.3",
     "com.cysharp.r3": "1.3.0",
     "com.cysharp.unitask": "2.5.10",
     "com.daitokuamy.actionsequencer": "https://github.com/DaitokuAmy/action-sequencer.git?path=/Packages/com.daitokuamy.actionsequencer",

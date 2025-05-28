@@ -9,40 +9,55 @@ namespace GameFramework.TaskSystems {
     /// タスク実行用のランナー
     /// </summary>
     public class TaskRunner : ILateUpdatableTask, IFixedUpdatableTask, IDisposable {
-        // タスクの状態
+        /// <summary>Update用のSamplerIndex</summary>
+        private const int UpdateSamplerIndex = 0;
+        /// <summary>LateUpdate用のSamplerIndex</summary>
+        private const int LateUpdateSamplerIndex = 1;
+        /// <summary>FixedUpdate用のSamplerIndex</summary>
+        private const int FixedUpdateSamplerIndex = 2;
+
+        /// <summary>
+        /// タスクの状態
+        /// </summary>
         private enum TaskStatus {
             Active,
             Killed,
         }
 
-        // タスク情報
+        /// <summary>
+        /// タスク情報
+        /// </summary>
         private class TaskInfo {
-            public TaskGroupInfo groupInfo;
-            public TaskStatus status;
-            public ITask task;
-            public CustomSampler[] samplers;
+            public TaskGroupInfo GroupInfo;
+            public TaskStatus Status;
+            public ITask Task;
+            public CustomSampler[] Samplers;
         }
 
-        // タスクグループ情報
+        /// <summary>
+        /// タスクグループ情報
+        /// </summary>
         private class TaskGroupInfo {
-            public List<TaskInfo> taskInfos = new List<TaskInfo>();
-            public CustomSampler[] samplers;
+            public readonly List<TaskInfo> TaskInfos = new();
+            public CustomSampler[] Samplers;
         }
 
-        // タスク登録予定情報
+        /// <summary>
+        /// タスク登録予定情報
+        /// </summary>
         private class ScheduledTaskInfo {
-            public int executionOrder;
-            public ITask task;
+            public int ExecutionOrder;
+            public ITask Task;
         }
 
         // Order毎のタスクグループ情報
-        private IDictionary<int, TaskGroupInfo> _taskGroupInfos = new SortedDictionary<int, TaskGroupInfo>();
+        private readonly SortedDictionary<int, TaskGroupInfo> _taskGroupInfos = new();
         // TaskInfo検索用
-        private Dictionary<ITask, TaskInfo> _taskInfos = new Dictionary<ITask, TaskInfo>();
+        private readonly Dictionary<ITask, TaskInfo> _taskInfos = new();
         // 登録待ちタスク情報
-        private Dictionary<ITask, ScheduledTaskInfo> _scheduledTaskInfos = new Dictionary<ITask, ScheduledTaskInfo>();
+        private readonly Dictionary<ITask, ScheduledTaskInfo> _scheduledTaskInfos = new();
 
-        // タスクの有効状態
+        /// <summary>タスクの有効状態</summary>
         public bool IsActive { get; set; }
 
         /// <summary>
@@ -50,13 +65,13 @@ namespace GameFramework.TaskSystems {
         /// </summary>
         public void Dispose() {
             foreach (var groupInfo in _taskGroupInfos.Values) {
-                for (var i = groupInfo.taskInfos.Count - 1; i >= 0; i--) {
-                    var taskInfo = groupInfo.taskInfos[i];
-                    if (taskInfo.status != TaskStatus.Killed) {
-                        taskInfo.status = TaskStatus.Killed;
+                for (var i = groupInfo.TaskInfos.Count - 1; i >= 0; i--) {
+                    var taskInfo = groupInfo.TaskInfos[i];
+                    if (taskInfo.Status != TaskStatus.Killed) {
+                        taskInfo.Status = TaskStatus.Killed;
 
                         // 登録解除通知
-                        if (taskInfo.task is ITaskEventHandler handler) {
+                        if (taskInfo.Task is ITaskEventHandler handler) {
                             handler.OnUnregistered(this);
                         }
                     }
@@ -88,8 +103,8 @@ namespace GameFramework.TaskSystems {
 
             // タスク登録情報に追加
             _scheduledTaskInfos.Add(task, new ScheduledTaskInfo {
-                executionOrder = executionOrder,
-                task = task,
+                ExecutionOrder = executionOrder,
+                Task = task,
             });
         }
 
@@ -110,9 +125,9 @@ namespace GameFramework.TaskSystems {
         /// <param name="task">除外対象のTask</param>
         public void Unregister(ITask task) {
             if (_taskInfos.TryGetValue(task, out var taskInfo)) {
-                if (taskInfo.status != TaskStatus.Killed) {
+                if (taskInfo.Status != TaskStatus.Killed) {
                     // タスクのステータスをKilledに変更
-                    taskInfo.status = TaskStatus.Killed;
+                    taskInfo.Status = TaskStatus.Killed;
 
                     // 除外通知
                     if (task is ITaskEventHandler handler) {
@@ -120,7 +135,7 @@ namespace GameFramework.TaskSystems {
                     }
                 }
             }
-            else if (_scheduledTaskInfos.TryGetValue(task, out var scheduledTaskInfo)) {
+            else {
                 // 登録予約から除外
                 _scheduledTaskInfos.Remove(task);
             }
@@ -130,7 +145,7 @@ namespace GameFramework.TaskSystems {
         /// 更新処理
         /// </summary>
         public void Update() {
-            UpdateInternal(task => task.Update(), 0);
+            UpdateInternal(task => { task.Update(); }, UpdateSamplerIndex);
         }
 
         /// <summary>
@@ -141,7 +156,7 @@ namespace GameFramework.TaskSystems {
                 if (task is ILateUpdatableTask lateUpdatableTask) {
                     lateUpdatableTask.LateUpdate();
                 }
-            }, 1);
+            }, LateUpdateSamplerIndex);
         }
 
         /// <summary>
@@ -152,7 +167,7 @@ namespace GameFramework.TaskSystems {
                 if (task is IFixedUpdatableTask fixedUpdatableTask) {
                     fixedUpdatableTask.FixedUpdate();
                 }
-            }, 1);
+            }, FixedUpdateSamplerIndex);
         }
 
         /// <summary>
@@ -163,30 +178,30 @@ namespace GameFramework.TaskSystems {
             RefreshTaskInfos();
 
             foreach (var groupInfo in _taskGroupInfos.Values) {
-                groupInfo.samplers[samplerIndex].Begin();
+                groupInfo.Samplers[samplerIndex].Begin();
 
-                for (var i = 0; i < groupInfo.taskInfos.Count; i++) {
-                    var taskInfo = groupInfo.taskInfos[i];
+                for (var i = 0; i < groupInfo.TaskInfos.Count; i++) {
+                    var taskInfo = groupInfo.TaskInfos[i];
 
                     // 無効なタスクは処理しない
-                    if (taskInfo.status != TaskStatus.Active || !taskInfo.task.IsActive) {
+                    if (taskInfo.Status != TaskStatus.Active || !taskInfo.Task.IsActive) {
                         continue;
                     }
 
                     // タスク更新
                     try {
-                        taskInfo.samplers[samplerIndex].Begin();
-                        onUpdate(taskInfo.task);
+                        taskInfo.Samplers[samplerIndex].Begin();
+                        onUpdate(taskInfo.Task);
                     }
                     catch (Exception exception) {
                         Debug.LogException(exception);
                     }
                     finally {
-                        taskInfo.samplers[samplerIndex].End();
+                        taskInfo.Samplers[samplerIndex].End();
                     }
                 }
 
-                groupInfo.samplers[samplerIndex].End();
+                groupInfo.Samplers[samplerIndex].End();
             }
         }
 
@@ -203,13 +218,13 @@ namespace GameFramework.TaskSystems {
 
             // タスク登録解除を実行
             foreach (var groupInfo in _taskGroupInfos.Values) {
-                for (var i = groupInfo.taskInfos.Count - 1; i >= 0; i--) {
-                    var taskInfo = groupInfo.taskInfos[i];
+                for (var i = groupInfo.TaskInfos.Count - 1; i >= 0; i--) {
+                    var taskInfo = groupInfo.TaskInfos[i];
 
                     // KillされたTaskを除外
-                    if (taskInfo.status == TaskStatus.Killed) {
-                        groupInfo.taskInfos.RemoveAt(i);
-                        _taskInfos.Remove(taskInfo.task);
+                    if (taskInfo.Status == TaskStatus.Killed) {
+                        groupInfo.TaskInfos.RemoveAt(i);
+                        _taskInfos.Remove(taskInfo.Task);
                     }
                 }
             }
@@ -219,15 +234,16 @@ namespace GameFramework.TaskSystems {
         /// タスク登録処理(内部用)
         /// </summary>
         private void RegisterInternal(ScheduledTaskInfo scheduledTaskInfo) {
-            var executionOrder = scheduledTaskInfo.executionOrder;
-            var task = scheduledTaskInfo.task;
+            var executionOrder = scheduledTaskInfo.ExecutionOrder;
+            var task = scheduledTaskInfo.Task;
 
             // TaskGroupInfoの取得/生成
             if (!_taskGroupInfos.TryGetValue(executionOrder, out var groupInfo)) {
                 groupInfo = new TaskGroupInfo();
-                groupInfo.samplers = new[] {
+                groupInfo.Samplers = new[] {
                     CustomSampler.Create($"Task Update()[{executionOrder}]"),
                     CustomSampler.Create($"Task LateUpdate()[{executionOrder}]"),
+                    CustomSampler.Create($"Task FixedUpdate()[{executionOrder}]"),
                 };
                 _taskGroupInfos[executionOrder] = groupInfo;
             }
@@ -235,15 +251,15 @@ namespace GameFramework.TaskSystems {
             // 既に存在しているTaskの場合、ステータスを更新
             if (_taskInfos.TryGetValue(task, out var info)) {
                 // Groupが変わっていたら変更
-                if (info.groupInfo != groupInfo) {
-                    info.groupInfo.taskInfos.Remove(info);
-                    groupInfo.taskInfos.Add(info);
-                    info.groupInfo = groupInfo;
+                if (info.GroupInfo != groupInfo) {
+                    info.GroupInfo.TaskInfos.Remove(info);
+                    groupInfo.TaskInfos.Add(info);
+                    info.GroupInfo = groupInfo;
                 }
 
                 // Killされていた場合、Activeに戻す
-                if (info.status == TaskStatus.Killed) {
-                    info.status = TaskStatus.Active;
+                if (info.Status == TaskStatus.Killed) {
+                    info.Status = TaskStatus.Active;
 
                     // 登録通知
                     if (task is ITaskEventHandler handler) {
@@ -255,14 +271,15 @@ namespace GameFramework.TaskSystems {
             else {
                 var taskType = task.GetType();
                 info = new TaskInfo {
-                    status = TaskStatus.Active,
-                    task = task,
-                    samplers = new[] {
+                    Status = TaskStatus.Active,
+                    Task = task,
+                    Samplers = new[] {
                         CustomSampler.Create($"{taskType}.Update()"),
-                        CustomSampler.Create($"{taskType}.LateUpdate()")
+                        CustomSampler.Create($"{taskType}.LateUpdate()"),
+                        CustomSampler.Create($"{taskType}.FixedLateUpdate()")
                     }
                 };
-                groupInfo.taskInfos.Add(info);
+                groupInfo.TaskInfos.Add(info);
                 _taskInfos[task] = info;
 
                 // 登録通知

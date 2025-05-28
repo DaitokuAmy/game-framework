@@ -2,7 +2,7 @@ using System;
 using GameFramework.Core;
 using NUnit.Framework;
 
-namespace GameFramework.Tests {
+namespace GameFrameworkTests {
     /// <summary>
     /// MockのDeltaTimeProvider（60FPS相当）
     /// </summary>
