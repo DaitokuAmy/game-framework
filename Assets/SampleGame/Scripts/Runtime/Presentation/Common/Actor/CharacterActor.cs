@@ -43,13 +43,13 @@ namespace SampleGame.Presentation {
 
             // 移動解決用のクラスを設定
             MoveController.AddResolver(new StraightMoveResolver(SetupData.moveActionInfo));
-            scope.OnExpired += () => MoveController.RemoveResolver<StraightMoveResolver>();
+            scope.ExpiredEvent += () => MoveController.RemoveResolver<StraightMoveResolver>();
             MoveController.AddResolver(new NavigationMoveResolver(SetupData.moveActionInfo));
-            scope.OnExpired += () => MoveController.RemoveResolver<NavigationMoveResolver>();
+            scope.ExpiredEvent += () => MoveController.RemoveResolver<NavigationMoveResolver>();
             MoveController.AddResolver(new WarpMoveResolver());
-            scope.OnExpired += () => MoveController.RemoveResolver<WarpMoveResolver>();
+            scope.ExpiredEvent += () => MoveController.RemoveResolver<WarpMoveResolver>();
             MoveController.AddResolver(new DirectionMoveResolver(SetupData.moveActionInfo));
-            scope.OnExpired += () => MoveController.RemoveResolver<DirectionMoveResolver>();
+            scope.ExpiredEvent += () => MoveController.RemoveResolver<DirectionMoveResolver>();
 
             ResetMoveSpeedMultiplier();
         }

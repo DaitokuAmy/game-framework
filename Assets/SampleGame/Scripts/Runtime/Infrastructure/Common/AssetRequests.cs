@@ -93,7 +93,7 @@ namespace SampleGame.Infrastructure {
             if (activate) {
                 await handle.ActivateAsync().ToUniTask(cancellationToken: ct);
                 if (unloadScope != null) {
-                    unloadScope.OnExpired += () => {
+                    unloadScope.ExpiredEvent += () => {
                         SceneManager.UnloadSceneAsync(handle.Scene);
                     };
                 }

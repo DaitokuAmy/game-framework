@@ -1,0 +1,16 @@
+{
+    "name": "GameFrameworkTests.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "GUID:a8aee891689d13c4eba2c7d06bd50ee8"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
