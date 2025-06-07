@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SpearEngine {
+namespace GameFramework.CameraSystems {
     /// <summary>
     /// Cameraの基本情報を転送するクラス
     /// </summary>

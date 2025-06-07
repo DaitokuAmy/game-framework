@@ -56,6 +56,7 @@ namespace GameFramework.UISystems {
         void IPointerDownHandler.OnPointerDown(PointerEventData eventData) {
             _timer = _downDuration;
             _isDown = true;
+            EventSystemUtils.PassEvent(eventData, ExecuteEvents.pointerDownHandler);
         }
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace GameFramework.UISystems {
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData) {
             _timer = _upDuration;
             _isDown = false;
+            EventSystemUtils.PassEvent(eventData, ExecuteEvents.pointerUpHandler);
         }
 
         /// <summary>
