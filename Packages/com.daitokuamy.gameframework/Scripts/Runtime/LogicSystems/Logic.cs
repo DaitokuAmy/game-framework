@@ -20,6 +20,8 @@ namespace GameFramework.LogicSystems {
 
         /// <summary>アクティブ状態</summary>
         public virtual bool IsActive => _activeScope != null;
+        /// <summary>廃棄済みか</summary>
+        public bool IsDisposed => _disposed;
         /// <summary>キャンセル用トークン</summary>
         public CancellationToken Token => _cancellationTokenSource.Token;
         

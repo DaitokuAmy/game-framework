@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using GameFramework.Core;
 
 namespace GameFramework.UISystems {
@@ -23,13 +24,11 @@ namespace GameFramework.UISystems {
         [SerializeField, Tooltip("開始時に開いた状態にするか")]
         private bool _openOnStart = true;
 
-        // アニメーションキャンセル用スコープ
+        private readonly List<IUIScreenHandler> _handlers = new();
+
         private DisposableScope _animationScope;
-        // アクティブ状態のスコープ
         private DisposableScope _activeScope;
-        // アニメーション中の状態保持用インスタンス
         private AnimationStatus _currentAnimationStatus;
-        // アニメーション操作したらONになるフラグ
         private bool _dirtyOpenStatus;
 
         /// <summary>アクティブ化されているか</summary>
@@ -78,9 +77,16 @@ namespace GameFramework.UISystems {
             gameObject.SetActive(true);
             CurrentOpenStatus = OpenStatus.Opening;
             PreOpen(transitionType);
+            foreach (var handler in _handlers) {
+                handler.PreOpen();
+            }
 
             void PostOpenInternal() {
                 PostOpen(transitionType);
+                foreach (var handler in _handlers) {
+                    handler.PostOpen();
+                }
+
                 CurrentOpenStatus = OpenStatus.Opened;
                 _currentAnimationStatus = null;
                 Activate();
@@ -149,9 +155,16 @@ namespace GameFramework.UISystems {
             Deactivate();
             CurrentOpenStatus = OpenStatus.Closing;
             PreClose(transitionType);
+            foreach (var handler in _handlers) {
+                handler.PreClose();
+            }
 
             void PostCloseInternal() {
                 PostClose(transitionType);
+                foreach (var handler in _handlers) {
+                    handler.PostClose();
+                }
+
                 CurrentOpenStatus = OpenStatus.Closed;
                 _currentAnimationStatus = null;
                 gameObject.SetActive(false);
@@ -267,7 +280,78 @@ namespace GameFramework.UISystems {
         /// </summary>
         protected override void DisposeInternal() {
             Deactivate();
+
+            foreach (var handler in _handlers) {
+                handler.OnUnregistered();
+            }
+
+            _handlers.Clear();
+
             base.DisposeInternal();
+        }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        protected override void UpdateInternal(float deltaTime) {
+            base.UpdateInternal(deltaTime);
+
+            foreach (var handler in _handlers) {
+                handler.Update(deltaTime);
+            }
+        }
+
+        /// <summary>
+        /// 後処理
+        /// </summary>
+        protected override void LateUpdateInternal(float deltaTime) {
+            base.LateUpdateInternal(deltaTime);
+
+            foreach (var handler in _handlers) {
+                handler.LateUpdate(deltaTime);
+            }
+        }
+
+        /// <summary>
+        /// ハンドラーの登録
+        /// </summary>
+        public void RegisterHandler(IUIScreenHandler handler) {
+            if (_handlers.Contains(handler)) {
+                return;
+            }
+
+            _handlers.Add(handler);
+            handler.OnRegistered(this);
+
+            // Active状態だった場合関数を呼び出しておく
+            if (IsActivated) {
+                if (!handler.IsActive) {
+                    handler.Activate();
+                }
+            }
+            else {
+                if (handler.IsActive) {
+                    handler.Deactivate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// ハンドラーの解除
+        /// </summary>
+        public void UnregisterHandler(IUIScreenHandler handler) {
+            if (!_handlers.Contains(handler)) {
+                return;
+            }
+
+            _handlers.Remove(handler);
+
+            // Active状態だった場合関数を呼び出しておく
+            if (handler.IsActive) {
+                handler.Deactivate();
+            }
+
+            handler.OnRegistered(this);
         }
 
         /// <summary>
@@ -280,6 +364,9 @@ namespace GameFramework.UISystems {
 
             IsActivated = true;
             ActivateInternal(_activeScope);
+            foreach (var handler in _handlers) {
+                handler.Activate();
+            }
         }
 
         /// <summary>
@@ -292,6 +379,10 @@ namespace GameFramework.UISystems {
 
             IsActivated = false;
             _animationScope.Clear();
+            foreach (var handler in _handlers) {
+                handler.Deactivate();
+            }
+
             DeactivateInternal();
             _activeScope.Clear();
         }
