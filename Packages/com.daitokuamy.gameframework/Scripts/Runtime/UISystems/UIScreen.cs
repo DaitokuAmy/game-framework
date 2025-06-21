@@ -76,13 +76,13 @@ namespace GameFramework.UISystems {
 
             gameObject.SetActive(true);
             CurrentOpenStatus = OpenStatus.Opening;
-            PreOpen(transitionType);
+            PreOpen(transitionType, immediate);
             foreach (var handler in _handlers) {
                 handler.PreOpen();
             }
 
             void PostOpenInternal() {
-                PostOpen(transitionType);
+                PostOpen(transitionType, immediate);
                 foreach (var handler in _handlers) {
                     handler.PostOpen();
                 }
@@ -154,13 +154,13 @@ namespace GameFramework.UISystems {
 
             Deactivate();
             CurrentOpenStatus = OpenStatus.Closing;
-            PreClose(transitionType);
+            PreClose(transitionType, immediate);
             foreach (var handler in _handlers) {
                 handler.PreClose();
             }
 
             void PostCloseInternal() {
-                PostClose(transitionType);
+                PostClose(transitionType, immediate);
                 foreach (var handler in _handlers) {
                     handler.PostClose();
                 }
@@ -228,7 +228,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く直前の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PreOpen(TransitionType transitionType) {
+        protected virtual void PreOpen(TransitionType transitionType, bool immediate) {
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開いた直後の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PostOpen(TransitionType transitionType) {
+        protected virtual void PostOpen(TransitionType transitionType, bool immediate) {
         }
 
         /// <summary>
@@ -259,7 +259,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じる直前の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PreClose(TransitionType transitionType) {
+        protected virtual void PreClose(TransitionType transitionType, bool immediate) {
         }
 
         /// <summary>
@@ -272,7 +272,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じた直後の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PostClose(TransitionType transitionType) {
+        protected virtual void PostClose(TransitionType transitionType, bool immediate) {
         }
 
         /// <summary>
