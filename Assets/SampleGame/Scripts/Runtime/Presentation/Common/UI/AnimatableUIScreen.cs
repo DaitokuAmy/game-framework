@@ -48,8 +48,8 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 開く後処理
         /// </summary>
-        protected override void PostOpen(TransitionType transitionType) {
-            base.PostOpen(transitionType);
+        protected override void PostOpen(TransitionType transitionType, bool immediate) {
+            base.PostOpen(transitionType, immediate);
             _animationPlayer.Skip(_openAnimation);
         }
 
@@ -64,8 +64,8 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 閉じる後処理
         /// </summary>
-        protected override void PostClose(TransitionType transitionType) {
-            base.PostOpen(transitionType);
+        protected override void PostClose(TransitionType transitionType, bool immediate) {
+            base.PostOpen(transitionType, immediate);
             _animationPlayer.Skip(GetCloseAnimation(transitionType));
         }
 

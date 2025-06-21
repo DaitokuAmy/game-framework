@@ -37,7 +37,7 @@ namespace GameFramework.UISystems {
                     transition = new CrossUITransition();
                 }
             }
-            
+
             // 並び順変更
             SetAsLastSibling(childKey);
 
@@ -45,7 +45,7 @@ namespace GameFramework.UISystems {
             var prevUIScreen = FindChild(_currentKey)?.uiScreen;
             var nextUIScreen = nextChildScreen?.uiScreen;
             _currentKey = childKey;
-            
+
             StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, transitionType, immediate, initAction),
                 () => op.Completed(nextUIScreen),
                 () => op.Aborted(),
@@ -72,7 +72,7 @@ namespace GameFramework.UISystems {
                 op.Completed();
                 return op;
             }
-            
+
             handle.ListenTo(_ => op.Completed(), ex => op.Aborted(ex));
             return op;
         }
@@ -80,8 +80,8 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く処理（後処理）
         /// </summary>
-        protected override void PostOpen(TransitionType transitionType) {
-            base.PostOpen(transitionType);
+        protected override void PostOpen(TransitionType transitionType, bool immediate) {
+            base.PostOpen(transitionType, immediate);
 
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
@@ -94,7 +94,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         protected override IEnumerator CloseRoutine(TransitionType transitionType, IScope cancelScope) {
             yield return base.CloseRoutine(transitionType, cancelScope);
-            
+
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
                 yield return childView.uiScreen.CloseAsync(transitionType, false);
@@ -104,9 +104,9 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じる処理（後処理）
         /// </summary>
-        protected override void PostClose(TransitionType transitionType) {
-            base.PostClose(transitionType);
-            
+        protected override void PostClose(TransitionType transitionType, bool immediate) {
+            base.PostClose(transitionType, immediate);
+
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
                 childView.uiScreen.CloseAsync(transitionType, true);

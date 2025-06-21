@@ -135,8 +135,8 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く処理（後処理）
         /// </summary>
-        protected override void PostOpen(TransitionType transitionType) {
-            base.PostOpen(transitionType);
+        protected override void PostOpen(TransitionType transitionType, bool immediate) {
+            base.PostOpen(transitionType, immediate);
 
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
@@ -159,8 +159,8 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じる処理（後処理）
         /// </summary>
-        protected override void PostClose(TransitionType transitionType) {
-            base.PostClose(transitionType);
+        protected override void PostClose(TransitionType transitionType, bool immediate) {
+            base.PostClose(transitionType, immediate);
             
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
