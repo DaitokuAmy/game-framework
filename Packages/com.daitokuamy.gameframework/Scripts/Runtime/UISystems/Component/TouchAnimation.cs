@@ -12,6 +12,8 @@ namespace GameFramework.UISystems {
         private RectTransform _target;
         [SerializeField, Tooltip("更新タイプ")]
         private UpdateType _updateType = UpdateType.LateUpdate;
+        [SerializeField, Tooltip("判定時にRaycast判定を貫通させるか")]
+        private bool _passRaycast = false;
 
         [Header("アニメーション")]
         [SerializeField, Tooltip("TouchDown時のアニメーション時間")]
@@ -56,7 +58,9 @@ namespace GameFramework.UISystems {
         void IPointerDownHandler.OnPointerDown(PointerEventData eventData) {
             _timer = _downDuration;
             _isDown = true;
-            EventSystemUtils.PassEvent(gameObject, eventData, ExecuteEvents.pointerDownHandler);
+            if (_passRaycast) {
+                EventSystemUtils.PassEvent(eventData, ExecuteEvents.pointerDownHandler);
+            }
         }
 
         /// <summary>
@@ -65,7 +69,9 @@ namespace GameFramework.UISystems {
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData) {
             _timer = _upDuration;
             _isDown = false;
-            EventSystemUtils.PassEvent(gameObject, eventData, ExecuteEvents.pointerUpHandler);
+            if (_passRaycast) {
+                EventSystemUtils.PassEvent(eventData, ExecuteEvents.pointerUpHandler);
+            }
         }
 
         /// <summary>
