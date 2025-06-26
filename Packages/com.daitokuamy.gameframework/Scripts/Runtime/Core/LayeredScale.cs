@@ -5,7 +5,7 @@ namespace GameFramework.Core {
     /// <summary>
     /// レイヤー管理可能スケール(floatの乗算)
     /// </summary>
-    public struct LayeredScale : IComparable<float> {
+    public struct LayeredScale : IComparable<float>, IEquatable<LayeredScale> {
         /// <summary>1.0fを表すScale</summary>
         public static readonly LayeredScale One = new();
         

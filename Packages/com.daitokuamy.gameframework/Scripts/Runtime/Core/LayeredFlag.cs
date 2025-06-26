@@ -8,7 +8,7 @@ namespace GameFramework.Core {
     /// <summary>
     /// レイヤー管理可能フラグ
     /// </summary>
-    public struct LayeredFlag {
+    public struct LayeredFlag : IEquatable<LayeredFlag> {
         /// <summary>空のフラグ</summary>
         public static readonly LayeredFlag Empty = new();
         
