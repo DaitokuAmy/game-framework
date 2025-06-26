@@ -199,6 +199,10 @@ namespace GameFramework.Core {
         public static LayeredFlag operator ~(LayeredFlag flag) {
             var result = flag;
 
+            if (result._bitFlags == null) {
+                result._bitFlags = new();
+            }
+
             for (var i = 0; i < flag.BitFlags.Count; i++) {
                 result._bitFlags[i] = ~flag.BitFlags[i];
             }
@@ -339,6 +343,10 @@ namespace GameFramework.Core {
         /// フラグのクリア
         /// </summary>
         public void Clear() {
+            if (_bitFlags == null) {
+                return;
+            }
+            
             _bitFlags.Clear();
         }
 

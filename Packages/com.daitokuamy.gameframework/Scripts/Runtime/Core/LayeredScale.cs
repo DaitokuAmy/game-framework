@@ -8,7 +8,7 @@ namespace GameFramework.Core {
     public struct LayeredScale : IComparable<float>, IEquatable<LayeredScale> {
         /// <summary>1.0fを表すScale</summary>
         public static readonly LayeredScale One = new();
-        
+
         private List<float> _scales;
 
         /// <summary>内部的なScaleリスト</summary>
@@ -49,7 +49,7 @@ namespace GameFramework.Core {
             if (lhs.Scales.Count != rhs.Scales.Count) {
                 return false;
             }
-            
+
             var count = lhs.Scales.Count;
             var result = 0.0;
             for (var i = 0; i < count; i++) {
@@ -303,6 +303,10 @@ namespace GameFramework.Core {
         /// Scaleの状態をクリア
         /// </summary>
         public void Clear() {
+            if (_scales == null) {
+                return;
+            }
+
             _scales.Clear();
         }
 
