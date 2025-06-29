@@ -1,9 +1,8 @@
 using System;
+using GameFramework;
 using GameFramework.BodySystems;
 using GameFramework.Core;
-using GameFramework.ActorSystems;
 using GameFramework.PlayableSystems;
-using SampleGame.Domain.ModelViewer;
 using UnityEngine;
 
 namespace SampleGame.Presentation.ModelViewer {

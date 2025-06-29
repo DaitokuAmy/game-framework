@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace GameFramework.Core {
     /// <summary>
@@ -188,69 +187,69 @@ namespace GameFramework.Core {
 
         private static float EaseInSine(float start, float end, float ratio) {
             end -= start;
-            return -end * Mathf.Cos(ratio / 1 * (Mathf.PI / 2)) + end + start;
+            return -end * FloatMath.Cos(ratio / 1 * (FloatMath.PI / 2)) + end + start;
         }
 
         private static float EaseOutSine(float start, float end, float ratio) {
             end -= start;
-            return end * Mathf.Sin(ratio / 1 * (Mathf.PI / 2)) + start;
+            return end * FloatMath.Sin(ratio / 1 * (FloatMath.PI / 2)) + start;
         }
 
         private static float EaseInOutSine(float start, float end, float ratio) {
             end -= start;
-            return -end / 2 * (Mathf.Cos(Mathf.PI * ratio / 1) - 1) + start;
+            return -end / 2 * (FloatMath.Cos(FloatMath.PI * ratio / 1) - 1) + start;
         }
 
         private static float EaseInExpo(float start, float end, float ratio) {
             end -= start;
-            return end * Mathf.Pow(2, 10 * (ratio / 1 - 1)) + start;
+            return end * FloatMath.Pow(2, 10 * (ratio / 1 - 1)) + start;
         }
 
         private static float EaseOutExpo(float start, float end, float ratio) {
             end -= start;
-            return end * (-Mathf.Pow(2, -10 * ratio / 1) + 1) + start;
+            return end * (-FloatMath.Pow(2, -10 * ratio / 1) + 1) + start;
         }
 
         private static float EaseInOutExpo(float start, float end, float ratio) {
             ratio /= 0.5f;
             end -= start;
             if (ratio < 1) {
-                return end / 2 * Mathf.Pow(2, 10 * (ratio - 1)) + start;
+                return end / 2 * FloatMath.Pow(2, 10 * (ratio - 1)) + start;
             }
 
             ratio--;
-            return end / 2 * (-Mathf.Pow(2, -10 * ratio) + 2) + start;
+            return end / 2 * (-FloatMath.Pow(2, -10 * ratio) + 2) + start;
         }
 
         private static float EaseInCirc(float start, float end, float ratio) {
             end -= start;
-            return -end * (Mathf.Sqrt(1 - ratio * ratio) - 1) + start;
+            return -end * (FloatMath.Sqrt(1 - ratio * ratio) - 1) + start;
         }
 
         private static float EaseOutCirc(float start, float end, float ratio) {
             ratio--;
             end -= start;
-            return end * Mathf.Sqrt(1 - ratio * ratio) + start;
+            return end * FloatMath.Sqrt(1 - ratio * ratio) + start;
         }
 
         private static float EaseInOutCirc(float start, float end, float ratio) {
             ratio /= 0.5f;
             end -= start;
             if (ratio < 1) {
-                return -end / 2 * (Mathf.Sqrt(1 - ratio * ratio) - 1) + start;
+                return -end / 2 * (FloatMath.Sqrt(1 - ratio * ratio) - 1) + start;
             }
 
             ratio -= 2;
-            return end / 2 * (Mathf.Sqrt(1 - ratio * ratio) + 1) + start;
+            return end / 2 * (FloatMath.Sqrt(1 - ratio * ratio) + 1) + start;
         }
 
         private static float Linear(float start, float end, float ratio) {
-            return Mathf.Lerp(start, end, ratio);
+            return FloatMath.Lerp(start, end, ratio);
         }
 
         private static float Spring(float start, float end, float ratio) {
-            ratio = Mathf.Clamp01(ratio);
-            ratio = (Mathf.Sin(ratio * Mathf.PI * (0.2f + 2.5f * ratio * ratio * ratio)) * Mathf.Pow(1f - ratio, 2.2f) + ratio) * (1f + (1.2f * (1f - ratio)));
+            ratio = FloatMath.Clamp01(ratio);
+            ratio = (FloatMath.Sin(ratio * FloatMath.PI * (0.2f + 2.5f * ratio * ratio * ratio)) * FloatMath.Pow(1f - ratio, 2.2f) + ratio) * (1f + (1.2f * (1f - ratio)));
             return start + (end - start) * ratio;
         }
 
@@ -331,19 +330,19 @@ namespace GameFramework.Core {
                 return start;
             }
 
-            if (Mathf.Abs((ratio /= d) - 1) < float.Epsilon) {
+            if (FloatMath.Abs((ratio /= d) - 1) < float.Epsilon) {
                 return start + end;
             }
 
-            if (a == 0f || a < Mathf.Abs(end)) {
+            if (a == 0f || a < FloatMath.Abs(end)) {
                 a = end;
                 s = p / 4;
             }
             else {
-                s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
+                s = p / (2 * FloatMath.PI) * FloatMath.Asin(end / a);
             }
 
-            return -(a * Mathf.Pow(2, 10 * (ratio -= 1)) * Mathf.Sin((ratio * d - s) * (2 * Mathf.PI) / p)) + start;
+            return -(a * FloatMath.Pow(2, 10 * (ratio -= 1)) * FloatMath.Sin((ratio * d - s) * (2 * FloatMath.PI) / p)) + start;
         }
 
         private static float EaseOutElastic(float start, float end, float ratio) {
@@ -358,19 +357,19 @@ namespace GameFramework.Core {
                 return start;
             }
 
-            if (Mathf.Abs((ratio /= d) - 1) < float.Epsilon) {
+            if (FloatMath.Abs((ratio /= d) - 1) < float.Epsilon) {
                 return start + end;
             }
 
-            if (a == 0f || a < Mathf.Abs(end)) {
+            if (a == 0f || a < FloatMath.Abs(end)) {
                 a = end;
                 s = p / 4;
             }
             else {
-                s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
+                s = p / (2 * FloatMath.PI) * FloatMath.Asin(end / a);
             }
 
-            return (a * Mathf.Pow(2, -10 * ratio) * Mathf.Sin((ratio * d - s) * (2 * Mathf.PI) / p) + end + start);
+            return (a * FloatMath.Pow(2, -10 * ratio) * FloatMath.Sin((ratio * d - s) * (2 * FloatMath.PI) / p) + end + start);
         }
 
         private static float EaseInOutElastic(float start, float end, float ratio) {
@@ -385,23 +384,23 @@ namespace GameFramework.Core {
                 return start;
             }
 
-            if (Mathf.Abs((ratio /= d / 2) - 2) < float.Epsilon) {
+            if (FloatMath.Abs((ratio /= d / 2) - 2) < float.Epsilon) {
                 return start + end;
             }
 
-            if (a == 0f || a < Mathf.Abs(end)) {
+            if (a == 0f || a < FloatMath.Abs(end)) {
                 a = end;
                 s = p / 4;
             }
             else {
-                s = p / (2 * Mathf.PI) * Mathf.Asin(end / a);
+                s = p / (2 * FloatMath.PI) * FloatMath.Asin(end / a);
             }
 
             if (ratio < 1) {
-                return -0.5f * (a * Mathf.Pow(2, 10 * (ratio -= 1)) * Mathf.Sin((ratio * d - s) * (2 * Mathf.PI) / p)) + start;
+                return -0.5f * (a * FloatMath.Pow(2, 10 * (ratio -= 1)) * FloatMath.Sin((ratio * d - s) * (2 * FloatMath.PI) / p)) + start;
             }
 
-            return a * Mathf.Pow(2, -10 * (ratio -= 1)) * Mathf.Sin((ratio * d - s) * (2 * Mathf.PI) / p) * 0.5f + end + start;
+            return a * FloatMath.Pow(2, -10 * (ratio -= 1)) * FloatMath.Sin((ratio * d - s) * (2 * FloatMath.PI) / p) * 0.5f + end + start;
         }
 
         private static float Punch(float start, float end, float ratio) {

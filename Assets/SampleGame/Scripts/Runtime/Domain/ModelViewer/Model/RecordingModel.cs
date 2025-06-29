@@ -1,4 +1,4 @@
-using GameFramework.ModelSystems;
+using GameFramework.OldModelSystems;
 using UnityEngine;
 
 namespace SampleGame.Domain.ModelViewer {

@@ -5,7 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace GameFrameworkTests {
+namespace GameFramework.Tests {
     /// <summary>
     /// VfxManager の基本動作テスト
     /// </summary>

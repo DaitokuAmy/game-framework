@@ -1,6 +1,5 @@
 using System;
 using GameFramework.BodySystems;
-using GameFramework.LogicSystems;
 
 namespace GameFramework.ActorSystems {
     /// <summary>

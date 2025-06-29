@@ -5,7 +5,7 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// メインシステム起動用のStarter基底
     /// </summary>
-    public abstract class MainSystemStarter : GameFramework.Core.MainSystemStarter {
+    public abstract class MainSystemStarter : GameFramework.MainSystemStarter {
         /// <summary>
         /// MainSystem開始引数の取得
         /// </summary>

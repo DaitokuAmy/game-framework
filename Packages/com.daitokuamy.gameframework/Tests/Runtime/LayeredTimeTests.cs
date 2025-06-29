@@ -2,7 +2,7 @@ using System;
 using GameFramework.Core;
 using NUnit.Framework;
 
-namespace GameFrameworkTests {
+namespace GameFramework.Tests {
     /// <summary>
     /// MockのDeltaTimeProvider（60FPS相当）
     /// </summary>
@@ -63,7 +63,7 @@ namespace GameFrameworkTests {
         [Test]
         public void ChangedTimeScaleEvent_IsInvoked() {
             var time = new LayeredTime(null, _mockDeltaTime);
-            float lastScale = -1;
+            var lastScale = -1.0f;
 
             time.ChangedTimeScaleEvent += scale => lastScale = scale;
             time.LocalTimeScale = 0.5f;

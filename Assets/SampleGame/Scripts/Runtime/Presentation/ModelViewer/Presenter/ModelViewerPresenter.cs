@@ -1,6 +1,6 @@
 using GameFramework.CameraSystems;
+using GameFramework;
 using GameFramework.Core;
-using GameFramework.LogicSystems;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using R3;

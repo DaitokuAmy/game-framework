@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
-using GameFramework.ModelSystems;
+using GameFramework.OldModelSystems;
 using UnityEngine;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -36,7 +36,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// アクターモデル
     /// </summary>
-    public class ActorModel : AutoIdModel<ActorModel>, IReadOnlyActorModel {
+    public class ActorModel : GameFramework.OldModelSystems.AutoIdModel<ActorModel>, IReadOnlyActorModel {
         private Dictionary<string, GameObject> _currentMeshAvatars;
         private IActorController _actorController;
 

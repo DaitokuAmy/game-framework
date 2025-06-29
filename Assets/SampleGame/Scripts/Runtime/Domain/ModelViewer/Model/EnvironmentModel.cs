@@ -1,4 +1,4 @@
-using GameFramework.ModelSystems;
+using GameFramework.OldModelSystems;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>

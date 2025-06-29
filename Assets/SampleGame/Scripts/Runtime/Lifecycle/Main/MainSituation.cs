@@ -1,5 +1,6 @@
 using System.Collections;
 using GameFramework.AssetSystems;
+using GameFramework;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using SampleGame.Infrastructure;

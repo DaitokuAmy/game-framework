@@ -6,13 +6,29 @@ namespace GameFramework.TableSystems.Editor {
     /// <summary>
     /// ScriptableTableData用のエディタ拡張
     /// </summary>
-    [CustomEditor(typeof(ScriptableTableData<>), true)]
+    [CustomEditor(typeof(ScriptableTableData<,>), true)]
     public class ScriptableTableDataEditor : UnityEditor.Editor {
         /// <summary>
         /// インスペクタ拡張
         /// </summary>
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
+
+            void SetIdProp(SerializedProperty prop, int index) {
+                if (prop == null) {
+                    return;
+                }
+
+                if (prop.propertyType == SerializedPropertyType.Integer) {
+                    prop.intValue = index + 1;
+                }
+                else if (prop.propertyType == SerializedPropertyType.String) {
+                    prop.stringValue = $"{index + 1}";
+                }
+                else if (prop.propertyType == SerializedPropertyType.Enum) {
+                    prop.intValue = index + 1;
+                }
+            }
 
             if (GUILayout.Button("Set automatically Id")) {
                 if (EditorUtility.DisplayDialog("警告", "既存のIDをElementのIndexをベースに割り振り直しますか？", "OK", "Cancel")) {
@@ -22,13 +38,11 @@ namespace GameFramework.TableSystems.Editor {
                         var elementProp = elementsProp.GetArrayElementAtIndex(i);
                         var idProp = elementProp.FindPropertyRelative("id");
                         if (idProp != null) {
-                            idProp.intValue = i + 1;
+                            SetIdProp(idProp, i);
                         }
                         else {
                             idProp = elementProp.FindPropertyRelative("_id");
-                            if (idProp != null) {
-                                idProp.intValue = i + 1;
-                            }
+                            SetIdProp(idProp, i);
                         }
                     }
 
@@ -37,7 +51,7 @@ namespace GameFramework.TableSystems.Editor {
             }
 
             if (CheckIdConflict()) {
-                EditorGUILayout.HelpBox("IDの重複が発生しています", MessageType.Error); 
+                EditorGUILayout.HelpBox("IDの重複が発生しています", MessageType.Error);
             }
         }
 
@@ -52,11 +66,9 @@ namespace GameFramework.TableSystems.Editor {
                 var idProp = elementProp.FindPropertyRelative("id");
                 if (idProp != null) {
                     var id = idProp.intValue;
-                    if (listUpIds.Contains(id)) {
+                    if (!listUpIds.Add(id)) {
                         return true;
                     }
-                    
-                    listUpIds.Add(id);
                 }
             }
 

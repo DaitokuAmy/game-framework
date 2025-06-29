@@ -2,7 +2,7 @@ using System;
 using ActionSequencer;
 using Unity.Cinemachine;
 using GameFramework.CameraSystems;
-using GameFramework.Core;
+using GameFramework;
 using UnityEngine;
 
 namespace SampleGame.Presentation {

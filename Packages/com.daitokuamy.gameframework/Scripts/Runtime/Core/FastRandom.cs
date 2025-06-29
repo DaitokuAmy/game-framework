@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace GameFramework.Core {
     /// <summary>
     /// 乱数計算用(XorShift)
@@ -51,7 +49,7 @@ namespace GameFramework.Core {
         public float Range(float min, float max) {
             Next();
             var t = (float)_x / uint.MaxValue;
-            return Mathf.Lerp(min, max, t);
+            return FloatMath.Lerp(min, max, t);
         }
     }
 }

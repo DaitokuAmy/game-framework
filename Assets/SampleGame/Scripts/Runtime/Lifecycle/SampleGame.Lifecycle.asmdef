@@ -1,0 +1,28 @@
+{
+    "name": "SampleGame.Lifecycle",
+    "rootNamespace": "",
+    "references": [
+        "GUID:85b654615a3197642a8aa060f9a9b403",
+        "GUID:8cc0f66793fe74e45ab79b7c2c56077c",
+        "GUID:abc30cb273e0c8e4794b88bf5e5fa977",
+        "GUID:544d700c9f540184cb010c53c11a2bfc",
+        "GUID:b7ce230c26f0a4c31a26e8847a04cc87",
+        "GUID:f06555f75b070af458a003d92f9efb00",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
+        "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
+        "GUID:58c518d4346be9042bfa20894cfca1d3",
+        "GUID:9e24947de15b9834991c9d8411ea37cf",
+        "GUID:595ae88c692ade14080300c03d59c554",
+        "GUID:84651a3751eca9349aac36a66bba901b"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

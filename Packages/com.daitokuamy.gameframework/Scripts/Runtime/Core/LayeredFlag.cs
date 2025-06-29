@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace GameFramework.Core {
     /// <summary>
@@ -79,7 +78,7 @@ namespace GameFramework.Core {
         /// 等価比較演算
         /// </summary>
         public static bool operator ==(LayeredFlag lhs, LayeredFlag rhs) {
-            var maxFlagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
+            var maxFlagCount = Math.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < maxFlagCount; i++) {
                 var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;
@@ -141,7 +140,7 @@ namespace GameFramework.Core {
         public static LayeredFlag operator &(LayeredFlag lhs, LayeredFlag rhs) {
             var result = new LayeredFlag();
             result._bitFlags = new List<uint>();
-            var flagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
+            var flagCount = Math.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < flagCount; i++) {
                 var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;
@@ -158,7 +157,7 @@ namespace GameFramework.Core {
         public static LayeredFlag operator |(LayeredFlag lhs, LayeredFlag rhs) {
             var result = new LayeredFlag();
             result._bitFlags = new List<uint>();
-            var flagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
+            var flagCount = Math.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < flagCount; i++) {
                 var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;
@@ -175,7 +174,7 @@ namespace GameFramework.Core {
         public static LayeredFlag operator ^(LayeredFlag lhs, LayeredFlag rhs) {
             var result = new LayeredFlag();
             result._bitFlags = new List<uint>();
-            var flagCount = Mathf.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
+            var flagCount = Math.Max(lhs.BitFlags.Count, rhs.BitFlags.Count);
 
             for (var i = 0; i < flagCount; i++) {
                 var maskA = i < lhs.BitFlags.Count ? lhs.BitFlags[i] : 0;

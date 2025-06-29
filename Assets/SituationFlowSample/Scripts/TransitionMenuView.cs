@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using GameFramework;
 using GameFramework.Core;
 using TMPro;
 using UniRx;

@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.ActorSystems;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.Battle;
-using R3;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

@@ -1,11 +1,11 @@
 using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.AssetSystems;
 using GameFramework.BodySystems;
 using GameFramework.CameraSystems;
 using GameFramework.Core;
-using GameFramework.LogicSystems;
 using GameFramework.SituationSystems;
 using R3;
 using SampleGame.Application.ModelViewer;

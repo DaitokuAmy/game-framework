@@ -1,4 +1,4 @@
-using GameFramework.Core;
+using GameFramework;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 

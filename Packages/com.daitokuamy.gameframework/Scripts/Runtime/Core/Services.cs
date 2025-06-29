@@ -1,7 +1,4 @@
 using System;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace GameFramework.Core {
     /// <summary>
@@ -38,23 +35,12 @@ namespace GameFramework.Core {
             return Instance.Resolve<T>();
         }
 
-#if UNITY_EDITOR
         /// <summary>
-        /// エディタ起動時の処理
+        /// シングルトンインスタンスごと解放
         /// </summary>
-        [InitializeOnLoadMethod]
-        private static void OnInitializeOnLoad() {
-            // Play/Edit切り替わり時にインスタンスを解放
-            EditorApplication.playModeStateChanged += change => {
-                switch (change) {
-                    case PlayModeStateChange.EnteredEditMode:
-                    case PlayModeStateChange.ExitingEditMode:
-                        s_instance?.Dispose();
-                        s_instance = null;
-                        break;
-                }
-            };
+        public static void Cleanup() {
+            s_instance?.Dispose();
+            s_instance = null;
         }
-#endif
     }
 }

@@ -1,8 +1,8 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.Core;
-using GameFramework.ModelSystems;
+using GameFramework.OldModelSystems;
 using R3;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -30,7 +30,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 表示用アクターモデル
     /// </summary>
-    public class ModelViewerModel : SingleModel<ModelViewerModel>, IReadOnlyModelViewerModel {
+    public class ModelViewerModel : GameFramework.OldModelSystems.SingleModel<ModelViewerModel>, IReadOnlyModelViewerModel {
         private IActorFactory _actorFactory;
         private IEnvironmentFactory _environmentFactory;
 

@@ -1,5 +1,5 @@
 using System.Linq;
-using GameFramework.LogicSystems;
+using GameFramework;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
 using UnityEngine.SceneManagement;

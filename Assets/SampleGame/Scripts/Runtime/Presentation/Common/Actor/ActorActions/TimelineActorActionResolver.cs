@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using ActionSequencer;
 using GameFramework.ActorSystems;
-using GameFramework.Core;
+using GameFramework;
 using GameFramework.PlayableSystems;
 using SampleGame.Infrastructure;
 using UnityEngine;

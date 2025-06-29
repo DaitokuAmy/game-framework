@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework;
 using GameFramework.Core;
 using R3;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
-using UniRx;
 
 namespace SampleGame.ModelViewer.Editor {
     /// <summary>

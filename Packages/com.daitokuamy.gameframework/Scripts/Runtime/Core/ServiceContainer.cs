@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace GameFramework.Core {
     /// <summary>
@@ -132,13 +131,11 @@ namespace GameFramework.Core {
         /// <returns>登録解除用のDisposable</returns>
         public IDisposable Register(Type interfaceType, Type classType, Func<object> createFunc = null) {
             if (_registeredServiceInfos.TryGetValue(interfaceType, out var info)) {
-                Debug.LogError($"Already registered type. Type:{interfaceType}");
-                return Disposable.Empty;
+                throw new Exception($"Already registered type. Type:{interfaceType}");
             }
 
             if (!interfaceType.IsAssignableFrom(classType)) {
-                Debug.LogError($"Not assignable. Type:{interfaceType}, InstanceType:{classType}");
-                return R3.Disposable.Empty;
+                throw new Exception($"Not assignable. Type:{interfaceType}, InstanceType:{classType}");
             }
 
             info = new RegisteredServiceInfo {
@@ -158,8 +155,7 @@ namespace GameFramework.Core {
         /// <returns>登録解除用のDisposable</returns>
         public IDisposable Register(Type classType, Func<object> createFunc = null) {
             if (_registeredServiceInfos.TryGetValue(classType, out var info)) {
-                Debug.LogError($"Already registered type. Type:{classType}");
-                return Disposable.Empty;
+                throw new Exception($"Already registered type. Type:{classType}");
             }
 
             info = new RegisteredServiceInfo {
@@ -201,13 +197,11 @@ namespace GameFramework.Core {
             }
 
             if (!type.IsAssignableFrom(instance.GetType())) {
-                Debug.LogError($"Not assignable. Type:{type}, InstanceType:{instance.GetType()}");
-                return R3.Disposable.Empty;
+                throw new Exception($"Not assignable. Type:{type}, InstanceType:{instance.GetType()}");
             }
 
             if (_registeredServiceInfos.TryGetValue(type, out var info)) {
-                Debug.LogError($"Already registered type. Type:{type}");
-                return Disposable.Empty;
+                throw new Exception($"Already registered type. Type:{type}");
             }
 
             info = new RegisteredServiceInfo {

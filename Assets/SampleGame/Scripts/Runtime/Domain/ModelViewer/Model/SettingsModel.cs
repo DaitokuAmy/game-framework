@@ -1,7 +1,8 @@
 using GameFramework.Core;
-using GameFramework.ModelSystems;
+using GameFramework.OldModelSystems;
 using R3;
 using UnityEngine;
+using GameFramework;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -26,7 +27,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 設定用モデル
     /// </summary>
-    public class SettingsModel : SingleModel<SettingsModel>, IReadOnlySettingsModel {
+    public class SettingsModel : GameFramework.OldModelSystems.SingleModel<SettingsModel>, IReadOnlySettingsModel {
         /// <summary>TimeScaleの最大値</summary>
         public const float TimeScaleMax = 10.0f;
 

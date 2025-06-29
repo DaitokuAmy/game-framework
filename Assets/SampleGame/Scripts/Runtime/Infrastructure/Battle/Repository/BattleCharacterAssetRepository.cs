@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.AssetSystems;
 using GameFramework.Core;
+using GameFramework.AssetSystems;
 using SampleGame.Presentation.Battle;
 
 namespace SampleGame.Infrastructure.Battle {

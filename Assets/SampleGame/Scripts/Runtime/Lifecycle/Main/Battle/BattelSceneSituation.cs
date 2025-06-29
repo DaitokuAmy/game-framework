@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.ActorSystems;
 using GameFramework.AssetSystems;
 using GameFramework.BodySystems;
