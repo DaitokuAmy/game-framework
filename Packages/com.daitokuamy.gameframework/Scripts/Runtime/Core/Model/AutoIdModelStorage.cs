@@ -1,17 +1,62 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GameFramework.Core {
     /// <summary>
+    /// AutoIdModelを管理するストレージのインターフェース
+    /// </summary>
+    public interface IAutoIdModelStorage : IModelStorage {
+        /// <summary>存在している要素リスト</summary>
+        IReadOnlyList<IModel> Items { get; }
+
+        /// <summary>
+        /// モデルの生成
+        /// </summary>
+        IModel Create();
+
+        /// <summary>
+        /// モデルの取得
+        /// </summary>
+        /// <param name="id">モデルの識別キー</param>
+        IModel Get(int id);
+
+        /// <summary>
+        /// 含まれているか
+        /// </summary>
+        /// <param name="id">モデルの識別キー</param>
+        bool Contains(int id);
+
+        /// <summary>
+        /// モデルの削除
+        /// </summary>
+        /// <param name="id">モデルの識別キー</param>
+        void Delete(int id);
+    }
+
+    /// <summary>
     /// AutoIdModelのストレージ
     /// </summary>
-    public sealed class AutoIdModelStorage<TModel>
+    public sealed class AutoIdModelStorage<TModel> : IAutoIdModelStorage
         where TModel : AutoIdModel<TModel>, new() {
         private readonly List<TModel> _items = new();
 
         private int _nextId = 1;
 
+        /// <inheritdoc/>
+        IReadOnlyList<IModel> IAutoIdModelStorage.Items => Items;
+
         /// <summary>モデルリスト</summary>
-        public IReadOnlyCollection<TModel> Items => _items;
+        public IReadOnlyList<TModel> Items => _items.Where(x => x != null).ToArray();
+
+        /// <inheritdoc/>
+        IModel IAutoIdModelStorage.Create() {
+            return Create();
+        }
+
+        /// <inheritdoc/>
+        IModel IAutoIdModelStorage.Get(int id) {
+            return Get(id);
+        }
 
         /// <summary>
         /// クリア処理(全Modelの削除)
@@ -37,7 +82,7 @@ namespace GameFramework.Core {
         public TModel Create() {
             var id = _nextId++;
             var model = new TModel();
-            _items[id] = model;
+            _items.Add(model);
             model.OnCreated(this, id);
             return model;
         }
