@@ -8,39 +8,51 @@ namespace GameFramework.SaveSystems {
     /// <summary>
     /// ローカル保存用のクラス
     /// </summary>
-    public static class LocalSave {
+    public class LocalSave {
         /// <summary>保存先のフォルダ</summary>
         private static readonly string SaveDirectory = Application.persistentDataPath;
         /// <summary>保存ファイルの拡張子</summary>
         private static readonly string FileExtension = ".sav";
 
         /// <summary>デフォルトAES鍵</summary>
-        private static readonly byte[] DefaultEncryptionKey = Encoding.UTF8.GetBytes("ThisIsA32ByteLongEncryptionKey!!"); // 32バイト
+        private static readonly string DefaultEncryptionKey = "ThisIsA32ByteLongEncryptionKey!!";
         /// <summary>デフォルトIV</summary>
-        private static readonly byte[] DefaultInitializationVector = Encoding.UTF8.GetBytes("ThisIs16ByteIV!!"); // 16バイト
-        
-        private static byte[] s_encryptionKey = DefaultEncryptionKey;
-        private static byte[] s_initializationVector = DefaultInitializationVector;
+        private static readonly string DefaultInitializationVector = "ThisIs16ByteIV!!";
+
+        private readonly string _saveDirectoryPath;
+        private readonly byte[] _encryptionKey;
+        private readonly byte[] _initializationVector;
 
         /// <summary>
         /// 保存先のパスを取得
         /// </summary>
-        private static string GetSaveFilePath(string fileName) {
-            return Path.Combine(SaveDirectory, $"{fileName}{FileExtension}");
+        private string GetSaveFilePath(string fileName) {
+            return Path.Combine(_saveDirectoryPath, $"{fileName}{FileExtension}");
         }
 
         /// <summary>
-        /// AES暗号のキーを設定
+        /// コンストラクタ
         /// </summary>
-        public static void SetAesKeys(string encryptionKey, string initializationVector) {
-            s_encryptionKey = Encoding.UTF8.GetBytes(encryptionKey);
-            s_initializationVector = Encoding.UTF8.GetBytes(initializationVector);
+        /// <param name="encryptionKey">暗号化キー</param>
+        /// <param name="initializationVector">暗号化IV</param>
+        /// <param name="folderPath">フォルダパス</param>
+        public LocalSave(string encryptionKey, string initializationVector, string folderPath = "") {
+            _saveDirectoryPath = string.IsNullOrWhiteSpace(folderPath) ? SaveDirectory : Path.Combine(SaveDirectory, folderPath);
+            _encryptionKey = Encoding.UTF8.GetBytes(encryptionKey);
+            _initializationVector = Encoding.UTF8.GetBytes(initializationVector);
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public LocalSave()
+            : this(DefaultEncryptionKey, DefaultInitializationVector, string.Empty) {
         }
 
         /// <summary>
         /// セーブ
         /// </summary>
-        public static void Save<T>(T data, string fileName) {
+        public void Save<T>(T data, string fileName) {
             try {
                 var json = JsonUtility.ToJson(data, true);
                 var encrypted = Encrypt(json);
@@ -55,7 +67,7 @@ namespace GameFramework.SaveSystems {
         /// <summary>
         /// ロード
         /// </summary>
-        public static T Load<T>(string fileName, T defaultValue = default) where T : new() {
+        public T Load<T>(string fileName, T defaultValue = default) where T : new() {
             var path = GetSaveFilePath(fileName);
             if (!File.Exists(path)) {
                 return defaultValue;
@@ -75,7 +87,7 @@ namespace GameFramework.SaveSystems {
         /// <summary>
         /// ファイルの削除
         /// </summary>
-        public static void Delete(string fileName) {
+        public void Delete(string fileName) {
             var path = GetSaveFilePath(fileName);
             if (File.Exists(path)) {
                 File.Delete(path);
@@ -86,18 +98,17 @@ namespace GameFramework.SaveSystems {
         /// <summary>
         /// ファイルが存在するかどうか
         /// </summary>
-        public static bool Exists(string fileName) {
+        public bool Exists(string fileName) {
             return File.Exists(GetSaveFilePath(fileName));
         }
-
 
         /// <summary>
         /// 暗号化
         /// </summary>
-        private static byte[] Encrypt(string plainText) {
+        private byte[] Encrypt(string plainText) {
             using var aes = Aes.Create();
-            aes.Key = s_encryptionKey;
-            aes.IV = s_initializationVector;
+            aes.Key = _encryptionKey;
+            aes.IV = _initializationVector;
 
             using var ms = new MemoryStream();
             using var cryptoStream = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
@@ -110,10 +121,10 @@ namespace GameFramework.SaveSystems {
         /// <summary>
         /// 複合化
         /// </summary>
-        private static string Decrypt(byte[] cipherData) {
+        private string Decrypt(byte[] cipherData) {
             using var aes = Aes.Create();
-            aes.Key = s_encryptionKey;
-            aes.IV = s_initializationVector;
+            aes.Key = _encryptionKey;
+            aes.IV = _initializationVector;
 
             using var ms = new MemoryStream(cipherData);
             using var cryptoStream = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
