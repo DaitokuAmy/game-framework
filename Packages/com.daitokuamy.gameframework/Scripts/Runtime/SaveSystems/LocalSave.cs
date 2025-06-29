@@ -55,11 +55,10 @@ namespace GameFramework.SaveSystems {
         /// <summary>
         /// ロード
         /// </summary>
-        public static T Load<T>(string fileName) where T : new() {
+        public static T Load<T>(string fileName, T defaultValue = default) where T : new() {
             var path = GetSaveFilePath(fileName);
             if (!File.Exists(path)) {
-                Debug.LogWarning($"No found in save file '{fileName}', returning default");
-                return new T();
+                return defaultValue;
             }
 
             try {
@@ -69,7 +68,7 @@ namespace GameFramework.SaveSystems {
             }
             catch (Exception e) {
                 Debug.LogError($"Failed to load: {e}");
-                return new T();
+                return defaultValue;
             }
         }
 
