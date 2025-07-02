@@ -13,7 +13,7 @@ namespace GameFramework.Core {
         public bool IsCompleted {
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => !_process.IsDone;
+            get => _process.IsDone;
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace GameFramework.Core {
         public bool IsCompleted {
             [DebuggerHidden]
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => !_process.IsDone;
+            get => _process.IsDone;
         }
 
         /// <summary>
