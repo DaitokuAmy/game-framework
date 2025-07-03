@@ -1,16 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using GameFramework.Core;
 using GameFramework.TaskSystems;
 using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
-using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace GameFramework.CutsceneSystems {
@@ -22,51 +19,35 @@ namespace GameFramework.CutsceneSystems {
         /// 再生管理用ハンドル
         /// </summary>
         public struct Handle : IDisposable, IEventProcess {
-            // 再生中の情報
             private PlayingInfo _playingInfo;
 
             /// <summary>再生中か</summary>
             public bool IsPlaying => _playingInfo != null && _playingInfo.IsPlaying();
+
             /// <summary>完了しているか</summary>
             public bool IsDone => !IsPlaying;
-            
+
             /// <summary>未使用</summary>
             object IEnumerator.Current => null;
+
             /// <summary>エラー</summary>
             Exception IProcess.Exception => null;
+
             /// <summary>終了通知</summary>
-            event Action IEventProcess.OnExitEvent {
+            event Action IEventProcess.ExitEvent {
                 add {
                     if (_playingInfo == null) {
                         return;
                     }
 
-                    _playingInfo.OnStopEvent += value;
+                    _playingInfo.StopEvent += value;
                 }
                 remove {
                     if (_playingInfo == null) {
                         return;
                     }
 
-                    _playingInfo.OnStopEvent -= value;
-                }
-            }
-            
-            /// <summary>停止通知</summary>
-            public event Action OnStopEvent {
-                add {
-                    if (_playingInfo == null) {
-                        return;
-                    }
-
-                    _playingInfo.OnStopEvent += value;
-                }
-                remove {
-                    if (_playingInfo == null) {
-                        return;
-                    }
-
-                    _playingInfo.OnStopEvent -= value;
+                    _playingInfo.StopEvent -= value;
                 }
             }
 
@@ -78,22 +59,15 @@ namespace GameFramework.CutsceneSystems {
             }
 
             /// <summary>
-            /// イベント通知の監視
+            /// 再生
             /// </summary>
-            /// <param name="onPlay">再生開始通知</param>
-            /// <param name="onStop">再生停止通知</param>
-            public void BindEvents(Action onPlay, Action onStop) {
+            public void Play<T>(Action<T> onSetup)
+                where T : ICutscene {
                 if (_playingInfo == null) {
                     return;
                 }
 
-                if (onPlay != null) {
-                    _playingInfo.OnPlayEvent += onPlay;
-                }
-
-                if (onStop != null) {
-                    _playingInfo.OnStopEvent += onStop;
-                }
+                _playingInfo.Play(onSetup);
             }
 
             /// <summary>
@@ -104,7 +78,7 @@ namespace GameFramework.CutsceneSystems {
                     return;
                 }
 
-                _playingInfo.Play();
+                _playingInfo.Play<ICutscene>(null);
             }
 
             /// <summary>
@@ -137,7 +111,7 @@ namespace GameFramework.CutsceneSystems {
                     return;
                 }
 
-                _playingInfo.Dispose();
+                _playingInfo.Cleanup();
                 _playingInfo = null;
             }
 
@@ -158,26 +132,29 @@ namespace GameFramework.CutsceneSystems {
         /// <summary>
         /// 再生中情報
         /// </summary>
-        internal class PlayingInfo : IDisposable {
-            // TimeScale変更用LayeredTime
-            private readonly LayeredTime _layeredTime;
-            // 自動廃棄するか
+        internal class PlayingInfo {
+            private LayeredTime _layeredTime;
             private bool _autoDispose;
+            private bool _initialized;
 
-            // 再生通知
-            public event Action OnPlayEvent;
-            // 停止通知
-            public event Action OnStopEvent;
+            /// <summary>再生通知</summary>
+            public event Action PlayEvent;
 
-            // 制御対象
+            /// <summary>停止通知</summary>
+            public event Action StopEvent;
+
+            /// <summary>制御対象</summary>
             public CutsceneInfo CutsceneInfo { get; private set; }
-            // 廃棄済みか
-            public bool Disposed { get; private set; }
 
             /// <summary>
-            /// コンストラクタ
+            /// 初期化処理
             /// </summary>
-            public PlayingInfo(CutsceneInfo cutsceneInfo, LayeredTime layeredTime, bool autoDispose) {
+            public void Setup(CutsceneInfo cutsceneInfo, LayeredTime layeredTime, bool autoDispose) {
+                if (_initialized) {
+                    return;
+                }
+
+                _initialized = true;
                 CutsceneInfo = cutsceneInfo;
                 _layeredTime = layeredTime;
                 _autoDispose = autoDispose;
@@ -192,10 +169,10 @@ namespace GameFramework.CutsceneSystems {
             }
 
             /// <summary>
-            /// 廃棄処理
+            /// クリーン処理
             /// </summary>
-            public void Dispose() {
-                if (Disposed) {
+            public void Cleanup() {
+                if (!_initialized) {
                     return;
                 }
 
@@ -204,107 +181,116 @@ namespace GameFramework.CutsceneSystems {
                     _layeredTime.ChangedTimeScaleEvent -= OnChangedTimeScale;
                 }
 
-                Disposed = true;
+                _initialized = false;
             }
 
             /// <summary>
             /// 更新処理
             /// </summary>
-            public void Update() {
-                if (Disposed) {
-                    return;
+            public bool Update() {
+                if (!_initialized) {
+                    return false;
                 }
 
                 var deltaTime = _layeredTime?.DeltaTime ?? Time.deltaTime;
-                var playing = CutsceneInfo.cutscene?.IsPlaying ?? false;
+                var playing = CutsceneInfo.Cutscene?.IsPlaying ?? false;
                 if (playing) {
                     // Cutsceneの更新
-                    CutsceneInfo.cutscene.Update(deltaTime);
+                    CutsceneInfo.Cutscene.Update(deltaTime);
 
                     // 再生停止
-                    playing = CutsceneInfo.cutscene.IsPlaying;
+                    playing = CutsceneInfo.Cutscene.IsPlaying;
                     if (!playing) {
-                        CutsceneInfo.cutscene.Stop();
-                        OnStopEvent?.Invoke();
+                        CutsceneInfo.Cutscene.Stop();
+                        StopEvent?.Invoke();
                     }
                 }
 
                 // 自動廃棄処理
                 if (_autoDispose && !playing) {
-                    Dispose();
+                    Cleanup();
                 }
+
+                // Cleanupされていなければ true
+                return _initialized;
             }
 
             /// <summary>
             /// 再生処理
             /// </summary>
-            public void Play() {
-                if (Disposed) {
+            public void Play<T>(Action<T> onSetup)
+                where T : ICutscene {
+                if (!_initialized) {
                     return;
                 }
 
-                if (CutsceneInfo.cutscene == null) {
+                if (CutsceneInfo.Cutscene == null) {
                     return;
                 }
 
-                if (CutsceneInfo.cutscene.IsPlaying) {
+                if (CutsceneInfo.Cutscene.IsPlaying) {
                     return;
                 }
 
-                CutsceneInfo.root.SetActive(true);
-                CutsceneInfo.cutscene.Play();
+                CutsceneInfo.Root.SetActive(true);
 
-                OnPlayEvent?.Invoke();
+                if (onSetup != null && CutsceneInfo.Cutscene is T cutscene) {
+                    onSetup.Invoke(cutscene);
+                }
+
+                CutsceneInfo.Cutscene.Play();
+
+                PlayEvent?.Invoke();
             }
 
             /// <summary>
             /// 停止処理
             /// </summary>
             public void Stop(bool autoDispose) {
-                if (Disposed) {
+                if (!_initialized) {
                     return;
                 }
 
                 // 停止時にAutoDisposeが指定されたら上書きする
                 _autoDispose |= autoDispose;
 
-                if (CutsceneInfo.cutscene == null) {
+                if (CutsceneInfo.Cutscene == null) {
                     return;
                 }
 
-                if (!CutsceneInfo.cutscene.IsPlaying) {
+                if (!CutsceneInfo.Cutscene.IsPlaying) {
                     return;
                 }
 
-                CutsceneInfo.cutscene.Stop();
-                OnStopEvent?.Invoke();
+                CutsceneInfo.Cutscene.Stop();
+                StopEvent?.Invoke();
             }
 
             /// <summary>
             /// 時間の設定
             /// </summary>
             public void SetTime(float time) {
-                if (Disposed) {
+                if (!_initialized) {
                     return;
                 }
 
-                if (CutsceneInfo.cutscene == null) {
+                if (CutsceneInfo.Cutscene == null) {
                     return;
                 }
-                
-                CutsceneInfo.cutscene.Seek(time);
+
+                CutsceneInfo.Cutscene.Seek(time);
             }
 
             /// <summary>
             /// 再生中か
             /// </summary>
             public bool IsPlaying() {
-                if (Disposed) {
+                if (!_initialized) {
                     return false;
                 }
 
-                if (CutsceneInfo.cutscene != null) {
-                    return CutsceneInfo.cutscene.IsPlaying;
+                if (CutsceneInfo.Cutscene != null) {
+                    return CutsceneInfo.Cutscene.IsPlaying;
                 }
 
                 return false;
@@ -314,8 +300,8 @@ namespace GameFramework.CutsceneSystems {
             /// TimeScaleの変更監視
             /// </summary>
             private void OnChangedTimeScale(float timeScale) {
-                if (CutsceneInfo?.cutscene != null) {
-                    CutsceneInfo.cutscene.SetSpeed(timeScale);
+                if (CutsceneInfo?.Cutscene != null) {
+                    CutsceneInfo.Cutscene.SetSpeed(timeScale);
                 }
             }
         }
@@ -324,25 +310,21 @@ namespace GameFramework.CutsceneSystems {
         /// プール用のカットシーン情報
         /// </summary>
         internal class CutsceneInfo {
-            public GameObject root;
-            public GameObject prefab;
-            public Scene scene;
-            public ICutscene cutscene;
+            public GameObject Root;
+            public GameObject Prefab;
+            public Scene Scene;
+            public ICutscene Cutscene;
         }
 
-        // Poolキャパシティ
         private readonly int _poolDefaultCapacity;
         private readonly int _poolMaxCapacity;
-        // GameTimeによる更新モード
         private readonly bool _updateGameTime;
-
-        // インスタンス格納用のTransform
-        private Transform _rootTransform;
-        // インスタンスキャッシュ用のPool
         private readonly Dictionary<GameObject, ObjectPool<CutsceneInfo>> _prefabBaseCutscenePools = new();
         private readonly Dictionary<Scene, CutsceneInfo> _sceneBaseCutsceneInfos = new();
-        // 管理用再生中情報
-        private List<PlayingInfo> _playingInfos = new();
+        private readonly List<PlayingInfo> _playingInfos = new();
+        private readonly ObjectPool<PlayingInfo> _playingInfoPool;
+
+        private Transform _rootTransform;
 
         /// <summary>
         /// コンストラクタ
@@ -360,6 +342,40 @@ namespace GameFramework.CutsceneSystems {
             dispatcher.Setup(this);
             Object.DontDestroyOnLoad(root);
             _rootTransform = root.transform;
+            _playingInfoPool = new(
+                () => new PlayingInfo(),
+                null, null,
+                info => { info.Cleanup(); });
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected override void DisposeInternal() {
+            Clear();
+
+            _playingInfoPool.Dispose();
+            if (_rootTransform != null) {
+                Object.Destroy(_rootTransform.gameObject);
+                _rootTransform = null;
+            }
+        }
+
+        /// <summary>
+        /// 後更新処理
+        /// </summary>
+        protected override void LateUpdateInternal() {
+            // 再生中情報の更新
+            for (var i = _playingInfos.Count - 1; i >= 0; i--) {
+                var info = _playingInfos[i];
+
+                // 更新処理
+                if (!info.Update()) {
+                    // 廃棄対象ならPoolに戻す
+                    ReleasePlayingInfo(info);
+                    ReturnCutsceneInfo(info.CutsceneInfo);
+                }
+            }
         }
 
         /// <summary>
@@ -369,10 +385,8 @@ namespace GameFramework.CutsceneSystems {
         /// <param name="prefab">再生対象のPrefab</param>
         /// <param name="position">初期座標</param>
         /// <param name="rotation">初期向き</param>
-        /// <param name="onSetup">初期化処理</param>
         /// <param name="layeredTime">再生速度コントロール用LayeredTime</param>
-        public Handle Get<T>(GameObject prefab, Vector3 position, Quaternion rotation, Action<T> onSetup, LayeredTime layeredTime = null)
-            where T : class, ICutscene {
+        public Handle GetHandle(GameObject prefab, Vector3 position, Quaternion rotation, LayeredTime layeredTime = null) {
             // 再生情報の生成
             var playingInfo = CreatePlayingInfo(prefab, layeredTime, false);
             if (playingInfo == null) {
@@ -380,10 +394,9 @@ namespace GameFramework.CutsceneSystems {
             }
 
             // 初期化
-            var trans = playingInfo.CutsceneInfo.root.transform;
+            var trans = playingInfo.CutsceneInfo.Root.transform;
             trans.position = position;
             trans.rotation = rotation;
-            onSetup?.Invoke(playingInfo.CutsceneInfo.cutscene as T);
             // Handle化して返却
             return new Handle(playingInfo);
         }
@@ -393,29 +406,9 @@ namespace GameFramework.CutsceneSystems {
         /// ※使用が終わった場合、HandleをDisposeしてください
         /// </summary>
         /// <param name="prefab">再生対象のPrefab</param>
-        /// <param name="onSetup">初期化処理</param>
         /// <param name="layeredTime">再生速度コントロール用LayeredTime</param>
-        public Handle Get<T>(GameObject prefab, Action<T> onSetup, LayeredTime layeredTime = null)
-            where T : class, ICutscene {
-            return Get(prefab, Vector3.zero, Quaternion.identity, onSetup, layeredTime);
-        }
-
-        /// <summary>
-        /// インスタンスの取得(再生はコールせずに自分でハンドリングする)
-        /// ※使用が終わった場合、HandleをDisposeしてください
-        /// </summary>
-        /// <param name="prefab">再生対象のPrefab</param>
-        /// <param name="layeredTime">再生速度コントロール用LayeredTime</param>
-        public Handle Get(GameObject prefab, LayeredTime layeredTime = null) {
-            return Get<ICutscene>(prefab, Vector3.zero, Quaternion.identity, null, layeredTime);
-        }
-
-        /// <summary>
-        /// シーンタイプのカットシーンを初期化(非アクティブ化)
-        /// </summary>
-        /// <param name="scene">再生対象のScene</param>
-        public void Setup(Scene scene) {
-            GetCutsceneInfo(scene);
+        public Handle GetHandle(GameObject prefab, LayeredTime layeredTime = null) {
+            return GetHandle(prefab, Vector3.zero, Quaternion.identity, layeredTime);
         }
 
         /// <summary>
@@ -427,7 +420,7 @@ namespace GameFramework.CutsceneSystems {
         /// <param name="rotation">初期向き</param>
         /// <param name="onSetup">初期化処理</param>
         /// <param name="layeredTime">再生速度コントロール用LayeredTime</param>
-        public Handle Get<T>(Scene scene, Vector3 position, Quaternion rotation, Action<T> onSetup, LayeredTime layeredTime = null)
+        public Handle GetHandle<T>(Scene scene, Vector3 position, Quaternion rotation, Action<T> onSetup, LayeredTime layeredTime = null)
             where T : class, ICutscene {
             // 再生情報の生成
             var playingInfo = CreatePlayingInfo(scene, layeredTime, false);
@@ -436,10 +429,10 @@ namespace GameFramework.CutsceneSystems {
             }
 
             // 初期化
-            var trans = playingInfo.CutsceneInfo.root.transform;
+            var trans = playingInfo.CutsceneInfo.Root.transform;
             trans.position = position;
             trans.rotation = rotation;
-            onSetup?.Invoke(playingInfo.CutsceneInfo.cutscene as T);
+            onSetup?.Invoke(playingInfo.CutsceneInfo.Cutscene as T);
             // Handle化して返却
             return new Handle(playingInfo);
         }
@@ -451,9 +444,9 @@ namespace GameFramework.CutsceneSystems {
         /// <param name="scene">再生対象のScene</param>
         /// <param name="onSetup">初期化処理</param>
         /// <param name="layeredTime">再生速度コントロール用LayeredTime</param>
-        public Handle Get<T>(Scene scene, Action<T> onSetup, LayeredTime layeredTime = null)
+        public Handle GetHandle<T>(Scene scene, Action<T> onSetup, LayeredTime layeredTime = null)
             where T : class, ICutscene {
-            return Get(scene, Vector3.zero, Quaternion.identity, onSetup, layeredTime);
+            return GetHandle(scene, Vector3.zero, Quaternion.identity, onSetup, layeredTime);
         }
 
         /// <summary>
@@ -462,8 +455,8 @@ namespace GameFramework.CutsceneSystems {
         /// </summary>
         /// <param name="scene">再生対象のScene</param>
         /// <param name="layeredTime">再生速度コントロール用LayeredTime</param>
-        public Handle Get(Scene scene, LayeredTime layeredTime = null) {
-            return Get<ICutscene>(scene, Vector3.zero, Quaternion.identity, null, layeredTime);
+        public Handle GetHandle(Scene scene, LayeredTime layeredTime = null) {
+            return GetHandle<ICutscene>(scene, Vector3.zero, Quaternion.identity, null, layeredTime);
         }
 
         /// <summary>
@@ -483,12 +476,11 @@ namespace GameFramework.CutsceneSystems {
             }
 
             // 初期化
-            var trans = playingInfo.CutsceneInfo.root.transform;
+            var trans = playingInfo.CutsceneInfo.Root.transform;
             trans.position = position;
             trans.rotation = rotation;
-            onSetup?.Invoke(playingInfo.CutsceneInfo.cutscene as T);
             // 再生
-            playingInfo.Play();
+            playingInfo.Play(onSetup);
             // Handle化して返却
             return new Handle(playingInfo);
         }
@@ -530,12 +522,11 @@ namespace GameFramework.CutsceneSystems {
             }
 
             // 初期化
-            var trans = playingInfo.CutsceneInfo.root.transform;
+            var trans = playingInfo.CutsceneInfo.Root.transform;
             trans.position = position;
             trans.rotation = rotation;
-            onSetup?.Invoke(playingInfo.CutsceneInfo.cutscene as T);
             // 再生
-            playingInfo.Play();
+            playingInfo.Play(onSetup);
             // Handle化して返却
             return new Handle(playingInfo);
         }
@@ -567,12 +558,10 @@ namespace GameFramework.CutsceneSystems {
             // Poolに全部戻して削除
             for (var i = _playingInfos.Count - 1; i >= 0; i--) {
                 var info = _playingInfos[i];
-
-                // 廃棄
-                info.Dispose();
+                info.Cleanup();
 
                 // 未使用リストに戻す
-                _playingInfos.RemoveAt(i);
+                _playingInfoPool.Release(info);
                 ReturnCutsceneInfo(info.CutsceneInfo);
             }
 
@@ -583,41 +572,11 @@ namespace GameFramework.CutsceneSystems {
 
             // Cutsceneを全部削除
             foreach (var info in _sceneBaseCutsceneInfos.Values) {
-                info.cutscene.Dispose();
+                info.Cutscene.Dispose();
             }
 
             _prefabBaseCutscenePools.Clear();
             _sceneBaseCutsceneInfos.Clear();
-        }
-
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        protected override void DisposeInternal() {
-            Clear();
-
-            if (_rootTransform != null) {
-                Object.Destroy(_rootTransform.gameObject);
-            }
-        }
-
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        protected override void LateUpdateInternal() {
-            // 再生中情報の更新
-            for (var i = _playingInfos.Count - 1; i >= 0; i--) {
-                var info = _playingInfos[i];
-
-                // 更新処理
-                info.Update();
-
-                // 廃棄対象ならPoolに戻す
-                if (info.Disposed) {
-                    _playingInfos.RemoveAt(i);
-                    ReturnCutsceneInfo(info.CutsceneInfo);
-                }
-            }
         }
 
         /// <summary>
@@ -634,7 +593,8 @@ namespace GameFramework.CutsceneSystems {
             }
 
             // 再生情報の構築
-            var playingInfo = new PlayingInfo(cutsceneInfo, layeredTime, autoDispose);
+            var playingInfo = _playingInfoPool.Get();
+            playingInfo.Setup(cutsceneInfo, layeredTime, autoDispose);
             _playingInfos.Add(playingInfo);
 
             return playingInfo;
@@ -654,20 +614,29 @@ namespace GameFramework.CutsceneSystems {
             }
 
             // 再生中なら停止して再実行
-            if (cutsceneInfo.cutscene.IsPlaying) {
+            if (cutsceneInfo.Cutscene.IsPlaying) {
                 var oldPlayingInfo = _playingInfos.FirstOrDefault(x => x.CutsceneInfo == cutsceneInfo);
                 if (oldPlayingInfo != null) {
-                    oldPlayingInfo.Dispose();
-                    _playingInfos.Remove(oldPlayingInfo);
+                    ReleasePlayingInfo(oldPlayingInfo);
                     ReturnCutsceneInfo(oldPlayingInfo.CutsceneInfo);
                 }
             }
 
             // 再生情報の構築
-            var playingInfo = new PlayingInfo(cutsceneInfo, layeredTime, autoDispose);
+            var playingInfo = _playingInfoPool.Get();
+            playingInfo.Setup(cutsceneInfo, layeredTime, autoDispose);
             _playingInfos.Add(playingInfo);
 
             return playingInfo;
+        }
+
+        /// <summary>
+        /// PlayingInfoの返却
+        /// </summary>
+        private void ReleasePlayingInfo(PlayingInfo playingInfo) {
+            playingInfo.Cleanup();
+            _playingInfos.Remove(playingInfo);
+            _playingInfoPool.Release(playingInfo);
         }
 
         /// <summary>
@@ -675,8 +644,7 @@ namespace GameFramework.CutsceneSystems {
         /// </summary>
         private CutsceneInfo GetCutsceneInfo(GameObject prefab) {
             if (prefab == null) {
-                Debug.unityLogger.LogError(nameof(CutsceneManager), "prefab is null.");
-                return null;
+                throw new ArgumentNullException($"Prefab is null");
             }
 
             // Poolが作られていなければ、ここで生成
@@ -693,8 +661,7 @@ namespace GameFramework.CutsceneSystems {
         /// </summary>
         private CutsceneInfo GetCutsceneInfo(Scene scene) {
             if (!scene.IsValid()) {
-                Debug.unityLogger.LogError(nameof(CutsceneManager), "scene is invalid.");
-                return null;
+                throw new ArgumentNullException($"Scene is invalid");
             }
 
             // CutsceneInfoが作られていなければ、ここで生成
@@ -710,23 +677,21 @@ namespace GameFramework.CutsceneSystems {
         /// CutsceneInfoの返却
         /// </summary>
         private void ReturnCutsceneInfo(CutsceneInfo cutsceneInfo) {
-            if (cutsceneInfo.prefab != null) {
-                if (!_prefabBaseCutscenePools.TryGetValue(cutsceneInfo.prefab, out var pool)) {
-                    Debug.unityLogger.LogWarning(nameof(CutsceneManager), $"Not found cutscene pool. {cutsceneInfo.prefab.name}");
+            if (cutsceneInfo.Prefab != null) {
+                if (!_prefabBaseCutscenePools.TryGetValue(cutsceneInfo.Prefab, out var pool)) {
                     return;
                 }
 
                 pool.Release(cutsceneInfo);
             }
 
-            if (cutsceneInfo.scene.IsValid()) {
-                if (!_sceneBaseCutsceneInfos.TryGetValue(cutsceneInfo.scene, out var info)) {
-                    Debug.unityLogger.LogWarning(nameof(CutsceneManager), $"Not found cutscene info. {cutsceneInfo.scene.name}");
+            if (cutsceneInfo.Scene.IsValid()) {
+                if (!_sceneBaseCutsceneInfos.TryGetValue(cutsceneInfo.Scene, out var info)) {
                     return;
                 }
 
-                info.cutscene.OnReturn();
-                info.root.SetActive(false);
+                info.Cutscene.OnReturn();
+                info.Root.SetActive(false);
             }
         }
 
@@ -748,18 +713,18 @@ namespace GameFramework.CutsceneSystems {
                     cutscene.Initialize(_updateGameTime);
 
                     return new CutsceneInfo {
-                        root = instance,
-                        prefab = prefab,
-                        cutscene = cutscene
+                        Root = instance,
+                        Prefab = prefab,
+                        Cutscene = cutscene
                     };
                 }, _ => { },
                 info => {
-                    info.cutscene.OnReturn();
-                    info.root.SetActive(false);
+                    info.Cutscene.OnReturn();
+                    info.Root.SetActive(false);
                 },
                 info => {
-                    info.cutscene.Dispose();
-                    Object.Destroy(info.root);
+                    info.Cutscene.Dispose();
+                    Object.Destroy(info.Root);
                 }, true, _poolDefaultCapacity, _poolMaxCapacity);
 
             return pool;
@@ -795,9 +760,9 @@ namespace GameFramework.CutsceneSystems {
             cutscene.Initialize(_updateGameTime);
 
             return new CutsceneInfo {
-                root = instance,
-                scene = scene,
-                cutscene = cutscene
+                Root = instance,
+                Scene = scene,
+                Cutscene = cutscene
             };
         }
     }

@@ -33,7 +33,7 @@ namespace GameFramework.UISystems {
             bool IProcess.IsDone => _playingInfo == null || IsFinished;
             
             /// <summary>終了通知</summary>
-            event Action IEventProcess.OnExitEvent {
+            event Action IEventProcess.ExitEvent {
                 add {
                     if (_playingInfo == null) {
                         return;

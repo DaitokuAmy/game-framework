@@ -180,6 +180,8 @@ namespace GameFramework.CameraSystems {
 
         /// <summary>出力カメラ</summary>
         public Camera OutputCamera => _brain != null ? _brain.OutputCamera : null;
+        /// <summary>出力カメラブレイン</summary>
+        public CinemachineBrain OutputCameraBrain => _brain;
         /// <summary>更新時間コントロール用</summary>
         public LayeredTime LayeredTime { get; private set; } = new LayeredTime();
 

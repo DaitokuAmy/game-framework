@@ -36,7 +36,7 @@ namespace GameFramework.Core {
                 return;
             }
 
-            _process.OnExitEvent += continuation;
+            _process.ExitEvent += continuation;
         }
 
         /// <summary>

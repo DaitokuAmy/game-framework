@@ -15,7 +15,7 @@ namespace GameFramework.CutsceneSystems {
         private float _speed = 1.0f;
         private DisposableScope _scope;
 
-        private List<Object> _bindingTrackKeys = new();
+        private readonly Dictionary<PlayableDirector, List<Object>> _bindingTrackKeys = new();
 
         /// <summary>再生中か</summary>
         bool ICutscene.IsPlaying => _isPlaying;
@@ -36,7 +36,7 @@ namespace GameFramework.CutsceneSystems {
             else {
                 _playableDirector.timeUpdateMode = DirectorUpdateMode.Manual;
             }
-            
+
             _playableDirector.playOnAwake = false;
 
             _scope = new DisposableScope();
@@ -72,8 +72,10 @@ namespace GameFramework.CutsceneSystems {
                 ((ICutscene)this).Stop();
             }
 
-            foreach (var trackKey in _bindingTrackKeys) {
-                _playableDirector.ClearGenericBinding(trackKey);
+            foreach (var pair in _bindingTrackKeys) {
+                foreach (var key in pair.Value) {
+                    pair.Key.ClearGenericBinding(key);
+                }
             }
 
             _bindingTrackKeys.Clear();
@@ -93,7 +95,7 @@ namespace GameFramework.CutsceneSystems {
             else {
                 _playableDirector.Play();
             }
-            
+
             // 再生開始時にGraphが生成される可能性があるため、ここで速度を再設定
             if (_playableDirector.playableGraph.IsValid()) {
                 _playableDirector.playableGraph.GetRootPlayable(0).SetSpeed(_speed);
@@ -161,7 +163,7 @@ namespace GameFramework.CutsceneSystems {
             if (_playableDirector == null) {
                 return;
             }
-            
+
             _speed = speed;
             if (_playableDirector.playableGraph.IsValid()) {
                 _playableDirector.playableGraph.GetRootPlayable(0).SetSpeed(_speed);
@@ -196,21 +198,77 @@ namespace GameFramework.CutsceneSystems {
         /// オブジェクトのバインド
         /// 対象全てに反映
         /// </summary>
+        /// <param name="playableDirector">対象のPlayableDirector</param>
         /// <param name="trackName">Track名</param>
         /// <param name="target">バインド対象のオブジェクト</param>
-        protected void Bind(string trackName, Object target) {
-            if (_playableDirector == null) {
+        protected void Bind(PlayableDirector playableDirector, string trackName, Object target) {
+            if (playableDirector == null) {
                 return;
             }
 
-            foreach (var output in _playableDirector.playableAsset.outputs) {
+            if (!_bindingTrackKeys.TryGetValue(playableDirector, out var list)) {
+                list = new();
+                _bindingTrackKeys[playableDirector] = list;
+            }
+
+            foreach (var output in playableDirector.playableAsset.outputs) {
                 if (output.streamName != trackName) {
                     continue;
                 }
-                
-                _playableDirector.SetGenericBinding(output.sourceObject, target);
-                _bindingTrackKeys.Add(output.sourceObject);
+
+                playableDirector.SetGenericBinding(output.sourceObject, target);
+                list.Add(output.sourceObject);
             }
+        }
+
+        /// <summary>
+        /// オブジェクトのバインド(型指定)
+        /// 対象全てに反映
+        /// </summary>
+        /// <param name="playableDirector">対象のPlayableDirector</param>
+        /// <param name="trackName">Track名</param>
+        /// <param name="target">バインド対象のオブジェクト</param>
+        protected void Bind<T>(PlayableDirector playableDirector, string trackName, T target)
+            where T : Object {
+            if (playableDirector == null) {
+                return;
+            }
+
+            if (!_bindingTrackKeys.TryGetValue(playableDirector, out var list)) {
+                list = new();
+                _bindingTrackKeys[playableDirector] = list;
+            }
+
+            var targetType = typeof(T);
+            foreach (var output in playableDirector.playableAsset.outputs) {
+                if ((!string.IsNullOrEmpty(trackName) && output.streamName != trackName) || output.outputTargetType != targetType) {
+                    continue;
+                }
+
+                playableDirector.SetGenericBinding(output.sourceObject, target);
+                list.Add(output.sourceObject);
+            }
+        }
+
+        /// <summary>
+        /// オブジェクトのバインド(型指定)
+        /// 対象全てに反映
+        /// </summary>
+        /// <param name="playableDirector">対象のPlayableDirector</param>
+        /// <param name="target">バインド対象のオブジェクト</param>
+        protected void Bind<T>(PlayableDirector playableDirector, T target)
+            where T : Object {
+            Bind(playableDirector, null, target);
+        }
+
+        /// <summary>
+        /// オブジェクトのバインド
+        /// 対象全てに反映
+        /// </summary>
+        /// <param name="trackName">Track名</param>
+        /// <param name="target">バインド対象のオブジェクト</param>
+        protected void Bind(string trackName, Object target) {
+            Bind(_playableDirector, trackName, target);
         }
 
         /// <summary>
@@ -221,19 +279,17 @@ namespace GameFramework.CutsceneSystems {
         /// <param name="target">バインド対象のオブジェクト</param>
         protected void Bind<T>(string trackName, T target)
             where T : Object {
-            if (_playableDirector == null) {
-                return;
-            }
+            Bind(_playableDirector, trackName, target);
+        }
 
-            var targetType = typeof(T);
-            foreach (var output in _playableDirector.playableAsset.outputs) {
-                if (output.streamName != trackName || output.outputTargetType != targetType) {
-                    continue;
-                }
-                
-                _playableDirector.SetGenericBinding(output.sourceObject, target);
-                _bindingTrackKeys.Add(output.sourceObject);
-            }
+        /// <summary>
+        /// オブジェクトのバインド(型指定)
+        /// 対象全てに反映
+        /// </summary>
+        /// <param name="target">バインド対象のオブジェクト</param>
+        protected void Bind<T>(T target)
+            where T : Object {
+            Bind(_playableDirector, target);
         }
 
         /// <summary>
