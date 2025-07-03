@@ -40,14 +40,14 @@ namespace GameFramework.CutsceneSystems {
                         return;
                     }
 
-                    _playingInfo.StopEvent += value;
+                    _playingInfo.OneshotStopEvent += value;
                 }
                 remove {
                     if (_playingInfo == null) {
                         return;
                     }
 
-                    _playingInfo.StopEvent -= value;
+                    _playingInfo.OneshotStopEvent -= value;
                 }
             }
 
@@ -143,6 +143,9 @@ namespace GameFramework.CutsceneSystems {
             /// <summary>停止通知</summary>
             public event Action StopEvent;
 
+            /// <summary>停止通知(1回)</summary>
+            public event Action OneshotStopEvent;
+
             /// <summary>制御対象</summary>
             public CutsceneInfo CutsceneInfo { get; private set; }
 
@@ -203,6 +206,8 @@ namespace GameFramework.CutsceneSystems {
                     if (!playing) {
                         CutsceneInfo.Cutscene.Stop();
                         StopEvent?.Invoke();
+                        OneshotStopEvent?.Invoke();
+                        OneshotStopEvent = null;
                     }
                 }
 
@@ -264,6 +269,8 @@ namespace GameFramework.CutsceneSystems {
 
                 CutsceneInfo.Cutscene.Stop();
                 StopEvent?.Invoke();
+                OneshotStopEvent?.Invoke();
+                OneshotStopEvent = null;
             }
 
             /// <summary>
