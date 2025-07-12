@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace GameFramework.RendererSystems {
+namespace GameFramework {
     /// <summary>
     /// Rendererに設定されているMaterialの参照管理
     /// </summary>

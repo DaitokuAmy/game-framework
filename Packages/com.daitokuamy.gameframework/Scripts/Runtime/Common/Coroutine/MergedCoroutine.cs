@@ -2,7 +2,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace GameFramework.CoroutineSystems {
+namespace GameFramework {
     /// <summary>
     /// 並列実行用コルーチン
     /// </summary>

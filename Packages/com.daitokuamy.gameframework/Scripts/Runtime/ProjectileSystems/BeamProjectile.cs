@@ -1,10 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
-using GameFramework.CollisionSystems;
-using GameFramework.CoroutineSystems;
 using UnityEngine;
-using Coroutine = GameFramework.CoroutineSystems.Coroutine;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>

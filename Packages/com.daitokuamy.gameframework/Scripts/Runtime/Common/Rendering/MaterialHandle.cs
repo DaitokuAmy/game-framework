@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace GameFramework.RendererSystems {
+namespace GameFramework {
     /// <summary>
     /// マテリアル制御ハンドル
     /// </summary>

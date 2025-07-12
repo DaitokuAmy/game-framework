@@ -7,7 +7,7 @@ using R3;
 using UniRx;
 #endif
 
-namespace GameFramework.CoroutineSystems {
+namespace GameFramework {
     /// <summary>
     /// コルーチンのRx拡張
     /// </summary>

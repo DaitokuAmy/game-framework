@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
-using GameFramework.CoroutineSystems;
 using GameFramework.TaskSystems;
 using UnityEngine.Scripting;
-using Coroutine = GameFramework.CoroutineSystems.Coroutine;
 
 namespace GameFramework.PerformanceSystems {
     /// <summary>

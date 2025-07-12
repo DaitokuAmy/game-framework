@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
-namespace GameFramework.CoroutineSystems {
+namespace GameFramework {
     /// <summary>
     /// コルーチン実行クラス
     /// </summary>

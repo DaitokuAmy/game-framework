@@ -1,5 +1,4 @@
 ﻿using System;
-using GameFramework.RendererSystems;
 using UnityEngine;
 
 namespace GameFramework.ActorSystems {

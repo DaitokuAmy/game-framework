@@ -1,4 +1,4 @@
-using GameFramework.RendererSystems;
+using GameFramework;
 
 namespace SampleGame.Presentation {
     /// <summary>

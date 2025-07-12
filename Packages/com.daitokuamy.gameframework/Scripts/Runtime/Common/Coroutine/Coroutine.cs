@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using GameFramework.Core;
 using UnityEngine;
 
-namespace GameFramework.CoroutineSystems {
+namespace GameFramework {
     /// <summary>
     /// コルーチン本体
     /// </summary>
@@ -103,11 +103,6 @@ namespace GameFramework.CoroutineSystems {
                         _stack.Pop();
                     }
 
-                    Update();
-                }
-                else if (peek is IEnumerable enumerable) {
-                    _stack.Pop();
-                    _stack.Push(enumerable.GetEnumerator());
                     Update();
                 }
                 else if (peek is AsyncOperation asyncOperation) {

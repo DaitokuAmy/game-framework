@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace GameFramework.RendererSystems {
+namespace GameFramework {
     /// <summary>
     /// マテリアル制御用インスタンス
     /// </summary>
@@ -14,8 +14,8 @@ namespace GameFramework.RendererSystems {
         /// </summary>
         private static class RendererEditorCache {
             private class CacheInfo {
-                public int referenceCount;
-                public List<Material> materials;
+                public int ReferenceCount;
+                public List<Material> Materials;
             }
 
             private static readonly Dictionary<Renderer, CacheInfo> s_cacheInfos = new();
@@ -35,15 +35,15 @@ namespace GameFramework.RendererSystems {
                     }
 
                     s_cacheInfos[renderer] = new CacheInfo {
-                        referenceCount = 1,
-                        materials = materials
+                        ReferenceCount = 1,
+                        Materials = materials
                     };
                     renderer.SetSharedMaterials(materials);
                 }
                 else {
                     materials.Clear();
-                    materials.AddRange(cacheInfo.materials);
-                    cacheInfo.referenceCount++;
+                    materials.AddRange(cacheInfo.Materials);
+                    cacheInfo.ReferenceCount++;
                 }
             }
 
@@ -56,9 +56,9 @@ namespace GameFramework.RendererSystems {
                 }
 
                 if (s_cacheInfos.TryGetValue(renderer, out var cacheInfo)) {
-                    cacheInfo.referenceCount--;
-                    if (cacheInfo.referenceCount <= 0) {
-                        foreach (var material in cacheInfo.materials) {
+                    cacheInfo.ReferenceCount--;
+                    if (cacheInfo.ReferenceCount <= 0) {
+                        foreach (var material in cacheInfo.Materials) {
                             Object.DestroyImmediate(material);
                         }
 

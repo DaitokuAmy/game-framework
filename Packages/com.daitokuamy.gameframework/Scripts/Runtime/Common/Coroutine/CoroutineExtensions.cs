@@ -16,7 +16,7 @@ using UniRx;
 using Cysharp.Threading.Tasks;
 #endif
 
-namespace GameFramework.CoroutineSystems {
+namespace GameFramework {
     /// <summary>
     /// コルーチンの拡張
     /// </summary>

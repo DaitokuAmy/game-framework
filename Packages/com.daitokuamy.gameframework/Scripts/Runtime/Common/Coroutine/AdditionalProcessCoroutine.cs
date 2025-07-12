@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 
-namespace GameFramework.CoroutineSystems {
+namespace GameFramework {
     /// <summary>
     /// コルーチンに追加処理を行う機能
     /// </summary>

@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace GameFramework.RendererSystems {
+namespace GameFramework {
     /// <summary>
     /// Hdr指定可能なColor
     /// </summary>

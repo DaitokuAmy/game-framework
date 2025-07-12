@@ -3,7 +3,7 @@ using System.Threading;
 using ActionSequencer;
 using Cysharp.Threading.Tasks;
 using GameFramework.ActorSystems;
-using GameFramework.CoroutineSystems;
+using GameFramework;
 
 namespace SampleGame.Presentation {
     /// <summary>
