@@ -2,28 +2,28 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// アクター生成通知
     /// </summary>
-    public struct ChangedActorDto {
-        public IReadOnlyActorModel ActorModel;
+    public struct ChangedPreviewActorDto {
+        public IReadOnlyPreviewActorModel Model;
     }
 
     /// <summary>
     /// アクター削除通知
     /// </summary>
-    public struct DeletedActorDto {
-        public IReadOnlyActorModel ActorModel;
+    public struct DeletedPreviewActorDto {
+        public IReadOnlyPreviewActorModel PreviewActorModel;
     }
     
     /// <summary>
     /// 環境生成通知
     /// </summary>
-    public struct ChangedEnvironmentDto {
-        public IReadOnlyEnvironmentModel EnvironmentModel;
+    public struct ChangedEnvironmentActorDto {
+        public IReadOnlyEnvironmentModel Model;
     }
     
     /// <summary>
     /// 環境削除通知
     /// </summary>
-    public struct DeletedEnvironmentDto {
+    public struct DeletedEnvironmentActorDto {
         public IReadOnlyEnvironmentModel EnvironmentModel;
     }
 }

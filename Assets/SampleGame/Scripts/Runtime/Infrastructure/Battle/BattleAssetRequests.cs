@@ -1,14 +1,14 @@
-using SampleGame.Presentation.Battle;
+using ThirdPersonEngine;
 
 namespace SampleGame.Infrastructure.Battle {
     /// <summary>
     /// BattleCharacterActorSetupData用のAssetRequest
     /// </summary>
-    public class BattleCharacterActorSetupDataRequest : ActorAssetRequest<BattleCharacterActorSetupData> {
+    public class BattleCharacterActorDataRequest : ActorAssetRequest<BattleCharacterActorData> {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BattleCharacterActorSetupDataRequest(string assetKey) : base($"BattleCharacter/{GetMainId(assetKey)}/Data/dat_battle_character_actor_setup_{assetKey}.asset") {
+        public BattleCharacterActorDataRequest(string assetKey) : base($"BattleCharacter/{GetMainId(assetKey)}/Data/dat_battle_character_actor_setup_{assetKey}.asset") {
         }
 
         /// <summary>

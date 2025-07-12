@@ -46,7 +46,7 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// シーンの読み込み
         /// </summary>
-        public async UniTask<Scene> LoadSceneAsyncInternal(SceneAssetRequest request, CancellationToken ct) {
+        private async UniTask<Scene> LoadSceneAsyncInternal(EnvironmentSceneAssetRequest request, CancellationToken ct) {
             var handle = _environmentSceneAssetStorage.LoadAssetAsync(request);
             await handle.ToUniTask(cancellationToken:ct);
 
@@ -62,7 +62,7 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// シーンのアンロード
         /// </summary>
-        private void UnloadSceneInternal(SceneAssetRequest request) {
+        private void UnloadSceneInternal(EnvironmentSceneAssetRequest request) {
             var scene = _environmentSceneAssetStorage.GetAsset(request);
             SceneManager.UnloadSceneAsync(scene);
             _environmentSceneAssetStorage.UnloadAsset(request.Address);

@@ -14,6 +14,7 @@ using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
 using SampleGame.Presentation;
 using SampleGame.Presentation.ModelViewer;
+using ThirdPersonEngine;
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityEngine;
 
@@ -22,17 +23,6 @@ namespace SampleGame.Lifecycle {
     /// モデルビューアシーン
     /// </summary>
     public class ModelViewerSceneSituation : SceneSituation {
-        /// <summary>
-        /// Body生成用のBuilder
-        /// </summary>
-        private class BodyBuilder : IBodyBuilder {
-            public void Build(Body body, GameObject gameObject) {
-                if (gameObject.GetComponent<AvatarComponent>() == null) {
-                    body.AddSerializedBodyComponent<AvatarComponent>();
-                }
-            }
-        }
-
         private int _debugPageId;
         private ModelViewerConfigData _configData;
         private ModelViewerAppService _appService;
@@ -142,19 +132,19 @@ namespace SampleGame.Lifecycle {
                 });
 
                 // Actor生成監視
-                viewerModel.ChangedActorSubject
+                viewerModel.ChangedPreviewActorSubject
                     .TakeUntil(scope)
-                    .Prepend(() => new ChangedActorDto {
-                        ActorModel = viewerModel.ActorModel
+                    .Prepend(() => new ChangedPreviewActorDto {
+                        Model = viewerModel.PreviewActorModel
                     })
                     .Subscribe(dto => {
-                        if (dto.ActorModel != null) {
-                            SetupMotionPage(dto.ActorModel.Master);
+                        if (dto.Model != null) {
+                            SetupMotionPage(dto.Model.Master);
                         }
                     });
 
                 // 初期状態反映
-                SetupMotionPage(_domainService.ActorModel.Master);
+                SetupMotionPage(_domainService.PreviewActorModel.Master);
             });
         }
 
@@ -190,9 +180,6 @@ namespace SampleGame.Lifecycle {
         /// Managerの初期化
         /// </summary>
         private void SetupManagers(IScope scope) {
-            var environmentManager = new EnvironmentManager();
-            ServiceContainer.RegisterInstance(environmentManager).RegisterTo(scope);
-
             var actorManager = new ActorEntityManager();
             ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
 
@@ -225,8 +212,8 @@ namespace SampleGame.Lifecycle {
         /// Factoryの初期化
         /// </summary>
         private void SetupFactories(IScope scope) {
-            ServiceContainer.Register<IActorFactory, ActorFactory>().RegisterTo(scope);
-            ServiceContainer.Register<IEnvironmentFactory, EnvironmentFactory>().RegisterTo(scope);
+            ServiceContainer.Register<IPreviewActorFactory, PreviewActorFactory>().RegisterTo(scope);
+            ServiceContainer.Register<IEnvironmentActorFactory, EnvironmentActorFactory>().RegisterTo(scope);
         }
 
         /// <summary>

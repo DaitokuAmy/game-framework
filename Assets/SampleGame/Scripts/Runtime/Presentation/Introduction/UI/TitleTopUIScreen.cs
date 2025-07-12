@@ -1,5 +1,6 @@
 using System;
 using R3;
+using ThirdPersonEngine;
 using UnityEngine;
 
 namespace SampleGame.Presentation.Introduction {

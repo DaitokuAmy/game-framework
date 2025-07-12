@@ -4,6 +4,7 @@ using System.Linq;
 using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.GimmickSystems;
+using SampleGame.Application.ModelViewer;
 using SampleGame.Presentation.ModelViewer;
 using UnityEditor;
 using UnityEngine;
@@ -54,8 +55,10 @@ namespace SampleGame.ModelViewer.Editor {
             /// GUI描画
             /// </summary>
             protected override void OnGUIInternal() {
+                var appService = Services.Resolve<ModelViewerAppService>();
                 var entityManager = Services.Resolve<ActorEntityManager>();
-                if (!entityManager.Entities.TryGetValue(1, out var entity)) {
+                var actorModel = appService.DomainService.PreviewActorModel;
+                if (!entityManager.Entities.TryGetValue(actorModel.Id, out var entity)) {
                     return;
                 }
 

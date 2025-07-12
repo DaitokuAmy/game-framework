@@ -14,7 +14,7 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// AutoIdModelの生成
         /// </summary>
-        T CreateAutoIdModel<T>()
+        T CreateAutoIdModel<T>(int startId = 1)
             where T : AutoIdModel<T>, new();
 
         /// <summary>

@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.Core;
 using R3;
+using ThirdPersonEngine;
 using UnityEngine;
 using UnityEngine.UI;
 

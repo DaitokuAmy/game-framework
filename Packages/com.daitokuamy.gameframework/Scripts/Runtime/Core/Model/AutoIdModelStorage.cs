@@ -39,14 +39,23 @@ namespace GameFramework.Core {
     public sealed class AutoIdModelStorage<TModel> : IAutoIdModelStorage
         where TModel : AutoIdModel<TModel>, new() {
         private readonly List<TModel> _items = new();
-
-        private int _nextId = 1;
+        private readonly int _startId = 1;
+        
+        private int _nextId;
 
         /// <inheritdoc/>
         IReadOnlyList<IModel> IAutoIdModelStorage.Items => Items;
 
         /// <summary>モデルリスト</summary>
         public IReadOnlyList<TModel> Items => _items.Where(x => x != null).ToArray();
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public AutoIdModelStorage(int startId = 1) {
+            _startId = startId;
+            _nextId = _startId;
+        }
 
         /// <inheritdoc/>
         IModel IAutoIdModelStorage.Create() {
@@ -73,7 +82,7 @@ namespace GameFramework.Core {
             }
 
             _items.Clear();
-            _nextId = 1;
+            _nextId = _startId;
         }
 
         /// <summary>
@@ -136,7 +145,7 @@ namespace GameFramework.Core {
         /// IdをIndexに変換
         /// </summary>
         private int IdToIndex(int id) {
-            return id - 1;
+            return id - _startId;
         }
     }
 }

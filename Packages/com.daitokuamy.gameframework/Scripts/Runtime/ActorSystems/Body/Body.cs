@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 #if USE_ANIMATION_RIGGING
 using UnityEngine.Animations.Rigging;
 #endif
@@ -36,7 +37,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>LayeredTime</summary>
         public LayeredTime LayeredTime { get; }
         /// <summary>GameObject参照</summary>
-        public GameObject GameObject { get; }
+        public GameObject GameObject { get; private set; }
         /// <summary>Transform参照</summary>
         public Transform Transform => GameObject.transform;
         /// <summary>Body内のDeltaTime</summary>
@@ -151,6 +152,8 @@ namespace GameFramework.ActorSystems {
             _components.Clear();
             _componentDict.Clear();
             LayeredTime.Dispose();
+            Object.Destroy(GameObject);
+            GameObject = null;
         }
 
         /// <summary>
@@ -268,7 +271,7 @@ namespace GameFramework.ActorSystems {
         public void AddSerializedBodyComponent<TBodyComponent>()
             where TBodyComponent : SerializedBodyComponent {
             var type = typeof(TBodyComponent);
-            if (!_componentDict.ContainsKey(type)) {
+            if (_componentDict.ContainsKey(type)) {
                 throw new InvalidOperationException($"Body component {type} has already been added.");
             }
 

@@ -37,7 +37,7 @@ namespace SampleGame.Lifecycle {
                 return uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
             }
             
-            return UniTask.WhenAll(LoadAsync("ui_introduction"));
+            return UniTask.WhenAll(LoadAsync("introduction"));
         }
     }
 }

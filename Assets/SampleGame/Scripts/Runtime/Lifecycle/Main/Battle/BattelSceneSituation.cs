@@ -14,6 +14,7 @@ using SampleGame.Infrastructure.Battle;
 using SampleGame.Presentation;
 using SampleGame.Presentation.Battle;
 using R3;
+using ThirdPersonEngine;
 using UnityEngine;
 
 namespace SampleGame.Lifecycle {
@@ -169,7 +170,7 @@ namespace SampleGame.Lifecycle {
                 return uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
             }
 
-            return UniTask.WhenAll(LoadAsync("ui_battle"));
+            return UniTask.WhenAll(LoadAsync("battle"));
         }
 
         /// <summary>

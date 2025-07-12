@@ -1,5 +1,6 @@
 using GameFramework.ActorSystems;
 using SampleGame.Domain.ModelViewer;
+using ThirdPersonEngine.ModelViewer;
 using UnityEngine;
 
 namespace SampleGame.Presentation.ModelViewer {
@@ -7,7 +8,7 @@ namespace SampleGame.Presentation.ModelViewer {
     /// PreviewActor制御用のAdapter
     /// </summary>
     public class ActorAdapter : ActorEntityLogic, IActorPort {
-        private readonly IReadOnlyActorModel _model;
+        private readonly IReadOnlyPreviewActorModel _model;
         private readonly PreviewActor _actor;
         
         /// <summary>位置</summary>
@@ -18,7 +19,7 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ActorAdapter(IReadOnlyActorModel model, PreviewActor actor) {
+        public ActorAdapter(IReadOnlyPreviewActorModel model, PreviewActor actor) {
             _model = model;
             _actor = actor;
         }

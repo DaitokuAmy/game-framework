@@ -14,7 +14,6 @@ namespace SampleGame.Presentation.ModelViewer {
     public class ModelViewerPresenter : Logic {
         private ModelViewerAppService _appService;
         private ActorEntityManager _actorEntityManager;
-        private EnvironmentManager _environmentManager;
 
         /// <summary>
         /// コンストラクタ
@@ -22,7 +21,6 @@ namespace SampleGame.Presentation.ModelViewer {
         public ModelViewerPresenter() {
             _appService = Services.Resolve<ModelViewerAppService>();
             _actorEntityManager = Services.Resolve<ActorEntityManager>();
-            _environmentManager = Services.Resolve<EnvironmentManager>();
         }
 
         /// <summary>
@@ -40,17 +38,17 @@ namespace SampleGame.Presentation.ModelViewer {
             var settingsModel = domainService.SettingsModel;
             
             // 環境の切り替え
-            modelViewerModel.ChangedEnvironmentSubject
+            modelViewerModel.ChangedEnvironmentActorSubject
                 .TakeUntil(scope)
                 .Subscribe(dto => {
                     // モデルビューアのSlot位置を変更
-                    actorEntityManager.RootTransform.position = dto.EnvironmentModel.Master.RootPosition;
-                    actorEntityManager.RootTransform.eulerAngles = dto.EnvironmentModel.Master.RootAngles;
+                    actorEntityManager.RootTransform.position = dto.Model.Master.RootPosition;
+                    actorEntityManager.RootTransform.eulerAngles = dto.Model.Master.RootAngles;
                     
                     // AngleRootを変更
                     var angleRoot = cameraManager.GetTargetPoint("AngleRoot");
-                    angleRoot.position = dto.EnvironmentModel.Master.RootPosition;
-                    angleRoot.eulerAngles = dto.EnvironmentModel.Master.RootAngles;
+                    angleRoot.position = dto.Model.Master.RootPosition;
+                    angleRoot.eulerAngles = dto.Model.Master.RootAngles;
                 });
 
             // カメラの切り替え
@@ -92,7 +90,7 @@ namespace SampleGame.Presentation.ModelViewer {
             }
             
             // CameraのModelTransformを更新
-            var actorModel = _appService.DomainService.ActorModel;
+            var actorModel = _appService.DomainService.PreviewActorModel;
             if (actorModel != null) { 
                 var modelTrans = Services.Resolve<CameraManager>().GetTargetPoint("Model");
                 modelTrans.position = actorModel.Position;

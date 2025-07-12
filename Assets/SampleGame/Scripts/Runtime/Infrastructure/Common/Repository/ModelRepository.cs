@@ -55,11 +55,11 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// AutoIdModelの生成
         /// </summary>
-        public T CreateAutoIdModel<T>()
+        public T CreateAutoIdModel<T>(int startId = 1)
             where T : AutoIdModel<T>, new() {
             var type = typeof(T);
             if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
-                storage = new AutoIdModelStorage<T>();
+                storage = new AutoIdModelStorage<T>(startId);
                 _autoIdModelStorages[type] = storage;
             }
 

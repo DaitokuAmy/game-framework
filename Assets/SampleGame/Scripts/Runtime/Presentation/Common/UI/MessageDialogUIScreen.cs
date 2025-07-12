@@ -3,6 +3,7 @@ using GameFramework.Core;
 using TMPro;
 using UnityEngine;
 using R3;
+using ThirdPersonEngine;
 
 namespace SampleGame.Presentation {
     /// <summary>

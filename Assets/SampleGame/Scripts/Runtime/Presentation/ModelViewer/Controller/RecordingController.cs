@@ -62,7 +62,7 @@ namespace SampleGame.Presentation.ModelViewer {
             var op = new AsyncOperator();
             var domainService = Services.Resolve<ModelViewerAppService>().DomainService;
             var recordingModel = domainService.RecordingModel;
-            var actorName = domainService.ModelViewerModel.ActorModel.Master.DisplayName;
+            var actorName = domainService.ModelViewerModel.PreviewActorModel.Master.DisplayName;
             _coroutineRunner.StartCoroutine(
                 RecordRoutine(actorName, recordingModel.RotationDuration, recordingModel.Options),
                 () => {

@@ -7,7 +7,7 @@ using GameFramework.EnvironmentSystems;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Infrastructure;
-using SampleGame.Presentation;
+using ThirdPersonEngine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -80,7 +80,7 @@ namespace SampleGame.Lifecycle {
             SetupDebug();
 
             // 常駐UIの読み込み
-            yield return uiManager.LoadPrefabAsync("ui_resident");
+            yield return uiManager.LoadPrefabAsync("resident");
 
             // 開始Situationへの遷移
             yield return TransitionStartSituation(args);

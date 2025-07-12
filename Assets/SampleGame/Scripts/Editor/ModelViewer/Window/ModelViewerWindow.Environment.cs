@@ -32,7 +32,7 @@ namespace SampleGame.ModelViewer.Editor {
                 var viewerModel = appService.DomainService.ModelViewerModel;
                 var prevColor = GUI.color;
 
-                var environmentModel = viewerModel.EnvironmentModel;
+                var environmentModel = viewerModel.EnvironmentActorModel;
                 if (environmentModel != null) {
                     // ライト角度の変更
                     var angleY = environmentModel.DirectionalLightAngleY;
@@ -47,7 +47,7 @@ namespace SampleGame.ModelViewer.Editor {
                 // Environmentの変更
                 var environmentIds = viewerModel.Master.EnvironmentAssetKeys.ToArray();
                 _environmentAssetKeyList.OnGUI(environmentIds, x => x, (key, index) => {
-                    var current = viewerModel.EnvironmentModel != null && viewerModel.EnvironmentModel.Master.AssetKey == key;
+                    var current = viewerModel.EnvironmentActorModel != null && viewerModel.EnvironmentActorModel.Master.AssetKey == key;
                     GUI.color = current ? Color.green : Color.gray;
                     if (GUILayout.Button(key)) {
                         appService.ChangeEnvironment(index);

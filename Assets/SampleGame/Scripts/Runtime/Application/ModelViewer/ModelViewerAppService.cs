@@ -56,7 +56,7 @@ namespace SampleGame.Application.ModelViewer {
 
             // 設定ファイルを読み込み
             _repository.LoadActorMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => { _domainService.ChangeActorAsync(result, _scope.Token).Forget(); })
+                .ContinueWith(result => { _domainService.ChangePreviewActorAsync(result, _scope.Token).Forget(); })
                 .Forget();
         }
 
@@ -78,7 +78,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップのリプレイ
         /// </summary>
         public void ReplayAnimationClip() {
-            var model = _domainService.ActorModel;
+            var model = _domainService.PreviewActorModel;
             if (model == null) {
                 return;
             }
@@ -90,7 +90,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップを先に進める
         /// </summary>
         public void NextAnimationClip() {
-            var model = _domainService.ActorModel;
+            var model = _domainService.PreviewActorModel;
             if (model == null) {
                 return;
             }
@@ -104,7 +104,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップを前に戻す
         /// </summary>
         public void PreviousAnimationClip() {
-            var model = _domainService.ActorModel;
+            var model = _domainService.PreviewActorModel;
             if (model == null) {
                 return;
             }

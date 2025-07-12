@@ -1,5 +1,6 @@
 using GameFramework.Core;
 using GameFramework.UISystems;
+using ThirdPersonEngine;
 using UnityEngine;
 
 namespace SampleGame.Presentation {

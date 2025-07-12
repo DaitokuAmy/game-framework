@@ -1,25 +1,26 @@
 using System.Linq;
 using GameFramework;
+using GameFramework.ActorSystems;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
-    /// 背景制御用のController
+    /// 背景制御用のAdapter
     /// </summary>
-    public class EnvironmentPort : Logic, IEnvironmentPort {
+    public class EnvironmentActorAdapter : ActorEntityLogic, IEnvironmentActorPort {
         private readonly IReadOnlyEnvironmentModel _model;
         private readonly Scene _scene;
         private Light _directionalLight;
 
         /// <summary>ディレクショナルライトのY角度</summary>
-        float IEnvironmentPort.LightAngleY => _directionalLight != null ? _directionalLight.transform.eulerAngles.y : 0.0f;
+        float IEnvironmentActorPort.LightAngleY => _directionalLight != null ? _directionalLight.transform.eulerAngles.y : 0.0f;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public EnvironmentPort(IReadOnlyEnvironmentModel model, Scene scene) {
+        public EnvironmentActorAdapter(IReadOnlyEnvironmentModel model, Scene scene) {
             _model = model;
             _scene = scene;
             _directionalLight = FindDirectionalLight(scene);
@@ -28,7 +29,7 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// ディレクショナルライトのY角度を設定
         /// </summary>
-        void IEnvironmentPort.SetLightAngleY(float angleY) {
+        void IEnvironmentActorPort.SetLightAngleY(float angleY) {
             if (_directionalLight == null) {
                 return;
             }

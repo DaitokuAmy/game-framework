@@ -12,7 +12,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>モデルビューア全体管理用モデル</summary>
         IReadOnlyModelViewerModel ModelViewerModel { get; }
         /// <summary>表示用オブジェクトのモデル</summary>
-        IReadOnlyActorModel ActorModel { get; }
+        IReadOnlyPreviewActorModel PreviewActorModel { get; }
         /// <summary>録画用モデル</summary>
         IReadOnlyRecordingModel RecordingModel { get; }
         /// <summary>設定用モデル</summary>
@@ -24,15 +24,15 @@ namespace SampleGame.Domain.ModelViewer {
     /// </summary>
     public class ModelViewerDomainService : IDisposable, IReadOnlyModelViewerDomainService {
         private readonly IModelRepository _modelRepository;
-        private readonly IEnvironmentFactory _environmentFactory;
-        private readonly IActorFactory _actorFactory;
+        private readonly IEnvironmentActorFactory _environmentActorFactory;
+        private readonly IPreviewActorFactory _previewActorFactory;
         
         private DisposableScope _scope;
 
         /// <summary>モデルビューア全体管理用モデル</summary>
         public IReadOnlyModelViewerModel ModelViewerModel => ModelViewerModelInternal;
         /// <summary>表示用オブジェクトのモデル</summary>
-        public IReadOnlyActorModel ActorModel => ActorModelInternal;
+        public IReadOnlyPreviewActorModel PreviewActorModel => PreviewInternal;
         /// <summary>録画用モデル</summary>
         public IReadOnlyRecordingModel RecordingModel => RecordingModelInternal;
         /// <summary>設定用モデル</summary>
@@ -41,7 +41,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>モデルビューア全体管理用モデル</summary>
         internal ModelViewerModel ModelViewerModelInternal { get; private set; }
         /// <summary>表示用オブジェクトのモデル</summary>
-        internal ActorModel ActorModelInternal => ModelViewerModelInternal.ActorModelInternal;
+        internal PreviewActorModel PreviewInternal => ModelViewerModelInternal.PreviewActorModelInternal;
         /// <summary>録画用モデル</summary>
         internal RecordingModel RecordingModelInternal { get; private set; }
         /// <summary>設定用モデル</summary>
@@ -52,8 +52,8 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         public ModelViewerDomainService() {
             _modelRepository = Services.Resolve<IModelRepository>();
-            _environmentFactory = Services.Resolve<IEnvironmentFactory>();
-            _actorFactory = Services.Resolve<IActorFactory>();
+            _environmentActorFactory = Services.Resolve<IEnvironmentActorFactory>();
+            _previewActorFactory = Services.Resolve<IPreviewActorFactory>();
             
             _scope = new DisposableScope();
 
@@ -78,14 +78,14 @@ namespace SampleGame.Domain.ModelViewer {
         }
 
         /// <summary>
-        /// アクターの変更
+        /// プレビューアクターの変更
         /// </summary>
-        public async UniTask ChangeActorAsync(IActorMaster master, CancellationToken ct) {
+        public async UniTask ChangePreviewActorAsync(IActorMaster master, CancellationToken ct) {
             // 既存モデルの削除
-            var model = ModelViewerModelInternal.ActorModelInternal;
+            var model = ModelViewerModelInternal.PreviewActorModelInternal;
             if (model != null) {
-                _actorFactory.Destroy(model.Id);
-                ModelViewerModelInternal.ChangeActor(null);
+                _previewActorFactory.Destroy(model.Id);
+                ModelViewerModelInternal.ChangePreviewActor(null);
                 _modelRepository.DeleteAutoIdModel(model);
             }
 
@@ -94,37 +94,37 @@ namespace SampleGame.Domain.ModelViewer {
             }
             
             // モデルの生成
-            model = _modelRepository.CreateAutoIdModel<ActorModel>();
+            model = _modelRepository.CreateAutoIdModel<PreviewActorModel>();
             model.Setup(master);
             
             // 初期化
-            var port = await _actorFactory.CreateAsync(model, SettingsModel.LayeredTime, ct);
+            var port = await _previewActorFactory.CreateAsync(model, SettingsModel.LayeredTime, ct);
             model.SetPort(port);
             
             // 反映
-            ModelViewerModelInternal.ChangeActor(model);
+            ModelViewerModelInternal.ChangePreviewActor(model);
         }
 
         /// <summary>
         /// アクターのリセット
         /// </summary>
         public void ResetActor() {
-            if (ActorModel == null) {
+            if (PreviewActorModel == null) {
                 return;
             }
             
-            ActorModelInternal.ResetActor();
+            PreviewInternal.ResetActor();
         }
 
         /// <summary>
         /// アニメーションクリップの変更
         /// </summary>
         public void ChangeAnimationClip(int clipIndex) {
-            if (ActorModel == null) {
+            if (PreviewActorModel == null) {
                 return;
             }
             
-            ActorModelInternal.ChangeAnimationClip(clipIndex, SettingsModel.ResetOnPlay);
+            PreviewInternal.ChangeAnimationClip(clipIndex, SettingsModel.ResetOnPlay);
         }
 
         /// <summary>
@@ -132,22 +132,22 @@ namespace SampleGame.Domain.ModelViewer {
         /// ※同じClipを設定したらトグル
         /// </summary>
         public void ToggleAdditiveAnimationClip(int clipIndex) {
-            if (ActorModel == null) {
+            if (PreviewActorModel == null) {
                 return;
             }
             
-            ActorModelInternal.ToggleAdditiveAnimationClip(clipIndex);
+            PreviewInternal.ToggleAdditiveAnimationClip(clipIndex);
         }
 
         /// <summary>
         /// MeshAvatarの変更
         /// </summary>
         public void ChangeMeshAvatar(string key, int index) {
-            if (ActorModel == null) {
+            if (PreviewActorModel == null) {
                 return;
             }
             
-            ActorModelInternal.ChangeMeshAvatar(key, index);
+            PreviewInternal.ChangeMeshAvatar(key, index);
         }
 
         /// <summary>
@@ -155,10 +155,10 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         public async UniTask ChangeEnvironmentAsync(IEnvironmentMaster master, CancellationToken ct) {
             // 既存モデルの削除
-            var model = ModelViewerModelInternal.EnvironmentModelInternal;
+            var model = ModelViewerModelInternal.EnvironmentActorModelInternal;
             if (model != null) {
-                _environmentFactory.Destroy(model.Id);
-                ModelViewerModelInternal.ChangeEnvironment(null);
+                _environmentActorFactory.Destroy(model);
+                ModelViewerModelInternal.ChangeEnvironmentActor(null);
                 _modelRepository.DeleteAutoIdModel(model);
             }
 
@@ -167,22 +167,22 @@ namespace SampleGame.Domain.ModelViewer {
             }
             
             // モデルの生成
-            model = _modelRepository.CreateAutoIdModel<EnvironmentModel>();
+            model = _modelRepository.CreateAutoIdModel<EnvironmentActorModel>(1000);
             model.Setup(master);
             
             // 初期化
-            var port = await _environmentFactory.CreateAsync(model, ct);
+            var port = await _environmentActorFactory.CreateAsync(model, ct);
             model.SetPort(port);
             
             // 反映
-            ModelViewerModelInternal.ChangeEnvironment(model);
+            ModelViewerModelInternal.ChangeEnvironmentActor(model);
         }
 
         /// <summary>
         /// ディレクショナルライトのY角度の設定
         /// </summary>
         public void SetDirectionalLightAngleY(float angleY) {
-            ModelViewerModelInternal.EnvironmentModelInternal.SetLightAngleY(angleY);
+            ModelViewerModelInternal.EnvironmentActorModelInternal.SetLightAngleY(angleY);
         }
 
         /// <summary>
