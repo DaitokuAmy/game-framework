@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
+using SampleGame.Infrastructure;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -22,6 +23,10 @@ namespace SampleGame.Domain.ModelViewer {
     /// モデルビューア用のドメインモデル
     /// </summary>
     public class ModelViewerDomainService : IDisposable, IReadOnlyModelViewerDomainService {
+        private readonly IModelRepository _modelRepository;
+        private readonly IEnvironmentFactory _environmentFactory;
+        private readonly IActorFactory _actorFactory;
+        
         private DisposableScope _scope;
 
         /// <summary>モデルビューア全体管理用モデル</summary>
@@ -46,11 +51,15 @@ namespace SampleGame.Domain.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public ModelViewerDomainService() {
+            _modelRepository = Services.Resolve<IModelRepository>();
+            _environmentFactory = Services.Resolve<IEnvironmentFactory>();
+            _actorFactory = Services.Resolve<IActorFactory>();
+            
             _scope = new DisposableScope();
 
-            ModelViewerModelInternal = ModelViewer.ModelViewerModel.Get();
-            RecordingModelInternal = ModelViewer.RecordingModel.Get();
-            SettingsModelInternal = ModelViewer.SettingsModel.Get();
+            ModelViewerModelInternal = _modelRepository.GetSingleModel<ModelViewerModel>();
+            RecordingModelInternal = _modelRepository.GetSingleModel<RecordingModel>();
+            SettingsModelInternal = _modelRepository.GetSingleModel<SettingsModel>();
         }
 
         /// <summary>
@@ -69,17 +78,31 @@ namespace SampleGame.Domain.ModelViewer {
         }
 
         /// <summary>
-        /// ファクトリーの設定
-        /// </summary>
-        public void SetFactory(IActorFactory actorFactory, IEnvironmentFactory environmentFactory) {
-            ModelViewerModelInternal.SetFactory(actorFactory, environmentFactory);
-        }
-
-        /// <summary>
         /// アクターの変更
         /// </summary>
-        public void ChangeActor(IActorMaster master) {
-            ModelViewerModelInternal.ChangeActorAsync(master, _scope.Token).Forget();
+        public async UniTask ChangeActorAsync(IActorMaster master, CancellationToken ct) {
+            // 既存モデルの削除
+            var model = ModelViewerModelInternal.ActorModelInternal;
+            if (model != null) {
+                _actorFactory.Destroy(model.Id);
+                ModelViewerModelInternal.ChangeActor(null);
+                _modelRepository.DeleteAutoIdModel(model);
+            }
+
+            if (master == null) {
+                return;
+            }
+            
+            // モデルの生成
+            model = _modelRepository.CreateAutoIdModel<ActorModel>();
+            model.Setup(master);
+            
+            // 初期化
+            var port = await _actorFactory.CreateAsync(model, SettingsModel.LayeredTime, ct);
+            model.SetPort(port);
+            
+            // 反映
+            ModelViewerModelInternal.ChangeActor(model);
         }
 
         /// <summary>
@@ -130,8 +153,29 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// 環境の変更
         /// </summary>
-        public void ChangeEnvironment(IEnvironmentMaster master) {
-            ModelViewerModelInternal.ChangeEnvironmentAsync(master, _scope.Token).Forget();
+        public async UniTask ChangeEnvironmentAsync(IEnvironmentMaster master, CancellationToken ct) {
+            // 既存モデルの削除
+            var model = ModelViewerModelInternal.EnvironmentModelInternal;
+            if (model != null) {
+                _environmentFactory.Destroy(model.Id);
+                ModelViewerModelInternal.ChangeEnvironment(null);
+                _modelRepository.DeleteAutoIdModel(model);
+            }
+
+            if (master == null) {
+                return;
+            }
+            
+            // モデルの生成
+            model = _modelRepository.CreateAutoIdModel<EnvironmentModel>();
+            model.Setup(master);
+            
+            // 初期化
+            var port = await _environmentFactory.CreateAsync(model, ct);
+            model.SetPort(port);
+            
+            // 反映
+            ModelViewerModelInternal.ChangeEnvironment(model);
         }
 
         /// <summary>

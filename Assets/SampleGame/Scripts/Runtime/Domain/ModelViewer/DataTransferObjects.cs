@@ -2,7 +2,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// アクター生成通知
     /// </summary>
-    public struct CreatedActorDto {
+    public struct ChangedActorDto {
         public IReadOnlyActorModel ActorModel;
     }
 
@@ -16,7 +16,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 環境生成通知
     /// </summary>
-    public struct CreatedEnvironmentDto {
+    public struct ChangedEnvironmentDto {
         public IReadOnlyEnvironmentModel EnvironmentModel;
     }
     

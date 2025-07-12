@@ -2,7 +2,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 背景制御クラス
     /// </summary>
-    public interface IEnvironmentController {
+    public interface IEnvironmentPort {
         /// <summary>ディレクショナルライトのY角度</summary>
         float LightAngleY { get; }
         

@@ -1,4 +1,4 @@
-using GameFramework.OldModelSystems;
+using GameFramework.Core;
 using UnityEngine;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -20,12 +20,6 @@ namespace SampleGame.Domain.ModelViewer {
         public RecordingOptions Options { get; private set; } = RecordingOptions.ActorRotation;
         /// <summary>回転時間</summary>
         public float RotationDuration { get; private set; } = 2.0f;
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        private RecordingModel(object empty) 
-            : base(empty) {}
         
         /// <summary>
         /// 録画オプションの変更

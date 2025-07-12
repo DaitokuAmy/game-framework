@@ -39,7 +39,7 @@ namespace SampleGame.Presentation.ModelViewer {
             var settingsModel = domainService.SettingsModel;
             
             // 環境の切り替え
-            modelViewerModel.CreatedEnvironmentSubject
+            modelViewerModel.ChangedEnvironmentSubject
                 .TakeUntil(scope)
                 .Subscribe(dto => {
                     // モデルビューアのSlot位置を変更

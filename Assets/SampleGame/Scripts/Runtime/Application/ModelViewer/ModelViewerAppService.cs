@@ -44,13 +44,6 @@ namespace SampleGame.Application.ModelViewer {
         }
 
         /// <summary>
-        /// ファクトリーの設定
-        /// </summary>
-        public void SetFactory(IActorFactory actorFactory, IEnvironmentFactory environmentFactory) {
-            _domainService.SetFactory(actorFactory, environmentFactory);
-        }
-
-        /// <summary>
         /// 表示モデルの変更
         /// </summary>
         public void ChangePreviewActor(int index) {
@@ -61,7 +54,7 @@ namespace SampleGame.Application.ModelViewer {
 
             // 設定ファイルを読み込み
             _repository.LoadActorMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => { _domainService.ChangeActor(result); })
+                .ContinueWith(result => { _domainService.ChangeActorAsync(result, _scope.Token).Forget(); })
                 .Forget();
         }
 
@@ -145,7 +138,7 @@ namespace SampleGame.Application.ModelViewer {
 
             // 設定ファイルを読み込み
             _repository.LoadEnvironmentMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => { _domainService.ChangeEnvironment(result); })
+                .ContinueWith(result => { _domainService.ChangeEnvironmentAsync(result, _scope.Token).Forget(); })
                 .Forget();
         }
 

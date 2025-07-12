@@ -4,7 +4,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// プレビュー用のActor制御クラス
     /// </summary>
-    public interface IActorController {
+    public interface IActorPort {
         /// <summary>位置</summary>
         Vector3 Position { get; }
         /// <summary>向き</summary>

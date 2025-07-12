@@ -146,6 +146,19 @@ namespace SampleGame.Infrastructure {
         }
 
         /// <summary>
+        /// AutoIdModelの削除
+        /// </summary>
+        public void DeleteAutoIdModel<T>(T model)
+            where T : AutoIdModel<T>, new() {
+            var type = typeof(T);
+            if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
+                return;
+            }
+
+            storage.Delete(model.Id);
+        }
+
+        /// <summary>
         /// IdModelの削除
         /// </summary>
         public void DeleteIdModel<T>(int id)

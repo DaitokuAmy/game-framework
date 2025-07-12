@@ -36,6 +36,7 @@ namespace SampleGame.Lifecycle {
         private int _debugPageId;
         private ModelViewerConfigData _configData;
         private ModelViewerAppService _appService;
+        private IModelRepository _modelRepository;
         private ModelViewerDomainService _domainService;
 
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/Develop/model_viewer.unity";
@@ -67,12 +68,15 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
-            yield return SetupInfrastructureRoutine(scope);
-            yield return SetupManagerRoutine(scope);
-            yield return SetupDomainRoutine(scope);
-            yield return SetupApplicationRoutine(scope);
-            yield return SetupFactoryRoutine(scope);
-            yield return SetupPresentationRoutine(scope);
+            SetupInfrastructures(scope);
+            SetupManagers(scope);
+            SetupFactories(scope);
+            SetupDomains(scope);
+            SetupApplications(scope);
+            SetupPresentations(scope);
+
+            // アプリケーション初期化
+            yield return _appService.SetupAsync(_configData.master, scope.Token).ToCoroutine();
 
             // カメラ操作用Controllerの設定
             var cameraManager = Services.Resolve<CameraManager>();
@@ -138,9 +142,9 @@ namespace SampleGame.Lifecycle {
                 });
 
                 // Actor生成監視
-                viewerModel.CreatedActorSubject
+                viewerModel.ChangedActorSubject
                     .TakeUntil(scope)
-                    .Prepend(() => new CreatedActorDto {
+                    .Prepend(() => new ChangedActorDto {
                         ActorModel = viewerModel.ActorModel
                     })
                     .Subscribe(dto => {
@@ -171,20 +175,21 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// Infrastructure層の初期化
         /// </summary>
-        private IEnumerator SetupInfrastructureRoutine(IScope scope) {
+        private void SetupInfrastructures(IScope scope) {
             var assetManager = Services.Resolve<AssetManager>();
+            var modelRepository = new ModelRepository();
+            ServiceContainer.RegisterInstance<IModelRepository>(modelRepository).RegisterTo(scope);
+            _modelRepository = modelRepository;
             var repository = new ModelViewerRepository(assetManager);
             ServiceContainer.RegisterInstance<IModelViewerRepository>(repository).RegisterTo(scope);
             var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
             ServiceContainer.RegisterInstance(environmentSceneRepository).RegisterTo(scope);
-
-            yield break;
         }
 
         /// <summary>
         /// Managerの初期化
         /// </summary>
-        private IEnumerator SetupManagerRoutine(IScope scope) {
+        private void SetupManagers(IScope scope) {
             var bodyBuilder = new BodyBuilder();
             var bodyManager = new BodyManager(bodyBuilder);
             bodyManager.RegisterTask(TaskOrder.Body);
@@ -198,49 +203,41 @@ namespace SampleGame.Lifecycle {
 
             var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
-
-            yield break;
         }
 
         /// <summary>
         /// Domain層の初期化
         /// </summary>
-        private IEnumerator SetupDomainRoutine(IScope scope) {
+        private void SetupDomains(IScope scope) {
             // モデルの生成
-            ModelViewerModel.Create().RegisterTo(scope);
-            RecordingModel.Create().RegisterTo(scope);
-            SettingsModel.Create().RegisterTo(scope);
+            _modelRepository.CreateSingleModel<ModelViewerModel>().RegisterTo(scope);
+            _modelRepository.CreateSingleModel<RecordingModel>().RegisterTo(scope);
+            _modelRepository.CreateSingleModel<SettingsModel>().RegisterTo(scope);
             
             _domainService = new ModelViewerDomainService();
             ServiceContainer.RegisterInstance(_domainService).RegisterTo(scope);
-
-            yield break;
         }
 
         /// <summary>
         /// Application層の初期化
         /// </summary>
-        private IEnumerator SetupApplicationRoutine(IScope scope) {
+        private void SetupApplications(IScope scope) {
             _appService = new ModelViewerAppService();
             ServiceContainer.RegisterInstance(_appService).RegisterTo(scope);
-
-            yield return _appService.SetupAsync(_configData.master, scope.Token).ToCoroutine();
         }
 
         /// <summary>
         /// Factoryの初期化
         /// </summary>
-        private IEnumerator SetupFactoryRoutine(IScope scope) {
-            var actorFactory = new ActorFactory();
-            var environmentFactory = new EnvironmentFactory();
-            _appService.SetFactory(actorFactory, environmentFactory);
-            yield break;
+        private void SetupFactories(IScope scope) {
+            ServiceContainer.Register<IActorFactory, ActorFactory>().RegisterTo(scope);
+            ServiceContainer.Register<IEnvironmentFactory, EnvironmentFactory>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Presentation層の初期化
         /// </summary>
-        private IEnumerator SetupPresentationRoutine(IScope scope) {
+        private void SetupPresentations(IScope scope) {
             void SetupLogic(Logic logic, bool addService = false) {
                 logic.Activate();
                 logic.RegisterTask(TaskOrder.Logic);
@@ -252,8 +249,6 @@ namespace SampleGame.Lifecycle {
             }
 
             SetupLogic(new ModelViewerPresenter());
-
-            yield break;
         }
     }
 }

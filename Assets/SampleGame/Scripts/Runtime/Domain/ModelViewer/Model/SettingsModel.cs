@@ -1,5 +1,4 @@
 using GameFramework.Core;
-using GameFramework.OldModelSystems;
 using R3;
 using UnityEngine;
 using GameFramework;
@@ -27,7 +26,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 設定用モデル
     /// </summary>
-    public class SettingsModel : GameFramework.OldModelSystems.SingleModel<SettingsModel>, IReadOnlySettingsModel {
+    public class SettingsModel : SingleModel<SettingsModel>, IReadOnlySettingsModel {
         /// <summary>TimeScaleの最大値</summary>
         public const float TimeScaleMax = 10.0f;
 
@@ -47,12 +46,6 @@ namespace SampleGame.Domain.ModelViewer {
         public Observable<string> ChangedCurrentActorAssetKeySubject => _changedCurrentActorAssetKeySubject;
         /// <summary>カメラ操作タイプの変更通知</summary>
         public Observable<CameraControlType> ChangedCameraControlTypeSubject => _changedCameraControlTypeSubject;
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        private SettingsModel(object empty)
-            : base(empty) {}
 
         /// <summary>
         /// 初期化

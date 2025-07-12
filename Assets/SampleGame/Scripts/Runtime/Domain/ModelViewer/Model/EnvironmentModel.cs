@@ -1,10 +1,13 @@
-using GameFramework.OldModelSystems;
+using GameFramework.Core;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 読み取り専用インターフェース
     /// </summary>
     public interface IReadOnlyEnvironmentModel {
+        /// <summary>識別子</summary>
+        int Id { get; }
+        
         /// <summary>マスター</summary>
         IEnvironmentMaster Master { get; }
         /// <summary>ディレクショナルライトのY角度</summary>
@@ -15,22 +18,15 @@ namespace SampleGame.Domain.ModelViewer {
     /// 環境モデル
     /// </summary>
     public class EnvironmentModel : AutoIdModel<EnvironmentModel>, IReadOnlyEnvironmentModel {
-        private IEnvironmentController _environmentController;
+        private IEnvironmentPort _environmentPort;
 
         /// <summary>有効か</summary>
-        public bool IsActive => _environmentController != null;
+        public bool IsActive => _environmentPort != null;
 
         /// <summary>マスター</summary>
         public IEnvironmentMaster Master { get; private set; }
         /// <summary>ディレクショナルライトのY角度</summary>
-        public float DirectionalLightAngleY => _environmentController?.LightAngleY ?? 0.0f;
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        private EnvironmentModel(int id)
-            : base(id) {
-        }
+        public float DirectionalLightAngleY => _environmentPort?.LightAngleY ?? 0.0f;
 
         /// <summary>
         /// データの設定
@@ -41,10 +37,10 @@ namespace SampleGame.Domain.ModelViewer {
         }
 
         /// <summary>
-        /// コントローラーの設定
+        /// 制御ポートの設定
         /// </summary>
-        public void SetController(IEnvironmentController controller) {
-            _environmentController = controller;
+        public void SetPort(IEnvironmentPort port) {
+            _environmentPort = port;
         }
 
         /// <summary>
@@ -55,7 +51,7 @@ namespace SampleGame.Domain.ModelViewer {
                 return;
             }
             
-            _environmentController.SetLightAngleY(angleY);
+            _environmentPort.SetLightAngleY(angleY);
         }
     }
 }

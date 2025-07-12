@@ -9,7 +9,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// 背景生成
         /// </summary>
-        UniTask<IEnvironmentController> CreateAsync(IReadOnlyEnvironmentModel model, CancellationToken ct);
+        UniTask<IEnvironmentPort> CreateAsync(IReadOnlyEnvironmentModel model, CancellationToken ct);
         
         /// <summary>
         /// 背景削除

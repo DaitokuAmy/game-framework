@@ -10,7 +10,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// </summary>
     public class EnvironmentFactory : IEnvironmentFactory {
         private readonly EnvironmentManager _environmentManager;
-        private EnvironmentController _environmentController;
+        private EnvironmentPort _environmentPort;
         
         /// <summary>
         /// コンストラクタ
@@ -22,17 +22,17 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// 背景生成
         /// </summary>
-        async UniTask<IEnvironmentController> IEnvironmentFactory.CreateAsync(IReadOnlyEnvironmentModel model, CancellationToken ct) {
-            if (_environmentController != null) {
-                _environmentController.Dispose();
-                _environmentController = null;
+        async UniTask<IEnvironmentPort> IEnvironmentFactory.CreateAsync(IReadOnlyEnvironmentModel model, CancellationToken ct) {
+            if (_environmentPort != null) {
+                _environmentPort.Dispose();
+                _environmentPort = null;
             }
             
             var scene = await _environmentManager.ChangeEnvironmentAsync(model.Master.AssetKey, ct);
-            var controller = new EnvironmentController(model, scene);
+            var controller = new EnvironmentPort(model, scene);
             controller.RegisterTask(TaskOrder.Logic);
             controller.Activate();
-            _environmentController = controller;
+            _environmentPort = controller;
             return controller;
         }
 
@@ -40,9 +40,9 @@ namespace SampleGame.Domain.ModelViewer {
         /// 背景削除
         /// </summary>
         void IEnvironmentFactory.Destroy(int id) {
-            if (_environmentController != null) {
-                _environmentController.Dispose();
-                _environmentController = null;
+            if (_environmentPort != null) {
+                _environmentPort.Dispose();
+                _environmentPort = null;
             }
             
             _environmentManager.RemoveEnvironment();

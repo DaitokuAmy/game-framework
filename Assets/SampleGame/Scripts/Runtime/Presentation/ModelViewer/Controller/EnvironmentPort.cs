@@ -8,18 +8,18 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// 背景制御用のController
     /// </summary>
-    public class EnvironmentController : Logic, IEnvironmentController {
+    public class EnvironmentPort : Logic, IEnvironmentPort {
         private readonly IReadOnlyEnvironmentModel _model;
         private readonly Scene _scene;
         private Light _directionalLight;
 
         /// <summary>ディレクショナルライトのY角度</summary>
-        float IEnvironmentController.LightAngleY => _directionalLight != null ? _directionalLight.transform.eulerAngles.y : 0.0f;
+        float IEnvironmentPort.LightAngleY => _directionalLight != null ? _directionalLight.transform.eulerAngles.y : 0.0f;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public EnvironmentController(IReadOnlyEnvironmentModel model, Scene scene) {
+        public EnvironmentPort(IReadOnlyEnvironmentModel model, Scene scene) {
             _model = model;
             _scene = scene;
             _directionalLight = FindDirectionalLight(scene);
@@ -28,7 +28,7 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <summary>
         /// ディレクショナルライトのY角度を設定
         /// </summary>
-        void IEnvironmentController.SetLightAngleY(float angleY) {
+        void IEnvironmentPort.SetLightAngleY(float angleY) {
             if (_directionalLight == null) {
                 return;
             }

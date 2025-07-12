@@ -1,5 +1,5 @@
 using GameFramework.BodySystems;
-using GameFramework.OldModelSystems;
+using GameFramework.Core;
 using UnityEngine.SceneManagement;
 
 namespace GameFramework.ActorSystems {

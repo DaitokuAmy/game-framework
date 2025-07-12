@@ -54,6 +54,12 @@ namespace SampleGame.Infrastructure {
             where T : AutoIdModel<T>, new();
 
         /// <summary>
+        /// AutoIdModelの削除
+        /// </summary>
+        void DeleteAutoIdModel<T>(T model)
+            where T : AutoIdModel<T>, new();
+
+        /// <summary>
         /// IdModelの削除
         /// </summary>
         void DeleteIdModel<T>(int id)

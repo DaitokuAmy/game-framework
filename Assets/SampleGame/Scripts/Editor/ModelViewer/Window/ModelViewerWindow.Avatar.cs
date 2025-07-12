@@ -28,9 +28,9 @@ namespace SampleGame.ModelViewer.Editor {
                 var viewerModel = Services.Resolve<ModelViewerAppService>().DomainService.ModelViewerModel;
                 
                 // Actor生成監視
-                viewerModel.CreatedActorSubject
+                viewerModel.ChangedActorSubject
                     .TakeUntil(scope)
-                    .Prepend(() => new CreatedActorDto {
+                    .Prepend(() => new ChangedActorDto {
                         ActorModel = viewerModel.ActorModel
                     })
                     .Subscribe(dto => {

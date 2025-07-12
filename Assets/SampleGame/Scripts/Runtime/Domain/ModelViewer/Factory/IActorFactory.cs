@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -9,7 +10,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// アクターの生成
         /// </summary>
-        UniTask<IActorController> CreateAsync(IReadOnlyActorModel model, CancellationToken ct);
+        UniTask<IActorPort> CreateAsync(IReadOnlyActorModel model, LayeredTime layeredTime, CancellationToken ct);
         
         /// <summary>
         /// アクターの削除

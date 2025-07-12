@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
-using GameFramework.OldModelSystems;
 using UnityEngine;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -11,7 +10,7 @@ namespace SampleGame.Domain.ModelViewer {
     public interface IReadOnlyActorModel {
         /// <summary>識別子</summary>
         int Id { get; }
-
+        
         /// <summary>現在再生中のAnimationClipIndex</summary>
         int CurrentAnimationClipIndex { get; }
         /// <summary>現在再生中の加算AnimationClipIndex</summary>
@@ -36,12 +35,12 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// アクターモデル
     /// </summary>
-    public class ActorModel : GameFramework.OldModelSystems.AutoIdModel<ActorModel>, IReadOnlyActorModel {
+    public class ActorModel : AutoIdModel<ActorModel>, IReadOnlyActorModel {
         private Dictionary<string, GameObject> _currentMeshAvatars;
-        private IActorController _actorController;
+        private IActorPort _actorPort;
 
         /// <summary>有効か</summary>
-        public bool IsActive => _actorController != null;
+        public bool IsActive => _actorPort != null;
 
         /// <summary>現在再生中のAnimationClipIndex</summary>
         public int CurrentAnimationClipIndex { get; private set; }
@@ -53,22 +52,15 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>マスター</summary>
         public IActorMaster Master { get; private set; }
         /// <summary>位置</summary>
-        public Vector3 Position => _actorController?.Position ?? Vector3.zero;
+        public Vector3 Position => _actorPort?.Position ?? Vector3.zero;
         /// <summary>向き</summary>
-        public Quaternion Rotation => _actorController?.Rotation ?? Quaternion.identity;
+        public Quaternion Rotation => _actorPort?.Rotation ?? Quaternion.identity;
         /// <summary>現在再生中のClip</summary>
         public AnimationClip CurrentAnimationClip { get; private set; }
         /// <summary>現在再生中の加算Clip</summary>
         public AnimationClip CurrentAdditiveAnimationClip { get; private set; }
         /// <summary>現在設定されているMeshAvatarのパーツ</summary>
         public IReadOnlyDictionary<string, GameObject> CurrentMeshAvatars => _currentMeshAvatars;
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        private ActorModel(int id)
-            : base(id) {
-        }
 
         /// <summary>
         /// 生成時処理
@@ -102,17 +94,17 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// コントローラーの設定
         /// </summary>
-        public void SetController(IActorController controller) {
-            _actorController = controller;
+        public void SetPort(IActorPort port) {
+            _actorPort = port;
 
             // 初期化
             if (IsActive) {
-                _actorController.ChangeAnimationClip(CurrentAnimationClip);
-                _actorController.ChangeAdditiveAnimationClip(CurrentAdditiveAnimationClip);
+                _actorPort.ChangeAnimationClip(CurrentAnimationClip);
+                _actorPort.ChangeAdditiveAnimationClip(CurrentAdditiveAnimationClip);
                 foreach (var pair in _currentMeshAvatars) {
                     var avatarInfo = Master.MeshAvatarInfos.FirstOrDefault(x => x.Key == pair.Key);
                     var locatorName = avatarInfo?.LocatorName ?? "";
-                    _actorController.ChangeMeshAvatar(pair.Key, pair.Value, locatorName);
+                    _actorPort.ChangeMeshAvatar(pair.Key, pair.Value, locatorName);
                 }
             }
         }
@@ -132,10 +124,10 @@ namespace SampleGame.Domain.ModelViewer {
 
             if (IsActive) {
                 if (reset) {
-                    _actorController.ResetActor();
+                    _actorPort.ResetActor();
                 }
 
-                _actorController.ChangeAnimationClip(CurrentAnimationClip);
+                _actorPort.ChangeAnimationClip(CurrentAnimationClip);
             }
         }
 
@@ -154,7 +146,7 @@ namespace SampleGame.Domain.ModelViewer {
             }
 
             if (IsActive) {
-                _actorController.ChangeAdditiveAnimationClip(CurrentAnimationClip);
+                _actorPort.ChangeAdditiveAnimationClip(CurrentAnimationClip);
             }
         }
 
@@ -172,7 +164,7 @@ namespace SampleGame.Domain.ModelViewer {
             }
 
             if (IsActive) {
-                _actorController.ChangeMeshAvatar(key, prefab, locatorName);
+                _actorPort.ChangeMeshAvatar(key, prefab, locatorName);
             }
         }
 
@@ -180,7 +172,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// 状態のリセット
         /// </summary>
         public void ResetActor() {
-            _actorController.ResetActor();
+            _actorPort.ResetActor();
         }
 
         /// <summary>

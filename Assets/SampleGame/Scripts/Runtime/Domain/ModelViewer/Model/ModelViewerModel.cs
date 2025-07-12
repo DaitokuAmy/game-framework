@@ -1,8 +1,5 @@
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.Core;
-using GameFramework.OldModelSystems;
 using R3;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -18,11 +15,11 @@ namespace SampleGame.Domain.ModelViewer {
         IReadOnlyActorModel ActorModel { get; }
         
         /// <summary>環境生成通知</summary>
-        Observable<CreatedEnvironmentDto> CreatedEnvironmentSubject { get; }
+        Observable<ChangedEnvironmentDto> ChangedEnvironmentSubject { get; }
         /// <summary>環境削除通知</summary>
         Observable<DeletedEnvironmentDto> DeletedEnvironmentSubject { get; }
         /// <summary>アクター生成通知</summary>
-        Observable<CreatedActorDto> CreatedActorSubject { get; }
+        Observable<ChangedActorDto> ChangedActorSubject { get; }
         /// <summary>アクター削除通知</summary>
         Observable<DeletedActorDto> DeletedActorSubject { get; }
     }
@@ -30,13 +27,13 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 表示用アクターモデル
     /// </summary>
-    public class ModelViewerModel : GameFramework.OldModelSystems.SingleModel<ModelViewerModel>, IReadOnlyModelViewerModel {
+    public class ModelViewerModel : GameFramework.Core.SingleModel<ModelViewerModel>, IReadOnlyModelViewerModel {
         private IActorFactory _actorFactory;
         private IEnvironmentFactory _environmentFactory;
 
-        private Subject<CreatedEnvironmentDto> _createdEnvironmentSubject;
+        private Subject<ChangedEnvironmentDto> _changedEnvironmentSubject;
         private Subject<DeletedEnvironmentDto> _deletedEnvironmentSubject;
-        private Subject<CreatedActorDto> _createdActorSubject;
+        private Subject<ChangedActorDto> _changedActorSubject;
         private Subject<DeletedActorDto> _deletedActorSubject;
 
         /// <summary>ビューア用マスター</summary>
@@ -49,11 +46,11 @@ namespace SampleGame.Domain.ModelViewer {
         public IReadOnlyActorModel ActorModel => ActorModelInternal;
 
         /// <summary>環境生成通知</summary>
-        public Observable<CreatedEnvironmentDto> CreatedEnvironmentSubject => _createdEnvironmentSubject;
+        public Observable<ChangedEnvironmentDto> ChangedEnvironmentSubject => _changedEnvironmentSubject;
         /// <summary>環境削除通知</summary>
         public Observable<DeletedEnvironmentDto> DeletedEnvironmentSubject => _deletedEnvironmentSubject;
         /// <summary>アクター生成通知</summary>
-        public Observable<CreatedActorDto> CreatedActorSubject => _createdActorSubject;
+        public Observable<ChangedActorDto> ChangedActorSubject => _changedActorSubject;
         /// <summary>アクター削除通知</summary>
         public Observable<DeletedActorDto> DeletedActorSubject => _deletedActorSubject;
 
@@ -63,21 +60,14 @@ namespace SampleGame.Domain.ModelViewer {
         internal ActorModel ActorModelInternal { get; private set; }
 
         /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        private ModelViewerModel(object empty)
-            : base(empty) {
-        }
-
-        /// <summary>
         /// 生成時処理
         /// </summary>
         protected override void OnCreatedInternal(IScope scope) {
             base.OnCreatedInternal(scope);
 
-            _createdEnvironmentSubject = new Subject<CreatedEnvironmentDto>().RegisterTo(scope);
+            _changedEnvironmentSubject = new Subject<ChangedEnvironmentDto>().RegisterTo(scope);
             _deletedEnvironmentSubject = new Subject<DeletedEnvironmentDto>().RegisterTo(scope);
-            _createdActorSubject = new Subject<CreatedActorDto>().RegisterTo(scope);
+            _changedActorSubject = new Subject<ChangedActorDto>().RegisterTo(scope);
             _deletedActorSubject = new Subject<DeletedActorDto>().RegisterTo(scope);
         }
 
@@ -89,105 +79,27 @@ namespace SampleGame.Domain.ModelViewer {
         }
 
         /// <summary>
-        /// ファクトリーの設定
-        /// </summary>
-        public void SetFactory(IActorFactory actorFactory, IEnvironmentFactory environmentFactory) {
-            _actorFactory = actorFactory;
-            _environmentFactory = environmentFactory;
-        }
-
-        /// <summary>
         /// アクターの変更
         /// </summary>
-        public async UniTask ChangeActorAsync(IActorMaster master, CancellationToken ct) {
-            DeleteActor();
-
-            if (master == null || _actorFactory == null) {
-                return;
-            }
-
-            // モデル生成
-            ActorModelInternal = ModelViewer.ActorModel.Create();
-            ActorModelInternal.Setup(master);
-            
-            // アクター生成
-            var controller = await _actorFactory.CreateAsync(ActorModelInternal, ct);
-            ActorModelInternal.SetController(controller);
+        public void ChangeActor(ActorModel model) {
+            ActorModelInternal = model;
 
             // 通知
-            _createdActorSubject.OnNext(new CreatedActorDto {
+            _changedActorSubject.OnNext(new ChangedActorDto {
                 ActorModel = ActorModel
             });
         }
-
-        /// <summary>
-        /// アクターの削除
-        /// </summary>
-        public void DeleteActor() {
-            if (ActorModelInternal == null) {
-                return;
-            }
-            
-            // アクター削除
-            if (_actorFactory != null) {
-                _actorFactory.Destroy(ActorModelInternal.Id);
-            }
-
-            // 通知
-            _deletedActorSubject.OnNext(new DeletedActorDto {
-                ActorModel = ActorModel
-            });
-
-            // 削除
-            ModelViewer.ActorModel.Delete(ActorModelInternal.Id);
-            ActorModelInternal = null;
-        }
-
+        
         /// <summary>
         /// 環境の変更
         /// </summary>
-        public async UniTask ChangeEnvironmentAsync(IEnvironmentMaster master, CancellationToken ct) {
-            DeleteEnvironment();
-
-            if (master == null || _environmentFactory == null) {
-                return;
-            }
-
-            // モデル生成
-            EnvironmentModelInternal = ModelViewer.EnvironmentModel.Create();
-            EnvironmentModelInternal.Setup(master);
-            
-            // アクター生成
-            var controller = await _environmentFactory.CreateAsync(EnvironmentModelInternal, ct);
-            EnvironmentModelInternal.SetController(controller);
+        public void ChangeEnvironment(EnvironmentModel environmentModel) {
+            EnvironmentModelInternal = environmentModel;
 
             // 通知
-            _createdEnvironmentSubject.OnNext(new CreatedEnvironmentDto {
+            _changedEnvironmentSubject.OnNext(new ChangedEnvironmentDto {
                 EnvironmentModel = EnvironmentModel
             });
-        }
-
-        /// <summary>
-        /// 環境の削除
-        /// </summary>
-        public void DeleteEnvironment() {
-            if (EnvironmentModelInternal == null) {
-                return;
-            }
-            
-            // 環境削除
-            if (_environmentFactory != null) {
-                _environmentFactory.Destroy(EnvironmentModelInternal.Id);
-            }
-
-            // 通知
-            _deletedEnvironmentSubject.OnNext(new DeletedEnvironmentDto {
-                EnvironmentModel = EnvironmentModel
-            });
-
-            // 削除
-            ModelViewer.EnvironmentModel.Delete(EnvironmentModelInternal.Id);
-            EnvironmentModelInternal = null;
         }
     }
 }

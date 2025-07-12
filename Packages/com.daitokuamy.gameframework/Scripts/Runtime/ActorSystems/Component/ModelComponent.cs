@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using GameFramework.OldModelSystems;
+using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.Scripting;
 
@@ -10,8 +10,7 @@ namespace GameFramework.ActorSystems {
     /// </summary>
     [Preserve]
     public sealed class ModelComponent : Component {
-        // モデルのキャッシュ
-        private Dictionary<Type, IModel> _models = new Dictionary<Type, IModel>();
+        private readonly Dictionary<Type, IModel> _models = new();
 
         /// <summary>
         /// モデルの取得
