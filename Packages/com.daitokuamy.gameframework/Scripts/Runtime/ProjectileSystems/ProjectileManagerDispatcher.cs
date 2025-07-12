@@ -2,19 +2,19 @@ using UnityEngine;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
-    /// ProjectileObjectManagerに生成されるRootにつけるDispatcher
+    /// ProjectileManagerに生成されるRootにつけるDispatcher
     /// </summary>
-    public class ProjectileObjectManagerDispatcher : MonoBehaviour {
+    public class ProjectileManagerDispatcher : MonoBehaviour {
         [SerializeField, Tooltip("Poolを使わないフラグ")]
         private bool _unusedPool;
-        
-        // 参照先のVfxManager
-        public ProjectileObjectManager Manager { get; private set; }
+
+        /// <summary>参照先のVfxManager</summary>
+        public ProjectileManager Manager { get; private set; }
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(ProjectileObjectManager manager) {
+        public void Setup(ProjectileManager manager) {
             Manager = manager;
             ApplyStatus();
         }
@@ -33,7 +33,7 @@ namespace GameFramework.ProjectileSystems {
             if (Manager == null) {
                 return;
             }
-            
+
             Manager.SetActivePool(!_unusedPool);
         }
     }

@@ -14,6 +14,6 @@ namespace GameFramework.Core {
     /// </summary>
     public interface IEventProcess<T> : IProcess<T> {
         /// <summary>終了通知</summary>
-        event Action<T> OnExitEvent;
+        event Action<T> ExitEvent;
     }
 }

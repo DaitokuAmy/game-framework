@@ -4,7 +4,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 飛翔体用制御用インターフェース
     /// </summary>
-    public interface IProjectile {
+    public interface IProjectileController {
         /// <summary>
         /// 飛翔開始
         /// </summary>

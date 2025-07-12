@@ -36,7 +36,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         protected override void InitializeInternal() {
             var meshController = Body.GetController<MeshController>();
-            meshController.OnRefreshed += RefreshLocatorPartsList;
+            meshController.RefreshedEvent += RefreshLocatorPartsList;
             RefreshLocatorPartsList();
         }
 

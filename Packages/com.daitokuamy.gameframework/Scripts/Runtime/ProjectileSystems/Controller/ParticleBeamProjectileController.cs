@@ -5,12 +5,12 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 粒子ビーム用Projectile
     /// </summary>
-    public class ParticleBeamProjectile : IBeamProjectile {
+    public class ParticleBeamProjectileController : IBeamProjectileController {
         /// <summary>
         /// 初期化用データ 
         /// </summary>
         [Serializable]
-        public struct Context {
+        public struct Settings {
             [Tooltip("先端速度")]
             public float startSpeed;
             [Tooltip("末端速度")]
@@ -71,7 +71,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="radius">半径</param>
         /// <param name="maxDistance">最大距離</param>
         /// <param name="tilt">傾き</param>
-        public ParticleBeamProjectile(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, float headSpeed, float tailSpeed, int obstacleLayerMask, float radius, float maxDistance, float tilt) {
+        public ParticleBeamProjectileController(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, float headSpeed, float tailSpeed, int obstacleLayerMask, float radius, float maxDistance, float tilt) {
             _baseTransform = baseTransform;
             _baseOffsetPosition = baseOffsetPosition;
             _baseOffsetRotation = baseOffsetRotation;
@@ -91,21 +91,21 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="baseTransform">基点となるTransform</param>
         /// <param name="baseOffsetPosition">基点となるTransformのオフセット座標</param>
         /// <param name="baseOffsetRotation">基点となるTransformのオフセット向き</param>
-        /// <param name="context">初期化パラメータ</param>
-        public ParticleBeamProjectile(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, Context context)
+        /// <param name="settings">初期化パラメータ</param>
+        public ParticleBeamProjectileController(Transform baseTransform, Vector3 baseOffsetPosition, Quaternion baseOffsetRotation, Settings settings)
             : this(baseTransform, baseOffsetPosition, baseOffsetRotation,
-                context.startSpeed,
-                context.endSpeed, 
-                context.obstacleLayerMask, 
-                context.radius, 
-                context.maxDistance, 
-                context.tilt) {
+                settings.startSpeed,
+                settings.endSpeed, 
+                settings.obstacleLayerMask, 
+                settings.radius, 
+                settings.maxDistance, 
+                settings.tilt) {
         }
 
         /// <summary>
         /// 飛翔開始
         /// </summary>
-        void IProjectile.Start() {
+        void IProjectileController.Start() {
             _stopped = false;
             _headDistance = 0.0f;
             _tailDistance = 0.0f;
@@ -120,7 +120,7 @@ namespace GameFramework.ProjectileSystems {
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        bool IProjectile.Update(float deltaTime) {
+        bool IProjectileController.Update(float deltaTime) {
             // 照射距離更新
             if (_stopped) {
                 _tailDistance += _tailSpeed * deltaTime;
@@ -187,7 +187,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void IProjectile.Stop(Vector3? stopPosition) {
+        void IProjectileController.Stop(Vector3? stopPosition) {
             _stopped = true;
         }
 

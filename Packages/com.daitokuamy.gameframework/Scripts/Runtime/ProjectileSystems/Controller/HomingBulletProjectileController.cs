@@ -6,12 +6,12 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// ホーミング制御Projectile
     /// </summary>
-    public class HomingBulletProjectile : IBulletProjectile {
+    public class HomingBulletProjectileController : IBulletProjectileController {
         /// <summary>
         /// 初期化用データ 
         /// </summary>
         [Serializable]
-        public struct Context {
+        public struct Settings {
             [Tooltip("初速度")]
             public MinMaxFloat startSpeed;
             [Tooltip("加速度の最大値(0以下で無効)")]
@@ -73,7 +73,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="maxAcceleration">最大加速度</param>
         /// <param name="continueAcceleration">外れた後にも加速し続けるか</param>
         /// <param name="maxDistance">最大距離</param>
-        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat homingOffAcceleration, MinMaxFloat maxAcceleration, bool continueAcceleration, float maxDistance, MinMaxFloat duration, MinMaxFloat homingStartTiming, float durationBaseMeter, bool autoExit) {
+        public HomingBulletProjectileController(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, MinMaxFloat startSpeed, MinMaxFloat homingOffAcceleration, MinMaxFloat maxAcceleration, bool continueAcceleration, float maxDistance, MinMaxFloat duration, MinMaxFloat homingStartTiming, float durationBaseMeter, bool autoExit) {
             _startPoint = startPoint;
             _endPoint = endPoint;
             _startSpeed = startSpeed.Rand();
@@ -95,16 +95,16 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="startPoint">初期座標</param>
         /// <param name="startRotation">初期向き</param>
         /// <param name="endPoint">ターゲット座標</param>
-        /// <param name="context">初期化用パラメータ</param>
-        public HomingBulletProjectile(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, Context context)
-            : this(startPoint, startRotation, endPoint, context.startSpeed,  context.homingOffAcceleration, context.maxAcceleration, context.continueAcceleration, context.maxDistance,
-                context.duration, context.homingStartTiming, context.durationBaseMeter, context.autoExit) {
+        /// <param name="settings">初期化用パラメータ</param>
+        public HomingBulletProjectileController(Vector3 startPoint, Quaternion startRotation, Vector3 endPoint, Settings settings)
+            : this(startPoint, startRotation, endPoint, settings.startSpeed,  settings.homingOffAcceleration, settings.maxAcceleration, settings.continueAcceleration, settings.maxDistance,
+                settings.duration, settings.homingStartTiming, settings.durationBaseMeter, settings.autoExit) {
         }
 
         /// <summary>
         /// 飛翔開始
         /// </summary>
-        void IProjectile.Start() {
+        void IProjectileController.Start() {
             Position = _startPoint;
             _velocity = Rotation * Vector3.forward * _startSpeed;
             _distance = 0.0f;
@@ -116,7 +116,7 @@ namespace GameFramework.ProjectileSystems {
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        bool IProjectile.Update(float deltaTime) {
+        bool IProjectileController.Update(float deltaTime) {
             if (_stopped) {
                 return false;
             }
@@ -175,7 +175,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void IProjectile.Stop(Vector3? stopPosition) {
+        void IProjectileController.Stop(Vector3? stopPosition) {
             if (stopPosition != null) {
                 Position = stopPosition.Value;
             }

@@ -18,7 +18,7 @@ namespace GameFramework {
         private bool _useStack;
 
         /// <summary>状態変更通知(Prev > Next)</summary>
-        public event Action<TKey, TKey> OnChangedState;
+        public event Action<TKey, TKey> ChangedStateEvent;
 
         /// <summary>現在のステートキー</summary>
         public TKey CurrentKey => _stack.Count > 0 ? _stack[_stack.Count - 1] : InvalidKey;
@@ -201,7 +201,7 @@ namespace GameFramework {
                     }
                 }
 
-                OnChangedState?.Invoke(prevKey, currentKey);
+                ChangedStateEvent?.Invoke(prevKey, currentKey);
             }
 
             // 更新

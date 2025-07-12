@@ -10,19 +10,23 @@ namespace GameFramework.BodySystems {
     [AddComponentMenu("")]
     public class ColliderController : SerializedBodyController {
         // キャッシュ用のMaterial情報リスト
-        private Dictionary<string, List<Collider>> _colliderInfos = new Dictionary<string, List<Collider>>();
+        private readonly Dictionary<string, List<Collider>> _colliderInfos = new();
 
-        // Collider情報のリフレッシュ
-        public event Action OnRefreshed;
+        /// <summary>Collider情報のリフレッシュ</summary>
+        public event Action RefreshedEvent;
 
-        // Trigger系イベント通知
+        /// <summary>TriggerEnterイベント通知</summary>
         public event Action<Collider> OnTriggerEnterEvent;
+        /// <summary>TriggerStayイベント通知</summary>
         public event Action<Collider> OnTriggerStayEvent;
+        /// <summary>TriggerExitイベント通知</summary>
         public event Action<Collider> OnTriggerExitEvent;
 
-        // Collision系イベント通知
+        /// <summary>CollisionEnterイベント通知</summary>
         public event Action<Collision> OnCollisionEnterEvent;
+        /// <summary>CollisionStayイベント通知</summary>
         public event Action<Collision> OnCollisionStayEvent;
+        /// <summary>CollisionExitイベント通知</summary>
         public event Action<Collision> OnCollisionExitEvent;
 
         /// <summary>
@@ -73,7 +77,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         protected override void InitializeInternal() {
             var meshController = Body.GetController<MeshController>();
-            meshController.OnRefreshed += () => {
+            meshController.RefreshedEvent += () => {
                 // Collider情報の回収
                 CreateColliderInfos();
             };
@@ -102,7 +106,7 @@ namespace GameFramework.BodySystems {
                 }
             }
 
-            OnRefreshed?.Invoke();
+            RefreshedEvent?.Invoke();
         }
 
         /// <summary>

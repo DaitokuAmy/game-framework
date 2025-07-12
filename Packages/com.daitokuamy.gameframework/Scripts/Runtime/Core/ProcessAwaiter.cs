@@ -81,7 +81,7 @@ namespace GameFramework.Core {
                 return;
             }
 
-            _process.OnExitEvent += _ => continuation.Invoke();
+            _process.ExitEvent += _ => continuation.Invoke();
         }
 
         /// <summary>

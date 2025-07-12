@@ -31,7 +31,7 @@ namespace GameFramework.UISystems {
         private float _recordTime;
 
         /// <summary>フリック通知(正規化された向きベクトル)</summary>
-        public event Action<Vector2> OnFlickEvent;
+        public event Action<Vector2> FlickEvent;
 
         /// <summary>
         /// タッチダウン通知
@@ -101,7 +101,7 @@ namespace GameFramework.UISystems {
             
             var flickSpeed = flickDistance / _recordTime;
             if (flickSpeed >= _flickSpeedThreshold && flickDistance >= _minFlickDistance) {
-                OnFlickEvent?.Invoke(flickVector / flickDistance);
+                FlickEvent?.Invoke(flickVector / flickDistance);
             }
         }
     }

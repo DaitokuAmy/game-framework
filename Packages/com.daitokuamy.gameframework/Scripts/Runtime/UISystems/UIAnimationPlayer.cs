@@ -39,32 +39,32 @@ namespace GameFramework.UISystems {
                         return;
                     }
 
-                    _playingInfo.OnFinishedEvent += value;
+                    _playingInfo.FinishedEvent += value;
                 }
                 remove {
                     if (_playingInfo == null) {
                         return;
                     }
 
-                    _playingInfo.OnFinishedEvent -= value;
+                    _playingInfo.FinishedEvent -= value;
                 }
             }
             
             /// <summary>終了通知</summary>
-            public event Action OnFinishedEvent {
+            public event Action FinishedEvent {
                 add {
                     if (_playingInfo == null) {
                         return;
                     }
 
-                    _playingInfo.OnFinishedEvent += value;
+                    _playingInfo.FinishedEvent += value;
                 }
                 remove {
                     if (_playingInfo == null) {
                         return;
                     }
 
-                    _playingInfo.OnFinishedEvent -= value;
+                    _playingInfo.FinishedEvent -= value;
                 }
             }
 
@@ -127,7 +127,7 @@ namespace GameFramework.UISystems {
             public bool IsFinished => !IsValid || (!Loop && (Reverse ? Time <= 0.0f : Time >= Animation.Duration));
 
             /// <summary>終了通知</summary>
-            public event Action OnFinishedEvent;
+            public event Action FinishedEvent;
 
             /// <summary>
             /// 即時終了
@@ -152,7 +152,7 @@ namespace GameFramework.UISystems {
                 }
 
                 Animation = null;
-                OnFinishedEvent?.Invoke();
+                FinishedEvent?.Invoke();
             }
 
             /// <summary>

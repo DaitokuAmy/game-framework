@@ -28,11 +28,11 @@ namespace GameFramework.CommandSystems {
         public IReadOnlyList<ICommand> ExecutingCommands => _executingCommands;
 
         /// <summary>コマンドがスタンバイされた通知(Debug用)</summary>
-        public event Action<ICommand> OnStandbyedCommandAction;
+        public event Action<ICommand> StandbyedCommandEvent;
         /// <summary>コマンドが実行された通知(Debug用)</summary>
-        public event Action<ICommand> OnExecutedCommandAction;
+        public event Action<ICommand> ExecutedCommandEvent;
         /// <summary>コマンドが除外された通知(Debug用)</summary>
-        public event Action<ICommand> OnRemovedCommandAction;
+        public event Action<ICommand> RemovedCommandEvent;
 
         /// <summary>
         /// コンストラクタ
@@ -71,7 +71,7 @@ namespace GameFramework.CommandSystems {
 
             _standbyCommands.Add(command);
             command.Initialize();
-            OnStandbyedCommandAction?.Invoke(command);
+            StandbyedCommandEvent?.Invoke(command);
             
             // 実行中の優先度の低い物をキャンセル
             if (command.AddedCancelLowPriorityOthers) {
@@ -85,7 +85,7 @@ namespace GameFramework.CommandSystems {
                     var removeCommand = _standbyCommands[0];
                     removeCommand.Destroy();
                     _standbyCommands.RemoveAt(0);
-                    OnRemovedCommandAction?.Invoke(removeCommand);
+                    RemovedCommandEvent?.Invoke(removeCommand);
                 }
             }
             // 要素追加されていた場合、ソートを依頼
@@ -186,7 +186,7 @@ namespace GameFramework.CommandSystems {
                 if (command.Start() && command.CurrentState == CommandState.Executing) {
                     _standbyCommands.RemoveAt(i);
                     _executingCommands.Add(command);
-                    OnExecutedCommandAction?.Invoke(command);
+                    ExecutedCommandEvent?.Invoke(command);
                     executingDirty = true;
                     
                     // 実行中の優先度の低い物をキャンセル
@@ -215,7 +215,7 @@ namespace GameFramework.CommandSystems {
                 command.Finish();
                 command.Destroy();
                 _executingCommands.RemoveAt(i);
-                OnRemovedCommandAction?.Invoke(command);
+                RemovedCommandEvent?.Invoke(command);
             }
         }
 

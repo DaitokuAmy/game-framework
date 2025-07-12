@@ -299,7 +299,7 @@ namespace GameFramework.BodySystems {
 
             if (_meshController != null) {
                 // Mesh更新時にGraphを再構築
-                _meshController.OnRefreshed += BuildGraph;
+                _meshController.RefreshedEvent += BuildGraph;
             }
         }
 

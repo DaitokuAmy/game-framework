@@ -12,7 +12,7 @@ namespace GameFramework.BodySystems {
         private readonly Dictionary<string, List<MaterialInstance>> _materialInfos = new();
 
         /// <summary>Material情報のリフレッシュ</summary>
-        public event Action OnRefreshed;
+        public event Action RefreshedEvent;
 
         /// <summary>
         /// 制御キーの一覧を取得
@@ -38,7 +38,7 @@ namespace GameFramework.BodySystems {
         /// </summary>
         protected override void InitializeInternal() {
             var meshController = Body.GetController<MeshController>();
-            meshController.OnRefreshed += () => {
+            meshController.RefreshedEvent += () => {
                 // Material情報の回収
                 CreateMaterialInfos();
             };
@@ -81,7 +81,7 @@ namespace GameFramework.BodySystems {
                 }
             }
 
-            OnRefreshed?.Invoke();
+            RefreshedEvent?.Invoke();
         }
 
         /// <summary>

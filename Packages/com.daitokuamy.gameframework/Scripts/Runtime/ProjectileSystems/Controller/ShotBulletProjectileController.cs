@@ -1,17 +1,16 @@
 using System;
-using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 射出用Projectile
     /// </summary>
-    public class ShotBulletProjectile : IBulletProjectile {
+    public class ShotBulletProjectileController : IBulletProjectileController {
         /// <summary>
         /// 初期化用データ 
         /// </summary>
         [Serializable]
-        public struct Context {
+        public struct Settings {
             [Tooltip("初速度")]
             public MinMaxFloat startSpeed;
             [Tooltip("加速度")]
@@ -53,7 +52,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="gravity">重力加速度</param>
         /// <param name="maxDistance">最大飛翔距離</param>
         /// <param name="roll">オブジェクトの傾き</param>
-        public ShotBulletProjectile(Vector3 startPoint, Quaternion startRotation, MinMaxFloat startSpeed, MinMaxFloat acceleration, float gravity, float maxDistance, MinMaxFloat roll) {
+        public ShotBulletProjectileController(Vector3 startPoint, Quaternion startRotation, MinMaxFloat startSpeed, MinMaxFloat acceleration, float gravity, float maxDistance, MinMaxFloat roll) {
             _startPoint = startPoint;
             _startRotation = startRotation;
             _startSpeed = startSpeed.Rand();
@@ -71,15 +70,15 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="startPoint">始点</param>
         /// <param name="startRotation">向き</param>
-        /// <param name="context">初期化パラメータ</param>
-        public ShotBulletProjectile(Vector3 startPoint, Quaternion startRotation, Context context)
-            : this(startPoint, startRotation, context.startSpeed, context.acceleration, context.gravity, context.maxDistance, context.roll) {
+        /// <param name="settings">初期化パラメータ</param>
+        public ShotBulletProjectileController(Vector3 startPoint, Quaternion startRotation, Settings settings)
+            : this(startPoint, startRotation, settings.startSpeed, settings.acceleration, settings.gravity, settings.maxDistance, settings.roll) {
         }
 
         /// <summary>
         /// 飛翔開始
         /// </summary>
-        void IProjectile.Start() {
+        void IProjectileController.Start() {
             _rollRotation = Quaternion.Euler(0.0f, 0.0f, _roll);
             Position = _startPoint;
             Rotation = _startRotation * _rollRotation;
@@ -92,7 +91,7 @@ namespace GameFramework.ProjectileSystems {
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        bool IProjectile.Update(float deltaTime) {
+        bool IProjectileController.Update(float deltaTime) {
             if (_stopped) {
                 return false;
             }
@@ -126,7 +125,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void IProjectile.Stop(Vector3? stopPosition) {
+        void IProjectileController.Stop(Vector3? stopPosition) {
             if (stopPosition != null) {
                 Position = stopPosition.Value;
             }

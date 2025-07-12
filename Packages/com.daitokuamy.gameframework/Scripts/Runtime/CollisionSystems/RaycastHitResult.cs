@@ -5,11 +5,11 @@ namespace GameFramework.CollisionSystems {
     /// レイキャスト衝突結果
     /// </summary>
     public struct RaycastHitResult {
-        // 衝突検知したCollider
-        public RaycastHit raycastHit;
-        // カスタムデータ
-        public object customData;
-        // ヒットカウント
-        public int hitCount;
+        /// <summary>衝突検知したCollider</summary>
+        public RaycastHit RaycastHit;
+        /// <summary>カスタムデータ</summary>
+        public object CustomData;
+        /// <summary>ヒットカウント</summary>
+        public int HitCount;
     }
 }

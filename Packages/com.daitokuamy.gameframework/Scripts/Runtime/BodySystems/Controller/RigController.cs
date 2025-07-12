@@ -90,7 +90,7 @@ namespace GameFramework.BodySystems {
             
             var meshController = Body.GetController<MeshController>();
             // Mesh更新時にRigビルド予約
-            meshController.OnRefreshed += () => _rigDirty = true;
+            meshController.RefreshedEvent += () => _rigDirty = true;
 
             _rigDirty = true;
         }

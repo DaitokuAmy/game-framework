@@ -16,14 +16,14 @@ namespace GameFramework.CollisionSystems {
     /// 汎用衝突検知用リスナー
     /// </summary>
     public class CollisionListener : ICollisionListener {
-        // 当たり判定発生通知
-        public event Action<HitResult> OnHitCollisionEvent;
+        /// <summary>当たり判定発生通知</summary>
+        public event Action<HitResult> HitCollisionEvent;
 
         /// <summary>
         /// 当たり判定の発生通知
         /// </summary>
         void ICollisionListener.OnHitCollision(HitResult result) {
-            OnHitCollisionEvent?.Invoke(result);
+            HitCollisionEvent?.Invoke(result);
         }
     }
 }

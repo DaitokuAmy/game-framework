@@ -21,7 +21,7 @@ namespace GameFramework.SituationSystems {
         /// 接続情報
         /// </summary>
         private class ConnectInfo {
-            public Action<TransitionInfo> OnTransition;
+            public Action<TransitionInfo> TransitionEvent;
             public SituationFlowNode NextNode;
         }
 
@@ -40,7 +40,7 @@ namespace GameFramework.SituationSystems {
         internal SituationFlowNode[] NextNodes => _connectInfos.Select(x => x.Value.NextNode).ToArray();
 
         /// <summary>フォールバック経由で遷移された時の通知</summary>
-        public event Action<TransitionInfo> OnTransitionByFallbackEvent;
+        public event Action<TransitionInfo> TransitionByFallbackEvent;
 
         /// <summary>
         /// コンストラクタ
@@ -109,7 +109,7 @@ namespace GameFramework.SituationSystems {
             // ノードの追加
             var nextNode = new SituationFlowNode(_flow, situation, overridePrevNode ?? this);
             connectInfo = new ConnectInfo {
-                OnTransition = onTransition,
+                TransitionEvent = onTransition,
                 NextNode = nextNode
             };
             _connectInfos.Add(type, connectInfo);
@@ -186,17 +186,17 @@ namespace GameFramework.SituationSystems {
             // 戻り遷移の場合はConnect情報からイベントを探す
             if (back) {
                 if (_connectInfos.TryGetValue(prevNode.Situation.GetType(), out var connectInfo)) {
-                    connectInfo.OnTransition?.Invoke(transitionInfo);
+                    connectInfo.TransitionEvent?.Invoke(transitionInfo);
                 }
             }
             // 進む遷移の場合は、前のノードのConnect情報からイベントを探す
             else {
                 if (prevNode._connectInfos.TryGetValue(Situation.GetType(), out var connectInfo)) {
-                    connectInfo.OnTransition?.Invoke(transitionInfo);
+                    connectInfo.TransitionEvent?.Invoke(transitionInfo);
                 }
                 // 接続情報がなく遷移した場合は、Fallback遷移とみなして通知する
                 else {
-                    OnTransitionByFallbackEvent?.Invoke(transitionInfo);
+                    TransitionByFallbackEvent?.Invoke(transitionInfo);
                 }
             }
         }

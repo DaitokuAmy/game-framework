@@ -54,6 +54,11 @@
             "name": "com.unity.animation.rigging",
             "expression": "",
             "define": "USE_ANIMATION_RIGGING"
+        },
+        {
+            "name": "com.unity.splines",
+            "expression": "",
+            "define": "USE_SPLINES"
         }
     ],
     "noEngineReferences": false

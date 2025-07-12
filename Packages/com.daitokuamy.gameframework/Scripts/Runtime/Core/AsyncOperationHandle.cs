@@ -39,10 +39,10 @@ namespace GameFramework.Core {
         // 完了しているか
         public bool IsDone => IsCompleted || IsError;
 
-        // 完了通知イベント
-        public event Action OnCompletedEvent;
-        // キャンセル通知イベント
-        public event Action<Exception> OnAbortedEvent;
+        /// <summary>完了通知イベント</summary>
+        public event Action CompletedEvent;
+        /// <summary>キャンセル通知イベント</summary>
+        public event Action<Exception> AbortedEvent;
 
         /// <summary>
         /// 完了済みOperatorの生成
@@ -85,9 +85,9 @@ namespace GameFramework.Core {
             }
 
             IsCompleted = true;
-            OnCompletedEvent?.Invoke();
-            OnCompletedEvent = null;
-            OnAbortedEvent = null;
+            CompletedEvent?.Invoke();
+            CompletedEvent = null;
+            AbortedEvent = null;
         }
 
         /// <summary>
@@ -104,9 +104,9 @@ namespace GameFramework.Core {
             }
 
             Exception = exception;
-            OnAbortedEvent?.Invoke(exception);
-            OnCompletedEvent = null;
-            OnAbortedEvent = null;
+            AbortedEvent?.Invoke(exception);
+            CompletedEvent = null;
+            AbortedEvent = null;
         }
     }
 
@@ -114,21 +114,21 @@ namespace GameFramework.Core {
     /// 非同期処理ハンドル用オペレーター
     /// </summary>
     public class AsyncOperator<T> {
-        // 結果
+        /// <summary>結果</summary>
         public T Result { get; private set; }
-        // 正常終了か
+        /// <summary>正常終了か</summary>
         public bool IsCompleted { get; private set; }
-        // エラー内容
+        /// <summary>エラー内容</summary>
         public Exception Exception { get; private set; }
-        // エラー終了か
+        /// <summary>エラー終了か</summary>
         public bool IsError => Exception != null;
-        // 完了しているか
+        /// <summary>完了しているか</summary>
         public bool IsDone => IsCompleted || IsError;
 
-        // 完了通知イベント
-        public event Action<T> OnCompletedEvent;
-        // エラー通知イベント
-        public event Action<Exception> OnAbortedEvent;
+        /// <summary>完了通知イベント</summary>
+        public event Action<T> CompletedEvent;
+        /// <summary>エラー通知イベント</summary>
+        public event Action<Exception> AbortedEvent;
 
         /// <summary>
         /// ハンドルへの暗黙型変換
@@ -172,9 +172,9 @@ namespace GameFramework.Core {
 
             Result = result;
             IsCompleted = true;
-            OnCompletedEvent?.Invoke(result);
-            OnCompletedEvent = null;
-            OnAbortedEvent = null;
+            CompletedEvent?.Invoke(result);
+            CompletedEvent = null;
+            AbortedEvent = null;
         }
 
         /// <summary>
@@ -191,9 +191,9 @@ namespace GameFramework.Core {
             }
 
             Exception = exception;
-            OnAbortedEvent?.Invoke(exception);
-            OnCompletedEvent = null;
-            OnAbortedEvent = null;
+            AbortedEvent?.Invoke(exception);
+            CompletedEvent = null;
+            AbortedEvent = null;
         }
     }
 
@@ -266,11 +266,11 @@ namespace GameFramework.Core {
             }
 
             if (onCompleted != null) {
-                _asyncOperator.OnCompletedEvent += onCompleted;
+                _asyncOperator.CompletedEvent += onCompleted;
             }
 
             if (onError != null) {
-                _asyncOperator.OnAbortedEvent += onError;
+                _asyncOperator.AbortedEvent += onError;
             }
         }
     }
@@ -346,11 +346,11 @@ namespace GameFramework.Core {
             }
 
             if (onCompleted != null) {
-                _asyncOperator.OnCompletedEvent += onCompleted;
+                _asyncOperator.CompletedEvent += onCompleted;
             }
 
             if (onError != null) {
-                _asyncOperator.OnAbortedEvent += onError;
+                _asyncOperator.AbortedEvent += onError;
             }
         }
     }

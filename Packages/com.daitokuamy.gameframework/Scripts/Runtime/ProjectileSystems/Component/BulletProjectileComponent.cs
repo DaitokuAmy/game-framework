@@ -17,7 +17,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        void Start(IBulletProjectile projectile);
+        void Start(IBulletProjectileController projectileController);
 
         /// <summary>
         /// 飛翔更新処理
@@ -31,25 +31,19 @@ namespace GameFramework.ProjectileSystems {
         IEnumerator ExitRoutine();
 
         /// <summary>
-        /// 飛翔物の更新
-        /// </summary>
-        /// <param name="projectile">飛翔物の情報</param>
-        void UpdateProjectile(IBulletProjectile projectile);
-
-        /// <summary>
         /// 衝突発生通知
         /// </summary>
-        /// <param name="result">衝突結果</param>
-        void OnHitCollision(RaycastHitResult result);
+        /// <param name="hit">衝突結果</param>
+        void OnHitCollision(RaycastHit hit);
     }
 
     /// <summary>
     /// 飛翔体オブジェクトの挙動拡張用の基底MonoBehaviour
     /// </summary>
-    [RequireComponent(typeof(BulletProjectileObject))]
+    [RequireComponent(typeof(BulletProjectile))]
     public abstract class BulletProjectileComponent : MonoBehaviour, IBulletProjectileComponent {
-        // 使用中のProjectile
-        protected IProjectile Projectile { get; private set; }
+        /// <summary>使用中のProjectile</summary>
+        protected IBulletProjectileController ProjectileController { get; private set; }
 
         /// <summary>
         /// 廃棄時処理
@@ -69,9 +63,9 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        void IBulletProjectileComponent.Start(IBulletProjectile projectile) {
-            Projectile = projectile;
-            StartProjectileInternal();
+        void IBulletProjectileComponent.Start(IBulletProjectileController projectileController) {
+            ProjectileController = projectileController;
+            StartInternal();
         }
 
         /// <summary>
@@ -86,22 +80,15 @@ namespace GameFramework.ProjectileSystems {
         /// 飛翔終了処理
         /// </summary>
         IEnumerator IBulletProjectileComponent.ExitRoutine() {
-            yield return ExitProjectileRoutine();
-        }
-
-        /// <summary>
-        /// Transformの更新
-        /// </summary>
-        void IBulletProjectileComponent.UpdateProjectile(IBulletProjectile projectile) {
-            UpdateTransformInternal(projectile);
+            yield return ExitRoutineInternal();
         }
 
         /// <summary>
         /// コリジョンヒット時通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        void IBulletProjectileComponent.OnHitCollision(RaycastHitResult result) {
-            OnHitCollisionInternal(result);
+        /// <param name="hit">当たり結果</param>
+        void IBulletProjectileComponent.OnHitCollision(RaycastHit hit) {
+            OnHitCollisionInternal(hit);
         }
 
         /// <summary>
@@ -120,7 +107,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected virtual void StartProjectileInternal() {
+        protected virtual void StartInternal() {
         }
 
         /// <summary>
@@ -133,21 +120,15 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected virtual IEnumerator ExitProjectileRoutine() {
+        protected virtual IEnumerator ExitRoutineInternal() {
             yield break;
-        }
-        
-        /// <summary>
-        /// 内部用Transform更新処理
-        /// </summary>
-        protected virtual void UpdateTransformInternal(IBulletProjectile projectile) {
         }
 
         /// <summary>
         /// コリジョンヒット通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        protected virtual void OnHitCollisionInternal(RaycastHitResult result) {
+        /// <param name="hit">当たり結果</param>
+        protected virtual void OnHitCollisionInternal(RaycastHit hit) {
         }
     }
 }

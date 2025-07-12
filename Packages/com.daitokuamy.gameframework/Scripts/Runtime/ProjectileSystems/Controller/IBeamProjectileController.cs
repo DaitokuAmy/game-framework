@@ -4,7 +4,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// ビーム制御用インターフェース
     /// </summary>
-    public interface IBeamProjectile : IProjectile {
+    public interface IBeamProjectileController : IProjectileController {
         /// <summary>先端座標</summary>
         Vector3 HeadPosition { get; }
         /// <summary>末端座標</summary>

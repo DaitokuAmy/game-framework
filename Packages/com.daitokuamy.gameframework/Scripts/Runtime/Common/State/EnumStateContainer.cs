@@ -35,9 +35,9 @@ namespace GameFramework {
         /// Enum型をキーとしたState
         /// </summary>
         public class EnumState : IState<TKey> {
-            public EnterAction OnEnterEvent;
-            public UpdateAction OnUpdateEvent;
-            public ExitAction OnExitEvent;
+            public EnterAction EnterEvent;
+            public UpdateAction UpdateEvent;
+            public ExitAction ExitEvent;
 
             public TKey Key { get; }
 
@@ -46,15 +46,15 @@ namespace GameFramework {
             }
 
             void IState<TKey>.OnEnter(TKey prevKey, bool back, IScope scope) {
-                OnEnterEvent?.Invoke(prevKey, back, scope);
+                EnterEvent?.Invoke(prevKey, back, scope);
             }
 
             void IState<TKey>.OnUpdate(float deltaTime) {
-                OnUpdateEvent?.Invoke(deltaTime);
+                UpdateEvent?.Invoke(deltaTime);
             }
 
             void IState<TKey>.OnExit(TKey nextKey, bool back) {
-                OnExitEvent?.Invoke(nextKey, back);
+                ExitEvent?.Invoke(nextKey, back);
             }
         }
 
@@ -89,9 +89,9 @@ namespace GameFramework {
                 return;
             }
 
-            state.OnEnterEvent = onEnter;
-            state.OnUpdateEvent = onUpdate;
-            state.OnExitEvent = onExit;
+            state.EnterEvent = onEnter;
+            state.UpdateEvent = onUpdate;
+            state.ExitEvent = onExit;
         }
     }
 }

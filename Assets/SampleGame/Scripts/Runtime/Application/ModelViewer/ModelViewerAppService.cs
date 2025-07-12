@@ -36,11 +36,13 @@ namespace SampleGame.Application.ModelViewer {
         /// <summary>
         /// 初期化
         /// </summary>
-        public async UniTask SetupAsync(IModelViewerMaster master, CancellationToken ct) {
+        public UniTask SetupAsync(IModelViewerMaster master, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
             // 設定ファイルで初期化
             _domainService.Setup(master);
+            
+            return UniTask.CompletedTask;
         }
 
         /// <summary>

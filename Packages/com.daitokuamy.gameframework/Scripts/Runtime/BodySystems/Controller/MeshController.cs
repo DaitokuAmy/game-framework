@@ -31,18 +31,18 @@ namespace GameFramework.BodySystems {
         // 表示中フラグ
         private bool _isVisible = true;
 
-        // 更新通知
-        public event Action OnRefreshed;
-        // Partsの追加通知
-        public event Action<GameObject> OnAddedParts;
-        // Partsの削除通知
-        public event Action<GameObject> OnRemovedParts;
-        // MeshPartsの追加通知
-        public event Action<MeshParts> OnAddedMeshParts;
-        // MeshPartsの削除通知
-        public event Action<MeshParts> OnRemovedMeshParts;
+        /// <summary>更新通知</summary>
+        public event Action RefreshedEvent;
+        /// <summary>Partsの追加通知</summary>
+        public event Action<GameObject> AddedPartsEvent;
+        /// <summary>Partsの削除通知</summary>
+        public event Action<GameObject> RemovedPartsEvent;
+        /// <summary>MeshPartsの追加通知</summary>
+        public event Action<MeshParts> AddedMeshPartsEvent;
+        /// <summary>MeshPartsの削除通知</summary>
+        public event Action<MeshParts> RemovedMeshPartsEvent;
 
-        // 表示状態の切り替え
+        /// <summary>表示状態の切り替え</summary>
         public bool IsVisible {
             get => _isVisible;
             set {
@@ -114,11 +114,11 @@ namespace GameFramework.BodySystems {
 
             // 更新通知
             if (meshParts != null) {
-                OnAddedMeshParts?.Invoke(meshParts);
+                AddedMeshPartsEvent?.Invoke(meshParts);
             }
 
-            OnAddedParts?.Invoke(target);
-            OnRefreshed?.Invoke();
+            AddedPartsEvent?.Invoke(target);
+            RefreshedEvent?.Invoke();
         }
 
         /// <summary>
@@ -148,14 +148,14 @@ namespace GameFramework.BodySystems {
 
             // 削除通知
             if (mergedInfo.meshParts != null) {
-                OnRemovedMeshParts?.Invoke(mergedInfo.meshParts);
+                RemovedMeshPartsEvent?.Invoke(mergedInfo.meshParts);
             }
 
-            OnRemovedParts?.Invoke(target);
+            RemovedPartsEvent?.Invoke(target);
             // 追加したメッシュの削除
             UnityEngine.Object.DestroyImmediate(target.gameObject);
             // 更新通知
-            OnRefreshed?.Invoke();
+            RefreshedEvent?.Invoke();
         }
 
         /// <summary>

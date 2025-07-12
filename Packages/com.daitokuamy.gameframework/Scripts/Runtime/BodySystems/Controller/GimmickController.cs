@@ -39,7 +39,7 @@ namespace GameFramework.BodySystems {
         protected override void InitializeInternal() {
             _gimmickPlayer = new GimmickPlayer();
             var meshController = Body.GetController<MeshController>();
-            meshController.OnRefreshed += RefreshGimmicks;
+            meshController.RefreshedEvent += RefreshGimmicks;
             Body.LayeredTime.ChangedTimeScaleEvent += SetSpeed;
             RefreshGimmicks();
             SetSpeed(Body.LayeredTime.TimeScale);

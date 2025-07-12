@@ -9,14 +9,16 @@ namespace GameFramework.CoroutineSystems {
     /// コルーチン実行クラス
     /// </summary>
     public class CoroutineRunner : IDisposable {
-        // コルーチン情報
+        /// <summary>
+        /// コルーチン情報
+        /// </summary>
         private class CoroutineInfo {
-            public Coroutine coroutine;
-            public IDisposable disposable;
+            public Coroutine Coroutine;
+            public IDisposable Disposable;
 
-            public event Action<Exception> OnError;
-            public event Action OnCanceled;
-            public event Action OnCompleted;
+            public event Action<Exception> ErrorEvent;
+            public event Action CanceledEvent;
+            public event Action CompletedEvent;
 
             private bool _isCanceled;
             private Exception _exception;
@@ -32,14 +34,14 @@ namespace GameFramework.CoroutineSystems {
                     return;
                 }
 
-                var onCompletedInternal = OnCompleted;
+                var onCompletedInternal = CompletedEvent;
 
                 _isCompleted = true;
-                OnCanceled = null;
-                OnError = null;
-                OnCompleted = null;
-                disposable?.Dispose();
-                disposable = null;
+                CanceledEvent = null;
+                ErrorEvent = null;
+                CompletedEvent = null;
+                Disposable?.Dispose();
+                Disposable = null;
 
                 onCompletedInternal?.Invoke();
             }
@@ -52,14 +54,14 @@ namespace GameFramework.CoroutineSystems {
                     return;
                 }
 
-                var onCanceledInternal = OnCanceled;
+                var onCanceledInternal = CanceledEvent;
 
                 _isCanceled = true;
-                OnCanceled = null;
-                OnError = null;
-                OnCompleted = null;
-                disposable?.Dispose();
-                disposable = null;
+                CanceledEvent = null;
+                ErrorEvent = null;
+                CompletedEvent = null;
+                Disposable?.Dispose();
+                Disposable = null;
 
                 onCanceledInternal?.Invoke();
             }
@@ -73,14 +75,14 @@ namespace GameFramework.CoroutineSystems {
                     return;
                 }
 
-                var onErrorInternal = OnError;
+                var onErrorInternal = ErrorEvent;
 
                 _exception = error;
-                OnCanceled = null;
-                OnError = null;
-                OnCompleted = null;
-                disposable?.Dispose();
-                disposable = null;
+                CanceledEvent = null;
+                ErrorEvent = null;
+                CompletedEvent = null;
+                Disposable?.Dispose();
+                Disposable = null;
 
                 onErrorInternal?.Invoke(error);
             }
@@ -108,28 +110,28 @@ namespace GameFramework.CoroutineSystems {
 
             // コルーチンの追加
             var coroutineInfo = new CoroutineInfo {
-                coroutine = new Coroutine(enumerator)
+                Coroutine = new Coroutine(enumerator)
             };
 
             // イベント登録
-            coroutineInfo.OnCompleted += onCompleted;
-            coroutineInfo.OnCanceled += onCanceled;
+            coroutineInfo.CompletedEvent += onCompleted;
+            coroutineInfo.CanceledEvent += onCanceled;
 
             // すでにキャンセル済
             if (cancellationToken.IsCancellationRequested) {
                 coroutineInfo.Cancel();
-                return coroutineInfo.coroutine;
+                return coroutineInfo.Coroutine;
             }
 
             // キャンセルの監視
-            coroutineInfo.disposable = cancellationToken.Register(() => coroutineInfo.Cancel());
+            coroutineInfo.Disposable = cancellationToken.Register(() => coroutineInfo.Cancel());
 
             // エラーハンドリング用のアクションが無い時はログを出力するようにする
-            coroutineInfo.OnError += onError ?? Debug.LogException;
+            coroutineInfo.ErrorEvent += onError ?? Debug.LogException;
 
             _coroutineInfos.Add(coroutineInfo);
 
-            return coroutineInfo.coroutine;
+            return coroutineInfo.Coroutine;
         }
 
         /// <summary>
@@ -146,7 +148,7 @@ namespace GameFramework.CoroutineSystems {
                 return;
             }
 
-            var foundIndex = _coroutineInfos.FindIndex(x => x.coroutine == coroutine);
+            var foundIndex = _coroutineInfos.FindIndex(x => x.Coroutine == coroutine);
             if (foundIndex < 0) {
                 Debug.LogError("Not found coroutine.");
                 return;
@@ -188,7 +190,7 @@ namespace GameFramework.CoroutineSystems {
             // 昇順で更新
             for (var i = 0; i < _coroutineInfos.Count; i++) {
                 var coroutineInfo = _coroutineInfos[i];
-                var coroutine = coroutineInfo.coroutine;
+                var coroutine = coroutineInfo.Coroutine;
 
                 // すでに完了しているCoroutineの場合はそのまま除外
                 if (coroutineInfo.IsDone) {

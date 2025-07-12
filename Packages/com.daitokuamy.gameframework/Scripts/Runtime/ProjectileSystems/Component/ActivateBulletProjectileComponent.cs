@@ -17,7 +17,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected override void StartProjectileInternal() {
+        protected override void StartInternal() {
             SetActiveObjects(_hitObjects, false);
             SetActiveObjects(_exitObjects, false);
 
@@ -27,7 +27,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected override IEnumerator ExitProjectileRoutine() {
+        protected override IEnumerator ExitRoutineInternal() {
             SetActiveObjects(_baseObjects, false);
             SetActiveObjects(_exitObjects, true);
             yield break;
@@ -36,8 +36,8 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// コリジョンヒット通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        protected override void OnHitCollisionInternal(RaycastHitResult result) {
+        /// <param name="hit">当たり結果</param>
+        protected override void OnHitCollisionInternal(RaycastHit hit) {
             SetActiveObjects(_hitObjects, false);
             SetActiveObjects(_hitObjects, true);
         }

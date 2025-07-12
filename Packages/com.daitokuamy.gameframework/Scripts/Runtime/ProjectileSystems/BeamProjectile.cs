@@ -4,23 +4,20 @@ using System.Linq;
 using GameFramework.CollisionSystems;
 using GameFramework.CoroutineSystems;
 using UnityEngine;
+using Coroutine = GameFramework.CoroutineSystems.Coroutine;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// ビームオブジェクト用インターフェース
     /// </summary>
-    public interface IBeamProjectileObject : IDisposable {
+    public interface IBeamProjectile : IDisposable {
         /// <summary>Transform参照</summary>
         Transform transform { get; }
-
-        /// <summary>
-        /// 再生中か
-        /// </summary>
+        /// <summary>飛翔情報</summary>
+        IBeamProjectileController Controller { get; }
+        /// <summary>再生中か</summary>
         bool IsPlaying { get; }
-
-        /// <summary>
-        /// レイキャスト用の半径（0より大きいとSphereCast）
-        /// </summary>
+        /// <summary>レイキャスト用の半径（0より大きいとSphereCast）</summary>
         float RaycastRadius { get; }
 
         /// <summary>
@@ -38,8 +35,8 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        /// <param name="projectile">飛翔物の情報</param>
-        void Start(IBeamProjectile projectile);
+        /// <param name="projectileController">飛翔物の情報</param>
+        void Start(IBeamProjectileController projectileController);
 
         /// <summary>
         /// 飛翔更新処理
@@ -53,16 +50,10 @@ namespace GameFramework.ProjectileSystems {
         void Exit();
 
         /// <summary>
-        /// 飛翔物の更新
-        /// </summary>
-        /// <param name="projectile">飛翔物の情報</param>
-        void UpdateProjectile(IBeamProjectile projectile);
-
-        /// <summary>
         /// 衝突発生通知
         /// </summary>
-        /// <param name="result">衝突結果</param>
-        void OnHitCollision(RaycastHitResult result);
+        /// <param name="hit">衝突結果</param>
+        void OnHitCollision(RaycastHit hit);
 
         /// <summary>
         /// スケールの設定
@@ -74,7 +65,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// ビームの実体制御用MonoBehaviour
     /// </summary>
-    public class BeamProjectileObject : MonoBehaviour, IBeamProjectileObject {
+    public class BeamProjectile : MonoBehaviour, IBeamProjectile {
         [SerializeField, Tooltip("レイキャスト用の半径(0より大きいとSphereRaycast)")]
         private float _raycastRadius = 0.0f;
 
@@ -82,14 +73,15 @@ namespace GameFramework.ProjectileSystems {
 
         private IBeamProjectileComponent[] _projectileComponents = Array.Empty<IBeamProjectileComponent>();
         private bool _isPlaying;
+        private Coroutine _stopRoutine;
 
-        // 再生中か
-        bool IBeamProjectileObject.IsPlaying => _isPlaying;
-        // レイキャスト用の半径（0より大きいとSphereCast）
-        float IBeamProjectileObject.RaycastRadius => _raycastRadius * transform.localScale.x;
+        /// <summary>再生中か</summary>
+        bool IBeamProjectile.IsPlaying => _isPlaying;
+        /// <summary>レイキャスト用の半径（0より大きいとSphereCast）</summary>
+        float IBeamProjectile.RaycastRadius => _raycastRadius * transform.localScale.x;
 
         /// <summary>使用中のProjectile</summary>
-        protected IBeamProjectile Projectile { get; private set; }
+        public IBeamProjectileController Controller { get; private set; }
 
         /// <summary>
         /// 廃棄時処理
@@ -100,6 +92,7 @@ namespace GameFramework.ProjectileSystems {
             }
 
             _coroutineRunner.Dispose();
+            _stopRoutine = null;
             foreach (var component in _projectileComponents) {
                 component.Dispose();
             }
@@ -111,7 +104,7 @@ namespace GameFramework.ProjectileSystems {
         /// 再生速度の変更
         /// </summary>
         /// <param name="speed">1.0を基準とした速度</param>
-        void IBeamProjectileObject.SetSpeed(float speed) {
+        void IBeamProjectile.SetSpeed(float speed) {
             SetSpeedInternal(speed);
             foreach (var component in _projectileComponents) {
                 component.SetSpeed(speed);
@@ -121,7 +114,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// アクティブ状態の切り替え
         /// </summary>
-        void IBeamProjectileObject.SetActive(bool active) {
+        void IBeamProjectile.SetActive(bool active) {
             if (gameObject == null) {
                 return;
             }
@@ -136,26 +129,33 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        void IBeamProjectileObject.Start(IBeamProjectile projectile) {
+        void IBeamProjectile.Start(IBeamProjectileController projectileController) {
             if (_isPlaying) {
                 return;
             }
 
-            _isPlaying = true;
-            Projectile = projectile;
-            StartProjectileInternal();
-            foreach (var component in _projectileComponents) {
-                component.Start(projectile);
+            if (!(_stopRoutine?.IsDone ?? true)) {
+                _coroutineRunner.StopCoroutine(_stopRoutine);
+                _stopRoutine = null;
             }
 
-            ((IBeamProjectileObject)this).UpdateProjectile(projectile);
+            _isPlaying = true;
+            Controller = projectileController;
+            ApplyTransform();
+            
+            StartInternal();
+            foreach (var component in _projectileComponents) {
+                component.Start(projectileController);
+            }
         }
 
         /// <summary>
         /// Projectileの更新
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void IBeamProjectileObject.Update(float deltaTime) {
+        void IBeamProjectile.Update(float deltaTime) {
+            ApplyTransform();
+            
             _coroutineRunner.Update();
             foreach (var component in _projectileComponents) {
                 component.Update(deltaTime);
@@ -165,44 +165,37 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了処理
         /// </summary>
-        void IBeamProjectileObject.Exit() {
+        void IBeamProjectile.Exit() {
             if (!_isPlaying) {
                 return;
             }
 
+            if (_stopRoutine != null) {
+                return;
+            }
+            
+            ApplyTransform();
+
             IEnumerator Routine() {
                 var list = _projectileComponents.Select(x => x.ExitRoutine())
-                    .Concat(new[] { ExitProjectileRoutine() });
+                    .Concat(new[] { ExitRoutineInternal() });
                 yield return new MergedCoroutine(list);
-                Projectile = null;
+                Controller = null;
                 _isPlaying = false;
+                _stopRoutine = null;
             }
 
-            _coroutineRunner.StartCoroutine(Routine());
-        }
-
-        /// <summary>
-        /// Transformの更新
-        /// </summary>
-        void IBeamProjectileObject.UpdateProjectile(IBeamProjectile projectile) {
-            var trans = transform;
-            trans.position = projectile.HeadPosition;
-            trans.rotation = projectile.Rotation;
-
-            UpdateTransformInternal(projectile);
-            foreach (var component in _projectileComponents) {
-                component.UpdateProjectile(projectile);
-            }
+            _stopRoutine = _coroutineRunner.StartCoroutine(Routine());
         }
 
         /// <summary>
         /// コリジョンヒット時通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        void IBeamProjectileObject.OnHitCollision(RaycastHitResult result) {
-            OnHitCollision(result);
+        /// <param name="hit">当たり結果</param>
+        void IBeamProjectile.OnHitCollision(RaycastHit hit) {
+            OnHitCollisionInternal(hit);
             foreach (var component in _projectileComponents) {
-                component.OnHitCollision(result);
+                component.OnHitCollision(hit);
             }
         }
 
@@ -210,7 +203,7 @@ namespace GameFramework.ProjectileSystems {
         /// スケールの設定
         /// </summary>
         /// <param name="scale">スケール</param>
-        void IBeamProjectileObject.SetLocalScale(Vector3 scale) {
+        void IBeamProjectile.SetLocalScale(Vector3 scale) {
             var trans = transform;
             trans.localScale = scale;
         }
@@ -225,27 +218,21 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected virtual void StartProjectileInternal() {
-        }
-
-        /// <summary>
-        /// 内部用Transform更新処理
-        /// </summary>
-        protected virtual void UpdateTransformInternal(IBeamProjectile projectile) {
+        protected virtual void StartInternal() {
         }
 
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected virtual IEnumerator ExitProjectileRoutine() {
+        protected virtual IEnumerator ExitRoutineInternal() {
             yield break;
         }
 
         /// <summary>
         /// コリジョンヒット通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        protected virtual void OnHitCollision(RaycastHitResult result) {
+        /// <param name="hit">当たり結果</param>
+        protected virtual void OnHitCollisionInternal(RaycastHit hit) {
         }
 
         /// <summary>
@@ -253,6 +240,16 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         private void Awake() {
             _projectileComponents = gameObject.GetComponentsInChildren<IBeamProjectileComponent>();
+        }
+
+        /// <summary>
+        /// Transform情報の反映
+        /// </summary>
+        private void ApplyTransform()
+        {
+            var trans = transform;
+            trans.position = Controller.HeadPosition;
+            trans.rotation = Controller.Rotation;
         }
     }
 }

@@ -6,12 +6,12 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// カスタムカーブ制御Projectile
     /// </summary>
-    public class CustomBulletProjectile : IBulletProjectile {
+    public class CustomBulletProjectileController : IBulletProjectileController {
         /// <summary>
         /// 初期化用データ 
         /// </summary>
         [Serializable]
-        public struct Context {
+        public struct Settings {
             [Tooltip("振動カーブ(-1〜1)")]
             public MinMaxAnimationCurve vibrationCurve;
             [Tooltip("振動幅")]
@@ -76,7 +76,7 @@ namespace GameFramework.ProjectileSystems {
         /// <param name="roll">傾き</param>
         /// <param name="duration">到達時間</param>
         /// <param name="durationBaseMeter">着弾想定時間の基準距離(0以下で無効)</param>
-        public CustomBulletProjectile(Vector3 startPoint, Vector3 endPoint,
+        public CustomBulletProjectileController(Vector3 startPoint, Vector3 endPoint,
             MinMaxAnimationCurve vibrationCurve, MinMaxFloat amplitude, MinMaxFloat frequency,
             MinMaxAnimationCurve depthCurve, MinMaxAnimationCurve tiltCurve, MinMaxFloat tiltOffset, MinMaxAnimationCurve timeCurve, MinMaxFloat roll, MinMaxFloat duration, float durationBaseMeter) {
             _startPoint = startPoint;
@@ -107,16 +107,16 @@ namespace GameFramework.ProjectileSystems {
         /// </summary>
         /// <param name="startPoint">始点</param>
         /// <param name="endPoint">ターゲット位置</param>
-        /// <param name="context">初期化パラメータ</param>
-        public CustomBulletProjectile(Vector3 startPoint, Vector3 endPoint, Context context)
-            : this(startPoint, endPoint, context.vibrationCurve, context.amplitude, context.frequency,
-                context.depthCurve, context.tiltCurve, context.tiltOffset, context.timeCurve, context.roll, context.duration, context.durationBaseMeter) {
+        /// <param name="settings">初期化パラメータ</param>
+        public CustomBulletProjectileController(Vector3 startPoint, Vector3 endPoint, Settings settings)
+            : this(startPoint, endPoint, settings.vibrationCurve, settings.amplitude, settings.frequency,
+                settings.depthCurve, settings.tiltCurve, settings.tiltOffset, settings.timeCurve, settings.roll, settings.duration, settings.durationBaseMeter) {
         }
 
         /// <summary>
         /// 飛翔開始
         /// </summary>
-        void IProjectile.Start() {
+        void IProjectileController.Start() {
             var vector = _endPoint - _startPoint;
             Position = _startPoint;
             Rotation = Quaternion.LookRotation(vector);
@@ -129,7 +129,7 @@ namespace GameFramework.ProjectileSystems {
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        bool IProjectile.Update(float deltaTime) {
+        bool IProjectileController.Update(float deltaTime) {
             if (_stopped) {
                 return false;
             }
@@ -175,7 +175,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了
         /// </summary>
-        void IProjectile.Stop(Vector3? stopPosition) {
+        void IProjectileController.Stop(Vector3? stopPosition) {
             if (stopPosition != null) {
                 Position = stopPosition.Value;
             }

@@ -53,6 +53,11 @@ namespace GameFramework.ProjectileSystems {
         [SerializeField, Tooltip("先端の終了時パーティクル(OneShot)")]
         private ParticleSystem _exitHeadParticle;
 
+        [SerializeField, Tooltip("ヒット時に再生するParticleSystemがヒット位置に出るか")]
+        private bool _fitHitParticle = true;
+        [SerializeField, Tooltip("ヒット時に再生するParticleSystemがヒット法線方向に向くか")]
+        private bool _rotateNormalHitParticle = true;
+
         /// <summary>
         /// 再生速度の変更
         /// </summary>
@@ -72,7 +77,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected override void StartProjectileInternal() {
+        protected override void StartInternal() {
             StopParticle(_hitParticle);
             StopParticle(_exitHeadParticle);
             StopParticle(_collisionParticle);
@@ -85,34 +90,20 @@ namespace GameFramework.ProjectileSystems {
         }
 
         /// <summary>
-        /// 内部用Transform更新処理
+        /// 更新処理
         /// </summary>
-        protected override void UpdateTransformInternal(IBeamProjectile projectile) {
-            if (_headParticle != null) {
-                _headParticle.transform.position = projectile.HeadPosition;
-            }
+        protected override void UpdateInternal(float deltaTime) {
+            base.UpdateInternal(deltaTime);
 
-            if (_tailParticle != null) {
-                _tailParticle.transform.position = projectile.TailPosition;
-            }
-
-            if (_collisionParticle != null) {
-                if (projectile.IsHitting) {
-                    _collisionParticle.transform.position = projectile.HeadPosition;
-                    PlayParticle(_collisionParticle);
-                }
-                else {
-                    StopParticle(_collisionParticle);
-                }
-            }
-
-            SetScalableDistance(Projectile.Distance);
+            UpdateTransformInternal(ProjectileController);
         }
 
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected override IEnumerator ExitProjectileRoutine() {
+        protected override IEnumerator ExitRoutineInternal() {
+            UpdateTransformInternal(ProjectileController);
+
             StopParticle(_headParticle);
             StopParticle(_tailParticle);
             foreach (var info in _scalableParticleInfos) {
@@ -135,9 +126,42 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// コリジョンヒット時通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        protected override void OnHitCollisionInternal(RaycastHitResult result) {
+        /// <param name="hit">当たり結果</param>
+        protected override void OnHitCollisionInternal(RaycastHit hit) {
+            if (_fitHitParticle) {
+                var trans = _hitParticle.transform;
+                trans.position = hit.point;
+                if (_rotateNormalHitParticle) {
+                    trans.rotation = Quaternion.LookRotation(hit.normal);
+                }
+            }
+
             PlayParticle(_hitParticle);
+        }
+
+        /// <summary>
+        /// 内部用Transform更新処理
+        /// </summary>
+        private void UpdateTransformInternal(IBeamProjectileController projectileController) {
+            if (_headParticle != null) {
+                _headParticle.transform.position = projectileController.HeadPosition;
+            }
+
+            if (_tailParticle != null) {
+                _tailParticle.transform.position = projectileController.TailPosition;
+            }
+
+            if (_collisionParticle != null) {
+                if (projectileController.IsHitting) {
+                    _collisionParticle.transform.position = projectileController.HeadPosition;
+                    PlayParticle(_collisionParticle);
+                }
+                else {
+                    StopParticle(_collisionParticle);
+                }
+            }
+
+            SetScalableDistance(ProjectileController.Distance);
         }
 
         /// <summary>

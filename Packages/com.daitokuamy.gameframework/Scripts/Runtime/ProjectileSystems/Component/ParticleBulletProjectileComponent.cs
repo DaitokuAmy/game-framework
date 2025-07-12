@@ -14,6 +14,11 @@ namespace GameFramework.ProjectileSystems {
         [SerializeField, Tooltip("終了時再生するParticleSystem(OneShot)")]
         private ParticleSystem _exitParticle;
 
+        [SerializeField, Tooltip("ヒット時に再生するParticleSystemがヒット位置に出るか")]
+        private bool _fitHitParticle = true;
+        [SerializeField, Tooltip("ヒット時に再生するParticleSystemがヒット法線方向に向くか")]
+        private bool _rotateNormalHitParticle = true;
+
         /// <summary>
         /// 再生速度の変更
         /// </summary>
@@ -27,7 +32,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected override void StartProjectileInternal() {
+        protected override void StartInternal() {
             StopParticle(_hitParticle);
             StopParticle(_exitParticle);
 
@@ -37,7 +42,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected override IEnumerator ExitProjectileRoutine() {
+        protected override IEnumerator ExitRoutineInternal() {
             StopParticle(_baseParticle);
             PlayParticle(_exitParticle);
 
@@ -55,8 +60,16 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// コリジョンヒット通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        protected override void OnHitCollisionInternal(RaycastHitResult result) {
+        /// <param name="hit">当たり結果</param>
+        protected override void OnHitCollisionInternal(RaycastHit hit) {
+            if (_fitHitParticle) {
+                var trans = _hitParticle.transform;
+                trans.position = hit.point;
+                if (_rotateNormalHitParticle) {
+                    trans.rotation = Quaternion.LookRotation(hit.normal);
+                }
+            }
+
             PlayParticle(_hitParticle);
         }
 

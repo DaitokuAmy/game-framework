@@ -107,8 +107,7 @@ namespace GameFramework.CollisionSystems {
         /// <param name="customData">当たり通知時に付与できるカスタムデータ</param>
         /// <param name="autoDisposeTimer">自動廃棄されるためのタイマー(負の値だと無効)</param>
         /// <param name="clearHistory">衝突履歴をクリアするか</param>
-        public CollisionHandle Register(ICollisionListener listener, ICollision collision, int layerMask,
-            object customData, float autoDisposeTimer = -1, bool clearHistory = true) {
+        public CollisionHandle Register(ICollisionListener listener, ICollision collision, int layerMask, object customData, float autoDisposeTimer = -1, bool clearHistory = true) {
             var collisionInfo = new CollisionInfo {
                 listener = listener,
                 collision = collision,
@@ -139,15 +138,12 @@ namespace GameFramework.CollisionSystems {
         /// <param name="collision">衝突判定用コリジョン</param>
         /// <param name="layerMask">判定対象を絞るためのレイヤーマスク</param>
         /// <param name="customData">当たり通知時に付与できるカスタムデータ</param>
-        /// <param name="onHitCollision">当たり判定通知用のCallback</param>
+        /// <param name="hitAction">当たり判定通知用のCallback</param>
         /// <param name="autoDisposeTimer">自動廃棄されるためのタイマー(負の値だと無効)</param>
         /// <param name="clearHistory">衝突履歴をクリアするか</param>
-        public CollisionHandle Register(ICollision collision, int layerMask, object customData,
-            Action<HitResult> onHitCollision,
-            float autoDisposeTimer = -1,
-            bool clearHistory = true) {
+        public CollisionHandle Register(ICollision collision, int layerMask, object customData, Action<HitResult> hitAction, float autoDisposeTimer = -1, bool clearHistory = true) {
             var listener = new CollisionListener();
-            listener.OnHitCollisionEvent += onHitCollision;
+            listener.HitCollisionEvent += hitAction;
             return Register(listener, collision, layerMask, customData, autoDisposeTimer, clearHistory);
         }
 
@@ -160,8 +156,7 @@ namespace GameFramework.CollisionSystems {
         /// <param name="customData">当たり通知時に付与できるカスタムデータ</param>
         /// <param name="autoDisposeTimer">自動廃棄されるためのタイマー(負の値だと無効)</param>
         /// <param name="clearHistory">衝突履歴をクリアするか</param>
-        public CollisionHandle Register(IRaycastCollisionListener listener, IRaycastCollision collision, int layerMask,
-            object customData, float autoDisposeTimer = -1, bool clearHistory = true) {
+        public CollisionHandle Register(IRaycastCollisionListener listener, IRaycastCollision collision, int layerMask, object customData, float autoDisposeTimer = -1, bool clearHistory = true) {
             var collisionInfo = new RaycastCollisionInfo {
                 listener = listener,
                 collision = collision,
@@ -192,15 +187,12 @@ namespace GameFramework.CollisionSystems {
         /// <param name="collision">衝突判定用コリジョン</param>
         /// <param name="layerMask">判定対象を絞るためのレイヤーマスク</param>
         /// <param name="customData">当たり通知時に付与できるカスタムデータ</param>
-        /// <param name="onHitRaycastCollision">当たり判定通知用のCallback</param>
+        /// <param name="hitAction">当たり判定通知用のCallback</param>
         /// <param name="autoDisposeTimer">自動廃棄されるためのタイマー(負の値だと無効)</param>
         /// <param name="clearHistory">衝突履歴をクリアするか</param>
-        public CollisionHandle Register(IRaycastCollision collision, int layerMask, object customData,
-            Action<RaycastHitResult> onHitRaycastCollision,
-            float autoDisposeTimer = -1,
-            bool clearHistory = true) {
+        public CollisionHandle Register(IRaycastCollision collision, int layerMask, object customData, Action<RaycastHitResult> hitAction, float autoDisposeTimer = -1, bool clearHistory = true) {
             var listener = new RaycastCollisionListener();
-            listener.OnHitRaycastCollisionEvent += onHitRaycastCollision;
+            listener.HitRaycastCollisionEvent += hitAction;
             return Register(listener, collision, layerMask, customData, autoDisposeTimer, clearHistory);
         }
 
@@ -343,10 +335,10 @@ namespace GameFramework.CollisionSystems {
                 }
 
                 // 衝突が発生していたら通知する
-                hitResult.customData = info.customData;
+                hitResult.CustomData = info.customData;
                 foreach (var result in _workRaycastResults) {
-                    hitResult.raycastHit = result;
-                    hitResult.hitCount = ++info.hitCount;
+                    hitResult.RaycastHit = result;
+                    hitResult.HitCount = ++info.hitCount;
                     info.listener?.OnHitRaycastCollision(hitResult);
                 }
             }

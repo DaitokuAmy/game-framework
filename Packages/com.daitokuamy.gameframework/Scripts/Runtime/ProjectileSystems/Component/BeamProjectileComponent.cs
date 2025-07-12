@@ -17,8 +17,8 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        /// <param name="projectile">飛翔物の情報</param>
-        void Start(IBeamProjectile projectile);
+        /// <param name="projectileController">飛翔物の情報</param>
+        void Start(IBeamProjectileController projectileController);
 
         /// <summary>
         /// 飛翔更新処理
@@ -32,25 +32,19 @@ namespace GameFramework.ProjectileSystems {
         IEnumerator ExitRoutine();
 
         /// <summary>
-        /// 飛翔物の更新
-        /// </summary>
-        /// <param name="projectile">飛翔物の情報</param>
-        void UpdateProjectile(IBeamProjectile projectile);
-
-        /// <summary>
         /// 衝突発生通知
         /// </summary>
-        /// <param name="result">衝突結果</param>
-        void OnHitCollision(RaycastHitResult result);
+        /// <param name="hit">衝突結果</param>
+        void OnHitCollision(RaycastHit hit);
     }
 
     /// <summary>
     /// ビームオブジェクトの拡張用MonoBehaviour
     /// </summary>
-    [RequireComponent(typeof(BeamProjectileObject))]
+    [RequireComponent(typeof(BeamProjectile))]
     public abstract class BeamProjectileComponent : MonoBehaviour, IBeamProjectileComponent {
         /// <summary>使用中のProjectile</summary>
-        protected IBeamProjectile Projectile { get; private set; }
+        protected IBeamProjectileController ProjectileController { get; private set; }
 
         /// <summary>
         /// 廃棄時処理
@@ -70,9 +64,9 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        void IBeamProjectileComponent.Start(IBeamProjectile projectile) {
-            Projectile = projectile;
-            StartProjectileInternal();
+        void IBeamProjectileComponent.Start(IBeamProjectileController projectileController) {
+            ProjectileController = projectileController;
+            StartInternal();
         }
 
         /// <summary>
@@ -87,22 +81,15 @@ namespace GameFramework.ProjectileSystems {
         /// 飛翔終了処理
         /// </summary>
         IEnumerator IBeamProjectileComponent.ExitRoutine() {
-            yield return ExitProjectileRoutine();
-        }
-
-        /// <summary>
-        /// Transformの更新
-        /// </summary>
-        void IBeamProjectileComponent.UpdateProjectile(IBeamProjectile projectile) {
-            UpdateTransformInternal(projectile);
+            yield return ExitRoutineInternal();
         }
 
         /// <summary>
         /// コリジョンヒット時通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        void IBeamProjectileComponent.OnHitCollision(RaycastHitResult result) {
-            OnHitCollisionInternal(result);
+        /// <param name="hit">当たり結果</param>
+        void IBeamProjectileComponent.OnHitCollision(RaycastHit hit) {
+            OnHitCollisionInternal(hit);
         }
 
         /// <summary>
@@ -121,7 +108,7 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected virtual void StartProjectileInternal() {
+        protected virtual void StartInternal() {
         }
 
         /// <summary>
@@ -134,21 +121,15 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected virtual IEnumerator ExitProjectileRoutine() {
+        protected virtual IEnumerator ExitRoutineInternal() {
             yield break;
-        }
-        
-        /// <summary>
-        /// 内部用Transform更新処理
-        /// </summary>
-        protected virtual void UpdateTransformInternal(IBeamProjectile projectile) {
         }
 
         /// <summary>
         /// コリジョンヒット通知
         /// </summary>
-        /// <param name="result">当たり結果</param>
-        protected virtual void OnHitCollisionInternal(RaycastHitResult result) {
+        /// <param name="hit">当たり結果</param>
+        protected virtual void OnHitCollisionInternal(RaycastHit hit) {
         }
     }
 }

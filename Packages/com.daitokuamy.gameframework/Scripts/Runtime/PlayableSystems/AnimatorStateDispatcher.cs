@@ -35,37 +35,37 @@ namespace GameFramework.PlayableSystems {
             }
         }
 
-        public event Action<StateEventInfo> OnAnimatorStateEnterEvent;
-        public event Action<StateEventInfo> OnAnimatorStateExitEvent;
-        public event Action<StateMachineEventInfo> OnAnimatorStateMachineEnterEvent;
-        public event Action<StateMachineEventInfo> OnAnimatorStateMachineExitEvent;
+        public event Action<StateEventInfo> AnimatorStateEnterEvent;
+        public event Action<StateEventInfo> AnimatorStateExitEvent;
+        public event Action<StateMachineEventInfo> AnimatorStateMachineEnterEvent;
+        public event Action<StateMachineEventInfo> AnimatorStateMachineExitEvent;
         
         /// <summary>
         /// StateEnter通知の送信
         /// </summary>
         internal void SendAnimatorStateEnter(AnimatorStateInfo stateInfo, int layerIndex, AnimatorControllerPlayable playable) {
-            OnAnimatorStateEnterEvent?.Invoke(new StateEventInfo(stateInfo, layerIndex, playable));
+            AnimatorStateEnterEvent?.Invoke(new StateEventInfo(stateInfo, layerIndex, playable));
         }
         
         /// <summary>
         /// StateExit通知の送信
         /// </summary>
         internal void SendAnimatorStateExit(AnimatorStateInfo stateInfo, int layerIndex, AnimatorControllerPlayable playable) {
-            OnAnimatorStateExitEvent?.Invoke(new StateEventInfo(stateInfo, layerIndex, playable));
+            AnimatorStateExitEvent?.Invoke(new StateEventInfo(stateInfo, layerIndex, playable));
         }
         
         /// <summary>
         /// StateMachineEnter通知の送信
         /// </summary>
         internal void SendAnimatorStateMachineEnter(int stateMachinePathHash, AnimatorControllerPlayable playable) {
-            OnAnimatorStateMachineEnterEvent?.Invoke(new StateMachineEventInfo(stateMachinePathHash, playable));
+            AnimatorStateMachineEnterEvent?.Invoke(new StateMachineEventInfo(stateMachinePathHash, playable));
         }
         
         /// <summary>
         /// StateMachineExit通知の送信
         /// </summary>
         internal void SendAnimatorStateMachineExit(int stateMachinePathHash, AnimatorControllerPlayable playable) {
-            OnAnimatorStateMachineExitEvent?.Invoke(new StateMachineEventInfo(stateMachinePathHash, playable));
+            AnimatorStateMachineExitEvent?.Invoke(new StateMachineEventInfo(stateMachinePathHash, playable));
         }
     }
 }

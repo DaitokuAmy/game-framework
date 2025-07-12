@@ -36,7 +36,7 @@ namespace GameFramework.BodySystems {
             var meshController = Body.GetController<MeshController>();
 
             if (meshController != null) {
-                meshController.OnRefreshed += RefreshAttachments;
+                meshController.RefreshedEvent += RefreshAttachments;
             }
 
             RefreshAttachments();
