@@ -22,6 +22,6 @@ namespace SampleGame.Infrastructure {
         [Tooltip("終了と見なす正規化再生時間")]
         public float exitNormalizedTime = 1.0f;
         [Tooltip("シーケンスクリップ情報")]
-        public SequenceClip[] sequenceClips;
+        public SequenceClip sequenceClip;
     }
 }

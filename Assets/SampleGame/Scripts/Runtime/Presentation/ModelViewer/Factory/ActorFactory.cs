@@ -29,12 +29,18 @@ namespace SampleGame.Domain.ModelViewer {
                 return null;
             }
 
-            var entity = await _actorEntityManager.CreatePreviewActorEntityAsync(model.Id, model.Master.Prefab, layeredTime, ct);
-            var actor = entity.GetActor<PreviewActor>();
-            var controller = new ActorAdapter(model, actor);
-            controller.RegisterTask(TaskOrder.Logic);
-            entity.AddLogic(controller);
-            return controller;
+            var entity = _actorEntityManager.CreateEntity(model.Id);
+            // todo:body生成
+            // todo:actor生成
+            var actor = default(PreviewActor);
+            actor.RegisterTask(TaskOrder.Actor);
+            
+            var adapter = new ActorAdapter(model, actor);
+            adapter.RegisterTask(TaskOrder.Logic);
+
+            entity.AddActor(actor);
+            entity.AddLogic(adapter);
+            return adapter;
         }
 
         /// <summary>

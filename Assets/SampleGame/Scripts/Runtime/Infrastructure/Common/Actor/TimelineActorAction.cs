@@ -13,7 +13,7 @@ namespace SampleGame.Infrastructure {
         [Tooltip("再生するTimelineAssetの名前")]
         public TimelineAsset timelineAsset;
         [Tooltip("シーケンスクリップ情報")]
-        public SequenceClip[] sequenceClips;
+        public SequenceClip sequenceClip;
         [Tooltip("入りブレンド時間")]
         public float inBlend = 0.1f;
         [Tooltip("抜けブレンド時間")]

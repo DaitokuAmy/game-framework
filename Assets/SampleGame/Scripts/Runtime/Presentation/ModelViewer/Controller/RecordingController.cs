@@ -10,6 +10,7 @@ using SampleGame.Infrastructure.ModelViewer;
 using UnityEngine;
 
 #if UNITY_EDITOR
+using GameFramework.ActorSystems;
 using SampleGame.Application.ModelViewer;
 using UnityEditor.Recorder;
 using UnityEditor.Recorder.Input;

@@ -19,7 +19,7 @@ namespace SampleGame.Infrastructure {
             [Tooltip("Loopする場合の秒数(負の値で無限)")]
             public float loopDuration;
             [Tooltip("同時再生するシーケンスクリップ")]
-            public SequenceClip[] sequenceClips;
+            public SequenceClip sequenceClip;
             [Tooltip("入りブレンド時間")]
             public float inBlend;
             [Tooltip("抜けブレンド時間")]
@@ -29,6 +29,6 @@ namespace SampleGame.Infrastructure {
         [Tooltip("連続して流すクリップ")]
         public ClipInfo[] clipInfos;
         [Tooltip("キャンセルされた時に流すシーケンスクリップ")]
-        public SequenceClip[] cancelSequenceClips;
+        public SequenceClip cancelSequenceClip;
     }
 }

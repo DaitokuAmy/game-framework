@@ -2,7 +2,7 @@ using System.Collections;
 using System.Threading;
 using ActionSequencer;
 using Cysharp.Threading.Tasks;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using GameFramework.CoroutineSystems;
 
 namespace SampleGame.Presentation {

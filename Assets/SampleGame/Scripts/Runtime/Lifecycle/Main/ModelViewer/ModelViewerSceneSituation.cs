@@ -3,7 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.AssetSystems;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
@@ -26,9 +26,9 @@ namespace SampleGame.Lifecycle {
         /// Body生成用のBuilder
         /// </summary>
         private class BodyBuilder : IBodyBuilder {
-            public void Build(IBody body, GameObject gameObject) {
-                if (gameObject.GetComponent<AvatarController>() == null) {
-                    body.AddController(gameObject.AddComponent<AvatarController>());
+            public void Build(Body body, GameObject gameObject) {
+                if (gameObject.GetComponent<AvatarComponent>() == null) {
+                    body.AddSerializedBodyComponent<AvatarComponent>();
                 }
             }
         }
@@ -190,15 +190,10 @@ namespace SampleGame.Lifecycle {
         /// Managerの初期化
         /// </summary>
         private void SetupManagers(IScope scope) {
-            var bodyBuilder = new BodyBuilder();
-            var bodyManager = new BodyManager(bodyBuilder);
-            bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.RegisterInstance(bodyManager).RegisterTo(scope);
-
             var environmentManager = new EnvironmentManager();
             ServiceContainer.RegisterInstance(environmentManager).RegisterTo(scope);
 
-            var actorManager = new ActorEntityManager(bodyManager);
+            var actorManager = new ActorEntityManager();
             ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
 
             var cameraManager = Services.Resolve<CameraManager>();

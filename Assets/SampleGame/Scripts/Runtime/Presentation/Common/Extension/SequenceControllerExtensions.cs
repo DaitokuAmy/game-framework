@@ -1,5 +1,5 @@
 using ActionSequencer;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using GameFramework.CameraSystems;
 using GameFramework.VfxSystems;
 
@@ -32,23 +32,23 @@ namespace SampleGame.Presentation {
         /// Body用ギミックイベントのバインド
         /// </summary>
         public static void BindBodyGimmickEvent(this IReadOnlySequenceController self, Body body) {
-            var gimmickController = body.GetController<GimmickController>();
-            if (gimmickController == null) {
+            var gimmickComponent = body.GetBodyComponent<GimmickComponent>();
+            if (gimmickComponent == null) {
                 return;
             }
 
-            self.BindSignalEventHandler<BodyActiveGimmickSingleEvent, BodyActiveGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindSignalEventHandler<BodyAnimationGimmickSingleEvent, BodyAnimationGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindSignalEventHandler<BodyInvokeGimmickSingleEvent, BodyInvokeGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindSignalEventHandler<BodyFloatChangeGimmickSingleEvent, BodyFloatChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindSignalEventHandler<BodyVectorChangeGimmickSingleEvent, BodyVectorChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindSignalEventHandler<BodyColorChangeGimmickSingleEvent, BodyColorChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindSignalEventHandler<BodyHdrColorChangeGimmickSingleEvent, BodyHdrColorChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindSignalEventHandler<BodyStateGimmickSingleEvent, BodyStateGimmickSingleEventHandler>(handler => handler.Setup(gimmickController));
+            self.BindSignalEventHandler<BodyActiveGimmickSingleEvent, BodyActiveGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindSignalEventHandler<BodyAnimationGimmickSingleEvent, BodyAnimationGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindSignalEventHandler<BodyInvokeGimmickSingleEvent, BodyInvokeGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindSignalEventHandler<BodyFloatChangeGimmickSingleEvent, BodyFloatChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindSignalEventHandler<BodyVectorChangeGimmickSingleEvent, BodyVectorChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindSignalEventHandler<BodyColorChangeGimmickSingleEvent, BodyColorChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindSignalEventHandler<BodyHdrColorChangeGimmickSingleEvent, BodyHdrColorChangeGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindSignalEventHandler<BodyStateGimmickSingleEvent, BodyStateGimmickSingleEventHandler>(handler => handler.Setup(gimmickComponent));
 
-            self.BindRangeEventHandler<BodyActiveGimmickRangeEvent, BodyActiveGimmickRangeEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindRangeEventHandler<BodyAnimationGimmickRangeEvent, BodyAnimationGimmickRangeEventHandler>(handler => handler.Setup(gimmickController));
-            self.BindRangeEventHandler<BodyStateGimmickRangeEvent, BodyStateGimmickRangeEventHandler>(handler => handler.Setup(gimmickController));
+            self.BindRangeEventHandler<BodyActiveGimmickRangeEvent, BodyActiveGimmickRangeEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindRangeEventHandler<BodyAnimationGimmickRangeEvent, BodyAnimationGimmickRangeEventHandler>(handler => handler.Setup(gimmickComponent));
+            self.BindRangeEventHandler<BodyStateGimmickRangeEvent, BodyStateGimmickRangeEventHandler>(handler => handler.Setup(gimmickComponent));
         }
     }
 }

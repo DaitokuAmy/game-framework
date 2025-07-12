@@ -7,8 +7,11 @@ namespace GameFramework.TaskSystems {
     public abstract class DisposableLateUpdatableTask : ILateUpdatableTask, ITaskEventHandler, IDisposable {
         private TaskRunner _taskRunner;
 
-        // Taskが有効状態か
-        public virtual bool IsActive => true;
+        /// <summary>Taskが有効状態か</summary>
+        bool ITask.IsActive => IsTaskActive;
+
+        /// <summary>Taskが有効状態か</summary>
+        protected virtual bool IsTaskActive => true;
 
         /// <summary>
         /// 廃棄処理

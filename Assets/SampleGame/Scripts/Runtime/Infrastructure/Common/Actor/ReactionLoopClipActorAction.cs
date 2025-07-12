@@ -17,7 +17,7 @@ namespace SampleGame.Infrastructure {
             [Tooltip("再生対象のAnimationClip")]
             public AnimationClip animationClip;
             [Tooltip("同時再生するシーケンスクリップ")]
-            public SequenceClip[] sequenceClips;
+            public SequenceClip sequenceClip;
             [Tooltip("入りブレンド時間")]
             public float inBlend;
             [Tooltip("抜けブレンド時間")]
@@ -33,6 +33,6 @@ namespace SampleGame.Infrastructure {
         [Tooltip("アウトクリップ情報(失敗)")]
         public ClipInfo failureOutClipInfo;
         [Tooltip("キャンセルされた時に流すシーケンスクリップ")]
-        public SequenceClip[] cancelSequenceClips;
+        public SequenceClip cancelSequenceClip;
     }
 }

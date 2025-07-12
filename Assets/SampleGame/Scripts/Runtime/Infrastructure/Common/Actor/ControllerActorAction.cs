@@ -13,8 +13,8 @@ namespace SampleGame.Infrastructure {
         public RuntimeAnimatorController controller;
         [Tooltip("再生完了を表す最後のステート名")]
         public string lastStateName = "Last";
-        [Tooltip("同時再生するシーケンスクリップ")]
-        public SequenceClip[] sequenceClips;
+        [Tooltip("再生するシーケンスクリップ")]
+        public SequenceClip sequenceClip;
         [Tooltip("入りブレンド時間")]
         public float inBlend = 0.1f;
         [Tooltip("抜けブレンド時間")]

@@ -1,5 +1,5 @@
 using ActionSequencer;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using GameFramework.GimmickSystems;
 using UnityEngine;
 
@@ -18,24 +18,24 @@ namespace SampleGame.Presentation {
     public abstract class BodyGimmickSingleEventHandler<TGimmick, TEvent> : SignalSequenceEventHandler<TEvent>
         where TGimmick : Gimmick
         where TEvent : BodyGimmickSingleEvent {
-        private GimmickController _gimmickController;
+        private GimmickComponent _gimmickComponent;
         
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(GimmickController gimmickController) {
-            _gimmickController = gimmickController;
+        public void Setup(GimmickComponent gimmickComponent) {
+            _gimmickComponent = gimmickComponent;
         }
         
         /// <summary>
         /// 実行時処理
         /// </summary>
         protected sealed override void OnInvoke(TEvent sequenceEvent) {
-            if (_gimmickController == null) {
+            if (_gimmickComponent == null) {
                 return;
             }
 
-            var gimmicks = _gimmickController.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
+            var gimmicks = _gimmickComponent.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
             OnInvokeInternal(sequenceEvent, gimmicks);
         }
 

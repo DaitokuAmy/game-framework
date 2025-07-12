@@ -5,9 +5,9 @@ using System.Threading;
 using ActionSequencer;
 using Cysharp.Threading.Tasks;
 using GameFramework.ActorSystems;
-using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.PlayableSystems;
+using SampleGame.Infrastructure;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -68,10 +68,18 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// ActionPlayerResolverの追加
         /// </summary>
-        protected override void AddActionPlayerResolvers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
-            base.AddActionPlayerResolvers(actionPlayer, motionHandle);
-            actionPlayer.AddResolver(new TriggerStateActorActionResolver(BasePlayableComponent.Playable, (SequenceController)SequenceController));
-            actionPlayer.AddResolver(new CrossFadeStateActorActionResolver(BasePlayableComponent.Playable, (SequenceController)SequenceController));
+        protected override void AddActionPlayerHandlers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
+            base.AddActionPlayerHandlers(actionPlayer, motionHandle);
+            actionPlayer.SetHandler<TriggerStateActorAction, TriggerStateActorActionHandler>(new TriggerStateActorActionHandler(BasePlayableComponent.Playable, (SequenceController)SequenceController));
+            actionPlayer.SetHandler<CrossFadeStateActorAction, CrossFadeStateActorActionHandler>(new CrossFadeStateActorActionHandler(BasePlayableComponent.Playable, (SequenceController)SequenceController));
+        }
+        
+        /// <summary>
+        /// アクション終了時処理
+        /// </summary>
+        protected override void FinishedActorAction(IActorAction action, float outBlend) {
+            base.FinishedActorAction(action, outBlend);
+            ChangeDefaultMotionInternal(outBlend);
         }
 
         /// <summary>
@@ -79,7 +87,7 @@ namespace SampleGame.Presentation {
         /// </summary>
         /// <returns></returns>
         protected virtual MotionHandle CreateBaseMotionHandle() {
-            return MotionController.Handle;
+            return MotionComponent.Handle;
         }
 
         /// <summary>
@@ -147,7 +155,7 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// アクションの再生
         /// </summary>
-        protected async UniTask PlayActionAsync(string actionKey, Action<ActorActionPlayer.Handle> onCreatedHandle, CancellationToken ct) {
+        protected async UniTask PlayActionAsync(string actionKey, Action<ActorActionHandle> onCreatedHandle, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
             var actionInfo = FindActionInfo(actionKey);
@@ -157,7 +165,7 @@ namespace SampleGame.Presentation {
 
             IEnumerator Routine(CancellationToken token) {
                 // アクション再生
-                yield return PlayActionRoutine(ActionPlayer, actionInfo.action.GetAction(), onCreatedHandle, (action, outBlendDuration) => ChangeDefaultMotionInternal(outBlendDuration), token);
+                yield return PlayActionRoutine(ActionPlayer, actionInfo.action.GetAction(), onCreatedHandle, token);
             }
 
             await PlayActionAsyncInternal(Routine, null, ct);
@@ -166,12 +174,12 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// アクションの再生
         /// </summary>
-        protected async UniTask PlayActionAsync(IActorAction actorAction, Action<ActorActionPlayer.Handle> onCreatedHandle, CancellationToken ct) {
+        protected async UniTask PlayActionAsync(IActorAction actorAction, Action<ActorActionHandle> onCreatedHandle, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
             IEnumerator Routine(CancellationToken token) {
                 // アクション再生
-                yield return PlayActionRoutine(ActionPlayer, actorAction, onCreatedHandle, (action, outBlendDuration) => ChangeDefaultMotionInternal(outBlendDuration), token);
+                yield return PlayActionRoutine(ActionPlayer, actorAction, onCreatedHandle, token);
             }
 
             await PlayActionAsyncInternal(Routine, null, ct);
@@ -231,43 +239,25 @@ namespace SampleGame.Presentation {
         /// デフォルトモーションの設定(内部用)
         /// </summary>
         protected void ChangeDefaultMotionInternal(float blendDuration) {
-            MotionController.Handle.Change(BasePlayableComponent, blendDuration);
+            MotionComponent.Handle.Change(BasePlayableComponent, blendDuration);
         }
 
         /// <summary>
         /// アクション再生ルーチン
         /// </summary>
-        protected IEnumerator PlayActionRoutine(ActorActionPlayer actionPlayer, IActorAction action, object[] args, Action<ActorActionPlayer.Handle> onCreatedActionHandle, ActorActionPlayer.FinishedAction onFinishAction, CancellationToken ct) {
-            var actionHandle = default(ActorActionPlayer.Handle);
-
-            void Finished() {
-                actionHandle.Dispose();
-            }
-
-            using var registration = ct.Register(Finished);
-
+        protected IEnumerator PlayActionRoutine(ActorActionPlayer actionPlayer, IActorAction action, Action<ActorActionHandle> onCreatedActionHandle, CancellationToken ct) {
             // アクション再生
-            actionHandle = actionPlayer.Play(action, onFinishAction, args);
+            var actionHandle = actionPlayer.PlayAction(action);
             onCreatedActionHandle?.Invoke(actionHandle);
 
+            // 終了待ち
+            void Finished() {
+                actionHandle.Stop();
+            }
+            using var registration = ct.Register(Finished);
             yield return actionHandle;
 
             Finished();
-        }
-
-        /// <summary>
-        /// アクション再生ルーチン
-        /// </summary>
-        protected IEnumerator PlayActionRoutine(ActorActionPlayer actionPlayer, IActorAction action, Action<ActorActionPlayer.Handle> onCreatedActionHandle, ActorActionPlayer.FinishedAction onFinishAction,
-            CancellationToken ct) {
-            return PlayActionRoutine(actionPlayer, action, Array.Empty<object>(), onCreatedActionHandle, onFinishAction, ct);
-        }
-
-        /// <summary>
-        /// アクション再生ルーチン
-        /// </summary>
-        protected IEnumerator PlayActionRoutine(ActorActionPlayer actionPlayer, IActorAction action, ActorActionPlayer.FinishedAction onFinishAction, CancellationToken ct) {
-            return PlayActionRoutine(actionPlayer, action, null, onFinishAction, ct);
         }
 
         /// <summary>

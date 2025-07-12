@@ -1,6 +1,6 @@
 using ActionSequencer;
 using GameFramework.GimmickSystems;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using UnityEngine;
 
 namespace SampleGame.Presentation {
@@ -20,24 +20,24 @@ namespace SampleGame.Presentation {
     public abstract class BodyGimmickRangeEventHandler<TGimmick, TEvent> : RangeSequenceEventHandler<TEvent>
         where TGimmick : Gimmick
         where TEvent : BodyGimmickRangeEvent {
-        private GimmickController _gimmickController;
+        private GimmickComponent _gimmickComponent;
         
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Setup(GimmickController gimmickController) {
-            _gimmickController = gimmickController;
+        public void Setup(GimmickComponent gimmickComponent) {
+            _gimmickComponent = gimmickComponent;
         }
 
         /// <summary>
         /// 入り処理
         /// </summary>
         protected sealed override void OnEnter(TEvent sequenceEvent) {
-            if (_gimmickController == null) {
+            if (_gimmickComponent == null) {
                 return;
             }
 
-            var gimmicks = _gimmickController.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
+            var gimmicks = _gimmickComponent.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
             OnEnterInternal(sequenceEvent, gimmicks);
         }
 
@@ -45,7 +45,7 @@ namespace SampleGame.Presentation {
         /// 更新処理
         /// </summary>
         protected sealed override void OnUpdate(TEvent sequenceEvent, float elapsedTime) {
-            var gimmicks = _gimmickController.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
+            var gimmicks = _gimmickComponent.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
             OnUpdateInternal(sequenceEvent, elapsedTime, gimmicks);
         }
 
@@ -53,7 +53,7 @@ namespace SampleGame.Presentation {
         /// 抜け処理
         /// </summary>
         protected sealed override void OnExit(TEvent sequenceEvent) {
-            var gimmicks = _gimmickController.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
+            var gimmicks = _gimmickComponent.GetGimmicks<TGimmick>(sequenceEvent.gimmickName);
             OnExitInternal(sequenceEvent, gimmicks);
         }
 

@@ -1,6 +1,6 @@
 using System;
 using GameFramework;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.PlayableSystems;
 using UnityEngine;
@@ -10,9 +10,9 @@ namespace SampleGame.Presentation.ModelViewer {
     /// オブジェクトプレビュー用のアクター
     /// </summary>
     public class PreviewActor : Actor {
-        private MotionController _motionController;
-        private GimmickController _gimmickController;
-        private AvatarController _avatarController;
+        private MotionComponent _motionComponent;
+        private GimmickComponent _gimmickComponent;
+        private AvatarComponent _avatarComponent;
 
         private MotionHandle _additiveMotionHandle;
 
@@ -20,16 +20,16 @@ namespace SampleGame.Presentation.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public PreviewActor(Body body) : base(body) {
-            _motionController = body.GetController<MotionController>();
-            _gimmickController = body.GetController<GimmickController>();
-            _avatarController = body.GetController<AvatarController>();
+            _motionComponent = body.GetBodyComponent<MotionComponent>();
+            _gimmickComponent = body.GetBodyComponent<GimmickComponent>();
+            _avatarComponent = body.GetBodyComponent<AvatarComponent>();
         }
 
         /// <summary>
         /// モーションの変更
         /// </summary>
         public void ChangeMotion(AnimationClip clip, bool transformReset = false) {
-            if (_motionController == null) {
+            if (_motionComponent == null) {
                 return;
             }
 
@@ -37,7 +37,7 @@ namespace SampleGame.Presentation.ModelViewer {
                 ResetTransform();
             }
 
-            _motionController.Change(clip, 0.0f);
+            _motionComponent.Change(clip, 0.0f);
         }
 
         /// <summary>
@@ -60,26 +60,26 @@ namespace SampleGame.Presentation.ModelViewer {
         /// </summary>
         /// <returns></returns>
         public string[] GetGimmickKeys() {
-            if (_gimmickController == null) {
+            if (_gimmickComponent == null) {
                 return Array.Empty<string>();
             }
 
-            return _gimmickController.GetKeys();
+            return _gimmickComponent.GetKeys();
         }
 
         /// <summary>
         /// メッシュアバターの変更
         /// </summary>
         public void ChangeMeshAvatar(string key, GameObject prefab, string locatorName) {
-            if (_avatarController == null) {
+            if (_avatarComponent == null) {
                 return;
             }
 
             if (prefab == null) {
-                _avatarController.ResetPart(key);
+                _avatarComponent.ResetPart(key);
             }
             else {
-                _avatarController.ChangePart(new MeshAvatarResolver(key, prefab, locatorName));
+                _avatarComponent.ChangePart(new MeshAvatarResolver(key, prefab, locatorName));
             }
         }
 
@@ -118,8 +118,8 @@ namespace SampleGame.Presentation.ModelViewer {
             }
 
             // 加算レイヤーの追加
-            if (_motionController != null) {
-                _additiveMotionHandle = _motionController.AddExtensionLayer(true, weight: 1.0f);
+            if (_motionComponent != null) {
+                _additiveMotionHandle = _motionComponent.AddExtensionLayer(true, weight: 1.0f);
                 _additiveMotionHandle.RegisterTo(scope);
             }
         }

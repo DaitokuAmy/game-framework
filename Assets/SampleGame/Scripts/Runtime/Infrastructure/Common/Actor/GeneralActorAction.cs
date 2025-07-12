@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using GameFramework.ActorSystems;
+using UnityEngine.Serialization;
 
 namespace SampleGame.Infrastructure {
     /// <summary>
@@ -22,8 +23,9 @@ namespace SampleGame.Infrastructure {
         
         [Tooltip("アクションタイプ")]
         public ActionType actionType = ActionType.Clip;
+        [FormerlySerializedAs("clipActorAction")]
         [Tooltip("ClipベースのActorAction")]
-        public ClipActorAction clipActorAction;
+        public AnimationClipActorAction animationClipActorAction;
         [Tooltip("連続的なClipベースのActorAction")]
         public SequentialClipActorAction sequentialClipActorAction;
         [Tooltip("ClipベースのActorAction")]
@@ -41,7 +43,7 @@ namespace SampleGame.Infrastructure {
         public IActorAction GetAction() {
             switch (actionType) {
                 case ActionType.Clip:
-                    return clipActorAction;
+                    return animationClipActorAction;
                 case ActionType.SequentialClip:
                     return sequentialClipActorAction;
                 case ActionType.Controller:

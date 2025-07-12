@@ -1,4 +1,4 @@
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using UnityEngine;
 
 namespace SampleGame.Presentation {

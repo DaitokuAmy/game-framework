@@ -12,8 +12,8 @@ namespace SampleGame.Infrastructure {
         [Tooltip("秒数")]
         public float duration;
         [Tooltip("同時再生するシーケンスクリップ")]
-        public SequenceClip[] sequenceClips;
+        public SequenceClip sequenceClip;
         [Tooltip("キャンセルされた時に流すシーケンスクリップ")]
-        public SequenceClip[] cancelSequenceClips;
+        public SequenceClip cancelSequenceClip;
     }
 }

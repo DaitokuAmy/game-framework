@@ -1,6 +1,6 @@
 using System;
 using TMPro;
-using UniRx;
+using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,6 +32,6 @@ namespace SituationFlowSample {
         }
         
         /// <summary>押下通知</summary>
-        public IObservable<Unit> ClickedSubject => _button.OnClickAsObservable();
+        public Observable<Unit> ClickedSubject => _button.OnClickAsObservable();
     }
 }

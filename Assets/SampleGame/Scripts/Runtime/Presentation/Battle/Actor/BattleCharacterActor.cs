@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using UnityEngine;
 
 namespace SampleGame.Presentation.Battle {

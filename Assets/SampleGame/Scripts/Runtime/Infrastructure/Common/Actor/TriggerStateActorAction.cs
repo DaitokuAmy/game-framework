@@ -13,10 +13,6 @@ namespace SampleGame.Infrastructure {
         public int layerIndex = 0;
         [Tooltip("トリガーに使うプロパティ名")]
         public string triggerPropertyName = "OnAction";
-        [Tooltip("分岐用Indexのプロパティ名(未指定可)")]
-        public string indexPropertyName = "";
-        [Tooltip("分岐用Index")]
-        public int index = 0;
         [Tooltip("最後のステート名")]
         public string lastStateName = "Last";
         [Tooltip("最後のステートタグ名")]

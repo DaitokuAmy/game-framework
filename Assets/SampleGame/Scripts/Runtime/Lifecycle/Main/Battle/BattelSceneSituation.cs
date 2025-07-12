@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.ActorSystems;
 using GameFramework.AssetSystems;
-using GameFramework.BodySystems;
 using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
@@ -26,9 +25,9 @@ namespace SampleGame.Lifecycle {
         /// Body生成用のBuilder
         /// </summary>
         private class BodyBuilder : IBodyBuilder {
-            public void Build(IBody body, GameObject gameObject) {
-                if (gameObject.GetComponent<AvatarController>() == null) {
-                    body.AddController(gameObject.AddComponent<AvatarController>());
+            public void Build(Body body, GameObject gameObject) {
+                if (gameObject.GetComponent<AvatarComponent>() == null) {
+                    body.AddSerializedBodyComponent<AvatarComponent>();
                 }
             }
         }
@@ -62,8 +61,8 @@ namespace SampleGame.Lifecycle {
             yield return SetupPresentationRoutine(scope);
 
             // todo:テスト
-            yield return Services.Resolve<FieldManager>().ChangeFieldAsync("fld001", scope.Token).ToCoroutine();
-            yield return Services.Resolve<ActorEntityManager>().CreateBattleCharacterActorEntityAsync(1, "ch001_00", "ch001_00", null, scope.Token).ToCoroutine();
+            // yield return Services.Resolve<FieldManager>().ChangeFieldAsync("fld001", scope.Token).ToCoroutine();
+            // yield return Services.Resolve<ActorEntityManager>().CreateBattleCharacterActorEntityAsync(1, "ch001_00", "ch001_00", null, scope.Token).ToCoroutine();
         }
 
         /// <summary>
@@ -191,15 +190,10 @@ namespace SampleGame.Lifecycle {
         /// Manager初期化
         /// </summary>
         private IEnumerator SetupManagerRoutine(IScope scope) {
-            var bodyBuilder = new BodyBuilder();
-            var bodyManager = new BodyManager(bodyBuilder);
-            bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.RegisterInstance(bodyManager).RegisterTo(scope);
-
             var fieldManager = new FieldManager();
             ServiceContainer.RegisterInstance(fieldManager).RegisterTo(scope);
 
-            var actorEntityManager = new ActorEntityManager(bodyManager);
+            var actorEntityManager = new ActorEntityManager();
             ServiceContainer.RegisterInstance(actorEntityManager).RegisterTo(scope);
 
             var cameraManager = Services.Resolve<CameraManager>();

@@ -21,14 +21,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "785ddb969d2be734a91b981d6e4523a01fe2f3ea"
+      "hash": "6043a793d1221c43b09313cad1a7e0cf8abbf78c"
     },
     "com.daitokuamy.gameaibehaviour": {
       "version": "https://github.com/DaitokuAmy/game-ai-behaviour.git?path=/Packages/com.daitokuamy.gameaibehaviour",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "21a710f699e54395ad6689a05a051ec2146c12d5"
+      "hash": "c5e56f4bbc69c190c0a3dba1a9f5a84d8090b4b8"
     },
     "com.daitokuamy.gameframework": {
       "version": "file:com.daitokuamy.gameframework",
@@ -48,14 +48,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "fa0a56ac91cebe66e4d381149779bcddf38300b7"
+      "hash": "e95b80aec4e200d003e468e00118085b76db9d99"
     },
     "com.daitokuamy.unitytweenplayables": {
       "version": "https://github.com/DaitokuAmy/unity-tween-playables.git?path=/Packages/com.daitokuamy.unitytweenplayables",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "24b352da5a432cdfb61a5ae7bc9dbe4afff3e889"
+      "hash": "43d82cb520c60e4ef9fe67cbb38251fd2109c4eb"
     },
     "com.harumak.unitydebugsheet": {
       "version": "https://github.com/Haruma-K/UnityDebugSheet.git?path=/Assets/UnityDebugSheet",
@@ -70,13 +70,6 @@
       "source": "registry",
       "dependencies": {},
       "url": "https://package.openupm.com"
-    },
-    "com.neuecc.unirx": {
-      "version": "https://github.com/neuecc/UniRx.git?path=Assets/Plugins/UniRx/Scripts",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "6baeccf6c544c155497164327cca72f28163a578"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
@@ -100,7 +93,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ai.navigation": {
-      "version": "2.0.5",
+      "version": "2.0.8",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -128,8 +121,8 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.burst": {
-      "version": "1.8.18",
-      "depth": 0,
+      "version": "1.8.19",
+      "depth": 1,
       "source": "registry",
       "dependencies": {
         "com.unity.mathematics": "1.2.1",
@@ -138,11 +131,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.cinemachine": {
-      "version": "3.1.2",
+      "version": "3.1.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.splines": "2.0.0"
+        "com.unity.splines": "2.0.0",
+        "com.unity.modules.imgui": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
@@ -154,13 +148,14 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.collections": {
-      "version": "2.5.1",
+      "version": "2.5.7",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.burst": "1.8.17",
-        "com.unity.test-framework": "1.4.5",
-        "com.unity.nuget.mono-cecil": "1.11.4",
+        "com.unity.burst": "1.8.19",
+        "com.unity.mathematics": "1.3.2",
+        "com.unity.test-framework": "1.4.6",
+        "com.unity.nuget.mono-cecil": "1.11.5",
         "com.unity.test-framework.performance": "3.0.3"
       },
       "url": "https://packages.unity.com"
@@ -180,7 +175,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.34",
+      "version": "3.0.36",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -222,7 +217,7 @@
       }
     },
     "com.unity.nuget.mono-cecil": {
-      "version": "1.11.4",
+      "version": "1.11.5",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -397,7 +392,7 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.observablecollections": {
-      "version": "3.3.3",
+      "version": "3.3.4",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -407,11 +402,11 @@
       "url": "https://package.openupm.com"
     },
     "org.nuget.observablecollections.r3": {
-      "version": "3.3.3",
+      "version": "3.3.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "org.nuget.observablecollections": "3.3.3",
+        "org.nuget.observablecollections": "3.3.4",
         "org.nuget.r3": "1.0.0"
       },
       "url": "https://package.openupm.com"

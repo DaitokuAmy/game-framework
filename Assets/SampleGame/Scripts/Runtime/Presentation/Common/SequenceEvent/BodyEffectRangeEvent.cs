@@ -1,5 +1,5 @@
 using ActionSequencer;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using GameFramework.VfxSystems;
 using UnityEngine;
 
