@@ -87,7 +87,7 @@ namespace GameFramework.ActorSystems {
             }
 
             // Layerを同じにする
-            BodyUtility.SetLayer(target, _additiveMeshRoot.gameObject.layer);
+            GameObjectUtility.SetLayer(target, _additiveMeshRoot.gameObject.layer);
 
             // 骨のマージ
             if (_boneComponent != null) {

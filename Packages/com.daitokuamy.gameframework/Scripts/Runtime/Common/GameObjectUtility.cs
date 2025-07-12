@@ -3,9 +3,9 @@ using Object = UnityEngine.Object;
 
 namespace GameFramework.ActorSystems {
     /// <summary>
-    /// Body用のユーティリティ
+    /// GameObject用のユーティリティ
     /// </summary>
-    public static class BodyUtility {
+    public static class GameObjectUtility {
         /// <summary>
         /// GameObjectの廃棄
         /// </summary>
@@ -22,7 +22,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// Componentの廃棄
         /// </summary>
-        public static void Destroy(UnityEngine.Component component) {
+        public static void Destroy(Component component) {
 #if UNITY_EDITOR
             if (!Application.isPlaying) {
                 Object.DestroyImmediate(component);
