@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace GameFramework.DebugSystems {
+namespace GameFramework {
     /// <summary>
     /// PlayerPrefs保存型のDebugデータ
     /// </summary>

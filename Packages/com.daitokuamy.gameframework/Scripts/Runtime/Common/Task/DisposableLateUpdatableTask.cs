@@ -1,26 +1,34 @@
 using System;
-using UnityEngine;
 
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
-    /// LateUpdateに対応したMonoBehaviour
+    /// タスク用インターフェース
     /// </summary>
-    public abstract class LateUpdatableTaskBehaviour : MonoBehaviour, ILateUpdatableTask, ITaskEventHandler {
+    public abstract class DisposableLateUpdatableTask : ILateUpdatableTask, ITaskEventHandler, IDisposable {
         private TaskRunner _taskRunner;
 
-        // Taskが有効状態か
-        public virtual bool IsActive => isActiveAndEnabled;
+        /// <summary>Taskが有効状態か</summary>
+        bool ITask.IsActive => IsTaskActive;
+
+        /// <summary>Taskが有効状態か</summary>
+        protected virtual bool IsTaskActive => true;
 
         /// <summary>
-        /// 生成時処理(override用)
+        /// 廃棄処理
         /// </summary>
-        protected virtual void AwakeInternal() {
+        public void Dispose() {
+            DisposeInternal();
+
+            if (_taskRunner != null) {
+                _taskRunner.Unregister(this);
+                _taskRunner = null;
+            }
         }
 
         /// <summary>
         /// 廃棄処理(override用)
         /// </summary>
-        protected virtual void OnDestroyInternal() {
+        protected virtual void DisposeInternal() {
         }
 
         /// <summary>
@@ -61,25 +69,6 @@ namespace GameFramework.TaskSystems {
         /// </summary>
         void ITaskEventHandler.OnUnregistered(TaskRunner taskRunner) {
             if (taskRunner == _taskRunner) {
-                _taskRunner = null;
-            }
-        }
-
-        /// <summary>
-        /// 生成時処理
-        /// </summary>
-        private void Awake() {
-            AwakeInternal();
-        }
-
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        private void OnDestroy() {
-            OnDestroyInternal();
-
-            if (_taskRunner != null) {
-                _taskRunner.Unregister(this);
                 _taskRunner = null;
             }
         }

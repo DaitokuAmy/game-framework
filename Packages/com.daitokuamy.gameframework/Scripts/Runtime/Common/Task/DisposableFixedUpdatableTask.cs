@@ -1,8 +1,8 @@
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
-    /// LateUpdateに対応したMonoBehaviour
+    /// 固定更新付きタスク用インターフェース
     /// </summary>
-    public abstract class FixedUpdatableTaskBehaviour : LateUpdatableTaskBehaviour, IFixedUpdatableTask {
+    public abstract class DisposableFixedUpdatableTask : DisposableLateUpdatableTask, IFixedUpdatableTask {
         /// <summary>
         /// 固定更新処理
         /// </summary>
@@ -11,7 +11,7 @@ namespace GameFramework.TaskSystems {
         }
 
         /// <summary>
-        /// 固定更新処理(override用)
+        /// 更新処理(override用)
         /// </summary>
         protected virtual void FixedUpdateInternal() {
         }

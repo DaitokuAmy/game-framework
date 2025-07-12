@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
-namespace GameFramework.SaveSystems {
+namespace GameFramework {
     /// <summary>
     /// ローカル保存用のクラス
     /// </summary>

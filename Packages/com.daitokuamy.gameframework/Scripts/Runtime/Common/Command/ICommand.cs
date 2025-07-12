@@ -1,6 +1,6 @@
 using System;
 
-namespace GameFramework.CommandSystems {
+namespace GameFramework {
     /// <summary>
     /// コマンド用インターフェース
     /// </summary>

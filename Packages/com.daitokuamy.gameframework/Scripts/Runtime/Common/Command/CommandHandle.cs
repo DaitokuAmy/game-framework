@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using GameFramework.Core;
 
-namespace GameFramework.CommandSystems {
+namespace GameFramework {
     /// <summary>
     /// コマンドのハンドル
     /// </summary>

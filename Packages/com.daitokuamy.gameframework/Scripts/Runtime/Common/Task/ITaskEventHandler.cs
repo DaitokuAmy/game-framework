@@ -1,4 +1,4 @@
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
     /// タスクイベント通知用インターフェース
     /// </summary>

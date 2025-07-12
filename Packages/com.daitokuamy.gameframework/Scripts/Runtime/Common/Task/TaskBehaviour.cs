@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
     /// Updateに対応したMonoBehaviour
     /// </summary>

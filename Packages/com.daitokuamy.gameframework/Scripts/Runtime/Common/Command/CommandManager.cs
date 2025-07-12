@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace GameFramework.CommandSystems {
+namespace GameFramework {
     /// <summary>
     /// コマンド管理クラス
     /// </summary>

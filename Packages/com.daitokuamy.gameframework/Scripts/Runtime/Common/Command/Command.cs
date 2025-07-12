@@ -1,7 +1,7 @@
 using System;
 using GameFramework.Core;
 
-namespace GameFramework.CommandSystems {
+namespace GameFramework {
     /// <summary>
     /// コマンドクラス
     /// </summary>

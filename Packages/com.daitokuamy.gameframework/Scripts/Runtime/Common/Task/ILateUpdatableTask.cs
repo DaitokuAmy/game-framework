@@ -1,4 +1,4 @@
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
     /// 後更新可能なタスク用インターフェース
     /// </summary>

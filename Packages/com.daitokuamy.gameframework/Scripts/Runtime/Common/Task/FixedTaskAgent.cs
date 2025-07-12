@@ -1,6 +1,6 @@
 using System;
 
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
     /// 固定更新用タスク用インターフェース
     /// </summary>

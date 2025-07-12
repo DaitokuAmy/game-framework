@@ -1,4 +1,4 @@
-namespace GameFramework.CommandSystems {
+namespace GameFramework {
     /// <summary>
     /// コマンドの状態
     /// </summary>

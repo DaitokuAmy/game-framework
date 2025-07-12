@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
     /// タスク実行用のランナー
     /// </summary>

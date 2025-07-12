@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace GameFramework.DebugSystems {
+namespace GameFramework {
     /// <summary>
     /// ScriptableObject管理型のDebugデータ
     /// Resourcesフォルダ以下にクラス名のファイルを配置してください

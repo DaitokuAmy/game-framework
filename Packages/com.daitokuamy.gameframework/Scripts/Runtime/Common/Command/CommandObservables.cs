@@ -7,7 +7,7 @@ using System;
 using UniRx;
 #endif
 
-namespace GameFramework.CommandSystems {
+namespace GameFramework {
     /// <summary>
     /// Command用のRx拡張メソッド
     /// </summary>

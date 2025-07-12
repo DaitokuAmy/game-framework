@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using GameFramework.TaskSystems;
 #if USE_ANIMATION_RIGGING
 using UnityEngine.Animations.Rigging;
 #endif

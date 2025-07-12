@@ -1,5 +1,5 @@
 using GameFramework.Core;
-using GameFramework.TaskSystems;
+using GameFramework;
 
 namespace SampleGame.Presentation {
     /// <summary>

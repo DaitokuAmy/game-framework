@@ -7,7 +7,7 @@ using System;
 using UniRx;
 #endif
 
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
     /// TaskAgentRx拡張
     /// </summary>

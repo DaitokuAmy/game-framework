@@ -1,6 +1,6 @@
 using System;
 
-namespace GameFramework.TaskSystems {
+namespace GameFramework {
     /// <summary>
     /// タスク用インターフェース
     /// </summary>
