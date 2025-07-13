@@ -47,7 +47,7 @@ namespace SampleGame.Infrastructure {
         /// コンストラクタ
         /// </summary>
         /// <param name="assetKey">ch000_00</param>
-        public CharacterPrefabAssetRequest(string assetKey) : base($"Character/{GetBoneId(assetKey)}/prfb_act_{assetKey}.prefab") {
+        public CharacterPrefabAssetRequest(string assetKey) : base($"Character/{GetBoneId(assetKey)}/pfb_act_{assetKey}.prefab") {
         }
 
         /// <summary>

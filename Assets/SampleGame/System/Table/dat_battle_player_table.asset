@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2169c7a3736b3444685cd24c86d40333, type: 3}
+  m_Name: dat_battle_player_table
+  m_EditorClassIdentifier: 
+  elements:
+  - _id: 1
+    _name: "\u30D7\u30EC\u30A4\u30E4\u30FCA"
+    _assetKey: ch001_00
+    _actorAssetKey: ch001_00

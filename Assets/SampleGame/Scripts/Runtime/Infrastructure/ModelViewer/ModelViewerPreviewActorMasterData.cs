@@ -8,7 +8,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewer用のアクターマスターデータ
     /// </summary>
-    [CreateAssetMenu(fileName = "dat_model_viewer_actor_master_hoge.asset", menuName = "SampleGame/Model Viewer/Actor Master Data")]
+    [CreateAssetMenu(fileName = "dat_model_viewer_actor_master_hoge.asset", menuName = "Sample Game/Model Viewer/Actor Master Data")]
     public class ModelViewerPreviewActorMasterData : ScriptableObject, IPreviewActorMaster {
         /// <summary>
         /// メッシュアバター情報

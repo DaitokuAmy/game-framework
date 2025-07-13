@@ -17,8 +17,7 @@ namespace SampleGame.Domain.Battle {
     /// <summary>
     /// キャラモデル
     /// </summary>
-    public abstract class CharacterModel<T> : AutoIdModel<T>, IReadOnlyCharacterModel
-        where T : CharacterModel<T>, new() {
+    public abstract class CharacterModel : AutoIdModel<CharacterModel>, IReadOnlyCharacterModel {
         /// <inheritdoc/>
         public abstract ICharacterMaster Master { get; }
         
@@ -27,6 +26,9 @@ namespace SampleGame.Domain.Battle {
         
         /// <summary>アクター制御用モデル</summary>
         internal CharacterActorModel ActorModelInternal { get; private set; }
+
+        protected CharacterModel() {
+        }
         
         /// <summary>
         /// 生成処理

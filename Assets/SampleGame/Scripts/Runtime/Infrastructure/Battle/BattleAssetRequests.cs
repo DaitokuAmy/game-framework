@@ -8,7 +8,7 @@ namespace SampleGame.Infrastructure.Battle {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BattleCharacterActorDataRequest(string assetKey) : base($"BattleCharacter/{GetMainId(assetKey)}/Data/dat_battle_character_actor_setup_{assetKey}.asset") {
+        public BattleCharacterActorDataRequest(string assetKey) : base($"Character/{GetMainId(assetKey)}/Settings/dat_act_{assetKey}_battle.asset") {
         }
 
         /// <summary>

@@ -7,5 +7,7 @@ namespace SampleGame.Domain.Battle {
         int Id { get; }
         /// <summary>名称</summary>
         string Name { get; }
+        /// <summary>フィールドのマスター</summary>
+        IFieldMaster FieldMaster { get; }
     }
 }

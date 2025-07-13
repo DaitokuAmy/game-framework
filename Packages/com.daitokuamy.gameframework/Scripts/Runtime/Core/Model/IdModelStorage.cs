@@ -11,9 +11,9 @@ namespace GameFramework.Core {
         IReadOnlyCollection<IModel> Items { get; }
 
         /// <summary>
-        /// モデルの生成
+        /// モデルの追加
         /// </summary>
-        IModel Create(TKey id);
+        void Add(TKey id, IModel model);
 
         /// <summary>
         /// モデルの取得
@@ -38,7 +38,7 @@ namespace GameFramework.Core {
     /// Id管理によるモデル
     /// </summary>
     public sealed class IdModelStorage<TKey, TModel> : IIdModelStorage<TKey>
-        where TModel : IdModel<TKey, TModel>, new() {
+        where TModel : IdModel<TKey, TModel> {
         private readonly Dictionary<TKey, TModel> _items = new();
 
 
@@ -49,8 +49,13 @@ namespace GameFramework.Core {
         public IReadOnlyCollection<TModel> Items => _items.Values;
 
         /// <inheritdoc/>
-        IModel IIdModelStorage<TKey>.Create(TKey id) {
-            return Create(id);
+        void IIdModelStorage<TKey>.Add(TKey id, IModel model) {
+            if (model is TModel mdl) {
+                Add(id, mdl);
+            }
+            else {
+                throw new Exception($"Model is not {typeof(TModel).Name}. id:{id} type:{model.GetType()}");
+            }
         }
 
         /// <inheritdoc/>
@@ -75,18 +80,17 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
-        /// モデルの生成
+        /// モデルの追加
         /// </summary>
         /// <param name="id">モデルの識別キー</param>
-        public TModel Create(TKey id) {
+        /// <param name="model">追加するモデル</param>
+        public void Add(TKey id, TModel model) {
             if (_items.ContainsKey(id)) {
                 throw new Exception($"Already exists {typeof(TModel).Name}. key:{id}");
             }
 
-            var model = new TModel();
             _items[id] = model;
             model.OnCreated(this, id);
-            return model;
         }
 
         /// <summary>

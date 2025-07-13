@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,9 +11,9 @@ namespace GameFramework.Core {
         IReadOnlyList<IModel> Items { get; }
 
         /// <summary>
-        /// モデルの生成
+        /// モデルの追加
         /// </summary>
-        IModel Create();
+        void Add(IModel model);
 
         /// <summary>
         /// モデルの取得
@@ -37,7 +38,7 @@ namespace GameFramework.Core {
     /// AutoIdModelのストレージ
     /// </summary>
     public sealed class AutoIdModelStorage<TModel> : IAutoIdModelStorage
-        where TModel : AutoIdModel<TModel>, new() {
+        where TModel : AutoIdModel<TModel> {
         private readonly List<TModel> _items = new();
         private readonly int _startId = 1;
         
@@ -58,8 +59,13 @@ namespace GameFramework.Core {
         }
 
         /// <inheritdoc/>
-        IModel IAutoIdModelStorage.Create() {
-            return Create();
+        void IAutoIdModelStorage.Add(IModel model) {
+            if (model is TModel mdl) {
+                Add(mdl);
+            }
+            else {
+                throw new Exception($"Model is not {typeof(TModel).Name}. type:{model.GetType()}"); 
+            }
         }
 
         /// <inheritdoc/>
@@ -86,14 +92,12 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
-        /// モデルの生成
+        /// モデルの追加
         /// </summary>
-        public TModel Create() {
+        public void Add(TModel model) {
             var id = _nextId++;
-            var model = new TModel();
             _items.Add(model);
             model.OnCreated(this, id);
-            return model;
         }
 
         /// <summary>

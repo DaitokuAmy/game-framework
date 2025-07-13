@@ -9,5 +9,7 @@ namespace SampleGame.Domain.Battle {
         string Name { get; }
         /// <summary>アセットキー</summary>
         string AssetKey { get; }
+        /// <summary>アクター制御用アセットキー</summary>
+        string ActorAssetKey { get; }
     }
 }

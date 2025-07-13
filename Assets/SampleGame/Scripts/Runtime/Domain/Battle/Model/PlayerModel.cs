@@ -12,7 +12,7 @@ namespace SampleGame.Domain.Battle {
     /// <summary>
     /// キャラモデル
     /// </summary>
-    public sealed class PlayerModel : CharacterModel<PlayerModel>, IReadOnlyPlayerModel {
+    public sealed class PlayerModel : CharacterModel, IReadOnlyPlayerModel {
         /// <inheritdoc/>
         public override ICharacterMaster Master => PlayerMaster;
         

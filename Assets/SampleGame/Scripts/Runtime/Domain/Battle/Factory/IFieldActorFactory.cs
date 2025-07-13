@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using SampleGame.Domain.ModelViewer;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -9,11 +10,11 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// 背景生成
         /// </summary>
-        UniTask<IFieldActorFactory> CreateAsync(IReadOnlyFieldActorModel model, CancellationToken ct);
+        UniTask<IFieldActorPort> CreateAsync(IReadOnlyFieldModel model, CancellationToken ct);
         
         /// <summary>
         /// 背景削除
         /// </summary>
-        void Destroy(IReadOnlyFieldActorModel model);
+        void Destroy(IReadOnlyFieldModel model);
     }
 }

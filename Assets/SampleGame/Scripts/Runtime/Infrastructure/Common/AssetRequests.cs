@@ -170,7 +170,7 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public TableDataRequest(string assetKey) : base($"Tables/dat_table_{assetKey}.asset") {
+        public TableDataRequest(string assetKey) : base($"Table/dat_{assetKey}_table.asset") {
         }
     }
 }

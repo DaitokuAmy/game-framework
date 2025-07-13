@@ -5,7 +5,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewer用の背景初期化データ
     /// </summary>
-    [CreateAssetMenu(fileName = "dat_model_viewer_environment_master_hoge.asset", menuName = "SampleGame/Model Viewer/Environment Master Data")]
+    [CreateAssetMenu(fileName = "dat_model_viewer_environment_master_hoge.asset", menuName = "Sample Game/Model Viewer/Environment Master Data")]
     public class ModelViewerEnvironmentActorMasterData : ScriptableObject, IEnvironmentActorMaster {
         [Tooltip("表示名")]
         public string displayName;

@@ -4,7 +4,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.ActorSystems;
-using GameFramework.AssetSystems;
 using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
@@ -13,8 +12,9 @@ using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.Battle;
 using SampleGame.Presentation.Battle;
 using R3;
+using SampleGame.Application.Battle;
+using SampleGame.Domain.Battle;
 using ThirdPersonEngine;
-using UnityEngine;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -49,9 +49,8 @@ namespace SampleGame.Lifecycle {
             SetupFactories(scope);
             SetupPresentations(scope);
 
-            // todo:テスト
-            // yield return Services.Resolve<FieldManager>().ChangeFieldAsync("fld001", scope.Token).ToCoroutine();
-            // yield return Services.Resolve<ActorEntityManager>().CreateBattleCharacterActorEntityAsync(1, "ch001_00", "ch001_00", null, scope.Token).ToCoroutine();
+            // 初期化処理
+            yield return Services.Resolve<BattleAppService>().SetupAsync(1, 1, scope.Token).ToCoroutine();
         }
 
         /// <summary>
@@ -115,43 +114,6 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <summary>
-        /// 更新処理
-        /// </summary>
-        protected override void UpdateInternal() {
-            base.UpdateInternal();
-
-            // todo:テスト
-            var actorEntityManager = Services.Resolve<ActorEntityManager>();
-            if (actorEntityManager != null) {
-                if (actorEntityManager.Entities.TryGetValue(1, out var entity)) {
-                    var actor = entity.GetActor<BattleCharacterActor>();
-                    var direction = Vector2.zero;
-                    if (Input.GetKey(KeyCode.UpArrow)) {
-                        direction += Vector2.up;
-                    }
-
-                    if (Input.GetKey(KeyCode.DownArrow)) {
-                        direction += Vector2.down;
-                    }
-
-                    if (Input.GetKey(KeyCode.RightArrow)) {
-                        direction += Vector2.right;
-                    }
-
-                    if (Input.GetKey(KeyCode.LeftArrow)) {
-                        direction += Vector2.left;
-                    }
-
-                    actor.Move(direction);
-
-                    if (Input.GetKeyDown(KeyCode.Space)) {
-                        actor.JumpAsync(CancellationToken.None).Forget();
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
@@ -168,6 +130,8 @@ namespace SampleGame.Lifecycle {
         /// Infrastructure初期化
         /// </summary>
         private void SetupInfrastructures(IScope scope) {
+            ServiceContainer.Register<IBattleTableRepository, BattleTableRepository>().RegisterTo(scope);
+            ServiceContainer.Register<IModelRepository, ModelRepository>().RegisterTo(scope);
             ServiceContainer.Register<BattleCharacterAssetRepository>().RegisterTo(scope);
             ServiceContainer.Register<BodyPrefabRepository>().RegisterTo(scope);
             ServiceContainer.Register<EnvironmentSceneRepository>().RegisterTo(scope);
@@ -177,7 +141,8 @@ namespace SampleGame.Lifecycle {
         /// Manager初期化
         /// </summary>
         private void SetupManagers(IScope scope) {
-            ServiceContainer.Register<ActorEntityManager>().RegisterTo(scope);
+            var actorManager = new ActorEntityManager();
+            ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
 
             var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
@@ -187,18 +152,24 @@ namespace SampleGame.Lifecycle {
         /// Domain初期化
         /// </summary>
         private void SetupDomains(IScope scope) {
+            Services.Resolve<IModelRepository>().CreateSingleModel<BattleModel>().RegisterTo(scope);
+            
+            ServiceContainer.Register<BattleDomainService>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Application初期化
         /// </summary>
         private void SetupApplications(IScope scope) {
+            ServiceContainer.Register<BattleAppService>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Factory初期化
         /// </summary>
         private void SetupFactories(IScope scope) {
+            ServiceContainer.Register<ICharacterActorFactory, CharacterActorFactory>().RegisterTo(scope);
+            ServiceContainer.Register<IFieldActorFactory, FieldActorFactory>().RegisterTo(scope);
         }
 
         /// <summary>

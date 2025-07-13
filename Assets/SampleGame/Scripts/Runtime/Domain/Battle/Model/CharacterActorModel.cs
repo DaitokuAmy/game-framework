@@ -13,10 +13,20 @@ namespace SampleGame.Domain.Battle {
     /// アクターモデル
     /// </summary>
     public class CharacterActorModel : IdLocalModel<int, CharacterActorModel>, IReadOnlyCharacterActorModel {
+        /// <summary>制御用ポート</summary>
+        internal ICharacterActorPort Port { get; private set; }
+        
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public CharacterActorModel(int id) : base(id) {
+        }
+
+        /// <summary>
+        /// セットアップ
+        /// </summary>
+        internal void Setup(ICharacterActorPort port) {
+            Port = port;
         }
     }
 }

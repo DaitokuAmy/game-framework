@@ -3,7 +3,7 @@ namespace GameFramework.Core {
     /// 自動割り当てId管理によるモデル
     /// </summary>
     public abstract class AutoIdModel<TModel> : IModel
-        where TModel : AutoIdModel<TModel>, new() {
+        where TModel : AutoIdModel<TModel> {
         private DisposableScope _createScope;
         private AutoIdModelStorage<TModel> _storage;
         private bool _created;
