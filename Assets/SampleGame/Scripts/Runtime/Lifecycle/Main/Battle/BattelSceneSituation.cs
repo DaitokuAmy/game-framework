@@ -11,7 +11,6 @@ using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.Battle;
-using SampleGame.Presentation;
 using SampleGame.Presentation.Battle;
 using R3;
 using ThirdPersonEngine;
@@ -22,17 +21,6 @@ namespace SampleGame.Lifecycle {
     /// Battle用のSceneSituation
     /// </summary>
     public class BattleSceneSituation : SceneSituation {
-        /// <summary>
-        /// Body生成用のBuilder
-        /// </summary>
-        private class BodyBuilder : IBodyBuilder {
-            public void Build(Body body, GameObject gameObject) {
-                if (gameObject.GetComponent<AvatarComponent>() == null) {
-                    body.AddSerializedBodyComponent<AvatarComponent>();
-                }
-            }
-        }
-
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/battle.unity";
 
         /// <summary>
@@ -54,12 +42,12 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
-            yield return SetupInfrastructureRoutine(scope);
-            yield return SetupManagerRoutine(scope);
-            yield return SetupDomainRoutine(scope);
-            yield return SetupApplicationRoutine(scope);
-            yield return SetupFactoryRoutine(scope);
-            yield return SetupPresentationRoutine(scope);
+            SetupInfrastructures(scope);
+            SetupManagers(scope);
+            SetupDomains(scope);
+            SetupApplications(scope);
+            SetupFactories(scope);
+            SetupPresentations(scope);
 
             // todo:テスト
             // yield return Services.Resolve<FieldManager>().ChangeFieldAsync("fld001", scope.Token).ToCoroutine();
@@ -141,16 +129,19 @@ namespace SampleGame.Lifecycle {
                     if (Input.GetKey(KeyCode.UpArrow)) {
                         direction += Vector2.up;
                     }
+
                     if (Input.GetKey(KeyCode.DownArrow)) {
                         direction += Vector2.down;
                     }
+
                     if (Input.GetKey(KeyCode.RightArrow)) {
                         direction += Vector2.right;
                     }
+
                     if (Input.GetKey(KeyCode.LeftArrow)) {
                         direction += Vector2.left;
                     }
-                    
+
                     actor.Move(direction);
 
                     if (Input.GetKeyDown(KeyCode.Space)) {
@@ -176,58 +167,44 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// Infrastructure初期化
         /// </summary>
-        private IEnumerator SetupInfrastructureRoutine(IScope scope) {
-            var assetManager = Services.Resolve<AssetManager>();
-            var battleCharacterAssetRepository = new BattleCharacterAssetRepository(assetManager);
-            ServiceContainer.RegisterInstance(battleCharacterAssetRepository).RegisterTo(scope);
-            var bodyPrefabRepository = new BodyPrefabRepository(assetManager);
-            ServiceContainer.RegisterInstance(bodyPrefabRepository).RegisterTo(scope);
-            var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
-            ServiceContainer.RegisterInstance(environmentSceneRepository).RegisterTo(scope);
-            yield break;
+        private void SetupInfrastructures(IScope scope) {
+            ServiceContainer.Register<BattleCharacterAssetRepository>().RegisterTo(scope);
+            ServiceContainer.Register<BodyPrefabRepository>().RegisterTo(scope);
+            ServiceContainer.Register<EnvironmentSceneRepository>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Manager初期化
         /// </summary>
-        private IEnumerator SetupManagerRoutine(IScope scope) {
-            var fieldManager = new FieldManager();
-            ServiceContainer.RegisterInstance(fieldManager).RegisterTo(scope);
-
-            var actorEntityManager = new ActorEntityManager();
-            ServiceContainer.RegisterInstance(actorEntityManager).RegisterTo(scope);
+        private void SetupManagers(IScope scope) {
+            ServiceContainer.Register<ActorEntityManager>().RegisterTo(scope);
 
             var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
-            yield break;
         }
 
         /// <summary>
         /// Domain初期化
         /// </summary>
-        private IEnumerator SetupDomainRoutine(IScope scope) {
-            yield return null;
+        private void SetupDomains(IScope scope) {
         }
 
         /// <summary>
         /// Application初期化
         /// </summary>
-        private IEnumerator SetupApplicationRoutine(IScope scope) {
-            yield return null;
+        private void SetupApplications(IScope scope) {
         }
 
         /// <summary>
         /// Factory初期化
         /// </summary>
-        private IEnumerator SetupFactoryRoutine(IScope scope) {
-            yield return null;
+        private void SetupFactories(IScope scope) {
         }
 
         /// <summary>
         /// Presentation初期化
         /// </summary>
-        private IEnumerator SetupPresentationRoutine(IScope scope) {
-            yield return null;
+        private void SetupPresentations(IScope scope) {
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using SampleGame.Infrastructure;
+using ThirdPersonEngine;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -80,7 +81,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// プレビューアクターの変更
         /// </summary>
-        public async UniTask ChangePreviewActorAsync(IActorMaster master, CancellationToken ct) {
+        public async UniTask ChangePreviewActorAsync(IPreviewActorMaster master, CancellationToken ct) {
             // 既存モデルの削除
             var model = ModelViewerModelInternal.PreviewActorModelInternal;
             if (model != null) {
@@ -153,7 +154,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// 環境の変更
         /// </summary>
-        public async UniTask ChangeEnvironmentAsync(IEnvironmentMaster master, CancellationToken ct) {
+        public async UniTask ChangeEnvironmentAsync(IEnvironmentActorMaster actorMaster, CancellationToken ct) {
             // 既存モデルの削除
             var model = ModelViewerModelInternal.EnvironmentActorModelInternal;
             if (model != null) {
@@ -162,13 +163,13 @@ namespace SampleGame.Domain.ModelViewer {
                 _modelRepository.DeleteAutoIdModel(model);
             }
 
-            if (master == null) {
+            if (actorMaster == null) {
                 return;
             }
             
             // モデルの生成
             model = _modelRepository.CreateAutoIdModel<EnvironmentActorModel>(1000);
-            model.Setup(master);
+            model.Setup(actorMaster);
             
             // 初期化
             var port = await _environmentActorFactory.CreateAsync(model, ct);
@@ -176,13 +177,6 @@ namespace SampleGame.Domain.ModelViewer {
             
             // 反映
             ModelViewerModelInternal.ChangeEnvironmentActor(model);
-        }
-
-        /// <summary>
-        /// ディレクショナルライトのY角度の設定
-        /// </summary>
-        public void SetDirectionalLightAngleY(float angleY) {
-            ModelViewerModelInternal.EnvironmentActorModelInternal.SetLightAngleY(angleY);
         }
 
         /// <summary>
@@ -209,7 +203,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// 録画オプションの変更
         /// </summary>
-        public void SetRecordingOptions(RecordingOptions recordingOptions) {
+        public void SetRecordingOptions(ModelRecorder.Options recordingOptions) {
             RecordingModelInternal.SetOptions(recordingOptions);
         }
 

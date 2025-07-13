@@ -1,7 +1,6 @@
 using System.Linq;
 using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
-using UnityEditor;
 using UnityEngine;
 
 namespace SampleGame.ModelViewer.Editor {
@@ -31,23 +30,11 @@ namespace SampleGame.ModelViewer.Editor {
                 var appService = Services.Resolve<ModelViewerAppService>();
                 var viewerModel = appService.DomainService.ModelViewerModel;
                 var prevColor = GUI.color;
-
-                var environmentModel = viewerModel.EnvironmentActorModel;
-                if (environmentModel != null) {
-                    // ライト角度の変更
-                    var angleY = environmentModel.DirectionalLightAngleY;
-                    using (var scope = new EditorGUI.ChangeCheckScope()) {
-                        angleY = EditorGUILayout.Slider("ライト向き(Y)", angleY, 0.0f, 360.0f);
-                        if (scope.changed) {
-                            appService.SetDirectionalLightAngleY(angleY);
-                        }
-                    }
-                }
-
+                
                 // Environmentの変更
                 var environmentIds = viewerModel.Master.EnvironmentAssetKeys.ToArray();
                 _environmentAssetKeyList.OnGUI(environmentIds, x => x, (key, index) => {
-                    var current = viewerModel.EnvironmentActorModel != null && viewerModel.EnvironmentActorModel.Master.AssetKey == key;
+                    var current = viewerModel.EnvironmentActorModel != null && viewerModel.EnvironmentActorModel.ActorMaster.AssetKey == key;
                     GUI.color = current ? Color.green : Color.gray;
                     if (GUILayout.Button(key)) {
                         appService.ChangeEnvironment(index);

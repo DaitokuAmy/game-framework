@@ -1,8 +1,9 @@
 using Cysharp.Threading.Tasks;
+using GameFramework.CameraSystems;
 using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
-using SampleGame.Domain.ModelViewer;
-using SampleGame.Presentation.ModelViewer;
+using ThirdPersonEngine;
+using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace SampleGame.ModelViewer.Editor {
                 // オプション
                 using (var scope = new EditorGUI.ChangeCheckScope()) {
                     var options = recordingModel.Options;
-                    options = (RecordingOptions)EditorGUILayout.EnumFlagsField("Options", options);
+                    options = (ModelRecorder.Options)EditorGUILayout.EnumFlagsField("Options", options);
                     if (scope.changed) {
                         appService.SetRecordingOptions(options);
                     }
@@ -49,12 +50,40 @@ namespace SampleGame.ModelViewer.Editor {
                 }
 
                 // 録画開始
-                var recordingController = Services.Resolve<RecordingController>();
-                using (new EditorGUI.DisabledScope(recordingController.IsRecording)) {
+                var recorder = Services.Resolve<ModelRecorder>();
+                using (new EditorGUI.DisabledScope(recorder.IsRecording)) {
                     if (GUILayout.Button("Record")) {
-                        recordingController.RecordAsync()
-                            .ToUniTask()
-                            .Forget();
+                        var displayName = appService.DomainService.PreviewActorModel.Master.DisplayName;
+                        var settings = appService.DomainService.RecordingModel;
+
+                        // カメラの情報を複製
+                        var cameraManager = Services.Resolve<CameraManager>();
+                        var defaultCameraComponent = cameraManager.GetCameraComponent<PreviewCameraComponent>("Default");
+                        var relativePosition = defaultCameraComponent.CalcRelativePosition();
+                        var lookAtPosition = defaultCameraComponent.CalcLookAtPosition();
+
+                        var cameraComponent = cameraManager.GetCameraComponent<DefaultCameraComponent>("Capture");
+                        var captureFollow = cameraManager.GetTargetPoint("CaptureFollow");
+                        var captureLookAt = cameraManager.GetTargetPoint("CaptureLookAt");
+                        if (cameraComponent.VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body) is CinemachineFollow follow) {
+                            follow.FollowOffset = relativePosition;
+                        }
+
+                        if (cameraComponent.VirtualCamera is CinemachineCamera cinemachineCamera) {
+                            cinemachineCamera.Lens.FieldOfView = defaultCameraComponent.Fov;
+                        }
+
+                        captureFollow.position = lookAtPosition;
+                        captureLookAt.position = lookAtPosition;
+
+                        // カメラをOnにして録画
+                        cameraManager.ForceActivate("Capture");
+
+                        recorder.Record(displayName, settings).ToUniTask()
+                            .ContinueWith(() => {
+                                // カメラを戻す
+                                cameraManager.ForceDeactivate("Capture");
+                            });
                     }
                 }
             }

@@ -15,8 +15,8 @@ namespace ThirdPersonEngine {
         }
 
         private class RendererInfo {
-            public MaterialInstance materialInstance;
-            public LayeredScale layeredAlpha;
+            public MaterialInstance MaterialInstance;
+            public LayeredScale LayeredAlpha;
         }
 
         [Header("Target")]
@@ -83,7 +83,7 @@ namespace ThirdPersonEngine {
             }
             
             foreach (var rendererInfo in _rendererInfos) {
-                rendererInfo.layeredAlpha.Set(AlphaLayer.System, alpha);
+                rendererInfo.LayeredAlpha.Set(AlphaLayer.System, alpha);
                 ApplyAlpha(rendererInfo);
             }
         }
@@ -112,8 +112,8 @@ namespace ThirdPersonEngine {
                 var layeredAlpha = new LayeredScale();
                 layeredAlpha.Set(AlphaLayer.System, materialInstance.GetVector(_propertyId).w);
                 return new RendererInfo {
-                    materialInstance = materialInstance,
-                    layeredAlpha = layeredAlpha,
+                    MaterialInstance = materialInstance,
+                    LayeredAlpha = layeredAlpha,
                 };
             }).ToArray();
         }
@@ -122,16 +122,16 @@ namespace ThirdPersonEngine {
         /// アニメーションする透明度をセットする
         /// </summary>
         private void SetAnimationAlpha(RendererInfo rendererInfo, float alpha) {
-            rendererInfo.layeredAlpha.Set(AlphaLayer.Animation, alpha);
+            rendererInfo.LayeredAlpha.Set(AlphaLayer.Animation, alpha);
         }
 
         /// <summary>
         /// 透明度を適用する
         /// </summary>
         private void ApplyAlpha(RendererInfo rendererInfo) {
-            var color = rendererInfo.materialInstance.GetVector(_propertyId);
-            color.w = rendererInfo.layeredAlpha.Value;
-            rendererInfo.materialInstance.SetVector(_propertyId, color);
+            var color = rendererInfo.MaterialInstance.GetVector(_propertyId);
+            color.w = rendererInfo.LayeredAlpha.Value;
+            rendererInfo.MaterialInstance.SetVector(_propertyId, color);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         async UniTask<IEnvironmentActorPort> IEnvironmentActorFactory.CreateAsync(IReadOnlyEnvironmentModel model, CancellationToken ct) {
             // scene
-            var scene = await _environmentSceneRepository.LoadFieldSceneAsync(model.Master.AssetKey, ct);
+            var scene = await _environmentSceneRepository.LoadFieldSceneAsync(model.ActorMaster.AssetKey, ct);
             
             // adapter
             var adapter = new EnvironmentActorAdapter(model, scene);
@@ -49,7 +49,7 @@ namespace SampleGame.Domain.ModelViewer {
                 return;
             }
             
-            _environmentSceneRepository.UnloadFieldScene(model.Master.AssetKey);
+            _environmentSceneRepository.UnloadFieldScene(model.ActorMaster.AssetKey);
             _actorEntityManager.DestroyEntity(model.Id);
         }
     }

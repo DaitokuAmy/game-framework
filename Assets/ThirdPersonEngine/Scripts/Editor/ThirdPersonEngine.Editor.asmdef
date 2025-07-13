@@ -2,13 +2,13 @@
     "name": "ThirdPersonEngine.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:f06555f75b070af458a003d92f9efb00",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
         "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
-        "GUID:4307f53044263cf4b835bd812fc161a4",
+        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
         "GUID:c559af249685bb9448b0b570bd7c6940",
-        "GUID:44e494fa473b758449a167c0d02e277e"
+        "GUID:44e494fa473b758449a167c0d02e277e",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:f06555f75b070af458a003d92f9efb00",
+        "GUID:4307f53044263cf4b835bd812fc161a4"
     ],
     "includePlatforms": [
         "Editor"

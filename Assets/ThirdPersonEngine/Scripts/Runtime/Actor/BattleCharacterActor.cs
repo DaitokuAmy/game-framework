@@ -10,10 +10,11 @@ namespace ThirdPersonEngine {
     public class BattleCharacterActor : CharacterActor {
         private BattleCharacterActorData _data;
         private Rigidbody _rigidbody;
-        private ActorVelocityController _velocityController;
         private bool _isGrounded;
         private bool _isAir;
         private float _groundHeight;
+
+        private VelocityActorComponent _velocityComponent;
 
         /// <summary>地上にいるか</summary>
         public override bool IsGrounded => _isGrounded;
@@ -27,16 +28,9 @@ namespace ThirdPersonEngine {
             : base(body, data) {
             _data = data;
             _rigidbody = body.GetComponent<Rigidbody>();
-            _velocityController = new ActorVelocityController(this, _data.moveActionInfo);
             _rigidbody.useGravity = false;
-        }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        protected override void DisposeInternal() {
-            _velocityController.Dispose();
-            base.DisposeInternal();
+            _velocityComponent = AddComponent(new VelocityActorComponent(this, _data.moveActionInfo));
         }
 
         /// <summary>
@@ -46,9 +40,6 @@ namespace ThirdPersonEngine {
             base.UpdateInternal();
 
             var deltaTime = Body.DeltaTime;
-            
-            // 各種コントローラーの更新
-            _velocityController.Update(deltaTime);
 
             // 地上状態の更新
             UpdateGroundStatus();
@@ -57,9 +48,9 @@ namespace ThirdPersonEngine {
             UpdateAnimationProperties();
             
             // 移動の停止
-            _velocityController.IsActive = CanMove();
-            if (!_velocityController.IsActive && MoveController.IsMoving) {
-                MoveController.Cancel();
+            _velocityComponent.IsActive = CanMove();
+            if (!_velocityComponent.IsActive && Component.IsMoving) {
+                Component.Cancel();
             }
         }
 
@@ -104,7 +95,7 @@ namespace ThirdPersonEngine {
         /// </summary>
         public async UniTask JumpAsync(CancellationToken ct) {            
             if (IsGrounded) { 
-                _velocityController.AddVelocity(Vector3.up * _data.jumpAction.initVelocity);
+                _velocityComponent.AddVelocity(Vector3.up * _data.jumpAction.initVelocity);
                 await PlayActionAsync(_data.jumpAction.action, null, ct);
             }
         }
@@ -145,8 +136,8 @@ namespace ThirdPersonEngine {
                 BasePlayableComponent.Playable.SetFloat($"{prefix}Z", target.z);
             }
 
-            if (MoveController.IsMoving) {
-                var moveDirection = MoveController.Velocity.normalized;
+            if (Component.IsMoving) {
+                var moveDirection = Component.Velocity.normalized;
                 moveDirection = Body.Transform.InverseTransformDirection(moveDirection);
 
                 UpdateDirection("MoveDir", moveDirection);

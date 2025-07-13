@@ -15,7 +15,8 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BodyPrefabRepository(AssetManager assetManager) {
+        public BodyPrefabRepository() {
+            var assetManager = Services.Resolve<AssetManager>();
             _bodyPrefabAssetStorage = new SimpleAssetStorage<GameObject>(assetManager);
         }
 

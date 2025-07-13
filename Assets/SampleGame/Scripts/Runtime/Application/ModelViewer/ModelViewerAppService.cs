@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using SampleGame.Domain.ModelViewer;
+using ThirdPersonEngine;
 
 namespace SampleGame.Application.ModelViewer {
     /// <summary>
@@ -145,13 +146,6 @@ namespace SampleGame.Application.ModelViewer {
         }
 
         /// <summary>
-        /// ディレクショナルライトのY角度の設定
-        /// </summary>
-        public void SetDirectionalLightAngleY(float angleY) {
-            _domainService.SetDirectionalLightAngleY(angleY);
-        }
-
-        /// <summary>
         /// カメラ制御タイプの変更
         /// </summary>
         public void ChangeCameraControlType(CameraControlType type) {
@@ -175,7 +169,7 @@ namespace SampleGame.Application.ModelViewer {
         /// <summary>
         /// 録画オプションの変更
         /// </summary>
-        public void SetRecordingOptions(RecordingOptions recordingOptions) {
+        public void SetRecordingOptions(ModelRecorder.Options recordingOptions) {
             _domainService.SetRecordingOptions(recordingOptions);
         }
 

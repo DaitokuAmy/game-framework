@@ -2,15 +2,16 @@
     "name": "SampleGame.Editor",
     "rootNamespace": "",
     "references": [
+        "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
+        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
+        "GUID:c559af249685bb9448b0b570bd7c6940",
+        "GUID:44e494fa473b758449a167c0d02e277e",
         "GUID:8cc0f66793fe74e45ab79b7c2c56077c",
         "GUID:85b654615a3197642a8aa060f9a9b403",
         "GUID:abc30cb273e0c8e4794b88bf5e5fa977",
         "GUID:544d700c9f540184cb010c53c11a2bfc",
-        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
-        "GUID:c559af249685bb9448b0b570bd7c6940",
-        "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:44e494fa473b758449a167c0d02e277e"
+        "GUID:4307f53044263cf4b835bd812fc161a4"
     ],
     "includePlatforms": [
         "Editor"

@@ -36,7 +36,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// アクターの生成
         /// </summary>
-        async UniTask<IActorPort> IPreviewActorFactory.CreateAsync(IReadOnlyPreviewActorModel model, LayeredTime layeredTime, CancellationToken ct) {
+        async UniTask<IPreviewActorPort> IPreviewActorFactory.CreateAsync(IReadOnlyPreviewActorModel model, LayeredTime layeredTime, CancellationToken ct) {
             if (model == null) {
                 return null;
             }
@@ -44,6 +44,7 @@ namespace SampleGame.Domain.ModelViewer {
             // body生成
             var prefab = model.Master.Prefab;
             var body = new Body(Object.Instantiate(prefab, _actorEntityManager.RootTransform), new BodyBuilder());
+            body.LayeredTime.SetParent(layeredTime);
             body.RegisterTask(TaskOrder.Body);
             
             // actor生成
@@ -51,7 +52,7 @@ namespace SampleGame.Domain.ModelViewer {
             actor.RegisterTask(TaskOrder.Actor);
             
             // adapter生成
-            var adapter = new ActorAdapter(model, actor);
+            var adapter = new PreviewActorAdapter(model, actor);
             adapter.RegisterTask(TaskOrder.Logic);
 
             // entity構築

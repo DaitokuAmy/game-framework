@@ -1,4 +1,5 @@
 using GameFramework.Core;
+using UnityEngine;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -7,11 +8,10 @@ namespace SampleGame.Domain.ModelViewer {
     public interface IReadOnlyEnvironmentModel {
         /// <summary>識別子</summary>
         int Id { get; }
-        
         /// <summary>マスター</summary>
-        IEnvironmentMaster Master { get; }
-        /// <summary>ディレクショナルライトのY角度</summary>
-        float DirectionalLightAngleY { get; }
+        IEnvironmentActorMaster ActorMaster { get; }
+        /// <summary>ライトTransform</summary>
+        Transform LightSlot { get; }
     }
 
     /// <summary>
@@ -20,20 +20,20 @@ namespace SampleGame.Domain.ModelViewer {
     public class EnvironmentActorModel : AutoIdModel<EnvironmentActorModel>, IReadOnlyEnvironmentModel {
         private IEnvironmentActorPort _environmentActorPort;
 
-        /// <summary>有効か</summary>
-        public bool IsActive => _environmentActorPort != null;
-
         /// <summary>マスター</summary>
-        public IEnvironmentMaster Master { get; private set; }
-        /// <summary>ディレクショナルライトのY角度</summary>
-        public float DirectionalLightAngleY => _environmentActorPort?.LightAngleY ?? 0.0f;
+        public IEnvironmentActorMaster ActorMaster { get; private set; }
+        /// <inheritdoc/>
+        public Transform LightSlot => _environmentActorPort?.LightSlot;
+
+        /// <summary>有効か</summary>
+        private bool IsActive => _environmentActorPort != null;
 
         /// <summary>
         /// データの設定
         /// </summary>
-        public void Setup(IEnvironmentMaster master) {
+        public void Setup(IEnvironmentActorMaster actorMaster) {
             // マスター設定
-            Master = master;
+            ActorMaster = actorMaster;
         }
 
         /// <summary>
@@ -41,17 +41,6 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         public void SetPort(IEnvironmentActorPort actorPort) {
             _environmentActorPort = actorPort;
-        }
-
-        /// <summary>
-        /// ディレクショナルライトのY角度を設定
-        /// </summary>
-        public void SetLightAngleY(float angleY) {
-            if (!IsActive) {
-                return;
-            }
-            
-            _environmentActorPort.SetLightAngleY(angleY);
         }
     }
 }

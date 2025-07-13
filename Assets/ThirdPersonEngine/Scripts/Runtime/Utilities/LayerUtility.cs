@@ -9,14 +9,11 @@ namespace ThirdPersonEngine {
     public enum LayerType {
         Default,
         Environment,
-        DestructionObject,
         Team0,
         Team1,
         Team2,
-        SubCameraTarget,
         Push,
         RaycastTarget,
-        OverrideTransparent,
         Vfx0,
         Vfx1,
     }

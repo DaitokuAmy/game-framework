@@ -16,7 +16,8 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public EnvironmentSceneRepository(AssetManager assetManager) {
+        public EnvironmentSceneRepository() {
+            var assetManager = Services.Resolve<AssetManager>();
             _environmentSceneAssetStorage = new SimpleSceneAssetStorage(assetManager);
         }
 

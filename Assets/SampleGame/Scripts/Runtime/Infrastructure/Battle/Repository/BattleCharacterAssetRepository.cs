@@ -15,7 +15,8 @@ namespace SampleGame.Infrastructure.Battle {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public BattleCharacterAssetRepository(AssetManager assetManager) {
+        public BattleCharacterAssetRepository() {
+            var assetManager = Services.Resolve<AssetManager>();
             _battleCharacterActorDataStorage = new SimpleAssetStorage<BattleCharacterActorData>(assetManager);
         }
 

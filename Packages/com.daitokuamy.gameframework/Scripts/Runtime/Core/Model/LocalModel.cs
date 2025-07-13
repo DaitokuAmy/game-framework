@@ -3,7 +3,7 @@ namespace GameFramework.Core {
     /// ストレージ管理されないローカル用モデル
     /// </summary>
     public abstract class LocalModel<TModel> : IModel
-        where TModel : LocalModel<TModel>, new() {
+        where TModel : LocalModel<TModel> {
         private DisposableScope _createScope;
         private bool _created;
         private bool _deleted;

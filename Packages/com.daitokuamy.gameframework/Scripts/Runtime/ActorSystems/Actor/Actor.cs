@@ -17,7 +17,7 @@ namespace GameFramework.ActorSystems {
 
         /// <summary>Taskが有効状態か</summary>
         bool ITask.IsActive => IsActive;
-        
+
         /// <summary>アクティブ状態</summary>
         public virtual bool IsActive => _activeScope != null;
 
@@ -55,6 +55,7 @@ namespace GameFramework.ActorSystems {
 
             Deactivate();
             DisposeInternal();
+            DisposeComponents();
 
             if (_taskRunner != null) {
                 _taskRunner.Unregister(this);
@@ -184,8 +185,20 @@ namespace GameFramework.ActorSystems {
                 throw new InvalidOperationException($"Actor component {type} has already been added.");
             }
 
+            component.Initialize();
             _actorComponents.Add(component.ExecutionOrder, component);
             return component;
+        }
+
+        /// <summary>
+        /// Componentの廃棄
+        /// </summary>
+        private void DisposeComponents() {
+            foreach (var pair in _actorComponents) {
+                pair.Value.Dispose();
+            }
+
+            _actorComponents.Clear();
         }
     }
 }

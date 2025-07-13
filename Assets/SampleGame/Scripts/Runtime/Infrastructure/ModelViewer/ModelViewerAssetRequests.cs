@@ -13,7 +13,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewer用のActorSetupData読み込みリクエスト
     /// </summary>
-    public class ModelViewerActorMasterDataRequest : SystemAssetRequest<ModelViewerActorMasterData> {
+    public class ModelViewerActorMasterDataRequest : SystemAssetRequest<ModelViewerPreviewActorMasterData> {
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -24,7 +24,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewer用のEnvironmentSetupData読み込みリクエスト
     /// </summary>
-    public class ModelViewerEnvironmentMasterDataRequest : SystemAssetRequest<ModelViewerEnvironmentMasterData> {
+    public class ModelViewerEnvironmentMasterDataRequest : SystemAssetRequest<ModelViewerEnvironmentActorMasterData> {
         /// <summary>
         /// コンストラクタ
         /// </summary>

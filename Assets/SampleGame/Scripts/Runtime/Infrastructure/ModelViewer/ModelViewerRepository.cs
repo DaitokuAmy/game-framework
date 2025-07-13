@@ -10,34 +10,33 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// モデルビューア用のリポジトリ
     /// </summary>
     public class ModelViewerRepository : IDisposable, IModelViewerRepository {
-        private readonly AssetManager _assetManager;
         private readonly DisposableScope _unloadScope;
-        private readonly PoolAssetStorage<ModelViewerActorMasterData> _actorSetupDataStorage;
-        private readonly SimpleAssetStorage<ModelViewerEnvironmentMasterData> _environmentSetupDataStorage;
+        private readonly PoolAssetStorage<ModelViewerPreviewActorMasterData> _previewActorMasterDataStorage;
+        private readonly SimpleAssetStorage<ModelViewerEnvironmentActorMasterData> _environmentActorMasterDataStorage;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ModelViewerRepository(AssetManager assetManager) {
-            _assetManager = assetManager;
+        public ModelViewerRepository() {
             _unloadScope = new DisposableScope();
-            _actorSetupDataStorage = new PoolAssetStorage<ModelViewerActorMasterData>(_assetManager, 2);
-            _environmentSetupDataStorage = new SimpleAssetStorage<ModelViewerEnvironmentMasterData>(_assetManager);
+            var assetManager = Services.Resolve<AssetManager>();
+            _previewActorMasterDataStorage = new PoolAssetStorage<ModelViewerPreviewActorMasterData>(assetManager, 2);
+            _environmentActorMasterDataStorage = new SimpleAssetStorage<ModelViewerEnvironmentActorMasterData>(assetManager);
         }
 
         /// <summary>
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
-            _actorSetupDataStorage.Dispose();
+            _previewActorMasterDataStorage.Dispose();
             _unloadScope.Dispose();
         }
 
         /// <summary>
         /// ActorMasterの読み込み
         /// </summary>
-        public async UniTask<IActorMaster> LoadActorMasterAsync(string assetKey, CancellationToken ct) {
-            var setupData = await _actorSetupDataStorage
+        public async UniTask<IPreviewActorMaster> LoadActorMasterAsync(string assetKey, CancellationToken ct) {
+            var setupData = await _previewActorMasterDataStorage
                 .LoadAssetAsync(new ModelViewerActorMasterDataRequest(assetKey))
                 .ToUniTask(cancellationToken:ct);
 
@@ -47,8 +46,8 @@ namespace SampleGame.Infrastructure.ModelViewer {
         /// <summary>
         /// EnvironmentMasterの読み込み
         /// </summary>
-        public async UniTask<IEnvironmentMaster> LoadEnvironmentMasterAsync(string assetKey, CancellationToken ct) {
-            var setupData = await _environmentSetupDataStorage
+        public async UniTask<IEnvironmentActorMaster> LoadEnvironmentMasterAsync(string assetKey, CancellationToken ct) {
+            var setupData = await _environmentActorMasterDataStorage
                 .LoadAssetAsync(new ModelViewerEnvironmentMasterDataRequest(assetKey))
                 .ToUniTask(cancellationToken:ct);
 

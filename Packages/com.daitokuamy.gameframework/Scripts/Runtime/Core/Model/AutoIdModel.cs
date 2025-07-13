@@ -65,7 +65,7 @@ namespace GameFramework.Core {
 
             _deleted = true;
             _created = false;
-            
+
             _createScope.Dispose();
             _createScope = null;
 

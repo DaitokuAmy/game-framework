@@ -51,17 +51,24 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 更新処理
         /// </summary>
-        void IBodyComponent.Update(float deltaTime) {
-            _updateSampler.Begin();
-            UpdateInternal(deltaTime);
-            _updateSampler.End();
+        /// <param name="deltaTime">変位時間</param>
+        protected virtual void UpdateInternal(float deltaTime) {
+        }
+
+        /// <summary>
+        /// 後更新処理
+        /// </summary>
+        /// <param name="deltaTime">変位時間</param>
+        protected virtual void LateUpdateInternal(float deltaTime) {
         }
 
         /// <summary>
         /// 更新処理
         /// </summary>
-        /// <param name="deltaTime">変位時間</param>
-        protected virtual void UpdateInternal(float deltaTime) {
+        void IBodyComponent.Update(float deltaTime) {
+            _updateSampler.Begin();
+            UpdateInternal(deltaTime);
+            _updateSampler.End();
         }
 
         /// <summary>
@@ -72,13 +79,6 @@ namespace GameFramework.ActorSystems {
             _lateUpdateSampler.Begin();
             LateUpdateInternal(deltaTime);
             _lateUpdateSampler.End();
-        }
-
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
-        protected virtual void LateUpdateInternal(float deltaTime) {
         }
     }
 }

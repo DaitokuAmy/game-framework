@@ -10,7 +10,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// アクターの生成
         /// </summary>
-        UniTask<IActorPort> CreateAsync(IReadOnlyPreviewActorModel model, LayeredTime layeredTime, CancellationToken ct);
+        UniTask<IPreviewActorPort> CreateAsync(IReadOnlyPreviewActorModel model, LayeredTime layeredTime, CancellationToken ct);
         
         /// <summary>
         /// アクターの削除

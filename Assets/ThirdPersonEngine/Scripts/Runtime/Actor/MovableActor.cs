@@ -12,13 +12,13 @@ namespace ThirdPersonEngine {
         public virtual float GroundHeight => 0.0f;
         
         /// <summary>移動制御用クラス</summary>
-        protected ActorMoveController MoveController { get; private set; }
+        protected MoveActorComponent Component { get; private set; }
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
         protected MovableActor(Body body) : base(body) {
-            MoveController = new ActorMoveController(this);
+            Component = new MoveActorComponent(this);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace ThirdPersonEngine {
         /// 廃棄時処理
         /// </summary>
         protected override void DisposeInternal() {
-            MoveController.Dispose();
+            Component.Dispose();
             
             base.DisposeInternal();
         }
@@ -62,18 +62,9 @@ namespace ThirdPersonEngine {
         /// 非アクティブ時処理
         /// </summary>
         protected override void DeactivateInternal() {
-            MoveController.Cancel();
+            Component.Cancel();
             
             base.DeactivateInternal();
-        }
-
-        /// <summary>
-        /// アクションの更新タイミング
-        /// </summary>
-        protected override void UpdateActionInternal(float deltaTime) {
-            base.UpdateActionInternal(deltaTime);
-            // 移動の更新
-            MoveController.Update(deltaTime);
         }
 
         /// <summary>

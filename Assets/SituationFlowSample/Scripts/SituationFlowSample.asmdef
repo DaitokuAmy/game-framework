@@ -2,10 +2,10 @@
     "name": "SituationFlowSample",
     "rootNamespace": "",
     "references": [
+        "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
+        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
         "GUID:b7ce230c26f0a4c31a26e8847a04cc87",
         "GUID:77221876cc6b8244180b96e320b1bcd4",
-        "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
-        "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
         "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],
     "includePlatforms": [],

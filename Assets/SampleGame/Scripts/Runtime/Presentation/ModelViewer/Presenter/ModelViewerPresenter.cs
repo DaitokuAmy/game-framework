@@ -5,6 +5,7 @@ using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using R3;
+using ThirdPersonEngine;
 using UnityEngine.InputSystem;
 
 namespace SampleGame.Presentation.ModelViewer {
@@ -42,13 +43,17 @@ namespace SampleGame.Presentation.ModelViewer {
                 .TakeUntil(scope)
                 .Subscribe(dto => {
                     // モデルビューアのSlot位置を変更
-                    actorEntityManager.RootTransform.position = dto.Model.Master.RootPosition;
-                    actorEntityManager.RootTransform.eulerAngles = dto.Model.Master.RootAngles;
+                    actorEntityManager.RootTransform.position = dto.Model.ActorMaster.RootPosition;
+                    actorEntityManager.RootTransform.eulerAngles = dto.Model.ActorMaster.RootAngles;
                     
                     // AngleRootを変更
                     var angleRoot = cameraManager.GetTargetPoint("AngleRoot");
-                    angleRoot.position = dto.Model.Master.RootPosition;
-                    angleRoot.eulerAngles = dto.Model.Master.RootAngles;
+                    angleRoot.position = dto.Model.ActorMaster.RootPosition;
+                    angleRoot.eulerAngles = dto.Model.ActorMaster.RootAngles;
+                    
+                    // Recorderの同期
+                    var recorder = Services.Resolve<ModelRecorder>();
+                    recorder.LightSlot = dto.Model.LightSlot;
                 });
 
             // カメラの切り替え
