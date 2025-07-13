@@ -1,11 +1,9 @@
-using GameFramework.CoroutineSystems;
 using UnityEngine;
 using System;
 using System.Collections;
 using System.Linq;
 using System.Threading;
 using GameFramework.Core;
-using Coroutine = GameFramework.CoroutineSystems.Coroutine;
 
 namespace GameFramework.UISystems {
     /// <summary>

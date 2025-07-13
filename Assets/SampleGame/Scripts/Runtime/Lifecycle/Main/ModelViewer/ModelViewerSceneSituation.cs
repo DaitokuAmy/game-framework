@@ -3,7 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.AssetSystems;
-using GameFramework.BodySystems;
+using GameFramework.ActorSystems;
 using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
@@ -14,6 +14,7 @@ using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
 using SampleGame.Presentation;
 using SampleGame.Presentation.ModelViewer;
+using ThirdPersonEngine;
 using UnityDebugSheet.Runtime.Core.Scripts;
 using UnityEngine;
 
@@ -22,21 +23,9 @@ namespace SampleGame.Lifecycle {
     /// モデルビューアシーン
     /// </summary>
     public class ModelViewerSceneSituation : SceneSituation {
-        /// <summary>
-        /// Body生成用のBuilder
-        /// </summary>
-        private class BodyBuilder : IBodyBuilder {
-            public void Build(IBody body, GameObject gameObject) {
-                if (gameObject.GetComponent<AvatarController>() == null) {
-                    body.AddController(gameObject.AddComponent<AvatarController>());
-                }
-            }
-        }
-
         private int _debugPageId;
         private ModelViewerConfigData _configData;
         private ModelViewerAppService _appService;
-        private IModelRepository _modelRepository;
         private ModelViewerDomainService _domainService;
 
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/Develop/model_viewer.unity";
@@ -81,6 +70,10 @@ namespace SampleGame.Lifecycle {
             // カメラ操作用Controllerの設定
             var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.SetCameraController("Default", new PreviewCameraController(_configData.camera));
+            
+            // Recorderのセットアップ
+            var recorder = Services.Resolve<ModelRecorder>();
+            recorder.ActorSlot = Services.Resolve<ActorEntityManager>().RootTransform;
 
             // 初期値反映
             _appService.ChangePreviewActor(_domainService.ModelViewerModel.Master.DefaultActorAssetKeyIndex);
@@ -102,7 +95,7 @@ namespace SampleGame.Lifecycle {
             var motionsPageId = -1;
             _debugPageId = rootPage.AddPageLinkButton("Model Viewer", onLoad: pageTuple => {
                 // モーションページの初期化
-                void SetupMotionPage(IActorMaster setupData) {
+                void SetupMotionPage(IPreviewActorMaster setupData) {
                     if (motionsPageId >= 0) {
                         pageTuple.page.RemoveItem(motionsPageId);
                         motionsPageId = -1;
@@ -142,19 +135,19 @@ namespace SampleGame.Lifecycle {
                 });
 
                 // Actor生成監視
-                viewerModel.ChangedActorSubject
+                viewerModel.ChangedPreviewActorSubject
                     .TakeUntil(scope)
-                    .Prepend(() => new ChangedActorDto {
-                        ActorModel = viewerModel.ActorModel
+                    .Prepend(() => new ChangedPreviewActorDto {
+                        Model = viewerModel.PreviewActorModel
                     })
                     .Subscribe(dto => {
-                        if (dto.ActorModel != null) {
-                            SetupMotionPage(dto.ActorModel.Master);
+                        if (dto.Model != null) {
+                            SetupMotionPage(dto.Model.Master);
                         }
                     });
 
                 // 初期状態反映
-                SetupMotionPage(_domainService.ActorModel.Master);
+                SetupMotionPage(_domainService.PreviewActorModel.Master);
             });
         }
 
@@ -176,29 +169,16 @@ namespace SampleGame.Lifecycle {
         /// Infrastructure層の初期化
         /// </summary>
         private void SetupInfrastructures(IScope scope) {
-            var assetManager = Services.Resolve<AssetManager>();
-            var modelRepository = new ModelRepository();
-            ServiceContainer.RegisterInstance<IModelRepository>(modelRepository).RegisterTo(scope);
-            _modelRepository = modelRepository;
-            var repository = new ModelViewerRepository(assetManager);
-            ServiceContainer.RegisterInstance<IModelViewerRepository>(repository).RegisterTo(scope);
-            var environmentSceneRepository = new EnvironmentSceneRepository(assetManager);
-            ServiceContainer.RegisterInstance(environmentSceneRepository).RegisterTo(scope);
+            ServiceContainer.Register<IModelRepository, ModelRepository>().RegisterTo(scope);
+            ServiceContainer.Register<IModelViewerRepository, ModelViewerRepository>().RegisterTo(scope);
+            ServiceContainer.Register<EnvironmentSceneRepository>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Managerの初期化
         /// </summary>
         private void SetupManagers(IScope scope) {
-            var bodyBuilder = new BodyBuilder();
-            var bodyManager = new BodyManager(bodyBuilder);
-            bodyManager.RegisterTask(TaskOrder.Body);
-            ServiceContainer.RegisterInstance(bodyManager).RegisterTo(scope);
-
-            var environmentManager = new EnvironmentManager();
-            ServiceContainer.RegisterInstance(environmentManager).RegisterTo(scope);
-
-            var actorManager = new ActorEntityManager(bodyManager);
+            var actorManager = new ActorEntityManager();
             ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
 
             var cameraManager = Services.Resolve<CameraManager>();
@@ -210,9 +190,10 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void SetupDomains(IScope scope) {
             // モデルの生成
-            _modelRepository.CreateSingleModel<ModelViewerModel>().RegisterTo(scope);
-            _modelRepository.CreateSingleModel<RecordingModel>().RegisterTo(scope);
-            _modelRepository.CreateSingleModel<SettingsModel>().RegisterTo(scope);
+            var modelRepository = Services.Resolve<IModelRepository>();
+            modelRepository.CreateSingleModel<ModelViewerModel>().RegisterTo(scope);
+            modelRepository.CreateSingleModel<RecordingModel>().RegisterTo(scope);
+            modelRepository.CreateSingleModel<SettingsModel>().RegisterTo(scope);
             
             _domainService = new ModelViewerDomainService();
             ServiceContainer.RegisterInstance(_domainService).RegisterTo(scope);
@@ -230,8 +211,8 @@ namespace SampleGame.Lifecycle {
         /// Factoryの初期化
         /// </summary>
         private void SetupFactories(IScope scope) {
-            ServiceContainer.Register<IActorFactory, ActorFactory>().RegisterTo(scope);
-            ServiceContainer.Register<IEnvironmentFactory, EnvironmentFactory>().RegisterTo(scope);
+            ServiceContainer.Register<IPreviewActorFactory, PreviewActorFactory>().RegisterTo(scope);
+            ServiceContainer.Register<IEnvironmentActorFactory, EnvironmentActorFactory>().RegisterTo(scope);
         }
 
         /// <summary>

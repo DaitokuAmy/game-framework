@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using SampleGame.Domain.ModelViewer;
+using ThirdPersonEngine;
 
 namespace SampleGame.Application.ModelViewer {
     /// <summary>
@@ -56,7 +57,7 @@ namespace SampleGame.Application.ModelViewer {
 
             // 設定ファイルを読み込み
             _repository.LoadActorMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => { _domainService.ChangeActorAsync(result, _scope.Token).Forget(); })
+                .ContinueWith(result => { _domainService.ChangePreviewActorAsync(result, _scope.Token).Forget(); })
                 .Forget();
         }
 
@@ -78,7 +79,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップのリプレイ
         /// </summary>
         public void ReplayAnimationClip() {
-            var model = _domainService.ActorModel;
+            var model = _domainService.PreviewActorModel;
             if (model == null) {
                 return;
             }
@@ -90,7 +91,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップを先に進める
         /// </summary>
         public void NextAnimationClip() {
-            var model = _domainService.ActorModel;
+            var model = _domainService.PreviewActorModel;
             if (model == null) {
                 return;
             }
@@ -104,7 +105,7 @@ namespace SampleGame.Application.ModelViewer {
         /// アニメーションクリップを前に戻す
         /// </summary>
         public void PreviousAnimationClip() {
-            var model = _domainService.ActorModel;
+            var model = _domainService.PreviewActorModel;
             if (model == null) {
                 return;
             }
@@ -145,13 +146,6 @@ namespace SampleGame.Application.ModelViewer {
         }
 
         /// <summary>
-        /// ディレクショナルライトのY角度の設定
-        /// </summary>
-        public void SetDirectionalLightAngleY(float angleY) {
-            _domainService.SetDirectionalLightAngleY(angleY);
-        }
-
-        /// <summary>
         /// カメラ制御タイプの変更
         /// </summary>
         public void ChangeCameraControlType(CameraControlType type) {
@@ -175,7 +169,7 @@ namespace SampleGame.Application.ModelViewer {
         /// <summary>
         /// 録画オプションの変更
         /// </summary>
-        public void SetRecordingOptions(RecordingOptions recordingOptions) {
+        public void SetRecordingOptions(ModelRecorder.Options recordingOptions) {
             _domainService.SetRecordingOptions(recordingOptions);
         }
 

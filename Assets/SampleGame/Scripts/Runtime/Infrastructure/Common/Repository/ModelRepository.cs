@@ -41,90 +41,130 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// SingleModelの生成
         /// </summary>
-        public T CreateSingleModel<T>()
-            where T : SingleModel<T>, new() {
-            var type = typeof(T);
+        public TModel CreateSingleModel<TModel>()
+            where TModel : SingleModel<TModel>, new() {
+            var type = typeof(TModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
-                storage = new SingleModelStorage<T>();
+                storage = new SingleModelStorage<TModel>();
                 _singleModelStorages[type] = storage;
             }
 
-            return (T)storage.Create();
+            return (TModel)storage.Create();
         }
 
         /// <summary>
         /// AutoIdModelの生成
         /// </summary>
-        public T CreateAutoIdModel<T>()
-            where T : AutoIdModel<T>, new() {
-            var type = typeof(T);
+        public TModel CreateAutoIdModel<TBaseModel, TModel>(int startId = 1)
+            where TBaseModel : AutoIdModel<TBaseModel>
+            where TModel : TBaseModel, new() {
+            var type = typeof(TBaseModel);
             if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
-                storage = new AutoIdModelStorage<T>();
+                storage = new AutoIdModelStorage<TBaseModel>(startId);
                 _autoIdModelStorages[type] = storage;
             }
 
-            return (T)storage.Create();
+            var model = new TModel();
+            storage.Add(model);
+            return model;
+        }
+
+        /// <summary>
+        /// AutoIdModelの生成
+        /// </summary>
+        public TModel CreateAutoIdModel<TModel>(int startId = 1)
+            where TModel : AutoIdModel<TModel>, new() {
+            return CreateAutoIdModel<TModel, TModel>(startId);
         }
 
         /// <summary>
         /// IdModelの生成
         /// </summary>
-        public T CreateIdModel<T>(int id)
-            where T : IdModel<int, T>, new() {
-            var type = typeof(T);
+        public TModel CreateIdModel<TBaseModel, TModel>(int id)
+            where TBaseModel : IdModel<int, TBaseModel>
+            where TModel : TBaseModel, new() {
+            var type = typeof(TBaseModel);
             if (!_idModelStorages.TryGetValue(type, out var storage)) {
-                storage = new IdModelStorage<int, T>();
+                storage = new IdModelStorage<int, TBaseModel>();
                 _idModelStorages[type] = storage;
             }
 
-            return (T)storage.Create(id);
+            var model = new TModel();
+            storage.Add(id, model);
+            return model;
+        }
+
+        /// <summary>
+        /// IdModelの生成
+        /// </summary>
+        public TModel CreateIdModel<TModel>(int id)
+            where TModel : IdModel<int, TModel>, new() {
+            return CreateIdModel<TModel, TModel>(id);
         }
 
         /// <summary>
         /// SingleModelの取得
         /// </summary>
-        public T GetSingleModel<T>()
-            where T : SingleModel<T>, new() {
-            var type = typeof(T);
+        public TModel GetSingleModel<TModel>()
+            where TModel : SingleModel<TModel>, new() {
+            var type = typeof(TModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
                 return null;
             }
 
-            return (T)storage.Get();
+            return (TModel)storage.Get();
         }
 
         /// <summary>
         /// AutoIdModelの取得
         /// </summary>
-        public T GetAutoIdModel<T>(int id)
-            where T : AutoIdModel<T>, new() {
-            var type = typeof(T);
+        public TModel GetAutoIdModel<TBaseModel, TModel>(int id)
+            where TBaseModel : AutoIdModel<TBaseModel>
+            where TModel : TBaseModel, new() {
+            var type = typeof(TBaseModel);
             if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
                 return null;
             }
 
-            return (T)storage.Get(id);
+            return storage.Get(id) as TModel;
+        }
+
+        /// <summary>
+        /// AutoIdModelの取得
+        /// </summary>
+        public TModel GetAutoIdModel<TModel>(int id)
+            where TModel : AutoIdModel<TModel>, new() {
+            return GetAutoIdModel<TModel, TModel>(id);
         }
 
         /// <summary>
         /// IdModelの取得
         /// </summary>
-        public T GetIdModel<T>(int id)
-            where T : IdModel<int, T>, new() {
-            var type = typeof(T);
+        public TModel GetIdModel<TBaseModel, TModel>(int id)
+            where TBaseModel : IdModel<int, TBaseModel>
+            where TModel : TBaseModel, new() {
+            var type = typeof(TBaseModel);
             if (!_idModelStorages.TryGetValue(type, out var storage)) {
                 return null;
             }
 
-            return (T)storage.Get(id);
+            return storage.Get(id) as TModel;
+        }
+
+        /// <summary>
+        /// IdModelの取得
+        /// </summary>
+        public TModel GetIdModel<TModel>(int id)
+            where TModel : IdModel<int, TModel>, new() {
+            return GetIdModel<TModel, TModel>(id);
         }
 
         /// <summary>
         /// SingleModelの削除
         /// </summary>
-        public void DeleteSingleModel<T>()
-            where T : SingleModel<T>, new() {
-            var type = typeof(T);
+        public void DeleteSingleModel<TModel>()
+            where TModel : SingleModel<TModel>, new() {
+            var type = typeof(TModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
                 return;
             }
@@ -135,9 +175,9 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// AutoIdModelの削除
         /// </summary>
-        public void DeleteAutoIdModel<T>(int id)
-            where T : AutoIdModel<T>, new() {
-            var type = typeof(T);
+        public void DeleteAutoIdModel<TModel>(int id)
+            where TModel : AutoIdModel<TModel> {
+            var type = typeof(TModel);
             if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
                 return;
             }
@@ -148,9 +188,9 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// AutoIdModelの削除
         /// </summary>
-        public void DeleteAutoIdModel<T>(T model)
-            where T : AutoIdModel<T>, new() {
-            var type = typeof(T);
+        public void DeleteAutoIdModel<TModel>(TModel model)
+            where TModel : AutoIdModel<TModel> {
+            var type = typeof(TModel);
             if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
                 return;
             }
@@ -161,9 +201,9 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// IdModelの削除
         /// </summary>
-        public void DeleteIdModel<T>(int id)
-            where T : IdModel<int, T>, new() {
-            var type = typeof(T);
+        public void DeleteIdModel<TModel>(int id)
+            where TModel : IdModel<int, TModel> {
+            var type = typeof(TModel);
             if (!_idModelStorages.TryGetValue(type, out var storage)) {
                 return;
             }
@@ -174,9 +214,9 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// SingleModelの全削除
         /// </summary>
-        public void ClearSingleModels<T>()
-            where T : SingleModel<T>, new() {
-            var type = typeof(T);
+        public void ClearSingleModels<TModel>()
+            where TModel : SingleModel<TModel>, new() {
+            var type = typeof(TModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
                 return;
             }
@@ -187,9 +227,9 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// AutoIdModelの全削除
         /// </summary>
-        public void ClearAutoIdModels<T>()
-            where T : AutoIdModel<T>, new() {
-            var type = typeof(T);
+        public void ClearAutoIdModels<TModel>()
+            where TModel : AutoIdModel<TModel> {
+            var type = typeof(TModel);
             if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
                 return;
             }
@@ -200,9 +240,9 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// IdModelの全削除
         /// </summary>
-        public void ClearIdModels<T>()
-            where T : IdModel<int, T>, new() {
-            var type = typeof(T);
+        public void ClearIdModels<TModel>()
+            where TModel : IdModel<int, TModel> {
+            var type = typeof(TModel);
             if (!_idModelStorages.TryGetValue(type, out var storage)) {
                 return;
             }

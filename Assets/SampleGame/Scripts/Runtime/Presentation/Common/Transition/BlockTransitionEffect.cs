@@ -1,5 +1,6 @@
 using System.Collections;
 using GameFramework.SituationSystems;
+using ThirdPersonEngine;
 
 namespace SampleGame.Presentation {
     /// <summary>

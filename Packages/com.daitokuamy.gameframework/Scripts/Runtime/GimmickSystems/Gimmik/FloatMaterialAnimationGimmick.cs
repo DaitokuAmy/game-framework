@@ -1,4 +1,3 @@
-using GameFramework.RendererSystems;
 using UnityEngine;
 
 namespace GameFramework.GimmickSystems {

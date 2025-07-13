@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d5005e3ee3dd934f852f8d726d16497, type: 3}
+  m_Name: dat_battle_field_table
+  m_EditorClassIdentifier: 
+  elements:
+  - _id: 1
+    _name: "\u30D5\u30A3\u30FC\u30EB\u30C9A"
+    _assetKey: fld001

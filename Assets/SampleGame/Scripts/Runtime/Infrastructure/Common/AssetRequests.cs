@@ -61,7 +61,6 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="path">読み込みパス</param>
         /// <param name="mode">Sceneの読み込みモード</param>
         public SceneAssetRequest(LoadSceneMode mode) {
             _mode = mode;
@@ -105,52 +104,19 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// Projectフォルダ相対パスを絶対パスにする
         /// </summary>
-        protected string GetProjectPath(string relativePath) {
+        protected virtual string GetPath(string relativePath) {
             return $"Assets/SampleGame/{relativePath}";
         }
     }
-
+    
     /// <summary>
-    /// 加算シーン用のAssetRequest基底
+    /// SystemAsset用のRequest基底
     /// </summary>
-    public abstract class AdditiveSceneAssetRequest : SceneAssetRequest {
+    public abstract class SystemAssetRequest<T> : AssetRequest<T> where T : Object {
         public override string Address { get; }
 
-        public AdditiveSceneAssetRequest(string relativePath) : base(LoadSceneMode.Additive) {
-            Address = GetProjectPath($"EnvironmentAssets/{relativePath}");
-        }
-    }
-
-    /// <summary>
-    /// BodyPrefabのAssetRequest基底
-    /// </summary>
-    public abstract class BodyPrefabAssetRequest : AssetRequest<GameObject> {
-        public override string Address { get; }
-
-        public BodyPrefabAssetRequest(string relativePath) {
-            Address = base.GetPath($"BodyAssets/{relativePath}");
-        }
-    }
-
-    /// <summary>
-    /// ActorAssetのAssetRequest基底
-    /// </summary>
-    public abstract class ActorAssetRequest<T> : AssetRequest<T> where T : Object {
-        public override string Address { get; }
-
-        public ActorAssetRequest(string relativePath) {
-            Address = base.GetPath($"ActorAssets/{relativePath}");
-        }
-    }
-
-    /// <summary>
-    /// GameAssets用のRequest基底
-    /// </summary>
-    public abstract class GameAssetRequest<T> : AssetRequest<T> where T : Object {
-        public override string Address { get; }
-
-        public GameAssetRequest(string relativePath) {
-            Address = base.GetPath($"GameAssets/{relativePath}");
+        public SystemAssetRequest(string relativePath) {
+            Address = base.GetPath($"System/{relativePath}");
         }
     }
 
@@ -162,7 +128,7 @@ namespace SampleGame.Infrastructure {
         public override string Address { get; }
 
         protected UIAssetRequest(string relativePath) {
-            Address = base.GetPath($"UIAssets/Dynamic/{relativePath}");
+            Address = base.GetPath($"UI/{relativePath}");
         }
     }
 
@@ -170,15 +136,14 @@ namespace SampleGame.Infrastructure {
     /// UIプレファブ用のAssetRequest
     /// </summary>
     public sealed class UIPrefabAssetRequest : AssetRequest<GameObject> {
-        // 読み込みAddress
         public override string Address { get; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="assetKey">ui_battle</param>
+        /// <param name="assetKey">battle</param>
         public UIPrefabAssetRequest(string assetKey) {
-            Address = GetPath($"UIAssets/Dynamic/Prefabs/prfb_{assetKey}.prefab");
+            Address = GetPath($"UI/Root/pfb_ui_{assetKey}.prefab");
         }
     }
 
@@ -186,59 +151,26 @@ namespace SampleGame.Infrastructure {
     /// UIシーン用のAssetRequest
     /// </summary>
     public sealed class UISceneAssetRequest : SceneAssetRequest {
-        // 読み込みAddress
         public override string Address { get; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="assetKey">ui_battle</param>
+        /// <param name="assetKey">battle</param>
         public UISceneAssetRequest(string assetKey) : base(LoadSceneMode.Additive) {
-            Address = GetProjectPath($"UIAssets/Dynamic/Scenes/{assetKey}.unity");
+            Address = GetPath($"UI/Root/scn_ui_{assetKey}.unity");
         }
     }
 
     /// <summary>
     /// TableData用のAssetRequest
-    /// ※Commonに移動予定
     /// </summary>
-    public class TableDataRequest<T> : GameAssetRequest<T>
+    public class TableDataRequest<T> : SystemAssetRequest<T>
         where T : Object {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public TableDataRequest(string assetKey) : base($"Tables/dat_table_{assetKey}.asset") {
-        }
-    }
-
-    /// <summary>
-    /// キャラプレファブ(ch000_00)用のAssetRequest
-    /// </summary>
-    public class CharacterPrefabAssetRequest : BodyPrefabAssetRequest {
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        /// <param name="assetKey">ch000_00</param>
-        public CharacterPrefabAssetRequest(string assetKey) : base($"Character/{GetBoneId(assetKey)}/prfb_{assetKey}.prefab") {
-        }
-
-        /// <summary>
-        /// 骨IDの取得
-        /// </summary>
-        private static string GetBoneId(string assetKey) {
-            return assetKey.Split("_")[0];
-        }
-    }
-
-    /// <summary>
-    /// フィールドシーン用のAssetRequest
-    /// </summary>
-    public class FieldSceneAssetRequest : AdditiveSceneAssetRequest {
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        /// <param name="assetKey">fld000</param>
-        public FieldSceneAssetRequest(string assetKey) : base($"Field/{assetKey}/{assetKey}.unity") {
+        public TableDataRequest(string assetKey) : base($"Table/dat_{assetKey}_table.asset") {
         }
     }
 }

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.ActorSystems;
-using GameFramework.BodySystems;
 using GameFramework.Core;
 using GameFramework.GimmickSystems;
+using SampleGame.Application.ModelViewer;
 using SampleGame.Presentation.ModelViewer;
 using UnityEditor;
 using UnityEngine;
@@ -55,8 +55,10 @@ namespace SampleGame.ModelViewer.Editor {
             /// GUI描画
             /// </summary>
             protected override void OnGUIInternal() {
+                var appService = Services.Resolve<ModelViewerAppService>();
                 var entityManager = Services.Resolve<ActorEntityManager>();
-                if (!entityManager.Entities.TryGetValue(1, out var entity)) {
+                var actorModel = appService.DomainService.PreviewActorModel;
+                if (!entityManager.Entities.TryGetValue(actorModel.Id, out var entity)) {
                     return;
                 }
 
@@ -66,10 +68,10 @@ namespace SampleGame.ModelViewer.Editor {
                 }
 
                 // Locator
-                var locatorController = body.GetController<LocatorController>();
-                if (locatorController != null) {
-                    _locatorFoldoutList.OnGUI(locatorController.GetKeys(), (key, index) => {
-                        var locator = locatorController[key];
+                var locatorComponent = body.Locators;
+                if (locatorComponent != null) {
+                    _locatorFoldoutList.OnGUI(locatorComponent.GetKeys(), (key, index) => {
+                        var locator = locatorComponent[key];
                         EditorGUILayout.ObjectField(key, locator, typeof(Transform), true);
                         EditorGUI.indentLevel++;
                         EditorGUILayout.LabelField("Position", locator.position.ToString());
@@ -79,10 +81,10 @@ namespace SampleGame.ModelViewer.Editor {
                 }
 
                 // Gimmick
-                var gimmickController = body.GetController<GimmickController>();
-                if (gimmickController != null) {
+                var gimmickComponent = body.GetBodyComponent<GimmickComponent>();
+                if (gimmickComponent != null) {
                     void DrawActivateGimmick(string key) {
-                        var gimmicks = gimmickController.GetActiveGimmicks(key);
+                        var gimmicks = gimmickComponent.GetActiveGimmicks(key);
                         if (gimmicks.Length <= 0) {
                             return;
                         }
@@ -99,7 +101,7 @@ namespace SampleGame.ModelViewer.Editor {
                     }
 
                     void DrawAnimationGimmick(string key) {
-                        var gimmicks = gimmickController.GetAnimationGimmicks(key);
+                        var gimmicks = gimmickComponent.GetAnimationGimmicks(key);
                         if (gimmicks.Length <= 0) {
                             return;
                         }
@@ -126,7 +128,7 @@ namespace SampleGame.ModelViewer.Editor {
                     }
 
                     void DrawInvokeGimmick(string key) {
-                        var gimmicks = gimmickController.GetInvokeGimmicks(key);
+                        var gimmicks = gimmickComponent.GetInvokeGimmicks(key);
                         if (gimmicks.Length <= 0) {
                             return;
                         }
@@ -137,7 +139,7 @@ namespace SampleGame.ModelViewer.Editor {
                     }
 
                     void DrawChangeGimmick<T>(string key) {
-                        var gimmicks = gimmickController.GetChangeGimmicks<T>(key);
+                        var gimmicks = gimmickComponent.GetChangeGimmicks<T>(key);
                         if (gimmicks.Length <= 0) {
                             return;
                         }
@@ -199,7 +201,7 @@ namespace SampleGame.ModelViewer.Editor {
                     }
 
                     void DrawStateGimmick(string key) {
-                        var gimmicks = gimmickController.GetStateGimmicks(key);
+                        var gimmicks = gimmickComponent.GetStateGimmicks(key);
                         if (gimmicks.Length <= 0) {
                             return;
                         }
@@ -214,7 +216,7 @@ namespace SampleGame.ModelViewer.Editor {
                         }
                     }
 
-                    _gimmickFoldoutList.OnGUI(gimmickController.GetKeys(), (key, index) => {
+                    _gimmickFoldoutList.OnGUI(gimmickComponent.GetKeys(), (key, index) => {
                         EditorGUILayout.LabelField(key);
                         EditorGUI.indentLevel++;
                         DrawActivateGimmick(key);
@@ -231,10 +233,10 @@ namespace SampleGame.ModelViewer.Editor {
                 }
 
                 // Material
-                var materialController = body.GetController<MaterialController>();
-                if (materialController != null) {
-                    _materialFoldoutList.OnGUI(materialController.GetKeys(), (key, index) => {
-                        var handle = materialController.GetHandle(key);
+                var materialComponent = body.GetBodyComponent<MaterialComponent>();
+                if (materialComponent != null) {
+                    _materialFoldoutList.OnGUI(materialComponent.GetKeys(), (key, index) => {
+                        var handle = materialComponent.GetHandle(key);
                         EditorGUILayout.LabelField(key);
                         EditorGUI.indentLevel++;
                         var instances = handle.GetMaterialInstances();

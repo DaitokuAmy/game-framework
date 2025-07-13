@@ -5,7 +5,6 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using R3;
 using UnityEngine;
-using UniRx;
 
 namespace SituationFlowSample {
     /// <summary>

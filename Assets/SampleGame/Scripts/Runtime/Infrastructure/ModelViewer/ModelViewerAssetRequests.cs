@@ -2,7 +2,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewerConfigData用のAssetRequest
     /// </summary>
-    public class ModelViewerConfigDataRequest : GameAssetRequest<ModelViewerConfigData> {
+    public class ModelViewerConfigDataRequest : SystemAssetRequest<ModelViewerConfigData> {
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -13,22 +13,22 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewer用のActorSetupData読み込みリクエスト
     /// </summary>
-    public class ModelViewerActorSetupDataRequest : GameAssetRequest<ModelViewerActorSetupData> {
+    public class ModelViewerActorMasterDataRequest : SystemAssetRequest<ModelViewerPreviewActorMasterData> {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ModelViewerActorSetupDataRequest(string assetKey) : base($"ModelViewer/ActorSetup/dat_model_viewer_actor_setup_{assetKey}.asset") {
+        public ModelViewerActorMasterDataRequest(string assetKey) : base($"ModelViewer/Master/dat_model_viewer_actor_master_{assetKey}.asset") {
         }
     }
     
     /// <summary>
     /// ModelViewer用のEnvironmentSetupData読み込みリクエスト
     /// </summary>
-    public class ModelViewerEnvironmentSetupDataRequest : GameAssetRequest<ModelViewerEnvironmentSetupData> {
+    public class ModelViewerEnvironmentMasterDataRequest : SystemAssetRequest<ModelViewerEnvironmentActorMasterData> {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ModelViewerEnvironmentSetupDataRequest(string assetKey) : base($"ModelViewer/EnvironmentSetup/dat_model_viewer_environment_setup_{assetKey}.asset") {
+        public ModelViewerEnvironmentMasterDataRequest(string assetKey) : base($"ModelViewer/Master/dat_model_viewer_environment_master_{assetKey}.asset") {
         }
     }
 }

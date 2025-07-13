@@ -7,7 +7,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// モデルビューア用設定データ
     /// </summary>
-    [CreateAssetMenu(fileName = "dat_model_viewer_config.asset", menuName = "SampleGame/Model Viewer/Config Data")]
+    [CreateAssetMenu(fileName = "dat_model_viewer_config.asset", menuName = "Sample Game/Model Viewer/Config Data")]
     public class ModelViewerConfigData : ScriptableObject {
         /// <summary>
         /// マスター設定

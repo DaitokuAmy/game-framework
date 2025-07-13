@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
 using GameFramework;
 using GameFramework.Core;
 using TMPro;
-using UniRx;
+using R3;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.UI;
@@ -32,9 +31,9 @@ namespace SituationFlowSample {
             set => _titleText.text = value;
         }
         /// <summary>戻る通知</summary>
-        public IObservable<Unit> BackSubject => _backButton.OnClickAsObservable();
+        public Observable<Unit> BackSubject => _backButton.OnClickAsObservable();
         /// <summary>項目選択通知</summary>
-        public IObservable<int> SelectedSubject => _selectedSubject;
+        public Observable<int> SelectedSubject => _selectedSubject;
 
         /// <summary>
         /// 項目の初期化

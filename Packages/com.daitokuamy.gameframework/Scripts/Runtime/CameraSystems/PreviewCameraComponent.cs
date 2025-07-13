@@ -76,19 +76,32 @@ namespace GameFramework.CameraSystems {
         /// カメラ更新処理
         /// </summary>
         protected override void UpdateInternal(float deltaTime) {
-            var trans = VirtualCamera.transform;
-            var lookAt = VirtualCamera.LookAt;
-
             // 相対位置計算
-            var relativePosition = Quaternion.Euler(_angleX, _angleY, 0.0f) * Vector3.back * _distance;
+            var relativePosition = CalcRelativePosition();
 
-            // LookAtを元に位置を計算
-            var basePosition = lookAt != null ? lookAt.position : Vector3.zero;
-            basePosition += Quaternion.Euler(0.0f, _angleY, 0.0f) * _lookAtOffset;
+            // 注視位置計算
+            var lookAtPosition = CalcLookAtPosition();
 
             // 姿勢に反映
-            trans.position = basePosition + relativePosition;
-            trans.LookAt(basePosition);
+            var trans = VirtualCamera.transform;
+            trans.position = lookAtPosition + relativePosition;
+            trans.LookAt(lookAtPosition);
+        }
+
+        /// <summary>
+        /// 注視座標からの相対位置を計算
+        /// </summary>
+        public Vector3 CalcRelativePosition() {
+            return Quaternion.Euler(_angleX, _angleY, 0.0f) * Vector3.back * _distance;
+        }
+
+        /// <summary>
+        /// 注視座標の計算
+        /// </summary>
+        public Vector3 CalcLookAtPosition() {
+            var lookAt = VirtualCamera.LookAt;
+            var basePosition = lookAt != null ? lookAt.position : Vector3.zero;
+            return basePosition + Quaternion.Euler(0.0f, _angleY, 0.0f) * _lookAtOffset;
         }
     }
 }

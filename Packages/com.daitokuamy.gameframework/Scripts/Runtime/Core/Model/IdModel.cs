@@ -3,7 +3,7 @@ namespace GameFramework.Core {
     /// Id管理によるモデル
     /// </summary>
     public abstract class IdModel<TKey, TModel> : IModel
-        where TModel : IdModel<TKey, TModel>, new() {
+        where TModel : IdModel<TKey, TModel> {
         private DisposableScope _createScope;
         private IdModelStorage<TKey, TModel> _storage;
         private bool _created;
