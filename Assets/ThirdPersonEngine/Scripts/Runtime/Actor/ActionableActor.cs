@@ -62,13 +62,12 @@ namespace ThirdPersonEngine {
         /// ActionPlayerHandlerの追加
         /// </summary>
         protected virtual void AddActionPlayerHandlers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
-            var sequenceController = (SequenceController)SequenceController;
-            actionPlayer.SetHandler<AnimationClipActorAction, AnimationClipActorActionHandler>(new AnimationClipActorActionHandler(motionHandle, sequenceController));
-            actionPlayer.SetHandler<ControllerActorAction, ControllerActorActionHandler>(new ControllerActorActionHandler(motionHandle, sequenceController));
-            actionPlayer.SetHandler<TimelineActorAction, TimelineActorActionHandler>(new TimelineActorActionHandler(motionHandle, sequenceController));
-            actionPlayer.SetHandler<SequentialClipActorAction, SequentialClipActorActionHandler>(new SequentialClipActorActionHandler(motionHandle, sequenceController));
-            actionPlayer.SetHandler<ReactionLoopClipActorAction, ReactionLoopClipActorActionHandler>(new ReactionLoopClipActorActionHandler(motionHandle, sequenceController));
-            actionPlayer.SetHandler<TimerActorAction, TimerActorActionHandler>(new TimerActorActionHandler(sequenceController));
+            actionPlayer.SetHandler<AnimationClipActorAction, AnimationClipActorActionHandler>(new AnimationClipActorActionHandler(motionHandle, SequenceControllerInternal));
+            actionPlayer.SetHandler<ControllerActorAction, ControllerActorActionHandler>(new ControllerActorActionHandler(motionHandle, SequenceControllerInternal));
+            actionPlayer.SetHandler<TimelineActorAction, TimelineActorActionHandler>(new TimelineActorActionHandler(motionHandle, SequenceControllerInternal));
+            actionPlayer.SetHandler<SequentialClipActorAction, SequentialClipActorActionHandler>(new SequentialClipActorActionHandler(motionHandle, SequenceControllerInternal));
+            actionPlayer.SetHandler<ReactionLoopClipActorAction, ReactionLoopClipActorActionHandler>(new ReactionLoopClipActorActionHandler(motionHandle, SequenceControllerInternal));
+            actionPlayer.SetHandler<TimerActorAction, TimerActorActionHandler>(new TimerActorActionHandler(SequenceControllerInternal));
         }
 
         /// <summary>

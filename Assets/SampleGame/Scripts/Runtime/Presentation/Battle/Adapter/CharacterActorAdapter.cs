@@ -23,5 +23,15 @@ namespace SampleGame.Presentation.Battle {
             _actor = actor;
             _model = model;
         }
+
+        /// <inheritdoc/>
+        void ICharacterActorPort.InputMove(Vector2 input) {
+            _actor.InputMove(input);
+        }
+
+        /// <inheritdoc/>
+        void ICharacterActorPort.InputJump() {
+            _actor.InputJump();
+        }
     }
 }

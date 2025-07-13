@@ -55,12 +55,17 @@ namespace SampleGame.Presentation.Battle {
             // adapter生成
             var adapter = new CharacterActorAdapter(actor, model);
             adapter.RegisterTask(TaskOrder.Logic);
+            
+            // controller生成
+            var controller = new PlayerInputController(model);
+            controller.RegisterTask(TaskOrder.Input);
 
             // entity構築
             var entity = _actorEntityManager.CreateEntity(model.Id);
             entity.SetBody(body);
             entity.AddActor(actor);
             entity.AddLogic(adapter);
+            entity.AddLogic(controller);
 
             return adapter;
         }

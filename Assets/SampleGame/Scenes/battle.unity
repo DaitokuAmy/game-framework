@@ -209,7 +209,7 @@ GameObject:
   - component: {fileID: 1321176415}
   - component: {fileID: 1321176416}
   m_Layer: 0
-  m_Name: Input
+  m_Name: PlayerInput
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -291,6 +291,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _installServices:
   - {fileID: 1954338456}
+  - {fileID: 1321176416}
 --- !u!4 &1373748723
 Transform:
   m_ObjectHideFlags: 0

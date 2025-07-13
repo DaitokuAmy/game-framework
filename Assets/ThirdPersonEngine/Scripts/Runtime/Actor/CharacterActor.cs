@@ -2,13 +2,11 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Threading;
-using ActionSequencer;
 using Cysharp.Threading.Tasks;
 using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.PlayableSystems;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace ThirdPersonEngine {
     /// <summary>
@@ -33,22 +31,20 @@ namespace ThirdPersonEngine {
         /// アクティブ時処理
         /// </summary>
         protected override void ActivateInternal(IScope scope) {
-            var baseMotionHandle = CreateBaseMotionHandle();
+            var baseMotionHandle = GetBaseMotionHandle();
             BasePlayableComponent = baseMotionHandle.Change(Data.baseController, 0.0f, false);
             
             base.ActivateInternal(scope);
 
             // 移動解決用のクラスを設定
-            Component.AddResolver(new StraightMoveResolver(Data.moveActionInfo));
-            scope.ExpiredEvent += () => Component.RemoveResolver<StraightMoveResolver>();
-            Component.AddResolver(new NavigationMoveResolver(Data.moveActionInfo));
-            scope.ExpiredEvent += () => Component.RemoveResolver<NavigationMoveResolver>();
-            Component.AddResolver(new WarpMoveResolver());
-            scope.ExpiredEvent += () => Component.RemoveResolver<WarpMoveResolver>();
-            Component.AddResolver(new DirectionMoveResolver(Data.moveActionInfo));
-            scope.ExpiredEvent += () => Component.RemoveResolver<DirectionMoveResolver>();
-
-            ResetMoveSpeedMultiplier();
+            MoveComponent.AddResolver(new StraightMoveResolver(Data.moveActionInfo));
+            scope.ExpiredEvent += () => MoveComponent.RemoveResolver<StraightMoveResolver>();
+            MoveComponent.AddResolver(new NavigationMoveResolver(Data.moveActionInfo));
+            scope.ExpiredEvent += () => MoveComponent.RemoveResolver<NavigationMoveResolver>();
+            MoveComponent.AddResolver(new WarpMoveResolver());
+            scope.ExpiredEvent += () => MoveComponent.RemoveResolver<WarpMoveResolver>();
+            MoveComponent.AddResolver(new DirectionMoveResolver(Data.moveActionInfo));
+            scope.ExpiredEvent += () => MoveComponent.RemoveResolver<DirectionMoveResolver>();
         }
 
         /// <summary>
@@ -56,8 +52,8 @@ namespace ThirdPersonEngine {
         /// </summary>
         protected override void AddActionPlayerHandlers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
             base.AddActionPlayerHandlers(actionPlayer, motionHandle);
-            actionPlayer.SetHandler<TriggerStateActorAction, TriggerStateActorActionHandler>(new TriggerStateActorActionHandler(BasePlayableComponent.Playable, (SequenceController)SequenceController));
-            actionPlayer.SetHandler<CrossFadeStateActorAction, CrossFadeStateActorActionHandler>(new CrossFadeStateActorActionHandler(BasePlayableComponent.Playable, (SequenceController)SequenceController));
+            actionPlayer.SetHandler<TriggerStateActorAction, TriggerStateActorActionHandler>(new TriggerStateActorActionHandler(BasePlayableComponent.Playable, SequenceControllerInternal));
+            actionPlayer.SetHandler<CrossFadeStateActorAction, CrossFadeStateActorActionHandler>(new CrossFadeStateActorActionHandler(BasePlayableComponent.Playable, SequenceControllerInternal));
         }
         
         /// <summary>
@@ -69,9 +65,9 @@ namespace ThirdPersonEngine {
         }
 
         /// <summary>
-        /// 基礎となるモーションハンドルの生成
+        /// 基礎となるモーションハンドルの取得
         /// </summary>
-        protected virtual MotionHandle CreateBaseMotionHandle() {
+        protected virtual MotionHandle GetBaseMotionHandle() {
             return MotionComponent.Handle;
         }
 
@@ -84,23 +80,9 @@ namespace ThirdPersonEngine {
         }
 
         /// <summary>
-        /// アクションキーの一覧を取得
+        /// ワープ移動
         /// </summary>
-        public string[] GetActionKeys() {
-            return Data.actionInfos.Select(x => x.actionKey).ToArray();
-        }
-
-        /// <summary>
-        /// アクションが存在するかチェック
-        /// </summary>
-        public bool ContainsAction(string actionKey) {
-            return FindActionInfo(actionKey) != null;
-        }
-
-        /// <summary>
-        /// Transform情報の設定
-        /// </summary>
-        public void SetTransform(Vector3 position, Quaternion rotation) {
+        public void Warp(Vector3 position, Quaternion rotation) {
             CancelActionCancellationHandle();
             SetPosition(position);
             SetRotation(rotation);
@@ -110,10 +92,9 @@ namespace ThirdPersonEngine {
         /// 座標移動
         /// </summary>
         public void Warp(Vector3 position, bool immediate = false) {
-            ResetMoveSpeedMultiplier();
-            Component.MoveToPointAsync<WarpMoveResolver>(position);
+            MoveComponent.MoveToPointAsync<WarpMoveResolver>(position);
             if (immediate) {
-                Component.Skip();
+                MoveComponent.Skip();
             }
         }
 
@@ -121,8 +102,7 @@ namespace ThirdPersonEngine {
         /// 移動キャンセル
         /// </summary>
         protected void CancelMove() {
-            ResetMoveSpeedMultiplier();
-            Component.Cancel();
+            MoveComponent.Cancel();
         }
 
         /// <summary>
@@ -133,8 +113,7 @@ namespace ThirdPersonEngine {
         /// <param name="updateRotation">向きを更新するか</param>
         protected void DirectionMove(Vector3 direction, float speedMultiplier = 1.0f, bool updateRotation = true) {
             // 移動値を設定
-            SetMoveSpeedMultiplier(speedMultiplier);
-            Component.MoveToDirection<DirectionMoveResolver>(direction, speedMultiplier, updateRotation);
+            MoveComponent.MoveToDirection<DirectionMoveResolver>(direction, speedMultiplier, updateRotation);
         }
 
         /// <summary>
@@ -297,15 +276,7 @@ namespace ThirdPersonEngine {
         /// </summary>
         private IEnumerator DirectionMoveRoutine(Vector3 direction, float distance, float speedMultiplier, CancellationToken ct) {
             var position = Body.Position;
-            Component.MoveToDirectionAsync<DirectionMoveResolver>(direction, speedMultiplier);
-
-            // モーション速度の変更
-            if (direction.sqrMagnitude <= 0.001f) {
-                ResetMoveSpeedMultiplier();
-            }
-            else {
-                SetMoveSpeedMultiplier(speedMultiplier);
-            }
+            MoveComponent.MoveToDirectionAsync<DirectionMoveResolver>(direction, speedMultiplier);
 
             if (distance < 0) {
                 // 距離が0未満の時は無限に移動
@@ -326,8 +297,7 @@ namespace ThirdPersonEngine {
         /// </summary>
         private IEnumerator StraightMoveRoutine(Vector3 point, float speedMultiplier, float arrivedDistance, CancellationToken ct) {
             void Finished() {
-                Component.Cancel();
-                ResetMoveSpeedMultiplier();
+                MoveComponent.Cancel();
             }
 
             // 移動する必要なし
@@ -340,11 +310,8 @@ namespace ThirdPersonEngine {
 
             using var registration = ct.Register(Finished);
 
-            // モーション速度の変更
-            SetMoveSpeedMultiplier(speedMultiplier);
-
             // 直線移動
-            yield return Component.MoveToPointAsync<StraightMoveResolver>(point, speedMultiplier * Body.BaseScale, arrivedDistance);
+            yield return MoveComponent.MoveToPointAsync<StraightMoveResolver>(point, speedMultiplier * Body.BaseScale, arrivedDistance);
 
             Finished();
         }
@@ -354,33 +321,15 @@ namespace ThirdPersonEngine {
         /// </summary>
         private IEnumerator NavigationMoveRoutine(IActorNavigator navigator, float speedMultiplier, float arrivedDistance, CancellationToken ct) {
             void Finished() {
-                Component.Cancel();
-                ResetMoveSpeedMultiplier();
+                MoveComponent.Cancel();
             }
 
             using var registration = ct.Register(Finished);
 
-            // モーション速度の変更
-            SetMoveSpeedMultiplier(speedMultiplier);
-
             // 移動処理
-            yield return Component.MoveAsync<NavigationMoveResolver>(navigator, speedMultiplier * Body.BaseScale, arrivedDistance);
+            yield return MoveComponent.MoveAsync<NavigationMoveResolver>(navigator, speedMultiplier * Body.BaseScale, arrivedDistance);
 
             Finished();
-        }
-
-        /// <summary>
-        /// 移動速度のモーション速度を変更
-        /// </summary>
-        private void SetMoveSpeedMultiplier(float speedMultiplier) {
-            BasePlayableComponent.Playable.SetFloat("MoveSpeedMultiplier", speedMultiplier / Body.BaseScale);
-        }
-
-        /// <summary>
-        /// 移動速度のモーション速度をリセット
-        /// </summary>
-        private void ResetMoveSpeedMultiplier() {
-            SetMoveSpeedMultiplier(0.0f);
         }
     }
 }

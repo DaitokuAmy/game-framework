@@ -155,6 +155,7 @@ namespace SampleGame.Lifecycle {
             Services.Resolve<IModelRepository>().CreateSingleModel<BattleModel>().RegisterTo(scope);
             
             ServiceContainer.Register<BattleDomainService>().RegisterTo(scope);
+            ServiceContainer.Register<CharacterDomainService>().RegisterTo(scope);
         }
 
         /// <summary>
@@ -162,6 +163,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void SetupApplications(IScope scope) {
             ServiceContainer.Register<BattleAppService>().RegisterTo(scope);
+            ServiceContainer.Register<PlayerAppService>().RegisterTo(scope);
         }
 
         /// <summary>

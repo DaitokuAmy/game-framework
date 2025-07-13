@@ -3,7 +3,7 @@ namespace GameFramework.Core {
     /// Singleton管理によるモデル
     /// </summary>
     public abstract class SingleModel<TModel> : IModel
-        where TModel : SingleModel<TModel>, new() {
+        where TModel : SingleModel<TModel> {
         private DisposableScope _createScope;
         private SingleModelStorage<TModel> _storage;
         private bool _created;

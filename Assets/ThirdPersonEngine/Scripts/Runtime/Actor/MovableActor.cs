@@ -10,15 +10,16 @@ namespace ThirdPersonEngine {
         public virtual bool IsGrounded => Body.Position.y <= float.Epsilon;
         /// <summary>地上の高さ</summary>
         public virtual float GroundHeight => 0.0f;
-        
+
         /// <summary>移動制御用クラス</summary>
-        protected MoveActorComponent Component { get; private set; }
-        
+        protected MoveActorComponent MoveComponent { get; private set; }
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
         protected MovableActor(Body body) : base(body) {
-            Component = new MoveActorComponent(this);
+            MoveComponent = new MoveActorComponent(this);
+            AddComponent(MoveComponent);
         }
 
         /// <summary>
@@ -53,8 +54,8 @@ namespace ThirdPersonEngine {
         /// 廃棄時処理
         /// </summary>
         protected override void DisposeInternal() {
-            Component.Dispose();
-            
+            MoveComponent.Dispose();
+
             base.DisposeInternal();
         }
 
@@ -62,8 +63,8 @@ namespace ThirdPersonEngine {
         /// 非アクティブ時処理
         /// </summary>
         protected override void DeactivateInternal() {
-            Component.Cancel();
-            
+            MoveComponent.Cancel();
+
             base.DeactivateInternal();
         }
 

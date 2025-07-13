@@ -9,7 +9,7 @@ namespace GameFramework.ActorSystems {
     /// </summary>
     public abstract class Actor : ILateUpdatableTask, ITaskEventHandler, IDisposable {
         private readonly Dictionary<Type, ActorComponent> _actorComponentDict = new(32);
-        private readonly SortedList<int, ActorComponent> _actorComponents = new(32);
+        private readonly List<ActorComponent> _orderedActorComponents = new(32);
 
         private TaskRunner _taskRunner;
         private bool _disposed;
@@ -69,8 +69,8 @@ namespace GameFramework.ActorSystems {
         void ITask.Update() {
             if (_activeScope != null) {
                 var deltaTime = Body.LayeredTime.DeltaTime;
-                for (var i = 0; i < _actorComponents.Count; i++) {
-                    var component = _actorComponents[i];
+                for (var i = 0; i < _orderedActorComponents.Count; i++) {
+                    var component = _orderedActorComponents[i];
                     component.Update(deltaTime);
                 }
 
@@ -84,8 +84,8 @@ namespace GameFramework.ActorSystems {
         void ILateUpdatableTask.LateUpdate() {
             if (_activeScope != null) {
                 var deltaTime = Body.LayeredTime.DeltaTime;
-                for (var i = 0; i < _actorComponents.Count; i++) {
-                    var component = _actorComponents[i];
+                for (var i = 0; i < _orderedActorComponents.Count; i++) {
+                    var component = _orderedActorComponents[i];
                     component.LateUpdate(deltaTime);
                 }
 
@@ -186,7 +186,8 @@ namespace GameFramework.ActorSystems {
             }
 
             component.Initialize();
-            _actorComponents.Add(component.ExecutionOrder, component);
+            _orderedActorComponents.Add(component);
+            _orderedActorComponents.Sort((a, b) => a.ExecutionOrder.CompareTo(b.ExecutionOrder));
             return component;
         }
 
@@ -194,11 +195,11 @@ namespace GameFramework.ActorSystems {
         /// Componentの廃棄
         /// </summary>
         private void DisposeComponents() {
-            foreach (var pair in _actorComponents) {
-                pair.Value.Dispose();
+            foreach (var component in _orderedActorComponents) {
+                component.Dispose();
             }
 
-            _actorComponents.Clear();
+            _orderedActorComponents.Clear();
         }
     }
 }

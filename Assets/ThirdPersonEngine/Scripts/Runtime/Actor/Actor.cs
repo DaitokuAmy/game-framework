@@ -10,17 +10,19 @@ namespace ThirdPersonEngine {
     /// アクター基底
     /// </summary>
     public abstract class Actor : GameFramework.ActorSystems.Actor {
-        private readonly SequenceController _sequenceController;
         private readonly CoroutineRunner _coroutineRunner;
 
         /// <summary>外部公開用のシーケンス制御クラス</summary>
-        public IReadOnlySequenceController SequenceController => _sequenceController;
+        public IReadOnlySequenceController SequenceController => SequenceControllerInternal;
+        
+        /// <summary>シーケンス制御クラス</summary>
+        protected SequenceController SequenceControllerInternal { get; private set; }
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
         protected Actor(Body body) : base(body) {
-            _sequenceController = new SequenceController();
+            SequenceControllerInternal = new SequenceController();
             _coroutineRunner = new CoroutineRunner();
         }
 
@@ -29,7 +31,7 @@ namespace ThirdPersonEngine {
         /// </summary>
         protected override void DisposeInternal() {
             _coroutineRunner.Dispose();
-            _sequenceController.Dispose();
+            SequenceControllerInternal.Dispose();
             base.DisposeInternal();
         }
 
@@ -46,7 +48,7 @@ namespace ThirdPersonEngine {
             // アクションの更新
             UpdateActionInternal(deltaTime);
             // シーケンスの再生
-            _sequenceController.Update(deltaTime);
+            SequenceControllerInternal.Update(deltaTime);
         }
         
         /// <summary>
@@ -58,7 +60,7 @@ namespace ThirdPersonEngine {
         /// シーケンスクリップの再生
         /// </summary>
         protected SequenceHandle PlaySequenceAsync(SequenceClip clip, float startOffset = 0.0f) {
-            return _sequenceController.Play(clip, startOffset);
+            return SequenceControllerInternal.Play(clip, startOffset);
         }
 
         /// <summary>

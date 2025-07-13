@@ -9,9 +9,9 @@ namespace GameFramework.Core {
         IModel Item { get; }
 
         /// <summary>
-        /// モデルの生成
+        /// モデルの追加
         /// </summary>
-        IModel Create();
+        void Add(IModel model);
 
         /// <summary>
         /// モデルの取得
@@ -33,7 +33,7 @@ namespace GameFramework.Core {
     /// AutoIdModelのストレージ
     /// </summary>
     public sealed class SingleModelStorage<TModel> : ISingleModelStorage
-        where TModel : SingleModel<TModel>, new() {
+        where TModel : SingleModel<TModel> {
 
         /// <inheritdoc/>
         IModel ISingleModelStorage.Item => Item;
@@ -42,8 +42,13 @@ namespace GameFramework.Core {
         public TModel Item { get; private set; }
 
         /// <inheritdoc/>
-        IModel ISingleModelStorage.Create() {
-            return Create();
+        void ISingleModelStorage.Add(IModel model) {
+            if (model is TModel mdl) {
+                Add(mdl);
+            }
+            else {
+                throw new Exception($"Model is not {typeof(TModel).Name}. type:{model.GetType()}");
+            }
         }
 
         /// <inheritdoc/>
@@ -63,16 +68,15 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
-        /// モデルの生成
+        /// モデルの追加
         /// </summary>
-        public TModel Create() {
+        public void Add(TModel model) {
             if (Item != null) {
                 throw new Exception($"Already exists {typeof(TModel).Name}.");
             }
-            
-            Item = new TModel();
-            Item.OnCreated(this);
-            return Item;
+
+            Item = model;
+            model.OnCreated(this);
         }
 
         /// <summary>

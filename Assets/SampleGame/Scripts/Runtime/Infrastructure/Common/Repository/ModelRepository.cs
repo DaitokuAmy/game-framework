@@ -41,15 +41,26 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// SingleModelの生成
         /// </summary>
-        public TModel CreateSingleModel<TModel>()
-            where TModel : SingleModel<TModel>, new() {
-            var type = typeof(TModel);
+        public TModel CreateSingleModel<TBaseModel, TModel>()
+            where TBaseModel : SingleModel<TBaseModel>
+            where TModel : TBaseModel, new() {
+            var type = typeof(TBaseModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
-                storage = new SingleModelStorage<TModel>();
+                storage = new SingleModelStorage<TBaseModel>();
                 _singleModelStorages[type] = storage;
             }
 
-            return (TModel)storage.Create();
+            var model = new TModel();
+            storage.Add(model);
+            return model;
+        }
+
+        /// <summary>
+        /// SingleModelの生成
+        /// </summary>
+        public TModel CreateSingleModel<TModel>()
+            where TModel : SingleModel<TModel>, new() {
+            return CreateSingleModel<TModel, TModel>();
         }
 
         /// <summary>
@@ -106,7 +117,7 @@ namespace SampleGame.Infrastructure {
         /// SingleModelの取得
         /// </summary>
         public TModel GetSingleModel<TModel>()
-            where TModel : SingleModel<TModel>, new() {
+            where TModel : SingleModel<TModel> {
             var type = typeof(TModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
                 return null;
@@ -120,7 +131,7 @@ namespace SampleGame.Infrastructure {
         /// </summary>
         public TModel GetAutoIdModel<TBaseModel, TModel>(int id)
             where TBaseModel : AutoIdModel<TBaseModel>
-            where TModel : TBaseModel, new() {
+            where TModel : TBaseModel {
             var type = typeof(TBaseModel);
             if (!_autoIdModelStorages.TryGetValue(type, out var storage)) {
                 return null;
@@ -133,7 +144,7 @@ namespace SampleGame.Infrastructure {
         /// AutoIdModelの取得
         /// </summary>
         public TModel GetAutoIdModel<TModel>(int id)
-            where TModel : AutoIdModel<TModel>, new() {
+            where TModel : AutoIdModel<TModel> {
             return GetAutoIdModel<TModel, TModel>(id);
         }
 
@@ -142,7 +153,7 @@ namespace SampleGame.Infrastructure {
         /// </summary>
         public TModel GetIdModel<TBaseModel, TModel>(int id)
             where TBaseModel : IdModel<int, TBaseModel>
-            where TModel : TBaseModel, new() {
+            where TModel : TBaseModel {
             var type = typeof(TBaseModel);
             if (!_idModelStorages.TryGetValue(type, out var storage)) {
                 return null;
@@ -155,7 +166,7 @@ namespace SampleGame.Infrastructure {
         /// IdModelの取得
         /// </summary>
         public TModel GetIdModel<TModel>(int id)
-            where TModel : IdModel<int, TModel>, new() {
+            where TModel : IdModel<int, TModel> {
             return GetIdModel<TModel, TModel>(id);
         }
 
@@ -163,7 +174,7 @@ namespace SampleGame.Infrastructure {
         /// SingleModelの削除
         /// </summary>
         public void DeleteSingleModel<TModel>()
-            where TModel : SingleModel<TModel>, new() {
+            where TModel : SingleModel<TModel> {
             var type = typeof(TModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
                 return;
@@ -215,7 +226,7 @@ namespace SampleGame.Infrastructure {
         /// SingleModelの全削除
         /// </summary>
         public void ClearSingleModels<TModel>()
-            where TModel : SingleModel<TModel>, new() {
+            where TModel : SingleModel<TModel> {
             var type = typeof(TModel);
             if (!_singleModelStorages.TryGetValue(type, out var storage)) {
                 return;

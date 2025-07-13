@@ -9,5 +9,15 @@ namespace SampleGame.Domain.Battle {
         Vector3 Position { get; }
         /// <summary>向き</summary>
         Quaternion Rotation { get; }
+
+        /// <summary>
+        /// 移動入力
+        /// </summary>
+        void InputMove(Vector2 input);
+
+        /// <summary>
+        /// ジャンプ入力
+        /// </summary>
+        void InputJump();
     }
 }

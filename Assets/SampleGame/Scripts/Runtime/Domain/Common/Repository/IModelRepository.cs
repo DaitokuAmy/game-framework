@@ -8,6 +8,13 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// SingleModelの生成
         /// </summary>
+        TModel CreateSingleModel<TBaseModel, TModel>()
+            where TBaseModel : SingleModel<TBaseModel>
+            where TModel : TBaseModel, new();
+        
+        /// <summary>
+        /// SingleModelの生成
+        /// </summary>
         TModel CreateSingleModel<TModel>()
             where TModel : SingleModel<TModel>, new();
 
@@ -41,39 +48,39 @@ namespace SampleGame.Infrastructure {
         /// SingleModelの取得
         /// </summary>
         TModel GetSingleModel<TModel>()
-            where TModel : SingleModel<TModel>, new();
+            where TModel : SingleModel<TModel>;
 
         /// <summary>
         /// AutoIdModelの取得
         /// </summary>
         TModel GetAutoIdModel<TBaseModel, TModel>(int id)
             where TBaseModel : AutoIdModel<TBaseModel>
-            where TModel : TBaseModel, new();
+            where TModel : TBaseModel;
 
         /// <summary>
         /// AutoIdModelの取得
         /// </summary>
         TModel GetAutoIdModel<TModel>(int id)
-            where TModel : AutoIdModel<TModel>, new();
+            where TModel : AutoIdModel<TModel>;
 
         /// <summary>
         /// IdModelの取得
         /// </summary>
         TModel GetIdModel<TBaseModel, TModel>(int id)
             where TBaseModel : IdModel<int, TBaseModel>
-            where TModel : TBaseModel, new();
+            where TModel : TBaseModel;
 
         /// <summary>
         /// IdModelの取得
         /// </summary>
         TModel GetIdModel<TModel>(int id)
-            where TModel : IdModel<int, TModel>, new();
+            where TModel : IdModel<int, TModel>;
 
         /// <summary>
         /// SingleModelの削除
         /// </summary>
         void DeleteSingleModel<TModel>()
-            where TModel : SingleModel<TModel>, new();
+            where TModel : SingleModel<TModel>;
 
         /// <summary>
         /// AutoIdModelの削除
@@ -97,7 +104,7 @@ namespace SampleGame.Infrastructure {
         /// SingleModelの全削除
         /// </summary>
         void ClearSingleModels<TModel>()
-            where TModel : SingleModel<TModel>, new();
+            where TModel : SingleModel<TModel>;
 
         /// <summary>
         /// AutoIdModelの全削除
