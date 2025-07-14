@@ -1,7 +1,3 @@
-以下は、提供いただいた `UIScreenContainer` を含むすべてのファイルを統合した **UI システムのドキュメント**（Markdown形式）です。
-
----
-
 # 🎮 GameFramework.UISystems - UIシステムドキュメント
 
 ## 🧩 概要
