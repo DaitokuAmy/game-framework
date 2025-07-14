@@ -1,7 +1,3 @@
-以下は、Unity 用の遷移・画面状態管理フレームワーク `GameFramework.SituationSystems` に関する **整形済み Markdown ドキュメント**です。`AdditiveSceneSituation` も含めて全体を網羅的にまとめ直しました。
-
----
-
 # 🎮 GameFramework.SituationSystems ドキュメント（Markdown形式）
 
 ## 🧩 概要
