@@ -40,5 +40,19 @@ namespace SampleGame.Application.Battle {
         public void InputMove(int playerId, Vector2 input) {
             _characterDomainService.InputMove(playerId, input);
         }
+
+        /// <summary>
+        /// スプリント入力
+        /// </summary>
+        public void InputSprint(int playerId, bool sprint) {
+            _characterDomainService.InputSprint(playerId, sprint);
+        }
+
+        /// <summary>
+        /// ジャンプ入力
+        /// </summary>
+        public void InputJump(int playerId) {
+            _characterDomainService.InputJump(playerId);
+        }
     }
 }

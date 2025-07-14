@@ -11,6 +11,10 @@ namespace ThirdPersonEngine {
         /// Locomotion
         /// </summary>
         private sealed class LocomotionState : StateBase {
+            private Vector3 _moveDirection;
+            private bool _isRun;
+            private bool _isSprint;
+
             /// <summary>ステートタイプ</summary>
             protected override StateType StateType => StateType.Locomotion;
 
@@ -24,15 +28,23 @@ namespace ThirdPersonEngine {
             /// 移動入力
             /// </summary>
             public override void InputMove(Vector2 input) {
-                // 移動
-                Owner.DirectionMove(new Vector3(input.x, 0, input.y));
+                // todo:視線を元に変換
+                _moveDirection = new Vector3(input.x, 0, input.y);
+                _isRun = _moveDirection.sqrMagnitude >= 0.5 * 0.5f;
+                Owner.DirectionMove(_moveDirection, 0.0f);
+            }
+
+            /// <summary>
+            /// スプリント入力
+            /// </summary>
+            public override void InputSprint(bool sprint) {
+                _isSprint = sprint;
             }
 
             /// <summary>
             /// ジャンプ入力
             /// </summary>
             public override void InputJump() {
-                // ジャンプに遷移
                 ChangeState(StateType.JumpAction);
             }
 
@@ -40,6 +52,8 @@ namespace ThirdPersonEngine {
             /// 入り処理(非同期)
             /// </summary>
             protected override IEnumerator EnterRoutineInternal(StateType prevKey, IScope scope) {
+                _isSprint = false;
+
                 Owner.MotionComponent.Change(Owner.BasePlayableComponent, 0.2f);
                 yield break;
             }
@@ -58,7 +72,8 @@ namespace ThirdPersonEngine {
             private void UpdateAnimationProperties(bool ignoreDamping = false) {
                 var playable = Owner.BasePlayableComponent.Playable;
                 var body = Owner.Body;
-                
+                var moveComponent = Owner.MoveComponent;
+
                 // 歩き移動に関するパラメータ
                 void UpdateDirection(string prefix, Vector3 target) {
                     var current = new Vector3();
@@ -73,13 +88,11 @@ namespace ThirdPersonEngine {
                     playable.SetFloat($"{prefix}Z", target.z);
                 }
 
-                if (Owner.MoveComponent.IsMoving) {
-                    var moveComponent = Owner.MoveComponent;
-                    var moveDirection = moveComponent.Velocity.normalized;
-                    moveDirection = body.Transform.InverseTransformDirection(moveDirection);
+                if (_moveDirection.sqrMagnitude > float.Epsilon) {
+                    var moveDirection = body.Transform.InverseTransformDirection(_moveDirection);
 
                     UpdateDirection("MoveDir", moveDirection);
-                    playable.SetFloat("MoveSpeedMultiplier", moveComponent.SpeedMultiplier / body.BaseScale);
+                    playable.SetFloat("MoveSpeedMultiplier", 1.0f);
                 }
                 else {
                     playable.SetFloat("MoveDirX", 0.0f);
@@ -88,7 +101,11 @@ namespace ThirdPersonEngine {
                 }
 
                 // 接地状態に関するパラメータ
-                playable.SetBool("Air", Owner._isAir);
+                playable.SetBool("IsAir", Owner._isAir);
+
+                // 走りパラメーター
+                playable.SetBool("IsRun", _isRun);
+                playable.SetBool("IsSprint", _isSprint);
             }
         }
     }

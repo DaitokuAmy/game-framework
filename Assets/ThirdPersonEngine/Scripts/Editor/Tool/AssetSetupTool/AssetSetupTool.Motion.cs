@@ -57,7 +57,6 @@ namespace ThirdPersonEngine.Editor {
             }
 
             var clipAnimations = reset ? modelImporter.defaultClipAnimations : modelImporter.clipAnimations;
-            var rename = reset || clipAnimations.Length <= 0;
             clipAnimations = clipAnimations.Length > 0 ? clipAnimations : modelImporter.defaultClipAnimations;
             var singleClip = clipAnimations.Length == 1;
             var poseClip = modelImporter.defaultClipAnimations.Length == 1 && assetName.EndsWith("_pose");
@@ -86,11 +85,8 @@ namespace ThirdPersonEngine.Editor {
 
                 var rawTakeName = takeName.Substring(0, takeName.Length - "_pose".Length);
                 for (var i = 0; i < clipAnimations.Length; i++) {
-                    if (rename) {
-                        clipAnimations[i].name = $"{rawTakeName}_{i:00}_lp";
-                        clipAnimations[i].takeName = clipAnimations[i].name;
-                    }
-
+                    clipAnimations[i].name = $"{rawTakeName}_{i:00}_lp";
+                    clipAnimations[i].takeName = clipAnimations[i].name;
                     clipAnimations[i].firstFrame = i * 2 + 1;
                     clipAnimations[i].lastFrame = clipAnimations[i].firstFrame + 0.1f;
                     clipAnimations[i].loop = true;
@@ -102,18 +98,22 @@ namespace ThirdPersonEngine.Editor {
                 for (var i = 0; i < clipAnimations.Length; i++) {
                     var clipAnimation = clipAnimations[i];
                     if (singleClip) {
-                        if (rename) {
-                            clipAnimation.firstFrame = Mathf.Max(0.0f, modelImporter.defaultClipAnimations[0].firstFrame);
-                            clipAnimation.lastFrame = modelImporter.defaultClipAnimations[0].lastFrame;
-                            clipAnimation.name = $"{takeName}";
-                            clipAnimation.takeName = clipAnimation.name;
+                        clipAnimation.firstFrame = Mathf.Max(0.0f, modelImporter.defaultClipAnimations[0].firstFrame);
+                        clipAnimation.lastFrame = modelImporter.defaultClipAnimations[0].lastFrame;
+                        clipAnimation.name = $"{takeName}";
+                        clipAnimation.takeName = clipAnimation.name;
+                        if (reset) {
+                            clipAnimation.lockRootRotation = true;
+                            clipAnimation.lockRootHeightY = true;
+                            clipAnimation.lockRootPositionXZ = takeName.Contains("idle");
+                            clipAnimation.keepOriginalOrientation = true;
+                            clipAnimation.keepOriginalPositionY = true;
+                            clipAnimation.keepOriginalPositionXZ = true;
                         }
                     }
                     else {
-                        if (rename) {
-                            clipAnimation.name = $"{takeName}_{i:00}{(clipAnimation.loop ? "_lp" : "")}";
-                            clipAnimation.takeName = clipAnimation.name;
-                        }
+                        clipAnimation.name = $"{takeName}_{i:00}{(clipAnimation.loop ? "_lp" : "")}";
+                        clipAnimation.takeName = clipAnimation.name;
                     }
 
                     if (clipAnimation.name.EndsWith("_lp")) {

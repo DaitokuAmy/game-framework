@@ -129,7 +129,7 @@ namespace ThirdPersonEngine {
 
             IEnumerator Routine(CancellationToken token) {
                 // アクション再生
-                yield return PlayActionRoutine(ActionPlayer, actionInfo.action.GetAction(), onCreatedHandle, token);
+                yield return PlayActionRoutine(actionInfo.action.GetAction(), onCreatedHandle, token);
             }
 
             await PlayActionAsyncInternal(Routine, null, ct);
@@ -143,7 +143,7 @@ namespace ThirdPersonEngine {
 
             IEnumerator Routine(CancellationToken token) {
                 // アクション再生
-                yield return PlayActionRoutine(ActionPlayer, actorAction, onCreatedHandle, token);
+                yield return PlayActionRoutine(actorAction, onCreatedHandle, token);
             }
 
             await PlayActionAsyncInternal(Routine, null, ct);
@@ -209,9 +209,9 @@ namespace ThirdPersonEngine {
         /// <summary>
         /// アクション再生ルーチン
         /// </summary>
-        protected IEnumerator PlayActionRoutine(ActorActionPlayer actionPlayer, IActorAction action, Action<ActorActionHandle> onCreatedActionHandle, CancellationToken ct) {
+        protected IEnumerator PlayActionRoutine(IActorAction action, Action<ActorActionHandle> onCreatedActionHandle, CancellationToken ct) {
             // アクション再生
-            var actionHandle = actionPlayer.PlayAction(action);
+            var actionHandle = ActionPlayer.PlayAction(action);
             onCreatedActionHandle?.Invoke(actionHandle);
 
             // 終了待ち

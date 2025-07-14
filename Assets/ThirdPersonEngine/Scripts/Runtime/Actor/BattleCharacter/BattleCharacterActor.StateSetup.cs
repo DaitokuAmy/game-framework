@@ -83,6 +83,12 @@ namespace ThirdPersonEngine {
             }
 
             /// <summary>
+            /// スプリント入力
+            /// </summary>
+            public virtual void InputSprint(bool sprint) {
+            }
+
+            /// <summary>
             /// ジャンプ入力
             /// </summary>
             public virtual void InputJump() {
@@ -121,10 +127,12 @@ namespace ThirdPersonEngine {
         /// </summary>
         private class StateGroup {
             public LocomotionState Locomotion;
+            public JumpActionState JumpAction;
 
             public StateBase[] CreateStates(BattleCharacterActor owner) {
                 return new StateBase[] {
                     Locomotion = new LocomotionState(owner),
+                    JumpAction = new JumpActionState(owner),
                 };
             }
         }

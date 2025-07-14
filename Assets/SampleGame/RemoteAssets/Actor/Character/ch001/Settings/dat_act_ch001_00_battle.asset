@@ -15,22 +15,19 @@ MonoBehaviour:
   baseController: {fileID: 22100000, guid: b30f8aceb2f616348b2fd0619358f1b2, type: 2}
   actionInfos: []
   moveActionInfo:
-    maxSpeed: 1
-    acceleration: 10
+    maxSpeed: 3
+    acceleration: 30
     brake: 10
     airBrake: 0
-    angularSpeed: 360
+    angularSpeed: 720
     moveThreshold: 0.05
   groundHeight: 0.1
   airHeight: 0.2
-  jumpAction:
+  jumpActionInfo:
     action:
-      layerIndex: 0
-      triggerPropertyName: OnJump
-      indexPropertyName: 
-      index: 0
-      lastStateName: Jump
-      lastTag: 
-      exitTimeOffset: 0
-      sequenceClips: []
-    initVelocity: 2
+      animationClip: {fileID: 4531230811867173599, guid: cfeabde5891e93f4b9c8565fecb773b7, type: 3}
+      sequenceClip: {fileID: 0}
+      inBlend: 0.1
+      outBlend: 0.1
+    initVelocity: 10
+    moveSpeedScale: 1

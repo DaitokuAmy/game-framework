@@ -13,9 +13,11 @@ namespace ThirdPersonEngine {
         [Serializable]
         public class JumpActionInfo {
             [Tooltip("アクション")]
-            public TriggerStateActorAction action;
+            public AnimationClipActorAction action;
             [Tooltip("初速")]
             public float initVelocity = 10.0f;
+            [Tooltip("移動速度係数")]
+            public float moveSpeedScale = 0.5f;
         }
 
         [Tooltip("地上状態とする高さ")]
@@ -23,6 +25,6 @@ namespace ThirdPersonEngine {
         [Tooltip("空中状態とする高さ")]
         public float airHeight = 0.2f;
         [Tooltip("ジャンプアクション情報")]
-        public JumpActionInfo jumpAction;
+        public JumpActionInfo jumpActionInfo;
     }
 }

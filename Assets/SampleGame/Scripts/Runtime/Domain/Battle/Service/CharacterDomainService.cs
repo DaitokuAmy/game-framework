@@ -46,6 +46,20 @@ namespace SampleGame.Domain.Battle {
         }
 
         /// <summary>
+        /// スプリント入力
+        /// </summary>
+        public void InputSprint(int modelId, bool sprint) {
+            var model = _modelRepository.GetAutoIdModel<CharacterModel>(modelId);
+            if (model == null) {
+                return;
+            }
+
+            // アクターに伝達
+            var actorModel = model.ActorModelInternal;
+            actorModel.Port.InputSprint(sprint);
+        }
+
+        /// <summary>
         /// ジャンプ入力
         /// </summary>
         /// <param name="modelId">CharacterModelのId</param>

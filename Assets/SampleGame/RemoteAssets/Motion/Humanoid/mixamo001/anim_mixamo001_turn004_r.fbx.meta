@@ -526,13 +526,13 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: skin_mixamo001(Clone)
+    - name: skl_mot_mixamo001(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig:Hips
-      parentName: skin_mixamo001(Clone)
+      parentName: skl_mot_mixamo001(Clone)
       position: {x: -0, y: 1.042749, z: 0}
       rotation: {x: 0.006458546, y: 0, z: -0, w: 0.99997914}
       scale: {x: 1, y: 1, z: 1}

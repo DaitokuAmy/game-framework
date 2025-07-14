@@ -30,6 +30,11 @@ namespace SampleGame.Presentation.Battle {
         }
 
         /// <inheritdoc/>
+        void ICharacterActorPort.InputSprint(bool sprint) {
+            _actor.InputSprint(sprint);
+        }
+
+        /// <inheritdoc/>
         void ICharacterActorPort.InputJump() {
             _actor.InputJump();
         }

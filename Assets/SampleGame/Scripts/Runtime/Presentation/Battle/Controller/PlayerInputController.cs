@@ -15,6 +15,7 @@ namespace SampleGame.Presentation.Battle {
         private readonly InputAction _moveAction;
         private readonly InputAction _jumpAction;
         private readonly InputAction _attackAction;
+        private readonly InputAction _sprintAction;
 
         /// <summary>
         /// コンストラクタ
@@ -28,6 +29,7 @@ namespace SampleGame.Presentation.Battle {
             _moveAction = playerInput.actions["Move"];
             _jumpAction = playerInput.actions["Jump"];
             _attackAction = playerInput.actions["Attack"];
+            _sprintAction = playerInput.actions["Sprint"];
         }
 
         /// <summary>
@@ -49,13 +51,14 @@ namespace SampleGame.Presentation.Battle {
             
             // 移動入力
             _playerAppService.InputMove(_model.Id, _moveAction.ReadValue<Vector2>());
+            _playerAppService.InputSprint(_model.Id, _sprintAction.IsPressed());
         }
 
         /// <summary>
         /// ジャンプ入力時
         /// </summary>
         private void OnJump(InputAction.CallbackContext context) {
-            // todo:ジャンプ入力
+            _playerAppService.InputJump(_model.Id);
         }
     }
 }

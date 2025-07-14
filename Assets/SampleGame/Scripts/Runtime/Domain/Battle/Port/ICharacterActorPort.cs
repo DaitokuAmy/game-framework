@@ -16,6 +16,11 @@ namespace SampleGame.Domain.Battle {
         void InputMove(Vector2 input);
 
         /// <summary>
+        /// スプリント入力
+        /// </summary>
+        void InputSprint(bool sprint);
+
+        /// <summary>
         /// ジャンプ入力
         /// </summary>
         void InputJump();

@@ -61,6 +61,13 @@ namespace ThirdPersonEngine {
         public void InputMove(Vector2 input) {
             CurrentState.InputMove(input);
         }
+
+        /// <summary>
+        /// スプリント入力
+        /// </summary>
+        public void InputSprint(bool sprint) {
+            CurrentState.InputSprint(sprint);
+        }
         
         /// <summary>
         /// ジャンプ入力
