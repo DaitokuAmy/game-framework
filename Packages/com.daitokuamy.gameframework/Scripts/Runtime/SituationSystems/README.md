@@ -13,9 +13,9 @@
 | `Standby`                           | `Release`                             | 状態の事前登録と登録解除            |
 | `Load`                              | `Unload`                              | リソースの読み込みと解放            |
 | `Setup`                             | `Cleanup`                             | 初期化とクリーンアップ             |
-| `PreOpen / OpenRoutine / PostOpen`  | `PreClose / CloseRoutine / PostClose` | 表示と非表示の準備〜実行〜完了処理       |
-| `Activate`                          | `Deactivate`                          | 状態の有効化と無効化              |
-| `Update / LateUpdate / FixedUpdate` | （Deactivate 後に停止）                     | 実行中の状態に応じて毎フレーム・物理更新が実行 |
+| `PreOpen / OpenRoutine / PostOpen`  | `PreClose / CloseRoutine / PostClose` | 開く処理と閉じる処理       |
+| `Activate`                          | `Deactivate`                          | 有効化と無効化              |
+| `Update / LateUpdate / FixedUpdate` | （Deactivate 後に停止）                     | 各種更新処理 |
 
 
 ---
