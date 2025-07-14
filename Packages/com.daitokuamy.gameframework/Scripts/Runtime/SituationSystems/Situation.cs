@@ -323,7 +323,7 @@ namespace GameFramework.SituationSystems {
             var info = new SituationContainer.TransitionInfo {
                 PrevSituations = new[] { this },
                 NextSituations = Array.Empty<Situation>(),
-                Back = false,
+                TransitionType = TransitionType.Forward,
                 State = TransitionState.Canceled
             };
             var handle = new TransitionHandle(info);

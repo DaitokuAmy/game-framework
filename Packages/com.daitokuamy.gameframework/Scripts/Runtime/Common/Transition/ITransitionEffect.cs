@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace GameFramework.SituationSystems {
+namespace GameFramework {
     /// <summary>
     /// 遷移エフェクト用インターフェース
     /// </summary>

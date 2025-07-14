@@ -8,8 +8,9 @@ namespace GameFramework.UISystems {
     /// 切り替えて遷移し続けるUIScreenのコンテナ
     /// </summary>
     public class UIPageContainer : UIScreenContainer {
+        private readonly List<string> _stackKeys = new();
+        
         private string _currentKey;
-        private List<string> _stackKeys = new();
 
         /// <summary>
         /// 遷移処理
@@ -19,23 +20,24 @@ namespace GameFramework.UISystems {
         /// <param name="immediate">即時遷移するか</param>
         /// <param name="force">同じキーだとしても開きなおすか</param>
         /// <param name="initAction">初期化アクション</param>
-        public AsyncOperationHandle Transition(string childKey, IUITransition transition = null, bool immediate = false, bool force = false, Action<UIScreen> initAction = null) {
-            var op = new AsyncOperator();
+        /// <param name="effects">遷移エフェクトリスト</param>
+        public AsyncOperationHandle<UIScreen> Transition(string childKey, ITransition transition = null, bool immediate = false, bool force = false, Action<UIScreen> initAction = null, params ITransitionEffect[] effects) {
+            var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 
             if (_currentKey == childKey) {
                 if (!force) {
-                    op.Completed();
+                    op.Completed(nextChildScreen?.uiScreen);
                     return op;
                 }
             }
 
             if (transition == null) {
                 if (_currentKey == childKey) {
-                    transition = new OutInUITransition();
+                    transition = new OutInTransition();
                 }
                 else {
-                    transition = new CrossUITransition();
+                    transition = new CrossTransition();
                 }
             }
             
@@ -58,18 +60,15 @@ namespace GameFramework.UISystems {
             SetAsLastSibling(childKey);
 
             // 遷移処理
-            var prevUIScreen = FindChild(_currentKey)?.uiScreen;
-            var nextUIScreen = nextChildScreen?.uiScreen;
+            var prevScreen = FindChild(_currentKey)?.uiScreen;
+            var nextScreen = nextChildScreen?.uiScreen;
             _currentKey = childKey;
-            if (nextUIScreen != null) {
+            if (nextScreen != null) {
                 _stackKeys.Add(_currentKey);
             }
-            
-            StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, back ? TransitionType.Back : TransitionType.Forward, immediate, initAction),
-                () => op.Completed(),
-                () => op.Aborted(),
-                err => op.Aborted(err));
 
+            // 遷移開始
+            StartTransition(transition, prevScreen, nextScreen, back ? TransitionType.Back : TransitionType.Forward, immediate, effects, initAction, op);
             return op;
         }
 
@@ -79,7 +78,8 @@ namespace GameFramework.UISystems {
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
         /// <param name="initAction">初期化アクション</param>
-        public AsyncOperationHandle Back(IUITransition transition = null, bool immediate = false, Action<UIScreen> initAction = null) {
+        /// <param name="effects">遷移エフェクトリスト</param>
+        public AsyncOperationHandle<UIScreen> Back(ITransition transition = null, bool immediate = false, Action<UIScreen> initAction = null, params ITransitionEffect[] effects) {
             var backKey = _stackKeys.Count > 1 ? _stackKeys[_stackKeys.Count - 2] : null;
             return Transition(backKey, transition, immediate, true, initAction);
         }
@@ -89,10 +89,10 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Clear(IUITransition transition = null, bool immediate = false) {
+        public AsyncOperationHandle<UIScreen> Clear(ITransition transition = null, bool immediate = false) {
             return Transition(null, transition, immediate);
         }
-
+        
         /// <summary>
         /// 開く処理（後処理）
         /// </summary>

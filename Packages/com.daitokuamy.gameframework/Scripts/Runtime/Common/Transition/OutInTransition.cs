@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace GameFramework.SituationSystems {
+namespace GameFramework {
     /// <summary>
     /// 閉じてから開く遷移処理
     /// </summary>
@@ -26,7 +26,8 @@ namespace GameFramework.SituationSystems {
         /// 遷移処理
         /// </summary>
         /// <param name="resolver">遷移処理解決者</param>
-        IEnumerator ITransition.TransitRoutine(ITransitionResolver resolver) {
+        /// <param name="immediate">即時遷移か</param>
+        IEnumerator ITransition.TransitRoutine(ITransitionResolver resolver, bool immediate) {
             resolver.Start();
 
             // エフェクト開始＆閉じる
@@ -35,7 +36,7 @@ namespace GameFramework.SituationSystems {
                 yield return resolver.ClosePrevRoutine(true);
             }
             else {
-                yield return new MergedCoroutine(resolver.EnterEffectRoutine(), resolver.ClosePrevRoutine());
+                yield return new MergedCoroutine(resolver.EnterEffectRoutine(), resolver.ClosePrevRoutine(immediate));
             }
 
             // 非アクティブ
@@ -63,7 +64,7 @@ namespace GameFramework.SituationSystems {
                 yield return resolver.ExitEffectRoutine();
             }
             else {
-                yield return new MergedCoroutine(resolver.ExitEffectRoutine(), resolver.OpenNextRoutine());
+                yield return new MergedCoroutine(resolver.ExitEffectRoutine(), resolver.OpenNextRoutine(immediate));
             }
 
             resolver.Finish();

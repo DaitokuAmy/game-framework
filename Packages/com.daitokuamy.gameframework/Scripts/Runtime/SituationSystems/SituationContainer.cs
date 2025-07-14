@@ -30,7 +30,7 @@ namespace GameFramework.SituationSystems {
             public IReadOnlyList<ISituation> NextSituations;
             public TransitionState State;
             public TransitionStep Step;
-            public bool Back;
+            public TransitionType TransitionType;
             public IReadOnlyList<ITransitionEffect> Effects;
             public bool EffectActive;
         }
@@ -112,7 +112,7 @@ namespace GameFramework.SituationSystems {
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
-                Back = false,
+                TransitionType = TransitionType.Forward,
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,
@@ -219,7 +219,7 @@ namespace GameFramework.SituationSystems {
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
-                Back = option != null && option.Back,
+                TransitionType = (option != null && option.Back) ? TransitionType.Back : TransitionType.Forward,
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,

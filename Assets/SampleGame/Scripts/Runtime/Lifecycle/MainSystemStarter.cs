@@ -1,5 +1,5 @@
 using System;
-using GameFramework.SituationSystems;
+using GameFramework;
 
 namespace SampleGame.Lifecycle {
     /// <summary>

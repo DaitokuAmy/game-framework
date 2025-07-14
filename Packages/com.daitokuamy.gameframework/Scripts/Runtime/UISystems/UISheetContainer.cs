@@ -9,6 +9,36 @@ namespace GameFramework.UISystems {
     public class UISheetContainer : UIScreenContainer {
         private string _currentKey;
 
+        /// <inheritdoc/>
+        protected override void PostOpen(TransitionType transitionType, bool immediate) {
+            base.PostOpen(transitionType, immediate);
+
+            var childView = FindChild(_currentKey);
+            if (childView != null && childView.uiScreen != null) {
+                childView.uiScreen.OpenAsync(transitionType, true);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override IEnumerator CloseRoutine(TransitionType transitionType, IScope cancelScope) {
+            yield return base.CloseRoutine(transitionType, cancelScope);
+
+            var childView = FindChild(_currentKey);
+            if (childView != null && childView.uiScreen != null) {
+                yield return childView.uiScreen.CloseAsync(transitionType, false);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override void PostClose(TransitionType transitionType, bool immediate) {
+            base.PostClose(transitionType, immediate);
+
+            var childView = FindChild(_currentKey);
+            if (childView != null && childView.uiScreen != null) {
+                childView.uiScreen.CloseAsync(transitionType, true);
+            }
+        }
+
         /// <summary>
         /// 遷移処理
         /// </summary>
@@ -18,7 +48,8 @@ namespace GameFramework.UISystems {
         /// <param name="immediate">即時遷移するか</param>
         /// <param name="force">同じキーだとしても開きなおすか</param>
         /// <param name="initAction">初期化アクション</param>
-        public AsyncOperationHandle<UIScreen> Change(string childKey, IUITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false, Action<UIScreen> initAction = null) {
+        /// <param name="effects">遷移中エフェクトリスト</param>
+        public AsyncOperationHandle<UIScreen> Change(string childKey, ITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false, Action<UIScreen> initAction = null, params ITransitionEffect[] effects) {
             var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 
@@ -31,10 +62,10 @@ namespace GameFramework.UISystems {
 
             if (transition == null) {
                 if (_currentKey == childKey) {
-                    transition = new OutInUITransition();
+                    transition = new OutInTransition();
                 }
                 else {
-                    transition = new CrossUITransition();
+                    transition = new CrossTransition();
                 }
             }
 
@@ -42,15 +73,12 @@ namespace GameFramework.UISystems {
             SetAsLastSibling(childKey);
 
             // 遷移処理
-            var prevUIScreen = FindChild(_currentKey)?.uiScreen;
-            var nextUIScreen = nextChildScreen?.uiScreen;
+            var prevScreen = FindChild(_currentKey)?.uiScreen;
+            var nextScreen = nextChildScreen?.uiScreen;
             _currentKey = childKey;
 
-            StartCoroutine(transition.TransitRoutine(this, prevUIScreen, nextUIScreen, transitionType, immediate, initAction),
-                () => op.Completed(nextUIScreen),
-                () => op.Aborted(),
-                err => op.Aborted(err));
-
+            // 遷移開始
+            StartTransition(transition, prevScreen, nextScreen, transitionType, immediate, effects, initAction, op);
             return op;
         }
 
@@ -60,7 +88,7 @@ namespace GameFramework.UISystems {
         /// <param name="transition">遷移方法</param>
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Clear(IUITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
+        public AsyncOperationHandle Clear(ITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
             var op = new AsyncOperator();
             var handle = Change(null, transition, transitionType, immediate);
             if (handle.IsError) {
@@ -75,42 +103,6 @@ namespace GameFramework.UISystems {
 
             handle.ListenTo(_ => op.Completed(), ex => op.Aborted(ex));
             return op;
-        }
-
-        /// <summary>
-        /// 開く処理（後処理）
-        /// </summary>
-        protected override void PostOpen(TransitionType transitionType, bool immediate) {
-            base.PostOpen(transitionType, immediate);
-
-            var childView = FindChild(_currentKey);
-            if (childView != null && childView.uiScreen != null) {
-                childView.uiScreen.OpenAsync(transitionType, true);
-            }
-        }
-
-        /// <summary>
-        /// 閉じる処理
-        /// </summary>
-        protected override IEnumerator CloseRoutine(TransitionType transitionType, IScope cancelScope) {
-            yield return base.CloseRoutine(transitionType, cancelScope);
-
-            var childView = FindChild(_currentKey);
-            if (childView != null && childView.uiScreen != null) {
-                yield return childView.uiScreen.CloseAsync(transitionType, false);
-            }
-        }
-
-        /// <summary>
-        /// 閉じる処理（後処理）
-        /// </summary>
-        protected override void PostClose(TransitionType transitionType, bool immediate) {
-            base.PostClose(transitionType, immediate);
-
-            var childView = FindChild(_currentKey);
-            if (childView != null && childView.uiScreen != null) {
-                childView.uiScreen.CloseAsync(transitionType, true);
-            }
         }
     }
 }

@@ -51,7 +51,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く処理
         /// </summary>
-        /// <param name="transitionType">遷移向き</param>
+        /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時完了するか</param>
         /// <param name="force">既に開いている場合でも開きなおすか</param>
         public AnimationHandle OpenAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false) {

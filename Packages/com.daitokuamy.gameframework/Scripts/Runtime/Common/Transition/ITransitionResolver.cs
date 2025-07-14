@@ -1,17 +1,6 @@
 using System.Collections;
 
-namespace GameFramework.SituationSystems {
-    /// <summary>
-    /// 遷移処理用インターフェース
-    /// </summary>
-    public interface ITransition {
-        /// <summary>
-        /// 遷移処理
-        /// </summary>
-        /// <param name="resolver">遷移処理解決者</param>
-        IEnumerator TransitRoutine(ITransitionResolver resolver);
-    }
-
+namespace GameFramework {
     /// <summary>
     /// 遷移処理解決用インターフェース
     /// </summary>

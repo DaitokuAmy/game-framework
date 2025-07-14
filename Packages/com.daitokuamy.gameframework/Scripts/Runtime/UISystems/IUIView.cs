@@ -61,15 +61,6 @@ namespace GameFramework.UISystems {
             Exception = exception;
         }
     }
-
-    /// <summary>
-    /// 遷移タイプ
-    /// </summary>
-    public enum TransitionType {
-        None = -1,
-        Forward,
-        Back,
-    }
     
     /// <summary>
     /// UIViewインターフェース

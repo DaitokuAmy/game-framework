@@ -1,6 +1,6 @@
 using System.Collections;
 
-namespace GameFramework.SituationSystems {
+namespace GameFramework {
     /// <summary>
     /// 閉じると開くを同時に行う遷移
     /// </summary>
@@ -9,7 +9,8 @@ namespace GameFramework.SituationSystems {
         /// 遷移処理
         /// </summary>
         /// <param name="resolver">遷移処理解決者</param>
-        IEnumerator ITransition.TransitRoutine(ITransitionResolver resolver) {
+        /// <param name="immediate">即時遷移か</param>
+        IEnumerator ITransition.TransitRoutine(ITransitionResolver resolver, bool immediate) {
             resolver.Start();
 
             // エフェクト開始＆読み込み
@@ -19,7 +20,7 @@ namespace GameFramework.SituationSystems {
             resolver.ActivateNext();
 
             // 閉じる＆開く＆エフェクト終了
-            yield return new MergedCoroutine(resolver.ClosePrevRoutine(), resolver.OpenNextRoutine(),
+            yield return new MergedCoroutine(resolver.ClosePrevRoutine(immediate), resolver.OpenNextRoutine(immediate),
                 resolver.ExitEffectRoutine());
 
             // 非アクティブ化
