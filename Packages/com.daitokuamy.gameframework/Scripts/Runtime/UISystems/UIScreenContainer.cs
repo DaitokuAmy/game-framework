@@ -233,12 +233,18 @@ namespace GameFramework.UISystems {
         /// 遷移開始
         /// </summary>
         protected Coroutine StartTransition(ITransition transition, UIScreen prevScreen, UIScreen nextScreen, TransitionType transitionType, bool immediate, ITransitionEffect[] effects, Action<UIScreen> initAction, AsyncOperator<UIScreen> asyncOperator) {
+            // 遷移中は失敗
+            if (IsTransitioning) {
+                Debug.LogWarning("Already transitioning.");
+                return null;
+            }
+            
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
                 PrevScreen = prevScreen,
                 NextScreen = nextScreen,
                 TransitionType = transitionType,
-                Effects = effects,
+                Effects = effects ?? Array.Empty<ITransitionEffect>(),
                 EffectActive = false
             };
 

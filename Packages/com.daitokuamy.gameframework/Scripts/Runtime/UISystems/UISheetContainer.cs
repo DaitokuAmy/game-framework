@@ -50,6 +50,10 @@ namespace GameFramework.UISystems {
         /// <param name="initAction">初期化アクション</param>
         /// <param name="effects">遷移中エフェクトリスト</param>
         public AsyncOperationHandle<UIScreen> Change(string childKey, ITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false, Action<UIScreen> initAction = null, params ITransitionEffect[] effects) {
+            if (IsTransitioning) {
+                return AsyncOperationHandle<UIScreen>.CanceledHandle;
+            }
+            
             var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 

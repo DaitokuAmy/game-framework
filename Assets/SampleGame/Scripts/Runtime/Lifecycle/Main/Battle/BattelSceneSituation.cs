@@ -15,6 +15,7 @@ using R3;
 using SampleGame.Application.Battle;
 using SampleGame.Domain.Battle;
 using ThirdPersonEngine;
+using UnityEngine;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -114,6 +115,29 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <summary>
+        /// 更新処理
+        /// </summary>
+        protected override void UpdateInternal() {
+            base.UpdateInternal();
+
+            // todo:テスト
+            if (Input.GetKeyDown(KeyCode.Alpha7)) {
+                var overlayUIService = Services.Resolve<UIManager>().GetService<BattleOverlayUIService>();
+                overlayUIService.PlayWin();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha8)) {
+                var overlayUIService = Services.Resolve<UIManager>().GetService<BattleOverlayUIService>();
+                overlayUIService.PlayLose();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Alpha9)) {
+                var overlayUIService = Services.Resolve<UIManager>().GetService<BattleOverlayUIService>();
+                overlayUIService.Clear();
+            }
+        }
+
+        /// <summary>
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
@@ -153,7 +177,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void SetupDomains(IScope scope) {
             Services.Resolve<IModelRepository>().CreateSingleModel<BattleModel>().RegisterTo(scope);
-            
+
             ServiceContainer.Register<BattleDomainService>().RegisterTo(scope);
             ServiceContainer.Register<CharacterDomainService>().RegisterTo(scope);
         }

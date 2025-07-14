@@ -154,6 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _target: {fileID: 3121478970084275235}
   _updateType: 1
+  _passRaycast: 0
   _downDuration: 0.1
   _upDuration: 0.1
   _downScale: 0.9

@@ -22,6 +22,10 @@ namespace GameFramework.UISystems {
         /// <param name="initAction">初期化アクション</param>
         /// <param name="effects">遷移エフェクトリスト</param>
         public AsyncOperationHandle<UIScreen> Transition(string childKey, ITransition transition = null, bool immediate = false, bool force = false, Action<UIScreen> initAction = null, params ITransitionEffect[] effects) {
+            if (IsTransitioning) {
+                return AsyncOperationHandle<UIScreen>.CanceledHandle;
+            }
+            
             var op = new AsyncOperator<UIScreen>();
             var nextChildScreen = FindChild(childKey);
 
@@ -89,8 +93,21 @@ namespace GameFramework.UISystems {
         /// </summary>
         /// <param name="transition">遷移方法</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle<UIScreen> Clear(ITransition transition = null, bool immediate = false) {
-            return Transition(null, transition, immediate);
+        public AsyncOperationHandle Clear(ITransition transition = null, bool immediate = false) {
+            var op = new AsyncOperator();
+            var handle = Transition(null, transition, immediate);
+            if (handle.IsError) {
+                op.Aborted(handle.Exception);
+                return op;
+            }
+
+            if (handle.IsDone) {
+                op.Completed();
+                return op;
+            }
+
+            handle.ListenTo(_ => op.Completed(), ex => op.Aborted(ex));
+            return op;
         }
         
         /// <summary>
