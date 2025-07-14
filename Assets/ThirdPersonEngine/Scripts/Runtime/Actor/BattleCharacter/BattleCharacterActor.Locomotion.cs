@@ -90,9 +90,10 @@ namespace ThirdPersonEngine {
 
                 if (_moveDirection.sqrMagnitude > float.Epsilon) {
                     var moveDirection = body.Transform.InverseTransformDirection(_moveDirection);
+                    var rotationSpeedMultiplier = Owner.MoveComponent.GetResolver<DirectionMoveResolver>().RotationSpeedMultiplier;
 
                     UpdateDirection("MoveDir", moveDirection);
-                    playable.SetFloat("MoveSpeedMultiplier", 1.0f);
+                    playable.SetFloat("MoveSpeedMultiplier", rotationSpeedMultiplier);
                 }
                 else {
                     playable.SetFloat("MoveDirX", 0.0f);

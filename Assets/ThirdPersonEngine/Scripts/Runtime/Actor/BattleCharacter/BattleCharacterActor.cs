@@ -11,14 +11,13 @@ namespace ThirdPersonEngine {
     public partial class BattleCharacterActor : CharacterActor {
         private readonly VelocityActorComponent _velocityComponent;
         private readonly BattleCharacterActorData _data;
-        
-        private bool _isGrounded;
+        private readonly CharacterController _characterController;
+
         private bool _isAir;
         private float _groundHeight;
 
-
         /// <summary>地上にいるか</summary>
-        public override bool IsGrounded => _isGrounded;
+        public override bool IsGrounded => _characterController.isGrounded;
         /// <summary>地面の高さ</summary>
         public override float GroundHeight => _groundHeight;
 
@@ -28,6 +27,7 @@ namespace ThirdPersonEngine {
         public BattleCharacterActor(Body body, BattleCharacterActorData data)
             : base(body, data) {
             _data = data;
+            _characterController = body.GetComponent<CharacterController>();
             _velocityComponent = AddComponent(new VelocityActorComponent(this, _data.moveActionInfo));
         }
 
@@ -50,9 +50,16 @@ namespace ThirdPersonEngine {
 
             // 地上状態の更新
             UpdateGroundStatus();
-            
+
             // 状態更新
             UpdateState(deltaTime);
+        }
+
+        /// <summary>
+        /// 現在座標の更新
+        /// </summary>
+        protected override void SetPosition(Vector3 position) {
+            _characterController.Move(position - Body.Position);
         }
 
         /// <summary>
@@ -68,7 +75,7 @@ namespace ThirdPersonEngine {
         public void InputSprint(bool sprint) {
             CurrentState.InputSprint(sprint);
         }
-        
+
         /// <summary>
         /// ジャンプ入力
         /// </summary>
@@ -83,12 +90,10 @@ namespace ThirdPersonEngine {
             var results = new RaycastHit[4];
             var groundMask = LayerMask.GetMask("Ground");
             if (Physics.RaycastNonAlloc(Body.Position + Vector3.up, Vector3.down, results, 3.0f, groundMask) > 0) {
-                _isGrounded = results[0].distance <= 1.0f + _data.groundHeight;
                 _isAir = results[0].distance > 1.0 + _data.airHeight;
                 _groundHeight = results[0].point.y;
             }
             else {
-                _isGrounded = false;
                 _isAir = true;
                 _groundHeight = 0.0f;
             }
@@ -97,8 +102,7 @@ namespace ThirdPersonEngine {
         /// <summary>
         /// StateActionの再生
         /// </summary>
-        private UniTask PlayStateActionAsync(StateType stateType, CancellationToken ct)
-        {
+        private UniTask PlayStateActionAsync(StateType stateType, CancellationToken ct) {
             _stateContainer.Change(stateType, true);
 
             // Stateを抜けるまで待機

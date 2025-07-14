@@ -25,9 +25,9 @@ MonoBehaviour:
   airHeight: 0.2
   jumpActionInfo:
     action:
-      animationClip: {fileID: 4531230811867173599, guid: cfeabde5891e93f4b9c8565fecb773b7, type: 3}
+      animationClip: {fileID: -1011303810920639588, guid: eb18d344be306764bad8312ecf8f7045, type: 3}
       sequenceClip: {fileID: 0}
       inBlend: 0.1
       outBlend: 0.1
     initVelocity: 10
-    moveSpeedScale: 1
+    moveSpeedScale: 0

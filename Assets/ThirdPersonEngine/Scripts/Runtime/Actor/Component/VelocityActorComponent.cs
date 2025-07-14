@@ -15,12 +15,12 @@ namespace ThirdPersonEngine {
             /// <summary>地上のブレーキ速度</summary>
             float GroundBrake { get; }
         }
-        
+
         /// <summary>誤差</summary>
         private const float Epsilon = 0.01f;
 
         private readonly ISettings _settings;
-        
+
         private bool _isActive = true;
         private IMovableActor _actor;
 
@@ -33,7 +33,7 @@ namespace ThirdPersonEngine {
                 if (value == _isActive) {
                     return;
                 }
-                
+
                 _isActive = value;
                 if (!_isActive) {
                     // 非アクティブにする際は速度をリセット
@@ -111,15 +111,17 @@ namespace ThirdPersonEngine {
             var position = _actor.GetPosition();
             var isGrounded = _actor.IsGrounded;
 
-            if (isGrounded && _velocity.y < 0) {
+            if (isGrounded) {
                 // 下方向に移動する際、地上にいるなら速度のY軸をなくす
-                _velocity.y = 0.0f;
+                if (_velocity.y < 0) {
+                    _velocity.y = 0.0f;
+                }
             }
             else {
                 // 重力加速度を反映
                 _velocity.y -= Gravity * deltaTime;
             }
-            
+
             // ブレーキ反映
             var brake = isGrounded ? _settings.GroundBrake : _settings.AirBrake;
             var velocityXZ = new Vector2(_velocity.x, _velocity.z);
@@ -133,7 +135,7 @@ namespace ThirdPersonEngine {
 
             _velocity.x = velocityXZ.x;
             _velocity.z = velocityXZ.y;
-            
+
             // 座標更新
             position += _velocity * deltaTime;
             position.y = Mathf.Max(_actor.GroundHeight, position.y);

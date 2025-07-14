@@ -13,6 +13,9 @@ namespace ThirdPersonEngine {
         private Vector3 _direction;
         private bool _updateRotation;
         
+        /// <summary>回転による速度係数</summary>
+        public float RotationSpeedMultiplier { get; private set; }
+        
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -92,8 +95,8 @@ namespace ThirdPersonEngine {
             var deltaAngleY = Vector3.SignedAngle(forward, direction, Vector3.up);
 
             // 移動（向きが90度以上離れていたら速度を0にする）
-            var speedRate = _updateRotation ? Mathf.Max(0.0f, (90 - Mathf.Abs(deltaAngleY)) / 90.0f) : 1.0f;
-            pos += velocity * (speedRate * deltaTime);
+            RotationSpeedMultiplier = _updateRotation ? Mathf.Max(0.0f, (90 - Mathf.Abs(deltaAngleY)) / 90.0f) : 1.0f;
+            pos += velocity * (RotationSpeedMultiplier * deltaTime);
             Actor.SetPosition(pos);
             
             // 向き直し

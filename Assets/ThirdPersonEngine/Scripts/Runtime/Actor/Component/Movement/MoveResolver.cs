@@ -23,7 +23,7 @@ namespace ThirdPersonEngine {
         protected IMovableActor Actor { get; private set; }
         
         /// <summary>移動終了イベント(boolは達成したか)</summary>
-        public event Action<bool> OnMoveEndEvent;
+        public event Action<bool> EndMoveEvent;
 
         void IMoveResolver.Initialize(IMovableActor actor) {
             Actor = actor;
@@ -104,8 +104,8 @@ namespace ThirdPersonEngine {
 
             _isMoving = false;
             _velocity = Vector3.zero;
-            OnMoveEndEvent?.Invoke(completed);
-            OnMoveEndEvent = null;
+            EndMoveEvent?.Invoke(completed);
+            EndMoveEvent = null;
         }
 
         /// <summary>

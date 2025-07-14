@@ -12,7 +12,7 @@ namespace ThirdPersonEngine {
         Vector3 Velocity { get; }
         
         /// <summary>移動終了イベント(boolは達成したか)</summary>
-        event Action<bool> OnMoveEndEvent;
+        event Action<bool> EndMoveEvent;
 
         /// <summary>
         /// 初期化処理

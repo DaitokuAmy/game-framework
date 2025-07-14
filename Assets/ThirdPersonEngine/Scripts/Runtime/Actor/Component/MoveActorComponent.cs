@@ -194,7 +194,7 @@ namespace ThirdPersonEngine {
                 }
                 else {
                     // 移動完了を監視
-                    directionMoveResolver.OnMoveEndEvent += completed => {
+                    directionMoveResolver.EndMoveEvent += completed => {
                         if (completed) {
                             moveAsyncOperator.Completed();
                         }
@@ -239,7 +239,7 @@ namespace ThirdPersonEngine {
                 }
                 else {
                     // 移動完了を監視
-                    moveResolver.OnMoveEndEvent += completed => {
+                    moveResolver.EndMoveEvent += completed => {
                         if (completed) {
                             moveAsyncOperator.Completed();
                         }
@@ -284,7 +284,7 @@ namespace ThirdPersonEngine {
                 }
                 else {
                     // 移動完了を監視
-                    pointMoveResolver.OnMoveEndEvent += completed => {
+                    pointMoveResolver.EndMoveEvent += completed => {
                         if (completed) {
                             moveAsyncOperator.Completed();
                         }
