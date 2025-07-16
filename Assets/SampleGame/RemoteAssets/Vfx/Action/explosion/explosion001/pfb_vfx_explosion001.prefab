@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3038290749134191675}
   m_Layer: 0
-  m_Name: prfb_vfx_act_explosion001
+  m_Name: pfb_vfx_explosion001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

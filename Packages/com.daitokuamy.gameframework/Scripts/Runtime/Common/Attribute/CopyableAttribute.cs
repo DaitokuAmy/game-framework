@@ -5,6 +5,6 @@ namespace GameFramework {
     /// コピー可能なプロパティにマーキングするためのAttribute
     /// </summary>
     [AttributeUsage(AttributeTargets.Field)]
-    public class CopyablePropertyAttribute : Attribute {
+    public class CopyableAttribute : Attribute {
     }
 }

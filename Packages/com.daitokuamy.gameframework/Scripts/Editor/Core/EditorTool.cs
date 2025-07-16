@@ -287,7 +287,7 @@ namespace GameFramework.Core.Editor {
             CopySerializedObject(source, dest, prop => {
                 var type = sourceType;
                 var field = type.GetField(prop.name, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-                while (field == null || field.GetCustomAttribute<CopyablePropertyAttribute>() == null) {
+                while (field == null || field.GetCustomAttribute<CopyableAttribute>() == null) {
                     type = type.BaseType;
                     if (type == null || type == typeof(Object)) {
                         field = null;
