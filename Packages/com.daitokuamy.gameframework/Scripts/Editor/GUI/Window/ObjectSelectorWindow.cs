@@ -65,6 +65,13 @@ namespace GameFramework.Editor {
             EditorGUILayout.Space(4);
             DrawScrollList();
             DrawFooter();
+
+            if (Event.current.type == EventType.KeyDown) {
+                if (Event.current.keyCode == KeyCode.Escape) {
+                    Close();
+                    Event.current.Use();
+                }
+            }
         }
 
         /// <summary>
@@ -117,6 +124,7 @@ namespace GameFramework.Editor {
                 EditorGUILayout.Space(0.0f, true);
                 if (GUILayout.Button("Clear")) {
                     _onSelected?.Invoke(null);
+                    Close();
                 }
             }
         }
