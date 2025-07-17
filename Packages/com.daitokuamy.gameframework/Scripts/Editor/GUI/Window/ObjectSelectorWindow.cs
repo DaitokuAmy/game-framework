@@ -65,6 +65,7 @@ namespace GameFramework.Editor {
             EditorGUILayout.Space(4);
             DrawScrollList();
             DrawFooter();
+            EditorGUILayout.Space(4);
 
             if (Event.current.type == EventType.KeyDown) {
                 if (Event.current.keyCode == KeyCode.Escape) {
@@ -122,7 +123,7 @@ namespace GameFramework.Editor {
         private void DrawFooter() {
             using (new GUILayout.HorizontalScope(EditorStyles.toolbar)) {
                 EditorGUILayout.Space(0.0f, true);
-                if (GUILayout.Button("Clear")) {
+                if (GUILayout.Button("Clear", GUILayout.Width(80))) {
                     _onSelected?.Invoke(null);
                     Close();
                 }
