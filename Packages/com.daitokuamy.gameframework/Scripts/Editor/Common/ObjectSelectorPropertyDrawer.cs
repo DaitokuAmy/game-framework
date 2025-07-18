@@ -16,7 +16,8 @@ namespace GameFramework.Editor {
                 return;
             }
 
-            var controlId = GUIUtility.GetControlID("ObjectSelector".GetHashCode(), FocusType.Keyboard, position);
+            GUIUtility.GetControlID("ObjectSelector".GetHashCode(), FocusType.Keyboard, position);
+            
             var objectFieldName = "ObjectField";
             var focused = GUI.GetNameOfFocusedControl() == objectFieldName;
             
