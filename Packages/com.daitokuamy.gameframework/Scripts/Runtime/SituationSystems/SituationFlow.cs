@@ -106,8 +106,7 @@ namespace GameFramework.SituationSystems {
             var nextNode = GetNextNode(type);
 
             if (nextNode == null) {
-                Debug.LogError($"Not found situation tree node. [{type.Name}]");
-                return TransitionHandle.Empty;
+                return new TransitionHandle(new Exception($"Not found situation tree node. [{type.Name}]"));
             }
 
             return Transition(nextNode, onSetup, overrideTransition, effects);

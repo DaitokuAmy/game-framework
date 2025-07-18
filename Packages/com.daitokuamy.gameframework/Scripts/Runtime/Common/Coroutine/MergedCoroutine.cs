@@ -7,7 +7,7 @@ namespace GameFramework {
     /// 並列実行用コルーチン
     /// </summary>
     public class MergedCoroutine : IEnumerator {
-        private Coroutine[] _coroutines;
+        private readonly Coroutine[] _coroutines;
 
         // 現在の位置(未使用)
         public object Current => null;
@@ -17,18 +17,18 @@ namespace GameFramework {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="funcs">非同期処理リスト</param>
-        public MergedCoroutine(params IEnumerator[] funcs) {
-            _coroutines = funcs.Select(x => new Coroutine(x))
+        /// <param name="enumerators">非同期処理リスト</param>
+        public MergedCoroutine(params IEnumerator[] enumerators) {
+            _coroutines = enumerators.Select(x => new Coroutine(x))
                 .ToArray();
         }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="funcs">非同期処理リスト</param>
-        public MergedCoroutine(IEnumerable<IEnumerator> funcs) {
-            _coroutines = funcs.Select(x => new Coroutine(x))
+        /// <param name="enumerators">非同期処理リスト</param>
+        public MergedCoroutine(IEnumerable<IEnumerator> enumerators) {
+            _coroutines = enumerators.Select(x => new Coroutine(x))
                 .ToArray();
         }
 
@@ -55,6 +55,7 @@ namespace GameFramework {
                 if (coroutine == null) {
                     continue;
                 }
+
                 if (!coroutine.MoveNext()) {
                     _coroutines[i] = null;
                 }
