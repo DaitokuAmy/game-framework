@@ -15,9 +15,8 @@ namespace GameFramework {
         /// 状態に入った際の処理
         /// </summary>
         /// <param name="prevKey">入る前の状態キー</param>
-        /// <param name="back">戻り遷移</param>
         /// <param name="scope">ExitまでのScope</param>
-        void OnEnter(TKey prevKey, bool back, IScope scope);
+        void OnEnter(TKey prevKey, IScope scope);
 
         /// <summary>
         /// 状態に入っている際の更新処理
@@ -29,7 +28,6 @@ namespace GameFramework {
         /// 状態を抜ける際の処理
         /// </summary>
         /// <param name="nextKey">抜ける先の状態キー</param>
-        /// <param name="back">戻り遷移</param>
-        void OnExit(TKey nextKey, bool back);
+        void OnExit(TKey nextKey);
     }
 }

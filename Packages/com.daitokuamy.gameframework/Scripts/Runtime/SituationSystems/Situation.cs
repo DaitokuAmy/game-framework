@@ -68,7 +68,7 @@ namespace GameFramework.SituationSystems {
         public IReadOnlyList<Situation> Children => _children;
 
         /// <summary>登録されているFlow</summary>
-        protected SituationFlow SituationFlow { get; private set; }
+        protected SituationTree SituationTree { get; private set; }
 
         /// <summary>
         /// コンストラクタ

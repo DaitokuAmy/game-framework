@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.UI;
 
-namespace SituationFlowSample {
+namespace SituationTreeSample {
     /// <summary>
     /// 遷移用メニューView
     /// </summary>

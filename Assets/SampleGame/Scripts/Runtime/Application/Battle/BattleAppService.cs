@@ -36,7 +36,7 @@ namespace SampleGame.Application.Battle {
         }
 
         /// <summary>
-        /// 初期化
+        /// セットアップ
         /// </summary>
         public async UniTask SetupAsync(int battleId, int playerId, CancellationToken ct) {
             // マスターの読み込み
@@ -48,6 +48,13 @@ namespace SampleGame.Application.Battle {
             
             // 初期化
             await _battleDomainService.SetupAsync(battleMaster, playerMaster, ct);
+        }
+
+        /// <summary>
+        /// クリーンアップ
+        /// </summary>
+        public void Cleanup() {
+            _battleDomainService.Cleanup();
         }
     }
 }

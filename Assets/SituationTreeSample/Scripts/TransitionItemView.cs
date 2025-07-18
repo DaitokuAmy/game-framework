@@ -4,7 +4,7 @@ using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SituationFlowSample {
+namespace SituationTreeSample {
     /// <summary>
     /// 選択項目用のView
     /// </summary>

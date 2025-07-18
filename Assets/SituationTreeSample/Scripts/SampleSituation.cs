@@ -3,21 +3,18 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using UnityEngine;
 
-namespace SituationFlowSample {
+namespace SituationTreeSample {
     /// <summary>
-    /// サンプル用のSceneSituation
+    /// サンプル用のSituation
     /// </summary>
-    public abstract class SampleSceneSituation : SceneSituation, ISampleSituation {
+    public abstract class SampleSituation : Situation, ISampleSituation {
         private const float LoadDuration = 0.2f;
         private const float SetupDuration = 0.05f;
         
         private GameObject _sampleObject;
-
-        /// <summary>アンロード時の空シーンのアセットパス(未指定だとアンロードでシーンを廃棄しない)</summary>
-        protected override string EmptySceneAssetPath => "Assets/SituationFlowSample/Scenes/situation_flow_sample_empty.unity";
         
         /// <summary>表示名</summary>
-        string ISampleSituation.DisplayName => GetType().Name.Replace("SampleSceneSituation", "");
+        string ISampleSituation.DisplayName => GetType().Name.Replace("SampleSituation", "");
         
         /// <summary>
         /// 読み込み
@@ -44,7 +41,7 @@ namespace SituationFlowSample {
             Debug.Log($"Activate. [{GetType().Name}]");
             base.ActivateInternal(handle, scope);
             _sampleObject = new GameObject($"Active Node:{GetType().Name}");
-            _sampleObject.transform.SetParent(Services.Resolve<SituationFlowSample>().transform);
+            _sampleObject.transform.SetParent(Services.Resolve<SituationTreeSample>().transform);
         }
 
         /// <summary>

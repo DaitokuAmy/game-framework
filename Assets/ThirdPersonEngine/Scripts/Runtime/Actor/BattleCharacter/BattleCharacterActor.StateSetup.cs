@@ -52,7 +52,7 @@ namespace ThirdPersonEngine {
             /// <summary>
             /// 入った時の処理
             /// </summary>
-            void IState<StateType>.OnEnter(StateType prevKey, bool back, IScope scope) {
+            void IState<StateType>.OnEnter(StateType prevKey, IScope scope) {
                 _enterRoutine = _coroutineRunner.StartCoroutine(EnterRoutineInternal(prevKey, scope),
                     cancellationToken: scope.Token);
             }
@@ -71,7 +71,7 @@ namespace ThirdPersonEngine {
             /// <summary>
             /// 終了処理
             /// </summary>
-            void IState<StateType>.OnExit(StateType nextKey, bool back) {
+            void IState<StateType>.OnExit(StateType nextKey) {
                 _coroutineRunner.StopAllCoroutines();
                 ExitInternal(nextKey);
             }

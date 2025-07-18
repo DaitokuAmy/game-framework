@@ -6,23 +6,23 @@ using GameFramework.SituationSystems;
 using R3;
 using UnityEngine;
 
-namespace SituationFlowSample {
+namespace SituationTreeSample {
     /// <summary>
     /// SituationFlow用のサンプル
     /// </summary>
-    public class SituationFlowSample : MonoBehaviour {
+    public class SituationTreeSample : MonoBehaviour {
         [SerializeField, Tooltip("遷移先選択用メニュー")]
         private TransitionMenuView _transitionMenuView;
 
         private DisposableScope _scope;
         private SituationContainer _situationContainer;
-        private SituationFlow _situationFlow;
+        private SituationTree _situationTree;
         private List<ISampleSituation> _nodeSituations = new();
 
         /// <summary>遷移先選択メニューView</summary>
         public TransitionMenuView MenuView => _transitionMenuView;
         /// <summary>遷移に使うFlow</summary>
-        public SituationFlow Flow => _situationFlow;
+        public SituationTree Tree => _situationTree;
 
         /// <summary>
         /// 初期化処理
@@ -82,8 +82,8 @@ namespace SituationFlowSample {
             _situationContainer.Setup(situationRoot);
 
             // シチュエーションの遷移関係を構築
-            _situationFlow = new SituationFlow(_situationContainer);
-            var aNode = _situationFlow.ConnectRoot<SampleSituationA>();
+            _situationTree = new SituationTree(_situationContainer);
+            var aNode = _situationTree.ConnectRoot<SampleSituationA>();
             var aA1Node = aNode.Connect<SampleSituationA1>(); // A -> A1
             var a1A2Node = aA1Node.Connect<SampleSituationA2>(); // A1 -> A2
             var a2B1Node = a1A2Node.Connect<SampleSituationB1>(); // A2 -> B1
@@ -96,19 +96,19 @@ namespace SituationFlowSample {
             var c1A2Node = b22C1Node.Connect<SampleSituationA2>(); // C1 -> A2
 
             // Fallback
-            _situationFlow.SetFallbackNode(a1A2Node);
-            _situationFlow.SetFallbackNode(a2B1Node);
-            _situationFlow.SetFallbackNode(b1B22Node, a1A2Node);
+            _situationTree.SetFallbackNode(a1A2Node);
+            _situationTree.SetFallbackNode(a2B1Node);
+            _situationTree.SetFallbackNode(b1B22Node, a1A2Node);
 
             // Viewの初期化
             _nodeSituations.Clear();
-            var nodes = _situationFlow.GetNodes();
+            var nodes = _situationTree.GetNodes();
             var nodeSituations = nodes.Select(x => x.Situation).Distinct();
             _nodeSituations.AddRange(nodeSituations.Cast<ISampleSituation>());
             _transitionMenuView.SetupItems(-1, _nodeSituations.Select(x => x.DisplayName).ToArray());
 
             // 遷移
-            _situationFlow.Transition(b1B21Node);
+            _situationTree.Transition(b1B21Node);
         }
 
         /// <summary>
@@ -130,14 +130,14 @@ namespace SituationFlowSample {
 
             MenuView.BackSubject
                 .TakeUntil(_scope)
-                .Subscribe(_ => Flow.Back());
+                .Subscribe(_ => Tree.Back());
 
             MenuView.SelectedSubject
                 .TakeUntil(_scope)
                 .Subscribe(index => {
                     if (index >= 0 && index < _nodeSituations.Count) {
                         var nodeSituation = _nodeSituations[index];
-                        Flow.Transition(nodeSituation.GetType());
+                        Tree.Transition(nodeSituation.GetType());
                     }
                 });
         }
@@ -154,7 +154,7 @@ namespace SituationFlowSample {
         /// 廃棄時処理
         /// </summary>
         private void OnDestroy() {
-            _situationFlow.Dispose();
+            _situationTree.Dispose();
             _situationContainer.Dispose();
             Services.Instance.Remove(GetType());
         }
@@ -164,7 +164,7 @@ namespace SituationFlowSample {
         /// </summary>
         private void Update() {
             if (Input.GetKeyDown(KeyCode.R)) {
-                _situationFlow.Reset();
+                _situationTree.Reset();
             }
 
             _situationContainer.Update();

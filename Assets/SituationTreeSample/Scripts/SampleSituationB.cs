@@ -1,4 +1,4 @@
-namespace SituationFlowSample {
+namespace SituationTreeSample {
     public class SampleSituationB : SampleSituation {
     }
 }

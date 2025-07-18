@@ -11,15 +11,15 @@ namespace SampleGame.Lifecycle {
     public partial class SituationService : IFixedUpdatableTask, ILateUpdatableTask, ITaskEventHandler, IDisposable {
         private readonly DisposableScope _scope;
         private readonly SituationContainer _situationContainer;
-        private readonly SituationFlow _situationFlow;
+        private readonly ISituationFlow _situationFlow;
 
         private TaskRunner _taskRunner;
 
-        // アクティブか
+        /// <summary>アクティブか</summary>
         bool ITask.IsActive => true;
 
-        /// <summary>現在のNodeが対象としているSituationを取得する</summary>
-        public Situation CurrentNodeSituation => _situationFlow.CurrentNode?.Situation;
+        /// <summary>現在のSituation</summary>
+        public Situation CurrentSituation => _situationFlow.Current;
 
         /// <summary>
         /// コンストラクタ
@@ -27,7 +27,8 @@ namespace SampleGame.Lifecycle {
         public SituationService() {
             _scope = new DisposableScope();
             _situationContainer = new SituationContainer().RegisterTo(_scope);
-            _situationFlow = new SituationFlow(_situationContainer).RegisterTo(_scope);
+            _situationFlow = new SituationTree(_situationContainer).RegisterTo(_scope);
+            //_situationFlow = new SituationStack(_situationContainer).RegisterTo(_scope);
         }
 
         /// <summary>
@@ -89,12 +90,12 @@ namespace SampleGame.Lifecycle {
             }
 
             if (_situationContainer == null || _situationFlow == null) {
-                Debug.LogError("SituationContainer or SituationFlow is null");
+                Debug.LogError("SituationContainer or SituationTree is null");
                 return;
             }
 
             SetupContainer(_scope);
-            SetupFlow(_scope);
+            SetupTree(_situationFlow as SituationTree, _scope);
             SetupDebug(_scope);
         }
 

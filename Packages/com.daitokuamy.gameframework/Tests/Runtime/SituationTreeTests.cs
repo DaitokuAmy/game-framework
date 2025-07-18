@@ -5,11 +5,11 @@ using NUnit.Framework;
 
 namespace GameFramework.Tests {
     /// <summary>
-    /// SituationFlow を通じての遷移構成・制御・状態遷移を検証するテストクラスです。
+    /// SituationTree を通じての遷移構成・制御・状態遷移を検証するテストクラスです。
     /// </summary>
-    public class SituationFlowTests {
+    public class SituationTreeTests {
         /// <summary>
-        /// SituationFlow の接続と遷移制御を検証するテスト用基底クラスです。
+        /// SituationTree の接続と遷移制御を検証するテスト用基底クラスです。
         /// 各種ライフサイクル処理の呼び出し記録が可能です。
         /// </summary>
         private class MockSituationBase : Situation {
@@ -67,7 +67,7 @@ namespace GameFramework.Tests {
 
         private CoroutineRunner _runner;
         private SituationContainer _container;
-        private SituationFlow _flow;
+        private SituationTree _tree;
 
         /// <summary>
         /// テスト開始前にコンテナとフローを初期化し、接続状態を構築します。
@@ -88,8 +88,8 @@ namespace GameFramework.Tests {
             _container.Setup(situationRoot);
 
             // ルート接続と遷移関係の構築
-            _flow = new SituationFlow(_container);
-            var aNode = _flow.ConnectRoot<MockSituationA>();
+            _tree = new SituationTree(_container);
+            var aNode = _tree.ConnectRoot<MockSituationA>();
             var bNode = aNode.Connect<MockSituationB>();
             bNode.Connect<MockSituationC>();
         }
@@ -99,7 +99,7 @@ namespace GameFramework.Tests {
         /// </summary>
         [TearDown]
         public void Teardown() {
-            _flow.Dispose();
+            _tree.Dispose();
             _container.Dispose();
             _runner.Dispose();
         }
@@ -115,11 +115,11 @@ namespace GameFramework.Tests {
         }
 
         /// <summary>
-        /// Flow から指定した Situation へ遷移が可能であることを検証します。
+        /// Tree から指定した Situation へ遷移が可能であることを検証します。
         /// </summary>
         [Test]
-        public void FlowCanTransitBetweenConnectedSituations() {
-            var handle = _flow.Transition<MockSituationA>();
+        public void TreeCanTransitBetweenConnectedSituations() {
+            var handle = _tree.Transition<MockSituationA>();
             RunCoroutineUntilDone(() => handle.IsDone);
 
             var current = _container.Current as MockSituationA;
@@ -133,9 +133,9 @@ namespace GameFramework.Tests {
         /// 接続されていない Situation への遷移は失敗することを確認します。
         /// </summary>
         [Test]
-        public void FlowTransitionToUnconnectedSituationFails() {
+        public void TreeTransitionToUnconnectedSituationFails() {
             // 未接続のノードを直接追加してテスト
-            var handle = _flow.Transition<MockSituationB>();
+            var handle = _tree.Transition<MockSituationB>();
             RunCoroutineUntilDone(() => handle.IsDone);
 
             Assert.IsFalse(handle.IsValid);
@@ -143,15 +143,15 @@ namespace GameFramework.Tests {
         }
 
         /// <summary>
-        /// Flow 経由で複数段階の遷移が可能であることを検証します。
+        /// Tree 経由で複数段階の遷移が可能であることを検証します。
         /// </summary>
         [Test]
-        public void FlowCanTransitToDeepChild() {
-            var handle1 = _flow.Transition<MockSituationA>();
+        public void TreeCanTransitToDeepChild() {
+            var handle1 = _tree.Transition<MockSituationA>();
             RunCoroutineUntilDone(() => handle1.IsDone);
-            var handle2 = _flow.Transition<MockSituationB>();
+            var handle2 = _tree.Transition<MockSituationB>();
             RunCoroutineUntilDone(() => handle2.IsDone);
-            var handle3 = _flow.Transition<MockSituationC>();
+            var handle3 = _tree.Transition<MockSituationC>();
             RunCoroutineUntilDone(() => handle3.IsDone);
 
             var current = _container.Current as MockSituationC;
@@ -162,19 +162,19 @@ namespace GameFramework.Tests {
         }
 
         /// <summary>
-        /// Flow 経由で複数段階の遷移後に戻って来れる事を検証します。
+        /// Tree 経由で複数段階の遷移後に戻って来れる事を検証します。
         /// </summary>
         [Test]
-        public void FlowCanBackToDeepChild() {
-            var handle1 = _flow.Transition<MockSituationA>();
+        public void TreeCanBackToDeepChild() {
+            var handle1 = _tree.Transition<MockSituationA>();
             RunCoroutineUntilDone(() => handle1.IsDone);
-            var handle2 = _flow.Transition<MockSituationB>();
+            var handle2 = _tree.Transition<MockSituationB>();
             RunCoroutineUntilDone(() => handle2.IsDone);
-            var handle3 = _flow.Transition<MockSituationC>();
+            var handle3 = _tree.Transition<MockSituationC>();
             RunCoroutineUntilDone(() => handle3.IsDone);
-            var handle4 = _flow.Back();
+            var handle4 = _tree.Back();
             RunCoroutineUntilDone(() => handle4.IsDone);
-            var handle5 = _flow.Back();
+            var handle5 = _tree.Back();
             RunCoroutineUntilDone(() => handle5.IsDone);
 
             var current = _container.Current as MockSituationA;

@@ -13,7 +13,7 @@ namespace SampleGame.Domain.Battle {
         private readonly ICharacterActorFactory _characterActorFactory;
         private readonly IFieldActorFactory _fieldActorFactory;
         private readonly BattleModel _battleModel;
-        
+
         private DisposableScope _scope;
 
         /// <summary>バトルモデル</summary>
@@ -27,7 +27,7 @@ namespace SampleGame.Domain.Battle {
             _characterActorFactory = Services.Resolve<ICharacterActorFactory>();
             _fieldActorFactory = Services.Resolve<IFieldActorFactory>();
             _battleModel = _modelRepository.GetSingleModel<BattleModel>();
-            
+
             _scope = new DisposableScope();
         }
 
@@ -40,17 +40,28 @@ namespace SampleGame.Domain.Battle {
         }
 
         /// <summary>
-        /// 初期化
+        /// セットアップ
         /// </summary>
         public async UniTask SetupAsync(IBattleMaster master, IPlayerMaster playerMaster, CancellationToken ct) {
             // バトル初期化
             _battleModel.Setup(master);
-            
+
             // フィールドの生成
             await CreateFieldAsync(master.FieldMaster, ct);
-            
+
             // プレイヤーの生成
             await CreatePlayerAsync(playerMaster, ct);
+        }
+
+        /// <summary>
+        /// クリーンアップ
+        /// </summary>
+        public void Cleanup() {
+            // プレイヤーの削除
+            DeleteCurrentPlayer();
+            
+            // フィールドの削除
+            DeleteCurrentField();
         }
 
         /// <summary>
@@ -59,15 +70,15 @@ namespace SampleGame.Domain.Battle {
         private async UniTask CreatePlayerAsync(IPlayerMaster master, CancellationToken ct) {
             // 現在のPlayerを削除
             DeleteCurrentPlayer();
-            
+
             // モデルの生成
             var playerModel = _modelRepository.CreateAutoIdModel<CharacterModel, PlayerModel>();
             playerModel.Setup(master);
-            
+
             // アクターの生成
             var port = await _characterActorFactory.CreatePlayerAsync(playerModel, null, ct);
             playerModel.ActorModelInternal.Setup(port);
-            
+
             // モデルの登録
             _battleModel.SetPlayerModel(playerModel);
         }
@@ -80,13 +91,13 @@ namespace SampleGame.Domain.Battle {
             if (playerModel == null) {
                 return;
             }
-            
+
             // 登録解除
             _battleModel.SetPlayerModel(null);
-            
+
             // アクターの削除
             _characterActorFactory.DestroyPlayer(playerModel);
-            
+
             // モデルの削除
             _modelRepository.DeleteAutoIdModel<CharacterModel>(playerModel);
         }
@@ -97,15 +108,15 @@ namespace SampleGame.Domain.Battle {
         private async UniTask CreateFieldAsync(IFieldMaster master, CancellationToken ct) {
             // 現在のFieldを削除
             DeleteCurrentField();
-            
+
             // モデルの生成
             var fieldModel = _modelRepository.CreateAutoIdModel<FieldModel>(5001);
             fieldModel.Setup(master);
-            
+
             // アクターの生成
             var port = await _fieldActorFactory.CreateAsync(fieldModel, ct);
             fieldModel.ActorModelInternal.Setup(port);
-            
+
             // モデルの登録
             _battleModel.SetFieldModel(fieldModel);
         }
@@ -118,13 +129,13 @@ namespace SampleGame.Domain.Battle {
             if (fieldModel == null) {
                 return;
             }
-            
+
             // 登録解除
             _battleModel.SetFieldModel(null);
-            
+
             // アクターの削除
             _fieldActorFactory.Destroy(fieldModel);
-            
+
             // モデルの削除
             _modelRepository.DeleteAutoIdModel(fieldModel);
         }

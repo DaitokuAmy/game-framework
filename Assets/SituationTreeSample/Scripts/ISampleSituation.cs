@@ -1,4 +1,4 @@
-namespace SituationFlowSample {
+namespace SituationTreeSample {
     /// <summary>
     /// Sample用Situationとなる物を表すインターフェース
     /// </summary>

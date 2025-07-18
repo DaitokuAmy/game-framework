@@ -1,4 +1,4 @@
-namespace SituationFlowSample {
+namespace SituationTreeSample {
     /// <summary>
     /// サンプル用のRootSituation
     /// </summary>

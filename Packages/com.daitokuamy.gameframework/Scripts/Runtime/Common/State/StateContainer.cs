@@ -12,16 +12,14 @@ namespace GameFramework {
         where TKey : IComparable {
         private readonly Dictionary<TKey, TState> _states = new();
         private readonly DisposableScope _scope = new();
-        private readonly List<TKey> _stack = new();
 
         private bool _reset;
-        private bool _useStack;
 
         /// <summary>状態変更通知(Prev > Next)</summary>
         public event Action<TKey, TKey> ChangedStateEvent;
 
         /// <summary>現在のステートキー</summary>
-        public TKey CurrentKey => _stack.Count > 0 ? _stack[_stack.Count - 1] : InvalidKey;
+        public TKey CurrentKey { get; private set; }
         /// <summary>無効キー</summary>
         public TKey InvalidKey { get; private set; }
         /// <summary>遷移予定のステートキー</summary>
@@ -45,12 +43,7 @@ namespace GameFramework {
 
             InvalidKey = invalidKey;
             NextKey = invalidKey;
-
-            _useStack = useStack;
-            if (!_useStack) {
-                // Stackを使わない場合、StackをCurrentKeyとして使用
-                _stack.Add(InvalidKey);
-            }
+            CurrentKey = invalidKey;
 
             foreach (var state in states) {
                 // 無効キーは登録しない
@@ -83,7 +76,7 @@ namespace GameFramework {
             Change(InvalidKey, true);
 
             _states.Clear();
-            _stack.Clear();
+            CurrentKey = default;
             InvalidKey = default;
             NextKey = default;
         }
@@ -122,31 +115,6 @@ namespace GameFramework {
         }
 
         /// <summary>
-        /// Stateを戻る
-        /// </summary>
-        /// <param name="immediate"></param>
-        public bool Back(bool immediate = false) {
-            if (_stack.Count <= 0 || !_useStack) {
-                return false;
-            }
-
-            // ひとつ前を遷移先にする
-            var nextKey = _stack.Count > 1 ? _stack[_stack.Count - 2] : InvalidKey;
-            Change(nextKey, immediate);
-            return true;
-        }
-
-        /// <summary>
-        /// スタックのクリア(現在のKeyは残る）
-        /// </summary>
-        public void ClearStack() {
-            // 現在のKeyより前を削除
-            while (_stack.Count > 1) {
-                _stack.RemoveAt(0);
-            }
-        }
-
-        /// <summary>
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
@@ -159,21 +127,10 @@ namespace GameFramework {
                 var reset = _reset;
                 _reset = false;
 
-                // スタックに含まれていた物だった場合はそこまでのスタックをクリア
-                var backIndex = _stack.IndexOf(NextKey);
-                var back = !_reset && backIndex >= 0;
-
                 // 現在のステートを終了
                 if (_states.TryGetValue(currentKey, out state)) {
-                    state.OnExit(NextKey, back);
+                    state.OnExit(NextKey);
                     _scope.Clear();
-                }
-
-                // スタックをクリア
-                if (back) {
-                    for (var i = _stack.Count - 1; i >= backIndex; i--) {
-                        _stack.RemoveAt(i);
-                    }
                 }
 
                 // 次のステートを開始
@@ -181,24 +138,13 @@ namespace GameFramework {
                 currentKey = NextKey;
                 if (_states.TryGetValue(currentKey, out state)) {
                     if (!reset) {
-                        if (_useStack) {
-                            _stack.Add(currentKey);
-                        }
-                        else {
-                            _stack[0] = currentKey;
-                        }
+                        CurrentKey = currentKey;
                     }
 
-                    state.OnEnter(prevKey, back, _scope);
+                    state.OnEnter(prevKey, _scope);
                 }
                 else {
-                    // 遷移先がInvalidKeyの場合、Stackを全部削除
-                    if (_useStack) {
-                        _stack.Clear();
-                    }
-                    else {
-                        _stack[0] = InvalidKey;
-                    }
+                    CurrentKey = InvalidKey;
                 }
 
                 ChangedStateEvent?.Invoke(prevKey, currentKey);

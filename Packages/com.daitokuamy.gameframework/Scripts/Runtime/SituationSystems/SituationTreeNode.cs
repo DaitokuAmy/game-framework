@@ -7,13 +7,13 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション遷移情報格納用ツリー用ノード
     /// </summary>
-    public class SituationFlowNode : IDisposable {
+    public class SituationTreeNode : IDisposable {
         /// <summary>
         /// 遷移情報
         /// </summary>
         public struct TransitionInfo {
-            public SituationFlowNode PrevNode;
-            public SituationFlowNode NextNode;
+            public SituationTreeNode PrevNode;
+            public SituationTreeNode NextNode;
             public bool Back;
         }
         
@@ -22,22 +22,22 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         private class ConnectInfo {
             public Action<TransitionInfo> TransitionEvent;
-            public SituationFlowNode NextNode;
+            public SituationTreeNode NextNode;
         }
 
         private readonly Dictionary<Type, ConnectInfo> _connectInfos = new();
 
-        private SituationFlow _flow;
+        private SituationTree _tree;
         private Situation _situation;
-        private SituationFlowNode _previous;
+        private SituationTreeNode _previous;
 
         /// <summary>有効か</summary>
-        public bool IsValid => _flow != null && _situation != null;
+        public bool IsValid => _tree != null && _situation != null;
         /// <summary>実行対象のSituation</summary>
         public Situation Situation => _situation;
 
         /// <summary>遷移先のノードリスト</summary>
-        internal SituationFlowNode[] NextNodes => _connectInfos.Select(x => x.Value.NextNode).ToArray();
+        internal SituationTreeNode[] NextNodes => _connectInfos.Select(x => x.Value.NextNode).ToArray();
 
         /// <summary>フォールバック経由で遷移された時の通知</summary>
         public event Action<TransitionInfo> TransitionByFallbackEvent;
@@ -45,11 +45,11 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="flow">SituationNode管理用ツリー</param>
+        /// <param name="tree">SituationNode管理用ツリー</param>
         /// <param name="situation">遷移時に使うSituation</param>
         /// <param name="prev">接続元のNode</param>
-        internal SituationFlowNode(SituationFlow flow, Situation situation, SituationFlowNode prev) {
-            _flow = flow;
+        internal SituationTreeNode(SituationTree tree, Situation situation, SituationTreeNode prev) {
+            _tree = tree;
             _situation = situation;
             _previous = prev;
         }
@@ -82,7 +82,7 @@ namespace GameFramework.SituationSystems {
             _previous = null;
             _connectInfos.Clear();
             _situation = null;
-            _flow = null;
+            _tree = null;
         }
 
         /// <summary>
@@ -90,12 +90,12 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="overridePrevNode">戻り先ノードの上書き指定</param>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationFlowNode Connect<TSituation>(SituationFlowNode overridePrevNode, Action<TransitionInfo> onTransition = null)
+        public SituationTreeNode Connect<TSituation>(SituationTreeNode overridePrevNode, Action<TransitionInfo> onTransition = null)
             where TSituation : Situation {
             var type = typeof(TSituation);
             
             // Situationが無ければnullを返す
-            var situation = _flow.FindSituation(type);
+            var situation = _tree.FindSituation(type);
             if (situation == null) {
                 Debug.LogError($"Not found situation. [{type.Name}]");
                 return null;
@@ -107,7 +107,7 @@ namespace GameFramework.SituationSystems {
             }
 
             // ノードの追加
-            var nextNode = new SituationFlowNode(_flow, situation, overridePrevNode ?? this);
+            var nextNode = new SituationTreeNode(_tree, situation, overridePrevNode ?? this);
             connectInfo = new ConnectInfo {
                 TransitionEvent = onTransition,
                 NextNode = nextNode
@@ -120,7 +120,7 @@ namespace GameFramework.SituationSystems {
         /// シチュエーションノードの接続
         /// </summary>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationFlowNode Connect<TSituation>(Action<TransitionInfo> onTransition = null)
+        public SituationTreeNode Connect<TSituation>(Action<TransitionInfo> onTransition = null)
             where TSituation : Situation {
             return Connect<TSituation>(null, onTransition);
         }
@@ -146,14 +146,14 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 前のNodeを取得
         /// </summary>
-        internal SituationFlowNode GetPrevious() {
+        internal SituationTreeNode GetPrevious() {
             return _previous;
         }
 
         /// <summary>
         /// 型をもとに接続先のNodeを取得
         /// </summary>
-        internal SituationFlowNode TryGetNext(Type type) {
+        internal SituationTreeNode TryGetNext(Type type) {
             if (!_connectInfos.TryGetValue(type, out var connectInfo)) {
                 return null;
             }
@@ -166,7 +166,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="prevNode">遷移前のノード</param>
         /// <param name="back">戻り遷移か</param>
-        internal void OnTransition(SituationFlowNode prevNode, bool back) {
+        internal void OnTransition(SituationTreeNode prevNode, bool back) {
             // 遷移元がなければ何もしない
             if (prevNode == null) {
                 return;

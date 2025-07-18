@@ -55,6 +55,15 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <summary>
+        /// クリーンアップ
+        /// </summary>
+        protected override void CleanupInternal(TransitionHandle handle) {
+            Services.Resolve<BattleAppService>().Cleanup();
+            
+            base.CleanupInternal(handle);
+        }
+
+        /// <summary>
         /// 開く処理
         /// </summary>
         protected override IEnumerator OpenRoutineInternal(TransitionHandle handle, IScope animationScope) {

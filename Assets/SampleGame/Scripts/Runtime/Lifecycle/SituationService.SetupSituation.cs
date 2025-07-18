@@ -1,4 +1,5 @@
 using GameFramework.Core;
+using GameFramework.SituationSystems;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -21,14 +22,18 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 遷移関係の初期化
         /// </summary>
-        private void SetupFlow(IScope scope) {
-            var titleTopNode = _situationFlow.ConnectRoot<TitleTopSituation>();
+        private void SetupTree(SituationTree tree, IScope scope) {
+            if (tree == null) {
+                return;
+            }
+            
+            var titleTopNode = tree.ConnectRoot<TitleTopSituation>();
             var titleOptionNode = titleTopNode.Connect<TitleOptionSituation>();
             var modelViewerSceneNode = titleTopNode.Connect<ModelViewerSceneSituation>();
             var battleSceneNode = titleTopNode.Connect<BattleSceneSituation>();
             var battlePauseNode = battleSceneNode.Connect<BattlePauseSituation>();
-            _situationFlow.SetFallbackNode(modelViewerSceneNode);
-            _situationFlow.SetFallbackNode(battleSceneNode);
+            tree.SetFallbackNode(modelViewerSceneNode);
+            tree.SetFallbackNode(battleSceneNode);
         }
     }
 }

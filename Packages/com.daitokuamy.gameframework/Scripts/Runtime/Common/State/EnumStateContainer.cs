@@ -14,9 +14,8 @@ namespace GameFramework {
         /// 開始アクション
         /// </summary>
         /// <param name="prevKey">ひとつ前の遷移Key</param>
-        /// <param name="back">戻り遷移か</param>
         /// <param name="scope">Exitするまでのスコープ</param>
-        public delegate void EnterAction(TKey prevKey, bool back, IScope scope);
+        public delegate void EnterAction(TKey prevKey, IScope scope);
         
         /// <summary>
         /// 更新アクション
@@ -28,8 +27,7 @@ namespace GameFramework {
         /// 終了アクション
         /// </summary>
         /// <param name="nextKey">次の遷移Key</param>
-        /// <param name="back">戻り遷移か</param>
-        public delegate void ExitAction(TKey nextKey, bool back);
+        public delegate void ExitAction(TKey nextKey);
         
         /// <summary>
         /// Enum型をキーとしたState
@@ -45,16 +43,16 @@ namespace GameFramework {
                 Key = enumValue;
             }
 
-            void IState<TKey>.OnEnter(TKey prevKey, bool back, IScope scope) {
-                EnterEvent?.Invoke(prevKey, back, scope);
+            void IState<TKey>.OnEnter(TKey prevKey, IScope scope) {
+                EnterEvent?.Invoke(prevKey, scope);
             }
 
             void IState<TKey>.OnUpdate(float deltaTime) {
                 UpdateEvent?.Invoke(deltaTime);
             }
 
-            void IState<TKey>.OnExit(TKey nextKey, bool back) {
-                ExitEvent?.Invoke(nextKey, back);
+            void IState<TKey>.OnExit(TKey nextKey) {
+                ExitEvent?.Invoke(nextKey);
             }
         }
 
