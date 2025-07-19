@@ -5,13 +5,6 @@ namespace GameFramework.SituationSystems {
     /// シチュエーション監視用クラス
     /// </summary>
     public class SituationMonitor {
-        /// <summary>
-        /// 監視対象につけるインターフェース
-        /// </summary>
-        public interface IMonitored {
-            
-        }
-        
         private static SituationMonitor s_instance;
 
         private readonly List<IMonitoredContainer> _containers = new();

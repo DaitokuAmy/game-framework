@@ -22,7 +22,7 @@ namespace GameFramework.DebugSystems.Editor {
                 public SearchField SearchField;
                 public string FilterText;
             }
-            
+
             private readonly Dictionary<string, bool> _foldouts = new();
             private readonly Dictionary<string, Vector2> _scrolls = new();
             private readonly Dictionary<string, SearchInfo> _searchInfos = new();
@@ -113,6 +113,17 @@ namespace GameFramework.DebugSystems.Editor {
             }
 
             /// <summary>
+            /// 常時更新処理
+            /// </summary>
+            public void EveryUpdate(TWindow window) {
+                if (window == null) {
+                    return;
+                }
+
+                EveryUpdateInternal(window);
+            }
+
+            /// <summary>
             /// 開始処理
             /// </summary>
             protected virtual void StartInternal(TWindow window, IScope scope) {
@@ -157,6 +168,12 @@ namespace GameFramework.DebugSystems.Editor {
             /// 更新処理
             /// </summary>
             protected virtual void UpdateInternal(TWindow window) {
+            }
+
+            /// <summary>
+            /// 常時更新処理
+            /// </summary>
+            protected virtual void EveryUpdateInternal(TWindow window) {
             }
 
             /// <summary>
@@ -508,11 +525,14 @@ namespace GameFramework.DebugSystems.Editor {
                 return;
             }
 
+            // 常時更新
+            for (var i = 0; i < _panels.Count; i++) {
+                _panels[i].EveryUpdate((TWindow)this);
+            }
+
             // カレントなパネルGUIの更新
             if (_currentTabIndex >= 0) {
-                if (IsDrawPanel) {
-                    _panels[_currentTabIndex].Update((TWindow)this);
-                }
+                _panels[_currentTabIndex].Update((TWindow)this);
             }
 
             Repaint();

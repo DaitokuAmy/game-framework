@@ -72,24 +72,51 @@ namespace GameFramework.SituationSystems {
         /// <inheritdoc/>
         void IMonitoredFlow.GetDetails(List<(string label, string text)> lines) {
             void AddNodeLine(SituationTreeNode node, StringBuilder indent, string label = "") {
-                var situationName = node.Situation != null ? node.Situation.GetType().Name : "Root";
+                var situationName = node.Situation != null ? node.Situation.GetType().FullName : "Root";
                 var current = CurrentNode == node;
-                lines.Add((label, $"{indent}{(current ? $"[{situationName}]" : situationName)}"));
+                lines.Add((label, $"{indent}{(current ? $"<color=green>{situationName}</color>" : situationName)}"));
                 for (var i = 0; i < node.NextNodes.Length; i++) {
                     indent.Append("    ");
                     AddNodeLine(node.NextNodes[i], indent);
                     indent.Remove(indent.Length - 4, 4);
                 }
             }
+            
+            var builder = new StringBuilder();
 
             // Tree情報
-            var indent = new StringBuilder();
-            AddNodeLine(_rootNode, indent, "<Tree>");
+            AddNodeLine(_rootNode, builder, "<Tree>");
+
+            lines.Add(("", ""));
 
             // Fallback情報
             var globalFallbackTypes = _globalFallbackNodes.Keys.ToArray();
+            lines.Add(("[Base]", "Root"));
             for (var i = 0; i < globalFallbackTypes.Length; i++) {
-                lines.Add((i == 0 ? "<Global Fallbacks>" : "", globalFallbackTypes[i].Name));
+                lines.Add((i == 0 ? "    <Fallbacks>" : "", globalFallbackTypes[i].FullName));
+            }
+
+            foreach (var pair in _fallbackNodes) {
+                void GetPath(SituationTreeNode node, StringBuilder path) {
+                    if (node == null || node.Situation == null) {
+                        return;
+                    }
+
+                    var situationName = node.Situation.GetType().Name;
+                    path.Insert(0, path.Length > 0 ? $"{situationName}/" : situationName);
+                    GetPath(node.GetPrevious(), path);
+                }
+
+                lines.Add(("", ""));
+
+                builder.Clear();
+                GetPath(pair.Key, builder);
+                lines.Add(("[Base]", builder.ToString()));
+                
+                var fallbackTypes = pair.Value.Keys.ToArray();
+                for (var i = 0; i < fallbackTypes.Length; i++) {
+                    lines.Add((i == 0 ? "    <Fallbacks>" : "", fallbackTypes[i].FullName));
+                }
             }
         }
 
@@ -256,8 +283,8 @@ namespace GameFramework.SituationSystems {
         /// FallbackNodeの設定
         /// </summary>
         /// <param name="node">Fallback指定するノード</param>
-        /// <param name="rootNode">Fallback対象とするNodeの基点(nullだとグローバル)</param>
-        public void SetFallbackNode(SituationTreeNode node, SituationTreeNode rootNode = null) {
+        /// <param name="baseNode">Fallback対象とするNodeの基点(nullだとグローバル)</param>
+        public void SetFallbackNode(SituationTreeNode node, SituationTreeNode baseNode = null) {
             if (node == null) {
                 return;
             }
@@ -267,13 +294,13 @@ namespace GameFramework.SituationSystems {
                 return;
             }
 
-            if (rootNode == null) {
+            if (baseNode == null) {
                 _globalFallbackNodes[situation.GetType()] = node;
             }
             else {
-                if (!_fallbackNodes.TryGetValue(rootNode, out var dict)) {
+                if (!_fallbackNodes.TryGetValue(baseNode, out var dict)) {
                     dict = new Dictionary<Type, SituationTreeNode>();
-                    _fallbackNodes[rootNode] = dict;
+                    _fallbackNodes[baseNode] = dict;
                 }
 
                 dict[situation.GetType()] = node;

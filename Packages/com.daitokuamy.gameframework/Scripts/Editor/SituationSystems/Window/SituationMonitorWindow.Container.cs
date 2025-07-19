@@ -20,8 +20,8 @@ namespace GameFramework.Editor {
                 public TransitionType Type;
                 public TransitionStep Step;
                 public TransitionState State;
-                public string[] PrevSituationNames = Array.Empty<string>();
-                public string[] NextSituationNames = Array.Empty<string>();
+                public Type[] PrevSituationTypes = Array.Empty<Type>();
+                public Type[] NextSituationTypes = Array.Empty<Type>();
             }
 
             private readonly Dictionary<IMonitoredContainer, TransitionCapture> _transitionCaptures = new();
@@ -30,90 +30,106 @@ namespace GameFramework.Editor {
             public override string Label => "Container";
 
             /// <inheritdoc/>
+            protected override void EveryUpdateInternal(SituationMonitorWindow window) {
+                var containers = SituationMonitor.Containers;
+
+                foreach (var container in containers) {
+                    CaptureContainer(container, window);
+                }
+            }
+
+            /// <inheritdoc/>
             protected override void DrawGuiInternal(SituationMonitorWindow window) {
                 var containers = SituationMonitor.Containers;
 
                 foreach (var container in containers) {
-                    DrawContainer(container);
+                    DrawContainer(container, window);
+                }
+            }
+
+            /// <summary>
+            /// コンテナ情報のキャプチャ
+            /// </summary>
+            private void CaptureContainer(IMonitoredContainer container, SituationMonitorWindow window) {
+                if (!_transitionCaptures.TryGetValue(container, out var capture)) {
+                    capture = new TransitionCapture();
+                    _transitionCaptures.Add(container, capture);
+                }
+
+                // 遷移情報があればキャプチャーに移す
+                var transitionInfo = container.CurrentTransitionInfo;
+                if (transitionInfo != null) {
+                    capture.Type = transitionInfo.TransitionType;
+                    capture.State = transitionInfo.State;
+                    capture.Step = transitionInfo.Step;
+                    capture.PrevSituationTypes = transitionInfo.PrevSituations
+                        .Select(x => x.GetType())
+                        .ToArray();
+                    capture.NextSituationTypes = transitionInfo.NextSituations
+                        .Select(x => x.GetType())
+                        .ToArray();
                 }
             }
 
             /// <summary>
             /// コンテナ情報の描画
             /// </summary>
-            private void DrawContainer(IMonitoredContainer container) {
+            private void DrawContainer(IMonitoredContainer container, SituationMonitorWindow window) {
                 DrawFoldoutContent(container.Label, container, target => {
                     // 遷移情報
                     DrawContent("Transition", target.CurrentTransitionInfo, transitionInfo => {
                         EditorGUILayout.LabelField("IsTransitioning",　(transitionInfo != null).ToString());
 
-                        if (!_transitionCaptures.TryGetValue(target, out var capture)) {
-                            capture = new TransitionCapture();
-                            _transitionCaptures.Add(target, capture);
-                        }
+                        if (_transitionCaptures.TryGetValue(target, out var capture)) {
+                            EditorGUILayout.LabelField("Type", capture.Type.ToString());
+                            EditorGUILayout.LabelField("State", capture.State.ToString());
+                            EditorGUILayout.LabelField("Step", capture.Step.ToString());
+                            for (var i = 0; i < capture.PrevSituationTypes.Length; i++) {
+                                var name = window.GetTypeName(capture.PrevSituationTypes[i]);
+                                EditorGUILayout.LabelField(i == 0 ? "Prev Situations" : " ", name);
+                            }
 
-                        // 遷移情報があればキャプチャーに移す
-                        if (transitionInfo != null) {
-                            capture.Type = transitionInfo.TransitionType;
-                            capture.State = transitionInfo.State;
-                            capture.Step = transitionInfo.Step;
-                            capture.PrevSituationNames = transitionInfo.PrevSituations
-                                .Select(x => x.GetType().ToString())
-                                .ToArray();
-                            capture.NextSituationNames = transitionInfo.NextSituations
-                                .Select(x => x.GetType().ToString())
-                                .ToArray();
-                        }
-
-                        EditorGUILayout.LabelField("Type", capture.Type.ToString());
-                        EditorGUILayout.LabelField("State", capture.State.ToString());
-                        EditorGUILayout.LabelField("Step", capture.Step.ToString());
-                        for (var i = 0; i < capture.PrevSituationNames.Length; i++) {
-                            var name = capture.PrevSituationNames[i];
-                            EditorGUILayout.LabelField(i == 0 ? "Prev Situations" : " ", name);
-                        }
-
-                        for (var i = 0; i < capture.NextSituationNames.Length; i++) {
-                            var name = capture.NextSituationNames[i];
-                            EditorGUILayout.LabelField(i == 0 ? "Next Situations" : " ", name);
+                            for (var i = 0; i < capture.NextSituationTypes.Length; i++) {
+                                var name = window.GetTypeName(capture.NextSituationTypes[i]);
+                                EditorGUILayout.LabelField(i == 0 ? "Next Situations" : " ", name);
+                            }
                         }
                     });
 
                     EditorGUILayout.Space();
 
                     // Situation情報を表示
-                    EditorGUILayout.LabelField("Root Situation", target.RootSituation?.GetType().ToString() ?? "None");
-                    DrawContent("Current Situation", target.Current, current => {
+                    DrawContent("Situation", target, c => {
+                        EditorGUILayout.LabelField("Root", window.GetSituationName(c.RootSituation));
+
+                        var current = c.Current;
                         if (current == null) {
-                            EditorGUILayout.LabelField("None");
+                            EditorGUILayout.LabelField("Current", "None");
                         }
                         else {
-                            void DrawHierarchy(Situation situation) {
+                            void DrawHierarchy(Situation situation, string label = " ") {
                                 if (situation == null) {
                                     return;
                                 }
 
-                                EditorGUI.indentLevel++;
-                                EditorGUILayout.LabelField(situation.GetType().Name);
+                                EditorGUILayout.LabelField(label, window.GetSituationName(situation));
                                 DrawHierarchy(situation.Parent);
-                                EditorGUI.indentLevel--;
                             }
 
-                            EditorGUI.indentLevel--;
-                            DrawHierarchy(current);
-                            EditorGUI.indentLevel++;
+                            DrawHierarchy(current, "Current");
+                        }
+
+                        for (var i = 0; i < c.PreloadSituations.Count; i++) {
+                            var name = window.GetSituationName(c.PreloadSituations[i]);
+                            EditorGUILayout.LabelField(i == 0 ? "Preload Situations" : " ", name);
+                        }
+
+                        for (var i = 0; i < c.RunningSituations.Count; i++) {
+                            var name = window.GetSituationName(c.RunningSituations[i]);
+                            EditorGUILayout.LabelField(i == 0 ? "Running Situations" : " ", name);
                         }
                     });
-                    for (var i = 0; i < target.PreloadSituations.Count; i++) {
-                        var name = target.PreloadSituations[i].GetType().Name;
-                        EditorGUILayout.LabelField(i == 0 ? "Preload Situations" : " ", name);
-                    }
-
-                    for (var i = 0; i < target.RunningSituations.Count; i++) {
-                        var name = target.RunningSituations[i].GetType().Name;
-                        EditorGUILayout.LabelField(i == 0 ? "Running Situations" : " ", name);
-                    }
-                });
+                }, true);
             }
         }
     }

@@ -34,6 +34,9 @@ namespace SampleGame.Lifecycle {
             var battlePauseNode = battleSceneNode.Connect<BattlePauseSituation>();
             tree.SetFallbackNode(modelViewerSceneNode);
             tree.SetFallbackNode(battleSceneNode);
+            
+            tree.SetFallbackNode(titleOptionNode, titleTopNode);
+            tree.SetFallbackNode(battlePauseNode, battleSceneNode);
         }
     }
 }
