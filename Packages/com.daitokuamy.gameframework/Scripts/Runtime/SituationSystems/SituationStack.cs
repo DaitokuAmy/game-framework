@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace GameFramework.SituationSystems {
     /// <summary>
@@ -9,6 +10,22 @@ namespace GameFramework.SituationSystems {
     public class SituationStack : ISituationFlow {
         private readonly SituationContainer _situationContainer;
         private readonly List<Situation> _stack = new();
+        private readonly string _label;
+
+        private bool _disposed;
+
+        /// <inheritdoc/>
+        string IMonitoredFlow.Label => _label;
+        /// <inheritdoc/>
+        Situation IMonitoredFlow.BackTarget {
+            get {
+                if (_stack.Count <= 1) {
+                    return null;
+                }
+
+                return _stack[^2];
+            }
+        }
 
         /// <inheritdoc/>
         public Situation Current => _stack.LastOrDefault();
@@ -18,7 +35,9 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationStack(SituationContainer container) {
+        public SituationStack(SituationContainer container, string label = "", [CallerFilePath] string caller = "") {
+            _label = string.IsNullOrEmpty(label) ? caller : label;
+            SituationMonitor.AddFlow(this);
             _situationContainer = container;
         }
 
@@ -26,7 +45,21 @@ namespace GameFramework.SituationSystems {
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;
+            SituationMonitor.RemoveFlow(this);
             _stack.Clear();
+        }
+
+        /// <inheritdoc/>
+        void IMonitoredFlow.GetDetails(List<(string label, string text)> lines) {
+            // Stack情報の返却
+            for (var i = 0; i < _stack.Count; i++) {
+                lines.Add((i == 0 ? "Stack": "", _stack[i].GetType().Name));
+            }
         }
 
         /// <inheritdoc/>
@@ -37,13 +70,13 @@ namespace GameFramework.SituationSystems {
                 if (situation == null) {
                     return;
                 }
-                
+
                 list.Add(situation.GetType());
                 foreach (var child in situation.Children) {
                     AddType(child, list);
                 }
             }
-            
+
             AddType(_situationContainer.RootSituation, types);
             return types.ToArray();
         }

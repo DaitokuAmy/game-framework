@@ -8,12 +8,12 @@ namespace GameFramework.Core {
     public class DisposableScope : IScope, IDisposable {
         private CancellationTokenSource _cancellationTokenSource = new();
 
-        // 廃棄済みか
+        /// <summary>廃棄済みか</summary>
         public bool Disposed { get; private set; }
-        // キャンセルハンドリング用トークン
+        /// <summary>キャンセルハンドリング用トークン</summary>
         public CancellationToken Token => _cancellationTokenSource.Token;
 
-        // スコープ終了通知
+        /// <summary>スコープ終了通知</summary>
         public event Action ExpiredEvent;
 
         /// <summary>

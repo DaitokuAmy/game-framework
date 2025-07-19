@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using GameFramework.Core;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション管理用クラス
     /// </summary>
-    public sealed class SituationContainer : IDisposable, ITransitionResolver {
+    public sealed class SituationContainer : IDisposable, ITransitionResolver, IMonitoredContainer {
         /// <summary>
         /// 遷移オプション
         /// </summary>
@@ -35,16 +36,23 @@ namespace GameFramework.SituationSystems {
             public bool EffectActive;
         }
 
-        // コルーチン実行用
         private readonly CoroutineRunner _coroutineRunner = new();
-        // プリロードしているSituationリスト
         private readonly List<Situation> _preloadSituations = new();
-        // 現在稼働中のSituationのリスト
         private readonly List<ISituation> _runningSituations = new();
-
-        // 遷移中情報
+        private readonly string _label;
+        
         private TransitionInfo _transitionInfo;
+        private bool _disposed;
 
+        /// <inheritdoc/>
+        string IMonitoredContainer.Label => _label;
+        /// <inheritdoc/>
+        TransitionInfo IMonitoredContainer.CurrentTransitionInfo => _transitionInfo;
+        /// <inheritdoc/>
+        IReadOnlyList<Situation> IMonitoredContainer.PreloadSituations => _preloadSituations;
+        /// <inheritdoc/>
+        IReadOnlyList<Situation> IMonitoredContainer.RunningSituations => _runningSituations.Cast<Situation>().ToArray();
+        
         /// <summary>RootとなるSituation</summary>
         public Situation RootSituation { get; private set; }
         /// <summary>現在のシチュエーション</summary>
@@ -56,9 +64,25 @@ namespace GameFramework.SituationSystems {
         public Action<Situation> ChangedCurrentEvent;
 
         /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="label">デバッグ等で利用するラベル</param>
+        /// <param name="caller">自動解決用呼び出し元設定変数</param>
+        public SituationContainer(string label = "", [CallerFilePath] string caller = "") {
+            _label = string.IsNullOrEmpty(label) ? caller : label;
+            SituationMonitor.AddContainer(this);
+        }
+
+        /// <summary>
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;
+            SituationMonitor.RemoveContainer(this);
             Clear();
         }
 

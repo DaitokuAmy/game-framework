@@ -1,16 +1,34 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーションツリー遷移
     /// </summary>
     public class SituationTree : ISituationFlow {
-        private readonly SituationTreeNode _rootNode;
-        private readonly SituationContainer _situationContainer;
         private readonly Dictionary<Type, SituationTreeNode> _globalFallbackNodes = new();
         private readonly Dictionary<SituationTreeNode, Dictionary<Type, SituationTreeNode>> _fallbackNodes = new();
+        private readonly string _label;
+
+        private bool _disposed;
+        private SituationContainer _situationContainer;
+        private SituationTreeNode _rootNode;
+
+        /// <inheritdoc/>
+        string IMonitoredFlow.Label => _label;
+        /// <inheritdoc/>
+        Situation IMonitoredFlow.BackTarget {
+            get {
+                if (CurrentNode == null) {
+                    return null;
+                }
+
+                return CurrentNode.GetPrevious()?.Situation;
+            }
+        }
 
         /// <inheritdoc/>
         public Situation Current => CurrentNode?.Situation;
@@ -23,7 +41,9 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationTree(SituationContainer container) {
+        public SituationTree(SituationContainer container, string label = "", [CallerFilePath] string caller = "") {
+            _label = string.IsNullOrEmpty(label) ? caller : label;
+            SituationMonitor.AddFlow(this);
             _rootNode = new SituationTreeNode(this, null, null);
             _situationContainer = container;
         }
@@ -32,12 +52,45 @@ namespace GameFramework.SituationSystems {
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
-            if (_rootNode == null) {
+            if (_disposed) {
                 return;
             }
 
-            // 各種Nodeの開放
-            _rootNode.Dispose();
+            _disposed = true;
+            SituationMonitor.RemoveFlow(this);
+
+            if (_rootNode != null) {
+                _rootNode.Dispose();
+                _rootNode = null;
+            }
+
+            _fallbackNodes.Clear();
+            _globalFallbackNodes.Clear();
+            _situationContainer = null;
+        }
+
+        /// <inheritdoc/>
+        void IMonitoredFlow.GetDetails(List<(string label, string text)> lines) {
+            void AddNodeLine(SituationTreeNode node, StringBuilder indent, string label = "") {
+                var situationName = node.Situation != null ? node.Situation.GetType().Name : "Root";
+                var current = CurrentNode == node;
+                lines.Add((label, $"{indent}{(current ? $"[{situationName}]" : situationName)}"));
+                for (var i = 0; i < node.NextNodes.Length; i++) {
+                    indent.Append("    ");
+                    AddNodeLine(node.NextNodes[i], indent);
+                    indent.Remove(indent.Length - 4, 4);
+                }
+            }
+
+            // Tree情報
+            var indent = new StringBuilder();
+            AddNodeLine(_rootNode, indent, "<Tree>");
+
+            // Fallback情報
+            var globalFallbackTypes = _globalFallbackNodes.Keys.ToArray();
+            for (var i = 0; i < globalFallbackTypes.Length; i++) {
+                lines.Add((i == 0 ? "<Global Fallbacks>" : "", globalFallbackTypes[i].Name));
+            }
         }
 
         /// <inheritdoc/>
@@ -47,19 +100,19 @@ namespace GameFramework.SituationSystems {
 
         /// <inheritdoc/>
         public TransitionHandle Transition<TSituation>(params ITransitionEffect[] effects)
-            where TSituation : Situation {
+            where TSituation : Situation  {
             return Transition<TSituation>(null, null, effects);
         }
 
         /// <inheritdoc/>
         public TransitionHandle Transition<TSituation>(ITransition overrideTransition = null, params ITransitionEffect[] effects)
-            where TSituation : Situation {
+            where TSituation : Situation  {
             return Transition<TSituation>(null, overrideTransition, effects);
         }
 
         /// <inheritdoc/>
         public TransitionHandle Transition<TSituation>(Action<TSituation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
-            where TSituation : Situation {
+            where TSituation : Situation  {
             var type = typeof(TSituation);
             return Transition(type, situation => onSetup?.Invoke((TSituation)situation), overrideTransition, effects);
         }
@@ -83,19 +136,19 @@ namespace GameFramework.SituationSystems {
 
         /// <inheritdoc/>
         public TransitionHandle RefreshTransition<TSituation>(params ITransitionEffect[] effects)
-            where TSituation : Situation {
+            where TSituation : Situation  {
             return RefreshTransition<TSituation>(null, null, effects);
         }
 
         /// <inheritdoc/>
         public TransitionHandle RefreshTransition<TSituation>(ITransition overrideTransition = null, params ITransitionEffect[] effects)
-            where TSituation : Situation {
+            where TSituation : Situation  {
             return RefreshTransition<TSituation>(null, overrideTransition, effects);
         }
 
         /// <inheritdoc/>
         public TransitionHandle RefreshTransition<TSituation>(Action<TSituation> onSetup = null, ITransition overrideTransition = null, params ITransitionEffect[] effects)
-            where TSituation : Situation {
+            where TSituation : Situation  {
             var type = typeof(TSituation);
             return RefreshTransition(type, situation => onSetup?.Invoke((TSituation)situation), overrideTransition, effects);
         }
@@ -162,7 +215,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <returns>接続したSituationを保持するNode</returns>
         public SituationTreeNode ConnectRoot<TSituation>()
-            where TSituation : Situation {
+            where TSituation : Situation  {
             var node = _rootNode.Connect<TSituation>();
             SetFallbackNode(node);
             return node;
@@ -173,7 +226,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <returns>解除に成功したか</returns>
         public bool DisconnectRoot<T>()
-            where T : Situation {
+            where T : Situation  {
             return _rootNode.Disconnect<T>();
         }
 
@@ -231,7 +284,7 @@ namespace GameFramework.SituationSystems {
         /// FallbackNodeの設定
         /// </summary>
         public void ResetFallbackNode<T>()
-            where T : Situation {
+            where T : Situation  {
             var type = typeof(T);
             _globalFallbackNodes.Remove(type);
             foreach (var dict in _fallbackNodes.Values) {
@@ -308,7 +361,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="includeFallback">fallbackに設定された物をチェックするか</param>
         public bool CheckTransition<T>(bool includeFallback = true)
-            where T : Situation {
+            where T : Situation  {
             return CheckTransition(typeof(T));
         }
 

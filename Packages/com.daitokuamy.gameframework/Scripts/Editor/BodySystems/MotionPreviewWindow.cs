@@ -32,12 +32,12 @@ namespace GameFramework.ActorSystems.Editor {
         private double _prevTime;
         private bool _loop;
 
-        [MenuItem("Window/GameFramework/Motion Preview")]
+        [MenuItem("Window/Game Framework/Motion Preview")]
         private static void Open() {
             CreateWindow<MotionPreviewWindow>(ObjectNames.NicifyVariableName(nameof(MotionPreviewWindow)));
         }
 
-        [MenuItem("CONTEXT/Animator/GameFramework/Motion Preview")]
+        [MenuItem("CONTEXT/Animator/Game Framework/Motion Preview")]
         private static void OpenFromContext(MenuCommand command) {
             var window = CreateWindow<MotionPreviewWindow>(ObjectNames.NicifyVariableName(nameof(MotionPreviewWindow)));
             window.Setup(command.context as Animator, null);
