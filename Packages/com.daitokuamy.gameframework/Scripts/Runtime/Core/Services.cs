@@ -42,5 +42,11 @@ namespace GameFramework.Core {
             s_instance?.Dispose();
             s_instance = null;
         }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        private Services() : base(label:"Root") {
+        }
     }
 }

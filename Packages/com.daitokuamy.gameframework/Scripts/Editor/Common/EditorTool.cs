@@ -7,7 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace GameFramework.Core.Editor {
+namespace GameFramework.Editor {
     /// <summary>
     /// エディタ用のツール
     /// </summary>

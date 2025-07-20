@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GameFramework.Editor;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -223,7 +224,7 @@ namespace GameFramework.GimmickSystems.Editor {
         /// Prefabに出力
         /// </summary>
         private void ExportPrefab(GimmickGroup gimmickGroup, GameObject prefab) {
-            Core.Editor.EditorTool.EditPrefab(prefab, obj => {
+            EditorTool.EditPrefab(prefab, obj => {
                 var gimmickInfos = gimmickGroup.GimmickInfos.ToArray();
                 
                 // それぞれを対応する場所にコピー
@@ -239,7 +240,7 @@ namespace GameFramework.GimmickSystems.Editor {
                         }
 
                         var exportGimmick = exportGimmickInfo.gimmick;
-                        Core.Editor.EditorTool.CopySerializedObjectForAttribute(gimmick, exportGimmick);
+                        EditorTool.CopySerializedObjectForAttribute(gimmick, exportGimmick);
                     }
                 }
                 

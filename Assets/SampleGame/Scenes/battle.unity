@@ -333,7 +333,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 91983942919843589, guid: 3aaed45d6a6123f4d901481e73818b98, type: 3}
       propertyPath: m_Name
-      value: prfb_battle_camera_manager
+      value: pfb_sys_battle_camera_manager
       objectReference: {fileID: 0}
     - target: {fileID: 200028045853783035, guid: 3aaed45d6a6123f4d901481e73818b98, type: 3}
       propertyPath: m_LocalPosition.x

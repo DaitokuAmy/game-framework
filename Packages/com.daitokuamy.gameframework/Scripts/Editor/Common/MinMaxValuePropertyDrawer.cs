@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GameFramework.Core.Editor {
+namespace GameFramework.Editor {
     /// <summary>
     /// MinMaxValueタイプのGUI拡張
     /// </summary>

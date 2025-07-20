@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using GameFramework.Core.Editor;
+using GameFramework.Editor;
 using SampleGame.Infrastructure.ModelViewer;
 
 namespace SampleGame.Editor {

@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GameFramework.Core {
     /// <summary>
     /// インスタンス提供用のコンテナ
     /// </summary>
-    public class ServiceContainer : IServiceContainer {
+    public class ServiceContainer : IServiceContainer, IMonitoredServiceContainer {
         /// <summary>
         /// 登録解除用Disposable
         /// </summary>
@@ -46,20 +47,33 @@ namespace GameFramework.Core {
             public Func<object> CreateFunc;
         }
 
+        private readonly string _label;
         private readonly bool _autoDispose;
         private readonly List<IServiceContainer> _children = new();
         private readonly Dictionary<Type, RegisteredServiceInfo> _registeredServiceInfos = new();
         private readonly List<IDisposable> _disposableServices = new();
+
+        private bool _disposed;
+
+        /// <inheritdoc/>
+        string IMonitoredServiceContainer.Label => _label;
+        /// <inheritdoc/>
+        IReadOnlyList<IMonitoredServiceContainer> IMonitoredServiceContainer.Children => _children.OfType<IMonitoredServiceContainer>().ToArray();
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="parent">親ServiceContainer</param>
         /// <param name="autoDispose">登録したServiceを自動Disposeするか</param>
-        public ServiceContainer(IServiceContainer parent = null, bool autoDispose = true) {
+        /// <param name="label">デバッグ表示用ラベル</param>
+        public ServiceContainer(IServiceContainer parent = null, bool autoDispose = true, string label = "") {
+            _label = label;
+            
             if (parent == null && GetType() != typeof(Services)) {
                 parent = Services.Instance;
             }
+
+            ServiceMonitor.AddContainer(this);
 
             _autoDispose = autoDispose;
 
@@ -72,7 +86,20 @@ namespace GameFramework.Core {
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;
+            ServiceMonitor.RemoveContainer(this);
             ClearInternal();
+        }
+
+        /// <inheritdoc/>
+        void IMonitoredServiceContainer.GetRegisteredServiceInfos(List<(Type type, object instance)> list) {
+            foreach (var pair in _registeredServiceInfos) {
+                list.Add((pair.Key, pair.Value.Instance));
+            }
         }
 
         /// <inheritdoc/>

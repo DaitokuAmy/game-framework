@@ -1,6 +1,7 @@
+using GameFramework.Core;
 using UnityEditor;
 
-namespace GameFramework.Core.Editor {
+namespace GameFramework.Editor {
     /// <summary>
     /// Servicesの中身をクリアするためのエディタ拡張
     /// </summary>
