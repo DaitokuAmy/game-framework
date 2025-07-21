@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
@@ -11,136 +10,119 @@ namespace GameFramework {
     /// デバッグログ
     /// </summary>
     public static class DebugLog {
-        private static readonly List<ILogHandler> LogHandlers = new() { Debug.unityLogger };
+        private static readonly List<ILogger> Loggers = new() { Debug.unityLogger };
 
         /// <summary>
-        /// ログ出力用のハンドラーを追加
+        /// ロガーの追加
         /// </summary>
-        public static void AddHandler(ILogger handler) {
-            if (handler == null) {
+        public static void AddLogger(ILogger logger) {
+            if (logger == null) {
                 return;
             }
 
-            LogHandlers.Add(handler);
+            Loggers.Add(logger);
         }
 
         /// <summary>
-        /// ログ出力用のハンドラーを削除
+        /// ロガーの削除
         /// </summary>
-        public static void RemoveHandler(ILogger handler) {
-            if (handler == null) {
+        public static void RemoveLogger(ILogger logger) {
+            if (logger == null) {
                 return;
             }
 
-            LogHandlers.Remove(handler);
+            Loggers.Remove(logger);
         }
 
         [Conditional("GF_DEBUG")]
         public static void Info(string tag, object message, Object context = null) {
-            object output = GetString(message);
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Log, context, "{0}: {1}", tag, output);
+            foreach (var logger in Loggers) {
+                logger.Log(LogType.Log, tag, message, context);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void Info(object message, Object context = null) {
-            object output = GetString(message);
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Log, context, "{0}", output);
+            foreach (var logger in Loggers) {
+                logger.Log(LogType.Log, message, context);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void InfoFormat(string format, params object[] args) {
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Log, null, format, args);
+            foreach (var logger in Loggers) {
+                logger.LogFormat(LogType.Log, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void InfoFormat(Object context, string format, params object[] args) {
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Log, context, format, args);
+            foreach (var logger in Loggers) {
+                logger.LogFormat(LogType.Log, context, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void Warning(string tag, object message, Object context = null) {
-            object output = GetString(message);
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Warning, context, "{0}: {1}", tag, output);
+            foreach (var logger in Loggers) {
+                logger.Log(LogType.Warning, tag, message, context);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void Warning(object message, Object context = null) {
-            object output = GetString(message);
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Warning, context, "{0}", output);
+            foreach (var logger in Loggers) {
+                logger.Log(LogType.Warning, message, context);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void WarningFormat(string format, params object[] args) {
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Warning, null, format, args);
+            foreach (var logger in Loggers) {
+                logger.LogFormat(LogType.Log, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void WarningFormat(Object context, string format, params object[] args) {
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Warning, context, format, args);
+            foreach (var logger in Loggers) {
+                logger.LogFormat(LogType.Log, context, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void Error(string tag, object message, Object context) {
-            object output = GetString(message);
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Error, context, "{0}: {1}", tag, output);
+            foreach (var logger in Loggers) {
+                logger.LogError(tag, message, context);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void Error(object message, Object context = null) {
-            object output = GetString(message);
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Error, context, "{0}", output);
+            foreach (var logger in Loggers) {
+                logger.Log(LogType.Error, message, context);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void ErrorFormat(string format, params object[] args) {
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Error, null, format, args);
+            foreach (var logger in Loggers) {
+                logger.LogFormat(LogType.Log, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void ErrorFormat(Object context, string format, params object[] args) {
-            foreach (var handler in LogHandlers) {
-                handler.LogFormat(LogType.Error, context, format, args);
+            foreach (var logger in Loggers) {
+                logger.LogFormat(LogType.Log, context, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void Exception(Exception exception, Object context = null) {
-            foreach (var handler in LogHandlers) {
-                handler.LogException(exception, context);
+            foreach (var logger in Loggers) {
+                logger.LogException(exception, context);
             }
-        }
-
-        /// <summary>
-        /// object型のメッセージを文字列に変換
-        /// </summary>
-        private static string GetString(object message) {
-            if (message == null) {
-                return "Null";
-            }
-
-            return message is IFormattable formattable ? formattable.ToString(null, CultureInfo.InvariantCulture) : message.ToString();
         }
     }
 }
