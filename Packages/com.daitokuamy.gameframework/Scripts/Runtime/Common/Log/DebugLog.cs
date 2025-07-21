@@ -79,14 +79,14 @@ namespace GameFramework {
         [Conditional("GF_DEBUG")]
         public static void WarningFormat(string format, params object[] args) {
             foreach (var logger in Loggers) {
-                logger.LogFormat(LogType.Log, format, args);
+                logger.LogFormat(LogType.Warning, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void WarningFormat(Object context, string format, params object[] args) {
             foreach (var logger in Loggers) {
-                logger.LogFormat(LogType.Log, context, format, args);
+                logger.LogFormat(LogType.Warning, context, format, args);
             }
         }
 
@@ -107,14 +107,14 @@ namespace GameFramework {
         [Conditional("GF_DEBUG")]
         public static void ErrorFormat(string format, params object[] args) {
             foreach (var logger in Loggers) {
-                logger.LogFormat(LogType.Log, format, args);
+                logger.LogFormat(LogType.Error, format, args);
             }
         }
 
         [Conditional("GF_DEBUG")]
         public static void ErrorFormat(Object context, string format, params object[] args) {
             foreach (var logger in Loggers) {
-                logger.LogFormat(LogType.Log, context, format, args);
+                logger.LogFormat(LogType.Error, context, format, args);
             }
         }
 
