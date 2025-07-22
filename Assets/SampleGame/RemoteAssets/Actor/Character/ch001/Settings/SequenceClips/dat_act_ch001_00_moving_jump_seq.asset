@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1742480884783795729
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f3dc1b502acd48ad9608fc38cadbbcb, type: 3}
+  m_Name: SequenceTrack
+  m_EditorClassIdentifier: 
+  label: Track
+  sequenceEvents:
+  - {fileID: 8290536380095979807}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ec08f2e03b1d49a8aa03fbf2f4ddcce, type: 3}
+  m_Name: dat_act_ch001_00_moving_jump_seq
+  m_EditorClassIdentifier: 
+  tracks:
+  - {fileID: -1742480884783795729}
+  frameRate: 60
+  filterData: {fileID: 0}
+  includeClips: []
+--- !u!114 &8290536380095979807
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89ab58968748948a6a698399485064e0, type: 3}
+  m_Name: GravityScaleRangeEvent
+  m_EditorClassIdentifier: 
+  label: "Actor/\u91CD\u529B\u30B9\u30B1\u30FC\u30EB\u5909\u66F4"
+  active: 1
+  enterTime: 0.083333336
+  exitTime: 0.46666667
+  scale: 0

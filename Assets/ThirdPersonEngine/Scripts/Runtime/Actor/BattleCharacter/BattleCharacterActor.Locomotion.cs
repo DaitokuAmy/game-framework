@@ -102,7 +102,7 @@ namespace ThirdPersonEngine {
                 }
 
                 // 接地状態に関するパラメータ
-                playable.SetBool("IsAir", Owner._isAir);
+                playable.SetBool("IsAir", Owner.IsAir);
 
                 // 走りパラメーター
                 playable.SetBool("IsRun", _isRun);

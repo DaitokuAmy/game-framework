@@ -8,14 +8,13 @@ namespace ThirdPersonEngine {
     /// </summary>
     public enum LayerType {
         Default,
-        Environment,
+        Push,
         Team0,
         Team1,
         Team2,
-        Push,
-        RaycastTarget,
-        Vfx0,
-        Vfx1,
+        Cutscene,
+        Environment,
+        Vfx,
     }
     
     /// <summary>

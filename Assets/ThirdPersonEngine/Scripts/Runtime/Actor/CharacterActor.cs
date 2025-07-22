@@ -225,6 +225,13 @@ namespace ThirdPersonEngine {
         }
 
         /// <summary>
+        /// アクション再生ルーチン
+        /// </summary>
+        protected IEnumerator PlayActionRoutine(IActorAction action, CancellationToken ct) {
+            return PlayActionRoutine(action, null, ct);
+        }
+
+        /// <summary>
         /// アクションを探す
         /// </summary>
         private CharacterActorData.ActionInfo FindActionInfo(string actionKey) {

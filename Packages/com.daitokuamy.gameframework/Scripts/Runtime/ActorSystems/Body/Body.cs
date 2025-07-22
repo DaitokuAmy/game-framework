@@ -18,7 +18,7 @@ namespace GameFramework.ActorSystems {
         private bool _disposed;
         private float _baseScale = 1.0f;
         private Vector3 _deformationScale = Vector3.one;
-        
+
         private MeshComponent _meshComponent;
         private LocatorComponent _locatorComponent;
 
@@ -332,6 +332,11 @@ namespace GameFramework.ActorSystems {
             // Rigidbody or ColliderPartsがついている場合、ColliderController追加
             if (GameObject.GetComponentInChildren<ColliderParts>() != null || GameObject.GetComponent<Rigidbody>() != null) {
                 TryAddComponent<ColliderComponent>();
+            }
+
+            // GizmoDispatcherを追加
+            if (GameObject.GetComponent<GizmoDispatcher>() == null) {
+                GameObject.AddComponent<GizmoDispatcher>();
             }
         }
     }
