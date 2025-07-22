@@ -55,10 +55,12 @@ namespace ThirdPersonEngine {
                 }
                 else if (_characterController != null) {
                     _characterController.Move(deltaPosition);
+                    transform.rotation = rotation;
                 }
-
-                transform.position = position;
-                transform.rotation = rotation;
+                else {
+                    transform.position = position;
+                    transform.rotation = rotation;
+                }
             }
         }
     }

@@ -9,6 +9,7 @@ namespace ThirdPersonEngine {
     /// バトルキャラアクター
     /// </summary>
     public partial class BattleCharacterActor : CharacterActor {
+        
         private readonly VelocityActorComponent _velocityComponent;
         private readonly BattleCharacterActorData _data;
         private readonly CharacterController _characterController;
@@ -37,6 +38,7 @@ namespace ThirdPersonEngine {
         protected override void ActivateInternal(IScope scope) {
             base.ActivateInternal(scope);
 
+            SetupSequenceEvents(scope);
             SetupStates(scope);
         }
 

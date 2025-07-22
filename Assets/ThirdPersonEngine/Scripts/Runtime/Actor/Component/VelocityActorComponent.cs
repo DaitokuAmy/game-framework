@@ -1,4 +1,5 @@
 using GameFramework.ActorSystems;
+using GameFramework.Core;
 using UnityEngine;
 
 namespace ThirdPersonEngine {
@@ -14,6 +15,8 @@ namespace ThirdPersonEngine {
             float AirBrake { get; }
             /// <summary>地上のブレーキ速度</summary>
             float GroundBrake { get; }
+            /// <summary>重力加速度</summary>
+            float Gravity { get; }
         }
 
         /// <summary>誤差</summary>
@@ -23,7 +26,7 @@ namespace ThirdPersonEngine {
 
         private bool _isActive = true;
         private IMovableActor _actor;
-
+        private LayeredScale _gravityScale;
         private Vector3 _velocity;
 
         /// <summary>有効状態か</summary>
@@ -42,7 +45,7 @@ namespace ThirdPersonEngine {
             }
         }
         /// <summary>重力加速度</summary>
-        public float Gravity { get; set; }
+        public float Gravity => _settings.Gravity * _gravityScale;
         /// <summary>現在の速度</summary>
         public Vector3 Velocity => _velocity;
 
@@ -52,10 +55,9 @@ namespace ThirdPersonEngine {
         /// <param name="actor">制御対象のActor</param>
         /// <param name="settings">設定値</param>
         /// <param name="gravity">重力加速度</param>
-        public VelocityActorComponent(IMovableActor actor, ISettings settings, float gravity = 9.8f) {
+        public VelocityActorComponent(IMovableActor actor, ISettings settings) {
             _actor = actor;
             _settings = settings;
-            Gravity = gravity;
         }
 
         /// <summary>
@@ -104,6 +106,27 @@ namespace ThirdPersonEngine {
         }
 
         /// <summary>
+        /// 重力スケールの設定
+        /// </summary>
+        public void SetGravityScale(ActorControlLayerType type, float scale) {
+            _gravityScale.Set((int)type, scale);
+        }
+
+        /// <summary>
+        /// 重力スケールのリセット
+        /// </summary>
+        public void ResetGravityScale(ActorControlLayerType type) {
+            SetGravityScale(type, 1.0f);
+        }
+
+        /// <summary>
+        /// 重力スケールのリセット
+        /// </summary>
+        public void ResetGravityScales() {
+            _gravityScale.SetAll(1.0f);
+        }
+
+        /// <summary>
         /// Transformの更新
         /// </summary>
         private void UpdateTransform(float deltaTime) {
@@ -119,7 +142,7 @@ namespace ThirdPersonEngine {
             }
             else {
                 // 重力加速度を反映
-                _velocity.y -= Gravity * deltaTime;
+                _velocity.y += Gravity * deltaTime;
             }
 
             // ブレーキ反映
