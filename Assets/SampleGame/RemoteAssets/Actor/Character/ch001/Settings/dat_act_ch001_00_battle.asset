@@ -21,12 +21,13 @@ MonoBehaviour:
     airBrake: 0
     angularSpeed: 720
     moveThreshold: 0.05
+    gravity: -9.81
   groundHeight: 0.1
   airHeight: 0.2
   jumpActionInfo:
     action:
       animationClip: {fileID: -1011303810920639588, guid: eb18d344be306764bad8312ecf8f7045, type: 3}
-      sequenceClip: {fileID: 0}
+      sequenceClip: {fileID: 11400000, guid: 5ae2d314b459744c9b82258b968fac35, type: 2}
       inBlend: 0.1
       outBlend: 0.1
     initVelocity: 10

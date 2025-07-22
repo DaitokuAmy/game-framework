@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 namespace ThirdPersonEngine {
@@ -32,6 +33,8 @@ namespace ThirdPersonEngine {
             public float angularSpeed;
             [Tooltip("移動誤差")]
             public float moveThreshold = 0.05f;
+            [Tooltip("重力")]
+            public float gravity = -9.81f;
 
             public float MaxSpeed => maxSpeed;
             public float Acceleration => acceleration;
@@ -39,6 +42,7 @@ namespace ThirdPersonEngine {
             public float AngularSpeed => angularSpeed;
             public float AirBrake => airBrake;
             public float GroundBrake => brake;
+            public float Gravity => gravity;
         }
         
         [Tooltip("基本モーション用のアニメーターコントローラ")]
