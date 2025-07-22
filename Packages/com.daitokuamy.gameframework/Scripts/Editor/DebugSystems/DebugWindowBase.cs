@@ -191,6 +191,18 @@ namespace GameFramework.DebugSystems.Editor {
             /// <summary>
             /// コンテンツの描画
             /// </summary>
+            protected void DrawContent(string title, Action onDraw) {
+                using (new EditorGUILayout.VerticalScope("Box")) {
+                    EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+                    EditorGUI.indentLevel++;
+                    onDraw?.Invoke();
+                    EditorGUI.indentLevel--;
+                }
+            }
+
+            /// <summary>
+            /// コンテンツの描画
+            /// </summary>
             protected void DrawFoldoutContent<T>(string title, string key, T target, Action<T> onDraw, bool defaultOpen = false) {
                 if (!_foldouts.TryGetValue(key, out var foldout)) {
                     foldout = defaultOpen;
@@ -212,6 +224,32 @@ namespace GameFramework.DebugSystems.Editor {
             /// </summary>
             protected void DrawFoldoutContent<T>(string title, T target, Action<T> onDraw, bool defaultOpen = false) {
                 DrawFoldoutContent(title, title, target, onDraw, defaultOpen);
+            }
+
+            /// <summary>
+            /// コンテンツの描画
+            /// </summary>
+            protected void DrawFoldoutContent(string title, string key, Action onDraw, bool defaultOpen = false) {
+                if (!_foldouts.TryGetValue(key, out var foldout)) {
+                    foldout = defaultOpen;
+                    _foldouts[title] = foldout;
+                }
+
+                _foldouts[key] = EditorGUILayout.Foldout(foldout, title, EditorStyles.foldoutHeader);
+                if (_foldouts[key]) {
+                    using (new EditorGUILayout.VerticalScope("Box")) {
+                        EditorGUI.indentLevel++;
+                        onDraw?.Invoke();
+                        EditorGUI.indentLevel--;
+                    }
+                }
+            }
+
+            /// <summary>
+            /// コンテンツの描画
+            /// </summary>
+            protected void DrawFoldoutContent(string title, Action onDraw, bool defaultOpen = false) {
+                DrawFoldoutContent(title, title, onDraw, defaultOpen);
             }
 
             /// <summary>
@@ -237,6 +275,31 @@ namespace GameFramework.DebugSystems.Editor {
             /// </summary>
             protected void DrawScrollContent<T>(string title, T target, float height, Action<T> onDraw) {
                 DrawScrollContent(title, title, target, height, onDraw);
+            }
+
+            /// <summary>
+            /// スクロール付きコンテンツの描画
+            /// </summary>
+            protected void DrawScrollContent(string title, string key, float height, Action onDraw) {
+                if (!_scrolls.TryGetValue(key, out var scroll)) {
+                    scroll = Vector2.zero;
+                    _scrolls[key] = scroll;
+                }
+
+                using (var scope = new EditorGUILayout.ScrollViewScope(scroll, "Box", GUILayout.MaxHeight(height))) {
+                    EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+                    EditorGUI.indentLevel++;
+                    onDraw?.Invoke();
+                    EditorGUI.indentLevel--;
+                    _scrolls[key] = scope.scrollPosition;
+                }
+            }
+
+            /// <summary>
+            /// スクロール付きコンテンツの描画
+            /// </summary>
+            protected void DrawScrollContent(string title, float height, Action onDraw) {
+                DrawScrollContent(title, title, height, onDraw);
             }
 
             /// <summary>
