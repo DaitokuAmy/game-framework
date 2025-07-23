@@ -18,6 +18,7 @@ using SampleGame.Domain.Battle;
 using ThirdPersonEngine;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -27,9 +28,9 @@ namespace SampleGame.Lifecycle {
         private class TestParam : RecyclableScrollList.IParam {
             public int Id;
         }
-        
+
         private List<TestParam> _testParams;
-        
+
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/battle.unity";
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace SampleGame.Lifecycle {
 
             // 初期化処理
             yield return Services.Resolve<BattleAppService>().SetupAsync(1, 1, scope.Token).ToCoroutine();
-            
+
             // テスト的にスクロール初期化
             _testParams = new List<TestParam>();
             for (var i = 0; i < 15; i++) {
@@ -68,22 +69,22 @@ namespace SampleGame.Lifecycle {
                     Id = i + 1
                 });
             }
+
             var uiManager = Services.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<BattleHudUIService>();
-            var list = hudUIService.BattleHudUIScreen.TestScrollList;
-            list.SetInitializer((view, param) => {
-                if (param is TestParam testParam) {
-                    var text = view.gameObject.GetComponentInChildren<TMP_Text>();
-                    text.text = testParam.Id.ToString();
-                }
-            });
-            list.SetData(_testParams, param => {
-                if (param is TestParam testParam) {
-                    return testParam.Id % 2 == 0 ? "A" : "B";
-                }
 
-                return "A";
-            });
+            void SetupList(RecyclableScrollList list) {
+                list.SetInitializer((view, param) => {
+                    if (param is TestParam testParam) {
+                        var text = view.gameObject.GetComponentInChildren<TMP_Text>();
+                        text.text = $"Id = {testParam.Id}";
+                    }
+                });
+                list.SetData(_testParams, _ => Random.Range(0, 2) == 0 ? "A" : "B");
+            }
+
+            SetupList(hudUIService.BattleHudUIScreen.TestScrollVList);
+            SetupList(hudUIService.BattleHudUIScreen.TestScrollHList);
         }
 
         /// <summary>
@@ -91,7 +92,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         protected override void CleanupInternal(TransitionHandle handle) {
             Services.Resolve<BattleAppService>()?.Cleanup();
-            
+
             base.CleanupInternal(handle);
         }
 

@@ -59,12 +59,12 @@ namespace GameFramework.UISystems {
         private readonly Dictionary<RectTransform, ObjectPool<IItemView>> _viewPools = new();
         private readonly Dictionary<string, TemplateInfo> _templateInfoMap = new();
         private readonly List<ItemInfo> _activeItemInfos = new();
+        private readonly List<string> _templateKeys = new();
 
         private LayoutElement _topSpacer;
         private LayoutElement _bottomSpacer;
         private ObjectPool<ItemInfo> _itemInfoPool;
         private IReadOnlyList<IParam> _params;
-        private Func<IParam, string> _templateKeySelectorFunc;
         private Action<IItemView, IParam> _initializeAction;
 
         private int _prevStartIndex = -1;
@@ -94,9 +94,9 @@ namespace GameFramework.UISystems {
                 }
 
                 var template = templateInfo.template;
+                template.gameObject.SetActive(false);
 
                 if (template.parent != Content) {
-                    template.gameObject.SetActive(false);
                     continue;
                 }
 
@@ -133,6 +133,14 @@ namespace GameFramework.UISystems {
                 }
             }
 
+            // ContentSizeFitterを追加
+            var contentSizeFitter = Content.GetComponent<ContentSizeFitter>();
+            if (contentSizeFitter == null) {
+                contentSizeFitter = Content.gameObject.AddComponent<ContentSizeFitter>();
+                contentSizeFitter.verticalFit = IsVertical ? ContentSizeFitter.FitMode.PreferredSize : ContentSizeFitter.FitMode.Unconstrained;
+                contentSizeFitter.horizontalFit = IsVertical ? ContentSizeFitter.FitMode.Unconstrained : ContentSizeFitter.FitMode.PreferredSize;
+            }
+
             // Spacerの作成
             _topSpacer = CreateSpacer("TopSpacer");
             _bottomSpacer = CreateSpacer("BottomSpacer");
@@ -158,9 +166,24 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// データとテンプレート選択関数を設定
         /// </summary>
-        public void SetData(IReadOnlyList<IParam> dataList, Func<IParam, string> templateKeySelector) {
+        public void SetData(IReadOnlyList<IParam> dataList, Func<IParam, string> templateKeySelector = null) {
             _params = dataList;
-            _templateKeySelectorFunc = templateKeySelector;
+
+            _templateKeys.Clear();
+            _templateKeys.Capacity = _params.Count;
+            if (templateKeySelector != null) {
+                for (var i = 0; i < _params.Count; i++) {
+                    var key = templateKeySelector.Invoke(_params[i]);
+                    _templateKeys.Add(key);
+                }
+            }
+            else {
+                var key = _templateInfos.Length > 0 ? _templateInfos[0].key : string.Empty;
+                for (var i = 0; i < _params.Count; i++) {
+                    _templateKeys.Add(key);
+                }
+            }
+
             Rebuild();
         }
 
@@ -231,12 +254,12 @@ namespace GameFramework.UISystems {
             }
 
             bottomSpace -= spacing;
-            
+
             // StartIndexとEndIndexが変わっていなければ何もしない
             if (startIndex == _prevStartIndex && endIndex == _prevEndIndex) {
                 return;
             }
-            
+
             _prevStartIndex = startIndex;
             _prevEndIndex = endIndex;
 
@@ -255,7 +278,7 @@ namespace GameFramework.UISystems {
             var startSiblingIndex = _topSpacer.transform.GetSiblingIndex();
             for (var i = startIndex; i <= endIndex; i++) {
                 var param = _params[i];
-                var key = _templateKeySelectorFunc.Invoke(param);
+                var key = GetTemplateKey(i);
                 if (!_templateInfoMap.TryGetValue(key, out var templateInfo)) {
                     continue;
                 }
@@ -288,12 +311,23 @@ namespace GameFramework.UISystems {
                 return 0.0f;
             }
 
-            var templateKey = _templateKeySelectorFunc.Invoke(_params[index]);
+            var templateKey = GetTemplateKey(index);
             if (!_templateInfoMap.TryGetValue(templateKey, out var templateInfo)) {
                 return 0.0f;
             }
 
             return templateInfo.size;
+        }
+
+        /// <summary>
+        /// テンプレートキーを取得
+        /// </summary>
+        private string GetTemplateKey(int index) {
+            if (index < 0 || index >= _templateKeys.Count) {
+                return string.Empty;
+            }
+
+            return _templateKeys[index];
         }
 
         /// <summary>
