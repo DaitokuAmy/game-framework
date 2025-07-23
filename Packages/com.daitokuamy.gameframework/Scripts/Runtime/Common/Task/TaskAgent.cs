@@ -11,7 +11,7 @@ namespace GameFramework {
         public event Action LateUpdateEvent;
 
         /// <summary>Taskが有効か</summary>
-        public new bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = true;
 
         /// <summary>
         /// タスク更新
