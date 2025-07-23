@@ -109,7 +109,7 @@ namespace GameFramework.SituationSystems {
             }
 
             _loadScope = new DisposableScope();
-            ServiceContainer = new ServiceContainer(_parent?.ServiceContainer ?? Services.Instance, true, GetType().FullName);
+            ServiceContainer = new ServiceContainer(_parent?.ServiceContainer ?? Services.Instance, false, GetType().FullName);
             CurrentState = State.Loading;
             yield return LoadRoutineInternal(handle, _loadScope);
             CurrentState = State.Loaded;
