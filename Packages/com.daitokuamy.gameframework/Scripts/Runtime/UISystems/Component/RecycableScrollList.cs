@@ -72,6 +72,9 @@ namespace GameFramework.UISystems {
         private Vector2 _prevScrollPosition;
         private HorizontalOrVerticalLayoutGroup _layoutGroup;
 
+        /// <summary>制御しているScrollRect</summary>
+        public ScrollRect ScrollRect => _scrollRect;
+        
         /// <summary>縦スクロールか</summary>
         private bool IsVertical => _scrollRect.vertical;
         /// <summary>項目格納用コンテナ</summary>

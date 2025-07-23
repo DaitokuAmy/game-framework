@@ -8,76 +8,41 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationService
     /// </summary>
-    public partial class SituationService : IFixedUpdatableTask, ILateUpdatableTask, ITaskEventHandler, IDisposable {
+    public partial class SituationService : DisposableFixedUpdatableTask {
         private readonly DisposableScope _scope;
         private readonly SituationContainer _situationContainer;
-        private readonly ISituationFlow _situationFlow;
+        private readonly SituationTree _situationTree;
 
-        private TaskRunner _taskRunner;
-
-        /// <summary>アクティブか</summary>
-        bool ITask.IsActive => true;
-
-        /// <summary>現在のSituation</summary>
-        public Situation CurrentSituation => _situationFlow.Current;
+        /// <summary>現在のNodeが対象としているSituationを取得する</summary>
+        public Situation CurrentNodeSituation => _situationTree.Current;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public SituationService() {
             _scope = new DisposableScope();
-            _situationContainer = new SituationContainer("Main").RegisterTo(_scope);
-            _situationFlow = new SituationTree(_situationContainer, "Main").RegisterTo(_scope);
-            //_situationFlow = new SituationStack(_situationContainer).RegisterTo(_scope);
+            _situationContainer = new SituationContainer().RegisterTo(_scope);
+            _situationTree = new SituationTree(_situationContainer).RegisterTo(_scope);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        public void Dispose() {
-            if (_taskRunner != null) {
-                _taskRunner.Unregister(this);
-                _taskRunner = null;
-            }
-
+        /// <inheritdoc/>
+        protected override void DisposeInternal() {
             _scope.Dispose();
         }
 
-        /// <summary>
-        /// タスク更新
-        /// </summary>
-        void ITask.Update() {
+        /// <inheritdoc/>
+        protected override void UpdateInternal() {
             _situationContainer.Update();
         }
 
-        /// <summary>
-        /// タスク後更新
-        /// </summary>
-        void ILateUpdatableTask.LateUpdate() {
+        /// <inheritdoc/>
+        protected override void LateUpdateInternal() {
             _situationContainer.LateUpdate();
         }
 
-        /// <summary>
-        /// 物理更新
-        /// </summary>
-        void IFixedUpdatableTask.FixedUpdate() {
+        /// <inheritdoc/>
+        protected override void FixedUpdateInternal() {
             _situationContainer.FixedUpdate();
-        }
-
-        /// <summary>
-        /// TaskRunnerに登録された時の処理
-        /// </summary>
-        void ITaskEventHandler.OnRegistered(TaskRunner runner) {
-            _taskRunner = runner;
-        }
-
-        /// <summary>
-        /// TaskRunnerから登録を外された時の処理
-        /// </summary>
-        void ITaskEventHandler.OnUnregistered(TaskRunner runner) {
-            if (runner == _taskRunner) {
-                _taskRunner = null;
-            }
         }
 
         /// <summary>
@@ -89,30 +54,38 @@ namespace SampleGame.Lifecycle {
                 return;
             }
 
-            if (_situationContainer == null || _situationFlow == null) {
-                Debug.LogError("SituationContainer or SituationTree is null");
+            if (_situationContainer == null || _situationTree == null) {
+                Debug.LogError("SituationContainer or SituationFlow is null");
                 return;
             }
 
-            SetupContainer(_scope);
-            SetupTree(_situationFlow as SituationTree, _scope);
+            SetupContainer(_situationContainer, _scope);
+            SetupTree(_situationTree, _scope);
             SetupDebug(_scope);
         }
 
         /// <summary>
         /// 指定したSituationへ遷移する
         /// </summary>
-        public TransitionHandle Transition(Type type, Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) {
+        public TransitionHandle Transition(Type type, Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) {
             var (transition, effects) = GetTransitionInfo(transitionType);
-            return _situationFlow.Transition(type, onSetup, transition, effects);
+            if (refresh) {
+                return _situationTree.RefreshTransition(type, onSetup, transition, effects);
+            }
+
+            return _situationTree.Transition(type, onSetup, transition, effects);
         }
 
         /// <summary>
         /// 指定したSituationへ遷移する
         /// </summary>
-        public TransitionHandle Transition<T>(Action<T> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) where T : Situation {
+        public TransitionHandle Transition<T>(Action<T> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) where T : Situation {
             var (transition, effects) = GetTransitionInfo(transitionType);
-            return _situationFlow.Transition(onSetup, transition, effects);
+            if (refresh) {
+                return _situationTree.RefreshTransition(onSetup, transition, effects);
+            }
+
+            return _situationTree.Transition(onSetup, transition, effects);
         }
 
         /// <summary>
@@ -120,7 +93,15 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         public TransitionHandle Back(Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) {
             var (transition, effects) = GetTransitionInfo(transitionType);
-            return _situationFlow.Back(onSetup, transition, effects);
+            return _situationTree.Back(onSetup, transition, effects);
+        }
+
+        /// <summary>
+        /// 戻り遷移
+        /// </summary>
+        public TransitionHandle Back(int depth, Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) {
+            var (transition, effects) = GetTransitionInfo(transitionType);
+            return _situationTree.Back(depth, onSetup, transition, effects);
         }
 
         /// <summary>
@@ -128,7 +109,19 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         public TransitionHandle Reset(Action<Situation> onSetup = null) {
             var (_, effects) = GetTransitionInfo(TransitionType.SceneDefault);
-            return _situationFlow.Reset(onSetup, effects);
+            return _situationTree.Reset(onSetup, effects);
+        }
+
+        /// <summary>
+        /// ノードの接続
+        /// </summary>
+        private SituationTreeNode ConnectNode<T>(SituationTreeNode parentNode)
+            where T : Situation {
+            if (parentNode == null) {
+                return _situationTree.ConnectRoot<T>();
+            }
+
+            return parentNode.Connect<T>();
         }
     }
 }
