@@ -12,9 +12,9 @@ namespace GameFramework.UISystems {
     [RequireComponent(typeof(ScrollRect))]
     public class RecyclableScrollList : MonoBehaviour {
         /// <summary>
-        /// 初期化用パラメータ
+        /// 初期化用データ
         /// </summary>
-        public interface IParam {
+        public interface IData {
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// インターフェースがない場合にデフォルトでつけるView
         /// </summary>
-        public sealed class ItemView : MonoBehaviour, IItemView {
+        private sealed class ItemView : MonoBehaviour, IItemView {
         }
 
         /// <summary>
@@ -61,13 +61,15 @@ namespace GameFramework.UISystems {
         private readonly Dictionary<string, TemplateInfo> _templateInfoMap = new();
         private readonly List<ItemInfo> _activeItemInfos = new();
         private readonly List<IItemView> _activeViews = new();
-        private readonly List<string> _templateKeys = new();
+        private readonly List<string> _itemTemplateKeys = new();
+        private readonly List<float> _itemSizes = new();
 
+        private bool _initialized;
         private LayoutElement _topSpacer;
         private LayoutElement _bottomSpacer;
         private ObjectPool<ItemInfo> _itemInfoPool;
-        private IReadOnlyList<IParam> _params;
-        private Action<IItemView, IParam> _initializeAction;
+        private IReadOnlyList<IData> _dataList;
+        private Action<IItemView, IData> _initAction;
 
         private int _prevStartIndex = -1;
         private int _prevEndIndex = -1;
@@ -92,23 +94,146 @@ namespace GameFramework.UISystems {
         private RectTransform Viewport => _scrollRect.viewport != null ? _scrollRect.viewport : (RectTransform)_scrollRect.transform;
 
         /// <summary>
+        /// 初期化処理を登録
+        /// </summary>
+        /// <param name="initAction">Viewの初期化関数</param>
+        public void SetInitializer(Action<IItemView, IData> initAction) {
+            Initialize();
+            _initAction = initAction;
+        }
+
+        /// <summary>
+        /// データとテンプレート選択関数を設定
+        /// </summary>
+        /// <param name="dataList">項目を初期化する際に使うデータのリスト</param>
+        /// <param name="getTemplateKeyFunc">Templateのキーを選択する関数</param>
+        /// <param name="calcItemSizeFunc">項目サイズを計算する関数(未指定だとTemplate側に設定された物が利用される, 0以下を返しても同様)</param>
+        public void SetDataList(IReadOnlyList<IData> dataList, Func<IData, string> getTemplateKeyFunc = null, Func<IData, IItemView, float> calcItemSizeFunc = null) {
+            Initialize();
+            _dataList = dataList;
+
+            _itemTemplateKeys.Clear();
+            _itemSizes.Clear();
+            _itemTemplateKeys.Capacity = _dataList.Count;
+            _itemSizes.Capacity = _dataList.Count;
+
+            var defaultKey = _templateInfos.Length > 0 ? _templateInfos[0].key : string.Empty;
+            for (var i = 0; i < _dataList.Count; i++) {
+                var key = getTemplateKeyFunc?.Invoke(_dataList[i]) ?? defaultKey;
+                if (!_templateInfoMap.TryGetValue(key, out var info)) {
+                    info = _templateInfoMap[defaultKey];
+                }
+
+                _itemTemplateKeys.Add(key);
+                var size = info.size;
+                if (calcItemSizeFunc != null) {
+                    size = calcItemSizeFunc.Invoke(_dataList[i], info.template.GetComponent<IItemView>());
+                    if (size <= 0.0f) {
+                        size = info.size;
+                    }
+                }
+
+                _itemSizes.Add(size);
+            }
+
+            Rebuild();
+        }
+
+        /// <summary>
+        /// 強制リビルド
+        /// </summary>
+        public void ForceRebuild() {
+            Initialize();
+            Rebuild();
+        }
+
+        /// <summary>
+        /// 正規化済みのスクロール値を設定
+        /// </summary>
+        public void SetNormalizedScrollPosition(float normalizedPosition) {
+            Initialize();
+
+            if (IsVertical) {
+                _scrollRect.verticalNormalizedPosition = normalizedPosition;
+            }
+            else {
+                _scrollRect.horizontalNormalizedPosition = normalizedPosition;
+            }
+
+            UpdateVisibleItems();
+        }
+
+        /// <summary>
         /// 生成時処理
         /// </summary>
         private void Awake() {
+            Initialize();
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        private void OnDestroy() {
+            if (!_initialized) {
+                return;
+            }
+
+            ClearItems();
+            _itemInfoPool.Dispose();
+            foreach (var pair in _viewPools) {
+                pair.Value.Dispose();
+            }
+
+            _viewPools.Clear();
+            _dataList = null;
+            _initAction = null;
+        }
+
+        /// <summary>
+        /// 後更新処理
+        /// </summary>
+        private void LateUpdate() {
+            if ((_scrollRect.normalizedPosition - _prevScrollPosition).sqrMagnitude > float.Epsilon) {
+                UpdateVisibleItems();
+                _prevScrollPosition = _scrollRect.normalizedPosition;
+            }
+        }
+
+        /// <summary>
+        /// 生成時処理
+        /// </summary>
+        private void Initialize() {
+            if (_initialized) {
+                return;
+            }
+
+            _initialized = true;
+
+            // Templateの初期化
             _itemInfoPool = new ObjectPool<ItemInfo>(() => new ItemInfo());
             foreach (var templateInfo in _templateInfos) {
                 if (string.IsNullOrEmpty(templateInfo.key) || templateInfo.template == null) {
                     continue;
                 }
 
-                if (!_templateInfoMap.TryAdd(templateInfo.key, templateInfo)) {
+                var template = templateInfo.template;
+                var templateObj = template.gameObject;
+
+                templateObj.SetActive(true);
+
+                // Componentが無ければ追加
+                var templateView = templateObj.GetComponent<IItemView>();
+                if (templateView == null) {
+                    templateView = templateObj.AddComponent<ItemView>();
+                }
+
+                templateObj.SetActive(false);
+
+                if (template.parent != Content) {
                     continue;
                 }
 
-                var template = templateInfo.template;
-                template.gameObject.SetActive(false);
-
-                if (template.parent != Content) {
+                if (!_templateInfoMap.TryAdd(templateInfo.key, templateInfo)) {
                     continue;
                 }
 
@@ -118,17 +243,13 @@ namespace GameFramework.UISystems {
                         var instance = Instantiate(template.gameObject, Content, false);
                         template.gameObject.SetActive(false);
                         var view = instance.GetComponent<IItemView>();
-                        if (view == null) {
-                            view = instance.AddComponent<ItemView>();
-                        }
-
                         CreatedItemViewEvent?.Invoke(view);
                         return view;
                     },
                     actionOnGet: view => view.gameObject.SetActive(true),
                     actionOnRelease: view => view.gameObject.SetActive(false),
                     actionOnDestroy: view => {
-                        CreatedItemViewEvent?.Invoke(view);
+                        DeletedItemViewEvent?.Invoke(view);
                         Destroy(view.gameObject);
                     },
                     collectionCheck: false
@@ -163,85 +284,10 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
-        /// 更新処理
-        /// </summary>
-        private void Update() {
-            if ((_scrollRect.normalizedPosition - _prevScrollPosition).sqrMagnitude > float.Epsilon) {
-                UpdateVisibleItems();
-                _prevScrollPosition = _scrollRect.normalizedPosition;
-            }
-        }
-
-        /// <summary>
-        /// 初期化処理を登録
-        /// </summary>
-        public void SetInitializer(Action<IItemView, IParam> initializer) {
-            _initializeAction = initializer;
-        }
-
-        /// <summary>
-        /// データとテンプレート選択関数を設定
-        /// </summary>
-        public void SetData(IReadOnlyList<IParam> dataList, Func<IParam, string> templateKeySelector = null) {
-            _params = dataList;
-
-            _templateKeys.Clear();
-            _templateKeys.Capacity = _params.Count;
-            if (templateKeySelector != null) {
-                for (var i = 0; i < _params.Count; i++) {
-                    var key = templateKeySelector.Invoke(_params[i]);
-                    _templateKeys.Add(key);
-                }
-            }
-            else {
-                var key = _templateInfos.Length > 0 ? _templateInfos[0].key : string.Empty;
-                for (var i = 0; i < _params.Count; i++) {
-                    _templateKeys.Add(key);
-                }
-            }
-
-            Rebuild();
-        }
-
-        /// <summary>
-        /// 強制リビルド
-        /// </summary>
-        public void ForceRebuild() {
-            Rebuild();
-        }
-
-        /// <summary>
-        /// 正規化済みのスクロール値を設定
-        /// </summary>
-        public void SetNormalizedScrollPosition(float normalizedPosition) {
-            if (IsVertical) {
-                _scrollRect.verticalNormalizedPosition = normalizedPosition;
-            }
-            else {
-                _scrollRect.horizontalNormalizedPosition = normalizedPosition;
-            }
-
-            UpdateVisibleItems();
-        }
-
-        /// <summary>
         /// 表示中の要素を再構築
         /// </summary>
         private void Rebuild() {
-            foreach (var info in _activeItemInfos) {
-                var key = info.Template;
-                if (_viewPools.TryGetValue(key, out var pool)) {
-                    pool.Release(info.View);
-                }
-
-                _itemInfoPool.Release(info);
-            }
-
-            _activeItemInfos.Clear();
-            _activeViews.Clear();
-            _prevScrollPosition = _scrollRect.normalizedPosition;
-            _prevStartIndex = -1;
-            _prevEndIndex = -1;
+            ClearItems();
             UpdateVisibleItems();
 
             // RectTransformをリビルド
@@ -260,7 +306,7 @@ namespace GameFramework.UISystems {
             var spacing = _layoutGroup.spacing;
             var startIndex = 0;
             var topSpace = 0.0f;
-            for (var i = 0; i < _params.Count; i++) {
+            for (var i = 0; i < _dataList.Count; i++) {
                 var size = GetItemSize(i);
                 if (accumulated + size > scrollOffset) {
                     startIndex = i;
@@ -273,8 +319,8 @@ namespace GameFramework.UISystems {
             }
 
             var visibleExtent = 0.0f;
-            var endIndex = _params.Count - 1;
-            for (var i = startIndex + 1; i < _params.Count; i++) {
+            var endIndex = _dataList.Count - 1;
+            for (var i = startIndex + 1; i < _dataList.Count; i++) {
                 visibleExtent += GetItemSize(i) + spacing;
                 if (visibleExtent >= viewportSize) {
                     endIndex = i;
@@ -283,7 +329,7 @@ namespace GameFramework.UISystems {
             }
 
             var bottomSpace = 0.0f;
-            for (var i = endIndex + 1; i < _params.Count; i++) {
+            for (var i = endIndex + 1; i < _dataList.Count; i++) {
                 bottomSpace += GetItemSize(i) + spacing;
             }
 
@@ -294,26 +340,18 @@ namespace GameFramework.UISystems {
                 return;
             }
 
+            // 項目をプールに返却
+            ClearItems();
+
+            // Indexを記憶
             _prevStartIndex = startIndex;
             _prevEndIndex = endIndex;
-
-            // 項目をプールに返却
-            foreach (var info in _activeItemInfos) {
-                if (_viewPools.TryGetValue(info.Template, out var pool)) {
-                    pool.Release(info.View);
-                }
-
-                _itemInfoPool.Release(info);
-            }
-
-            _activeItemInfos.Clear();
-            _activeViews.Clear();
 
             // 表示対象生成
             var startSiblingIndex = _topSpacer.transform.GetSiblingIndex();
             for (var i = startIndex; i <= endIndex; i++) {
-                var param = _params[i];
-                var key = GetTemplateKey(i);
+                var data = _dataList[i];
+                var key = GetItemTemplateKey(i);
                 if (!_templateInfoMap.TryGetValue(key, out var templateInfo)) {
                     continue;
                 }
@@ -324,7 +362,7 @@ namespace GameFramework.UISystems {
 
                 var view = pool.Get();
                 view.gameObject.transform.SetSiblingIndex(startSiblingIndex + 1 + (i - startIndex));
-                _initializeAction?.Invoke(view, param);
+                _initAction?.Invoke(view, data);
 
                 _activeViews.Add(view);
                 _activeItemInfos.Add(new ItemInfo {
@@ -343,27 +381,42 @@ namespace GameFramework.UISystems {
         /// 項目のサイズを取得
         /// </summary>
         private float GetItemSize(int index) {
-            if (index < 0 || index >= _params.Count) {
+            if (index < 0 || index >= _itemSizes.Count) {
                 return 0.0f;
             }
 
-            var templateKey = GetTemplateKey(index);
-            if (!_templateInfoMap.TryGetValue(templateKey, out var templateInfo)) {
-                return 0.0f;
-            }
-
-            return templateInfo.size;
+            return _itemSizes[index];
         }
 
         /// <summary>
         /// テンプレートキーを取得
         /// </summary>
-        private string GetTemplateKey(int index) {
-            if (index < 0 || index >= _templateKeys.Count) {
+        private string GetItemTemplateKey(int index) {
+            if (index < 0 || index >= _itemTemplateKeys.Count) {
                 return string.Empty;
             }
 
-            return _templateKeys[index];
+            return _itemTemplateKeys[index];
+        }
+
+        /// <summary>
+        /// 項目情報のクリア
+        /// </summary>
+        private void ClearItems() {
+            foreach (var info in _activeItemInfos) {
+                var key = info.Template;
+                if (_viewPools.TryGetValue(key, out var pool)) {
+                    pool.Release(info.View);
+                }
+
+                _itemInfoPool.Release(info);
+            }
+
+            _activeItemInfos.Clear();
+            _activeViews.Clear();
+            _prevScrollPosition = _scrollRect.normalizedPosition;
+            _prevStartIndex = -1;
+            _prevEndIndex = -1;
         }
 
         /// <summary>

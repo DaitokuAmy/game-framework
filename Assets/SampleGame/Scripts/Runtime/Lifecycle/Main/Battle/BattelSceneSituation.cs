@@ -25,11 +25,11 @@ namespace SampleGame.Lifecycle {
     /// Battle用のSceneSituation
     /// </summary>
     public class BattleSceneSituation : SceneSituation {
-        private class TestParam : RecyclableScrollList.IParam {
+        private class TestData : RecyclableScrollList.IData {
             public int Id;
         }
 
-        private List<TestParam> _testParams;
+        private List<TestData> _testDataList;
 
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/battle.unity";
 
@@ -63,9 +63,9 @@ namespace SampleGame.Lifecycle {
             yield return Services.Resolve<BattleAppService>().SetupAsync(1, 1, scope.Token).ToCoroutine();
 
             // テスト的にスクロール初期化
-            _testParams = new List<TestParam>();
+            _testDataList = new List<TestData>();
             for (var i = 0; i < 15; i++) {
-                _testParams.Add(new TestParam {
+                _testDataList.Add(new TestData {
                     Id = i + 1
                 });
             }
@@ -75,12 +75,12 @@ namespace SampleGame.Lifecycle {
 
             void SetupList(RecyclableScrollList list) {
                 list.SetInitializer((view, param) => {
-                    if (param is TestParam testParam) {
+                    if (param is TestData testParam) {
                         var text = view.gameObject.GetComponentInChildren<TMP_Text>();
                         text.text = $"Id = {testParam.Id}";
                     }
                 });
-                list.SetData(_testParams, _ => Random.Range(0, 2) == 0 ? "A" : "B");
+                list.SetDataList(_testDataList, _ => Random.Range(0, 2) == 0 ? "A" : "B");
             }
 
             SetupList(hudUIService.BattleHudUIScreen.TestScrollVList);
