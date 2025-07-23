@@ -211,6 +211,20 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// 正規化済みのスクロール値を設定
+        /// </summary>
+        public void SetNormalizedScrollPosition(float normalizedPosition) {
+            if (IsVertical) {
+                _scrollRect.verticalNormalizedPosition = normalizedPosition;
+            }
+            else {
+                _scrollRect.horizontalNormalizedPosition = normalizedPosition;
+            }
+
+            UpdateVisibleItems();
+        }
+
+        /// <summary>
         /// 表示中の要素を再構築
         /// </summary>
         private void Rebuild() {
@@ -229,6 +243,9 @@ namespace GameFramework.UISystems {
             _prevStartIndex = -1;
             _prevEndIndex = -1;
             UpdateVisibleItems();
+
+            // RectTransformをリビルド
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_scrollRect.transform);
         }
 
         /// <summary>
