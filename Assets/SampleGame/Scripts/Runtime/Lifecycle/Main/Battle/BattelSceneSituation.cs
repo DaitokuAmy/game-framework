@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -15,6 +16,7 @@ using R3;
 using SampleGame.Application.Battle;
 using SampleGame.Domain.Battle;
 using ThirdPersonEngine;
+using TMPro;
 using UnityEngine;
 
 namespace SampleGame.Lifecycle {
@@ -22,6 +24,12 @@ namespace SampleGame.Lifecycle {
     /// Battle用のSceneSituation
     /// </summary>
     public class BattleSceneSituation : SceneSituation {
+        private class TestParam : RecyclableScrollList.IParam {
+            public int Id;
+        }
+        
+        private List<TestParam> _testParams;
+        
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/battle.unity";
 
         /// <summary>
@@ -52,6 +60,30 @@ namespace SampleGame.Lifecycle {
 
             // 初期化処理
             yield return Services.Resolve<BattleAppService>().SetupAsync(1, 1, scope.Token).ToCoroutine();
+            
+            // テスト的にスクロール初期化
+            _testParams = new List<TestParam>();
+            for (var i = 0; i < 15; i++) {
+                _testParams.Add(new TestParam {
+                    Id = i + 1
+                });
+            }
+            var uiManager = Services.Resolve<UIManager>();
+            var hudUIService = uiManager.GetService<BattleHudUIService>();
+            var list = hudUIService.BattleHudUIScreen.TestScrollList;
+            list.SetInitializer((view, param) => {
+                if (param is TestParam testParam) {
+                    var text = view.gameObject.GetComponentInChildren<TMP_Text>();
+                    text.text = testParam.Id.ToString();
+                }
+            });
+            list.SetData(_testParams, param => {
+                if (param is TestParam testParam) {
+                    return testParam.Id % 2 == 0 ? "A" : "B";
+                }
+
+                return "A";
+            });
         }
 
         /// <summary>
@@ -133,16 +165,23 @@ namespace SampleGame.Lifecycle {
             if (Input.GetKeyDown(KeyCode.Alpha7)) {
                 var overlayUIService = Services.Resolve<UIManager>().GetService<BattleOverlayUIService>();
                 overlayUIService.PlayWin();
+                DebugLog.Info("Test");
+                SystemLog.Info("Sys:Test");
+                Debug.Log("TestUni");
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha8)) {
                 var overlayUIService = Services.Resolve<UIManager>().GetService<BattleOverlayUIService>();
                 overlayUIService.PlayLose();
+                DebugLog.Warning("Tag", "Test");
+                SystemLog.Warning("Sys", "Sys:Test");
             }
 
             if (Input.GetKeyDown(KeyCode.Alpha9)) {
                 var overlayUIService = Services.Resolve<UIManager>().GetService<BattleOverlayUIService>();
                 overlayUIService.Clear();
+                DebugLog.Exception(new Exception("Hoge"));
+                SystemLog.Exception(new Exception("Hoge"));
             }
         }
 
