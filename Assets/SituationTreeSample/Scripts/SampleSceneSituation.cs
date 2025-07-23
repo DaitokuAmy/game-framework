@@ -14,7 +14,7 @@ namespace SituationTreeSample {
         private GameObject _sampleObject;
 
         /// <summary>アンロード時の空シーンのアセットパス(未指定だとアンロードでシーンを廃棄しない)</summary>
-        protected override string EmptySceneAssetPath => "Assets/SituationTreeSample/Scenes/situation_flow_sample_empty.unity";
+        protected override string EmptySceneAssetPath => "Assets/SituationTreeSample/Scenes/situation_flow_tree_empty.unity";
         
         /// <summary>表示名</summary>
         string ISampleSituation.DisplayName => GetType().Name.Replace("SampleSceneSituation", "");

@@ -32,13 +32,16 @@ namespace ThirdPersonEngine {
             public float angularSpeed;
             [Tooltip("移動誤差")]
             public float moveThreshold = 0.05f;
+            [Tooltip("重力")]
+            public float gravity = -9.81f;
 
-            public float MaxSpeed => maxSpeed;
-            public float Acceleration => acceleration;
-            public float Brake => brake;
-            public float AngularSpeed => angularSpeed;
-            public float AirBrake => airBrake;
-            public float GroundBrake => brake;
+            float IMoveResolverContext.MaxSpeed => maxSpeed;
+            float IMoveResolverContext.Acceleration => acceleration;
+            float IMoveResolverContext.Brake => brake;
+            float IMoveResolverContext.AngularSpeed => angularSpeed;
+            float VelocityActorComponent.ISettings.AirBrake => airBrake;
+            float VelocityActorComponent.ISettings.GroundBrake => brake;
+            float VelocityActorComponent.ISettings.Gravity => gravity;
         }
         
         [Tooltip("基本モーション用のアニメーターコントローラ")]

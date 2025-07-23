@@ -34,21 +34,16 @@ namespace ThirdPersonEngine {
             /// 入り処理(非同期)
             /// </summary>
             protected override IEnumerator EnterRoutineInternal(StateType prevKey, IScope scope) {
+                // 移動中か
+                var isMoving = Owner.MoveComponent.IsMoving;
+                
                 // 速度のリセット
                 Owner._velocityComponent.ResetVelocity();
-                
-                // 重力OFF
-                // todo:SequenceClipで制御させる
-                var prevGravity = Owner._velocityComponent.Gravity;
-                Owner._velocityComponent.Gravity = 0.0f;
 
                 // アクション再生
                 var actionInfo = Owner._data.jumpActionInfo;
-                yield return Owner.PlayActionRoutine(actionInfo.action, null, scope.Token);
-                
-                // 重力戻す
-                // todo:SequenceClipで制御させる
-                Owner._velocityComponent.Gravity = prevGravity;
+                var action = isMoving ? actionInfo.movingAction : actionInfo.standingAction;
+                yield return Owner.PlayActionRoutine(action, scope.Token);
                 
                 // ロコモーションへ
                 ChangeState(StateType.Locomotion);

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GameFramework.Core;
-using GameFramework.SituationSystems;
 using UnityEditor;
 
 namespace GameFramework.Editor {
@@ -14,7 +12,7 @@ namespace GameFramework.Editor {
         /// コンテナ情報描画用パネル
         /// </summary>
         private class ContainerPanel : PanelBase {
-            private List<(Type type, object instance)> _registeredServiceInfos = new();
+            private readonly List<(Type type, object instance)> _registeredServiceInfos = new();
 
             /// <inheritdoc/>
             public override string Label => "Container";

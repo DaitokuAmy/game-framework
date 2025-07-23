@@ -9,7 +9,7 @@ namespace ThirdPersonEngine {
         /// <summary>地上にいるか</summary>
         public virtual bool IsGrounded => Body.Position.y <= float.Epsilon;
         /// <summary>地上の高さ</summary>
-        public virtual float GroundHeight => 0.0f;
+        public virtual float GroundHeight => float.MinValue;
 
         /// <summary>移動制御用クラス</summary>
         protected MoveActorComponent MoveComponent { get; private set; }

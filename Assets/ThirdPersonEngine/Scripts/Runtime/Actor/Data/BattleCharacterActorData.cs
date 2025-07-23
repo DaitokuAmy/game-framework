@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ThirdPersonEngine {
     /// <summary>
@@ -12,19 +13,33 @@ namespace ThirdPersonEngine {
         /// </summary>
         [Serializable]
         public class JumpActionInfo {
-            [Tooltip("アクション")]
-            public AnimationClipActorAction action;
-            [Tooltip("初速")]
-            public float initVelocity = 10.0f;
+            [Tooltip("立ち中アクション")]
+            public AnimationClipActorAction standingAction;
+            [Tooltip("移動中アクション")]
+            public AnimationClipActorAction movingAction;
             [Tooltip("移動速度係数")]
             public float moveSpeedScale = 0.5f;
         }
 
-        [Tooltip("地上状態とする高さ")]
-        public float groundHeight = 0.1f;
-        [Tooltip("空中状態とする高さ")]
-        public float airHeight = 0.2f;
+        /// <summary>
+        /// センサー情報
+        /// </summary>
+        [Serializable]
+        public class SensorInfo : SensorActorComponent.ISettings {
+            [Tooltip("地面センサーの半径")]
+            public float groundSensorRadius = 0.5f;
+            [Tooltip("地面センサーの中心位置オフセット")]
+            public float groundSensorOffsetY = 0.5f;
+
+            /// <inheritdoc/>
+            float SensorActorComponent.ISettings.GroundSensorRadius => groundSensorRadius;
+            /// <inheritdoc/>
+            float SensorActorComponent.ISettings.GroundSensorOffsetY => groundSensorOffsetY;
+        }
+
         [Tooltip("ジャンプアクション情報")]
         public JumpActionInfo jumpActionInfo;
+        [Tooltip("センサー情報")]
+        public SensorInfo sensorInfo;
     }
 }

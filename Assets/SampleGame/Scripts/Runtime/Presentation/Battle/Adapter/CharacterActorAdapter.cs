@@ -1,4 +1,6 @@
+using ActionSequencer;
 using GameFramework.ActorSystems;
+using GameFramework.Core;
 using SampleGame.Domain.Battle;
 using ThirdPersonEngine;
 using UnityEngine;
@@ -10,7 +12,7 @@ namespace SampleGame.Presentation.Battle {
     public class CharacterActorAdapter : ActorEntityLogic, ICharacterActorPort {
         private readonly BattleCharacterActor _actor;
         private readonly IReadOnlyCharacterModel _model;
-        
+
         /// <inheritdoc/>
         Vector3 ICharacterActorPort.Position => _actor.Position;
         /// <inheritdoc/>
@@ -37,6 +39,24 @@ namespace SampleGame.Presentation.Battle {
         /// <inheritdoc/>
         void ICharacterActorPort.InputJump() {
             _actor.InputJump();
+        }
+
+        /// <summary>
+        /// アクティブ時処理
+        /// </summary>
+        protected override void ActivateInternal(IScope scope) {
+            base.ActivateInternal(scope);
+
+            SequenceControllerProvider.SetController(_actor.Body.GameObject, (SequenceController)_actor.SequenceController);
+        }
+
+        /// <summary>
+        /// 非アクティブ時処理
+        /// </summary>
+        protected override void DeactivateInternal() {
+            SequenceControllerProvider.SetController(_actor.Body.GameObject, null);
+            
+            base.DeactivateInternal();
         }
     }
 }

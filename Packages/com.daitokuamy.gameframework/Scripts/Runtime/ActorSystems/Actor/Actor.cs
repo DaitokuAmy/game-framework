@@ -10,6 +10,7 @@ namespace GameFramework.ActorSystems {
     public abstract class Actor : ILateUpdatableTask, ITaskEventHandler, IDisposable {
         private readonly Dictionary<Type, ActorComponent> _actorComponentDict = new(32);
         private readonly List<ActorComponent> _orderedActorComponents = new(32);
+        private readonly GizmoDispatcher _gizmoDispatcher;
 
         private TaskRunner _taskRunner;
         private bool _disposed;
@@ -41,6 +42,12 @@ namespace GameFramework.ActorSystems {
         /// </summary>
         public Actor(Body body) {
             Body = body;
+            _gizmoDispatcher = body.GetComponent<GizmoDispatcher>();
+
+            if (_gizmoDispatcher != null) {
+                _gizmoDispatcher.DrawGizmosEvent += OnDrawGizmos;
+                _gizmoDispatcher.DrawGizmosSelectedEvent += OnDrawGizmosSelected;
+            }
         }
 
         /// <summary>
@@ -60,6 +67,11 @@ namespace GameFramework.ActorSystems {
             if (_taskRunner != null) {
                 _taskRunner.Unregister(this);
                 _taskRunner = null;
+            }
+
+            if (_gizmoDispatcher != null) {
+                _gizmoDispatcher.DrawGizmosEvent -= OnDrawGizmos;
+                _gizmoDispatcher.DrawGizmosSelectedEvent -= OnDrawGizmosSelected;
             }
         }
 
@@ -140,6 +152,18 @@ namespace GameFramework.ActorSystems {
         }
 
         /// <summary>
+        /// 選択中ギズモ描画
+        /// </summary>
+        protected virtual void DrawGizmosSelectedInternal() {
+        }
+
+        /// <summary>
+        /// ギズモ描画
+        /// </summary>
+        protected virtual void DrawGizmosInternal() {
+        }
+
+        /// <summary>
         /// アクティブ化
         /// </summary>
         public void Activate() {
@@ -200,6 +224,28 @@ namespace GameFramework.ActorSystems {
             }
 
             _orderedActorComponents.Clear();
+        }
+
+        /// <summary>
+        /// ギズモ描画通知(選択中)
+        /// </summary>
+        private void OnDrawGizmosSelected() {
+            DrawGizmosSelectedInternal();
+
+            foreach (var component in _orderedActorComponents) {
+                component.DrawGizmosSelected();
+            }
+        }
+
+        /// <summary>
+        /// ギズモ描画通知
+        /// </summary>
+        private void OnDrawGizmos() {
+            DrawGizmosInternal();
+
+            foreach (var component in _orderedActorComponents) {
+                component.DrawGizmos();
+            }
         }
     }
 }

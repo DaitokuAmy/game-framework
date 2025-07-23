@@ -41,24 +41,26 @@ namespace ThirdPersonEngine {
         private void OnAnimatorMove() {
             if (_animator.applyRootMotion) {
                 var localDeltaPosition = transform.InverseTransformVector(_animator.deltaPosition);
-                var localDeltaAngles = _animator.deltaRotation.eulerAngles;
+                var deltaAngles = _animator.deltaRotation.eulerAngles;
 
                 localDeltaPosition = Vector3.Scale(localDeltaPosition, PositionScale);
-                localDeltaAngles = Vector3.Scale(localDeltaAngles, AnglesScale);
+                deltaAngles = Vector3.Scale(deltaAngles, AnglesScale);
 
                 var deltaPosition = transform.TransformVector(localDeltaPosition);
                 var position = transform.position + deltaPosition;
-                var rotation = transform.rotation * Quaternion.Euler(localDeltaAngles);
+                var rotation = transform.rotation * Quaternion.Euler(deltaAngles);
 
                 if (_rigidbody != null) {
                     _rigidbody.Move(position, rotation);
                 }
                 else if (_characterController != null) {
                     _characterController.Move(deltaPosition);
+                    transform.rotation = rotation;
                 }
-
-                transform.position = position;
-                transform.rotation = rotation;
+                else {
+                    transform.position = position;
+                    transform.rotation = rotation;
+                }
             }
         }
     }
