@@ -78,7 +78,12 @@ namespace GameFramework.UISystems {
         public ScrollRect ScrollRect => _scrollRect;
         /// <summary>ビューの一覧</summary>
         public IReadOnlyList<IItemView> ItemViews => _activeViews;
-        
+
+        /// <summary>ItemView生成時イベント</summary>
+        public event Action<IItemView> CreatedItemViewEvent;
+        /// <summary>ItemView削除時イベント</summary>
+        public event Action<IItemView> DeletedItemViewEvent;
+
         /// <summary>縦スクロールか</summary>
         private bool IsVertical => _scrollRect.vertical;
         /// <summary>項目格納用コンテナ</summary>
@@ -117,11 +122,15 @@ namespace GameFramework.UISystems {
                             view = instance.AddComponent<ItemView>();
                         }
 
+                        CreatedItemViewEvent?.Invoke(view);
                         return view;
                     },
-                    actionOnGet: item => item.gameObject.SetActive(true),
-                    actionOnRelease: item => item.gameObject.SetActive(false),
-                    actionOnDestroy: item => Destroy(item.gameObject),
+                    actionOnGet: view => view.gameObject.SetActive(true),
+                    actionOnRelease: view => view.gameObject.SetActive(false),
+                    actionOnDestroy: view => {
+                        CreatedItemViewEvent?.Invoke(view);
+                        Destroy(view.gameObject);
+                    },
                     collectionCheck: false
                 );
             }
