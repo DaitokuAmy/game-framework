@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Pool;
@@ -59,6 +60,7 @@ namespace GameFramework.UISystems {
         private readonly Dictionary<RectTransform, ObjectPool<IItemView>> _viewPools = new();
         private readonly Dictionary<string, TemplateInfo> _templateInfoMap = new();
         private readonly List<ItemInfo> _activeItemInfos = new();
+        private readonly List<IItemView> _activeViews = new();
         private readonly List<string> _templateKeys = new();
 
         private LayoutElement _topSpacer;
@@ -74,6 +76,8 @@ namespace GameFramework.UISystems {
 
         /// <summary>制御しているScrollRect</summary>
         public ScrollRect ScrollRect => _scrollRect;
+        /// <summary>ビューの一覧</summary>
+        public IReadOnlyList<IItemView> ItemViews => _activeViews;
         
         /// <summary>縦スクロールか</summary>
         private bool IsVertical => _scrollRect.vertical;
@@ -211,6 +215,7 @@ namespace GameFramework.UISystems {
             }
 
             _activeItemInfos.Clear();
+            _activeViews.Clear();
             _prevScrollPosition = _scrollRect.normalizedPosition;
             _prevStartIndex = -1;
             _prevEndIndex = -1;
@@ -276,6 +281,7 @@ namespace GameFramework.UISystems {
             }
 
             _activeItemInfos.Clear();
+            _activeViews.Clear();
 
             // 表示対象生成
             var startSiblingIndex = _topSpacer.transform.GetSiblingIndex();
@@ -294,6 +300,7 @@ namespace GameFramework.UISystems {
                 view.gameObject.transform.SetSiblingIndex(startSiblingIndex + 1 + (i - startIndex));
                 _initializeAction?.Invoke(view, param);
 
+                _activeViews.Add(view);
                 _activeItemInfos.Add(new ItemInfo {
                     Template = templateInfo.template,
                     View = view,
