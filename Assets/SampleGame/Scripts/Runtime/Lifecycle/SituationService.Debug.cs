@@ -14,9 +14,9 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void SetupDebug(IScope scope) {
             var situationTypeIndex = 0;
-            var leafSituationTypes = _situationFlow.GetSituations();
-            var situationLabels = leafSituationTypes
-                .Select(x => x.Name.Replace("SceneSituation", "").Replace("Situation", ""))
+            var leafSituations = _situationTree.GetSituations();
+            var situationLabels = leafSituations
+                .Select(x => x.GetType().Name.Replace("SceneSituation", "").Replace("Situation", ""))
                 .ToArray();
 
             var transitionType = TransitionType.ScreenDefault;
@@ -27,7 +27,7 @@ namespace SampleGame.Lifecycle {
                 GUILayout.Space(10);
 
                 if (DebugMenuUtil.ButtonField("", "遷移")) {
-                    Transition(leafSituationTypes[situationTypeIndex], null, transitionType);
+                    Transition(leafSituations[situationTypeIndex].GetType(), null, transitionType);
                 }
 
                 if (DebugMenuUtil.ButtonField("", "戻る")) {

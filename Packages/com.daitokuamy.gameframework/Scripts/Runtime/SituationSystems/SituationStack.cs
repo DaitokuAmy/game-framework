@@ -63,21 +63,21 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <inheritdoc/>
-        public Type[] GetSituations() {
-            var types = new List<Type>();
+        public Situation[] GetSituations() {
+            var types = new List<Situation>();
 
-            void AddType(Situation situation, List<Type> list) {
+            void AddSituation(Situation situation, List<Situation> list) {
                 if (situation == null) {
                     return;
                 }
 
-                list.Add(situation.GetType());
+                list.Add(situation);
                 foreach (var child in situation.Children) {
-                    AddType(child, list);
+                    AddSituation(child, list);
                 }
             }
 
-            AddType(_situationContainer.RootSituation, types);
+            AddSituation(_situationContainer.RootSituation, types);
             return types.ToArray();
         }
 

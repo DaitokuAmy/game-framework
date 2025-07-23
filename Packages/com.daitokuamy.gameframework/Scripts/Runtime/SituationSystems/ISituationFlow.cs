@@ -13,7 +13,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 遷移可能なSituationのリストを取得
         /// </summary>
-        Type[] GetSituations();
+        Situation[] GetSituations();
 
         /// <summary>
         /// 遷移実行

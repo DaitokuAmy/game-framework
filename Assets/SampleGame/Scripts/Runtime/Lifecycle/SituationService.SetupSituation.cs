@@ -9,14 +9,14 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// Situationコンテナの初期化
         /// </summary>
-        private void SetupContainer(IScope scope) {
+        private void SetupContainer(SituationContainer container, IScope scope) {
             var mainSituation = new MainSituation();
             
             SetupIntroductionSituations(mainSituation);
             SetupBattleSituations(mainSituation);
             SetupViewerSituations(mainSituation);
             
-            _situationContainer.Setup(mainSituation);
+            container.Setup(mainSituation);
         }
 
         /// <summary>

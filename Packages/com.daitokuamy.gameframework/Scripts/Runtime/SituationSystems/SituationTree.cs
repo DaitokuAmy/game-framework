@@ -121,8 +121,8 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <inheritdoc/>
-        public Type[] GetSituations() {
-            return GetNodes().Select(x => x.Situation.GetType()).Distinct().ToArray();
+        public Situation[] GetSituations() {
+            return GetNodes().Select(x => x.Situation).Distinct().ToArray();
         }
 
         /// <inheritdoc/>
