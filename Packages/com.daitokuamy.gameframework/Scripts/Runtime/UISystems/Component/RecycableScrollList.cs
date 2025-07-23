@@ -8,6 +8,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// 要素を再利用する仮想スクロールリスト（縦横対応）
     /// </summary>
+    [RequireComponent(typeof(ScrollRect))]
     public class RecyclableScrollList : MonoBehaviour {
         /// <summary>
         /// 初期化用パラメータ
@@ -141,7 +142,7 @@ namespace GameFramework.UISystems {
         /// 更新処理
         /// </summary>
         private void Update() {
-            if (_scrollRect.normalizedPosition != _prevScrollPosition) {
+            if ((_scrollRect.normalizedPosition - _prevScrollPosition).sqrMagnitude > float.Epsilon) {
                 UpdateVisibleItems();
                 _prevScrollPosition = _scrollRect.normalizedPosition;
             }
@@ -160,6 +161,13 @@ namespace GameFramework.UISystems {
         public void SetData(IReadOnlyList<IParam> dataList, Func<IParam, string> templateKeySelector) {
             _params = dataList;
             _templateKeySelectorFunc = templateKeySelector;
+            Rebuild();
+        }
+
+        /// <summary>
+        /// 強制リビルド
+        /// </summary>
+        public void ForceRebuild() {
             Rebuild();
         }
 
