@@ -39,6 +39,25 @@
 - **主な機能**:
   - `Attached(ActorEntity)`/`Activate()`/`Deactivate()`/`Dispose()` など
 
+### ActorComponent
+- **役割**: Actorの機能を拡張するための基底クラス。移動・アニメーション・AI・エフェクトなど、アクター固有の振る舞いをモジュール化して追加可能。
+- **主な機能**:
+  - `ExecutionOrder`：実行順序指定
+  - `InitializeInternal(IScope)`/`DisposeInternal()`/`UpdateInternal(float)`/`LateUpdateInternal(float)` などのオーバーライドで独自処理を実装
+  - ギズモ描画の拡張も可能
+- **使い方**:
+  - Actorに `AddComponent(new MyActorComponent())` で追加し、`GetComponent<MyActorComponent>()` で取得
+- **拡張例**:
+```csharp
+public class MyActorComponent : ActorComponent {
+    protected override void UpdateInternal(float deltaTime) {
+        // 例: 移動やAI処理など
+    }
+}
+// Actor生成時に追加
+actor.AddComponent(new MyActorComponent());
+```
+
 ---
 
 ## 使い方例
