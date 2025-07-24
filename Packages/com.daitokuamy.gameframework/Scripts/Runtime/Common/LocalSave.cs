@@ -57,10 +57,24 @@ namespace GameFramework {
                 var json = JsonUtility.ToJson(data, true);
                 var encrypted = Encrypt(json);
                 File.WriteAllBytes(GetSaveFilePath(fileName), encrypted);
-                Debug.Log($"Saved file '{fileName}'");
+                DebugLog.Info($"Saved file '{fileName}'");
             }
             catch (Exception e) {
-                Debug.LogError($"Failed to save: {e}");
+                DebugLog.Error($"Failed to save: {e}");
+            }
+        }
+
+        /// <summary>
+        /// セーブ
+        /// </summary>
+        public void Save(byte[] bytes, string fileName) {
+            try {
+                var encrypted = EncryptForBytes(bytes);
+                File.WriteAllBytes(GetSaveFilePath(fileName), encrypted);
+                DebugLog.Info($"Saved file '{fileName}'");
+            }
+            catch (Exception e) {
+                DebugLog.Error($"Failed to save: {e}");
             }
         }
 
@@ -79,8 +93,27 @@ namespace GameFramework {
                 return JsonUtility.FromJson<T>(json);
             }
             catch (Exception e) {
-                Debug.LogError($"Failed to load: {e}");
+                DebugLog.Error($"Failed to load: {e}");
                 return defaultValue;
+            }
+        }
+
+        /// <summary>
+        /// ロード
+        /// </summary>
+        public byte[] LoadForBytes(string fileName) {
+            var path = GetSaveFilePath(fileName);
+            if (!File.Exists(path)) {
+                return Array.Empty<byte>();
+            }
+
+            try {
+                var encrypted = File.ReadAllBytes(path);
+                return DecryptForBytes(encrypted);
+            }
+            catch (Exception e) {
+                DebugLog.Error($"Failed to load: {e}");
+                return Array.Empty<byte>();
             }
         }
 
@@ -91,7 +124,7 @@ namespace GameFramework {
             var path = GetSaveFilePath(fileName);
             if (File.Exists(path)) {
                 File.Delete(path);
-                Debug.Log($"Deleted save file '{fileName}'");
+                DebugLog.Info($"Deleted save file '{fileName}'");
             }
         }
 
@@ -119,6 +152,22 @@ namespace GameFramework {
         }
 
         /// <summary>
+        /// 暗号化
+        /// </summary>
+        private byte[] EncryptForBytes(byte[] bytes) {
+            using var aes = Aes.Create();
+            aes.Key = _encryptionKey;
+            aes.IV = _initializationVector;
+
+            using var ms = new MemoryStream();
+            using var cryptoStream = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
+            using var writer = new StreamWriter(cryptoStream);
+            writer.Write(bytes);
+            writer.Close();
+            return ms.ToArray();
+        }
+
+        /// <summary>
         /// 複合化
         /// </summary>
         private string Decrypt(byte[] cipherData) {
@@ -130,6 +179,21 @@ namespace GameFramework {
             using var cryptoStream = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
             using var reader = new StreamReader(cryptoStream);
             return reader.ReadToEnd();
+        }
+
+        /// <summary>
+        /// 複合化
+        /// </summary>
+        private byte[] DecryptForBytes(byte[] cipherData) {
+            using var aes = Aes.Create();
+            aes.Key = _encryptionKey;
+            aes.IV = _initializationVector;
+
+            using var ms = new MemoryStream(cipherData);
+            using var cryptoStream = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
+            using var output = new MemoryStream();
+            output.CopyTo(cryptoStream);
+            return output.ToArray();
         }
     }
 }
