@@ -30,7 +30,7 @@ namespace GameFramework {
         /// <summary>
         /// 固定更新タイミング監視
         /// </summary>
-        public static Observable<Unit> FixedUpdateAsObservable(this FixedTaskAgent source, CancellationToken ct = default) {
+        public static Observable<Unit> FixedUpdateAsObservable(this TaskAgent source, CancellationToken ct = default) {
             return Observable.FromEvent(h => source.FixedUpdateEvent += h, h => source.FixedUpdateEvent -= h, ct);
         }
 #elif USE_UNI_RX
@@ -51,7 +51,7 @@ namespace GameFramework {
         /// <summary>
         /// 固定更新タイミング監視
         /// </summary>
-        public static IObservable<Unit> FixedUpdateAsObservable(this FixedTaskAgent source) {
+        public static IObservable<Unit> FixedUpdateAsObservable(this TaskAgent source) {
             return Observable.FromEvent(h => source.FixedUpdateEvent += h, h => source.FixedUpdateEvent -= h);
         }
 #endif
