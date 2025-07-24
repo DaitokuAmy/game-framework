@@ -62,41 +62,56 @@ actor.AddComponent(new MyActorComponent());
 
 ## 使い方例
 
-### 1. Actor/Bodyの生成と利用
+### 1. Actor/Body/Entityの実践的な生成例（Factoryパターン利用）
 
 ```csharp
+using Cysharp.Threading.Tasks;
 using GameFramework.ActorSystems;
+using SampleGame.Domain.Battle;
+using SampleGame.Infrastructure;
 using UnityEngine;
 
-// GameObjectからBodyを生成
-var body = new Body(myGameObject);
+// 依存リポジトリやマネージャの取得
+var bodyPrefabRepository = Services.Resolve<BodyPrefabRepository>();
+var characterAssetRepository = Services.Resolve<BattleCharacterAssetRepository>();
+var actorEntityManager = Services.Resolve<ActorEntityManager>();
 
-// Actorを生成
-var actor = new MyActor(body);
+// プレイヤー用モデル（IReadOnlyPlayerModel）とLayeredTimeが与えられている前提
+// CancellationToken ct も必要
 
-// 位置・回転の制御
-actor.Position = new Vector3(0, 1, 0);
-actor.Rotation = Quaternion.identity;
+// Body生成
+var prefab = await bodyPrefabRepository.LoadCharacterPrefabAsync(model.Master.AssetKey, ct);
+var body = new Body(Object.Instantiate(prefab, actorEntityManager.RootTransform));
+body.LayeredTime.SetParent(layeredTime);
+body.RegisterTask(TaskOrder.Body);
 
-// Bodyの可視・アクティブ制御
-body.IsVisible = true;
-body.IsActive = true;
-```
+// Actor生成
+var actorData = await characterAssetRepository.LoadActorDataAsync(model.Master.ActorAssetKey, ct);
+var actor = new BattleCharacterActor(body, actorData);
+actor.RegisterTask(TaskOrder.Actor);
 
-### 2. ActorEntityの生成・拡張
+// Adapter生成
+var adapter = new CharacterActorAdapter(actor, model);
+adapter.RegisterTask(TaskOrder.Logic);
 
-```csharp
-// ActorEntityManagerでEntity生成
-var manager = new ActorEntityManager();
-var entity = manager.CreateEntity(1);
+// Controller生成
+var controller = new PlayerInputController(model);
+controller.RegisterTask(TaskOrder.Input);
 
-// BodyやActorをEntityに紐付け
+// Entity構築
+var entity = actorEntityManager.CreateEntity(model.Id);
 entity.SetBody(body);
 entity.AddActor(actor);
+entity.AddLogic(adapter);
+entity.AddLogic(controller);
 
-// Entityのアクティブ切替
-entity.SetActive(false);
-entity.SetActive(true);
+// ---
+
+### 2. Entityの破棄
+
+```csharp
+// プレイヤー削除時などにEntityを破棄
+actorEntityManager.DestroyEntity(model.Id);
 ```
 
 ### 3. BodyComponent/ActorEntityComponentの拡張
