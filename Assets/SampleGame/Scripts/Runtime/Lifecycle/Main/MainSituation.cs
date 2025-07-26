@@ -1,4 +1,5 @@
 using System.Collections;
+using GameFramework;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using UnityEngine;
@@ -11,7 +12,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
+        protected override IEnumerator SetupRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
             // スリープ禁止

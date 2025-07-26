@@ -2,18 +2,18 @@ using System.Collections;
 
 namespace GameFramework {
     /// <summary>
-    /// 遷移エフェクト用インターフェース
+    /// 遷移演出用インターフェース
     /// </summary>
     public interface ITransitionEffect {
         /// <summary>
         /// 遷移開始
         /// </summary>
-        void Begin();
+        void BeginTransition();
         
         /// <summary>
-        /// 開始ルーチン
+        /// 演出開始ルーチン
         /// </summary>
-        IEnumerator EnterRoutine();
+        IEnumerator EnterEffectRoutine();
 
         /// <summary>
         /// 更新処理
@@ -21,13 +21,13 @@ namespace GameFramework {
         void Update();
 
         /// <summary>
-        /// 終了ルーチン
+        /// 演出終了ルーチン
         /// </summary>
-        IEnumerator ExitRoutine();
+        IEnumerator ExitEffectRoutine();
         
         /// <summary>
         /// 遷移終了
         /// </summary>
-        void End();
+        void EndTransition();
     }
 }

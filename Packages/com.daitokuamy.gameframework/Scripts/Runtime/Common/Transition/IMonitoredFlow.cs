@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 
-namespace GameFramework.SituationSystems {
+namespace GameFramework {
     /// <summary>
-    /// モニタリング対象につけるインターフェース
+    /// モニタリング対象のIStateRouterにつけるインターフェース
     /// </summary>
-    public interface IMonitoredFlow {
+    public interface IMonitoredStateRouter {
         /// <summary>表示名</summary>
         string Label { get; }
-        /// <summary>戻り先のSituation</summary>
-        Situation BackTarget { get; }
+        /// <summary>戻り先の情報</summary>
+        string BackStateInfo { get; }
 
         /// <summary>
         /// モニタリング用の詳細情報取得

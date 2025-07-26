@@ -1,43 +1,45 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
-namespace GameFramework.SituationSystems {
+namespace GameFramework {
     /// <summary>
-    /// シチュエーション遷移情報格納用ツリー用ノード
+    /// ステート遷移情報格納用ツリー用ノード
     /// </summary>
-    public class SituationTreeNode : IDisposable {
+    public class StateTreeNode<TKey> : IDisposable
+        where TKey : class {
         /// <summary>
         /// 遷移情報
         /// </summary>
         public struct TransitionInfo {
-            public SituationTreeNode PrevNode;
-            public SituationTreeNode NextNode;
+            public StateTreeNode<TKey> PrevNode;
+            public StateTreeNode<TKey> NextNode;
             public bool Back;
         }
-        
+
         /// <summary>
         /// 接続情報
         /// </summary>
         private class ConnectInfo {
             public Action<TransitionInfo> TransitionEvent;
-            public SituationTreeNode NextNode;
+            public StateTreeNode<TKey> NextNode;
         }
 
-        private readonly Dictionary<Type, ConnectInfo> _connectInfos = new();
-
-        private SituationTree _tree;
-        private Situation _situation;
-        private SituationTreeNode _previous;
+        private readonly Dictionary<TKey, ConnectInfo> _connectInfos = new();
+        private readonly TKey _key;
+        
+        private StateTreeNode<TKey> _previous;
+        private bool _disposed;
 
         /// <summary>有効か</summary>
-        public bool IsValid => _tree != null && _situation != null;
-        /// <summary>実行対象のSituation</summary>
-        public Situation Situation => _situation;
+        public bool IsValid => !_disposed;
+        /// <summary>遷移時に使うキー</summary>
+        public TKey Key => _key;
+        /// <summary>ルートノードか</summary>
+        public bool IsRoot => _key == null;
 
         /// <summary>遷移先のノードリスト</summary>
-        internal SituationTreeNode[] NextNodes => _connectInfos.Select(x => x.Value.NextNode).ToArray();
+        internal StateTreeNode<TKey>[] NextNodes => _connectInfos.Select(x => x.Value.NextNode).ToArray();
 
         /// <summary>フォールバック経由で遷移された時の通知</summary>
         public event Action<TransitionInfo> TransitionByFallbackEvent;
@@ -45,12 +47,10 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="tree">SituationNode管理用ツリー</param>
-        /// <param name="situation">遷移時に使うSituation</param>
+        /// <param name="key">遷移時に指定するキー</param>
         /// <param name="prev">接続元のNode</param>
-        internal SituationTreeNode(SituationTree tree, Situation situation, SituationTreeNode prev) {
-            _tree = tree;
-            _situation = situation;
+        internal StateTreeNode(TKey key, StateTreeNode<TKey> prev) {
+            _key = key;
             _previous = prev;
         }
 
@@ -58,13 +58,15 @@ namespace GameFramework.SituationSystems {
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
-            if (!IsValid) {
+            if (_disposed) {
                 return;
             }
 
+            _disposed = true;
+
             // 前要素から参照を削除
             if (_previous != null) {
-                _previous._connectInfos.Remove(GetType());
+                _previous._connectInfos.Remove(Key);
             }
 
             // 次要素を削除
@@ -81,80 +83,74 @@ namespace GameFramework.SituationSystems {
 
             _previous = null;
             _connectInfos.Clear();
-            _situation = null;
-            _tree = null;
         }
 
         /// <summary>
-        /// シチュエーションノードの接続
+        /// ノードの接続
         /// </summary>
+        /// <param name="key">State遷移するためのキー</param>
         /// <param name="overridePrevNode">戻り先ノードの上書き指定</param>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationTreeNode Connect<TSituation>(SituationTreeNode overridePrevNode, Action<TransitionInfo> onTransition = null)
-            where TSituation : Situation {
-            var type = typeof(TSituation);
-            
-            // Situationが無ければnullを返す
-            var situation = _tree.FindSituation(type);
-            if (situation == null) {
-                Debug.LogError($"Not found situation. [{type.Name}]");
+        public StateTreeNode<TKey> Connect(TKey key, StateTreeNode<TKey> overridePrevNode, Action<TransitionInfo> onTransition = null) {
+            if (!IsValid) {
                 return null;
             }
-
-            // 既に同じTypeがあった場合は何もしない
-            if (_connectInfos.TryGetValue(type, out var connectInfo)) {
+            
+            // 既に同じKeyがあった場合は何もしない
+            if (_connectInfos.TryGetValue(key, out var connectInfo)) {
                 return connectInfo.NextNode;
             }
 
             // ノードの追加
-            var nextNode = new SituationTreeNode(_tree, situation, overridePrevNode ?? this);
+            var nextNode = new StateTreeNode<TKey>(key, overridePrevNode ?? this);
             connectInfo = new ConnectInfo {
                 TransitionEvent = onTransition,
                 NextNode = nextNode
             };
-            _connectInfos.Add(type, connectInfo);
+            _connectInfos.Add(key, connectInfo);
             return nextNode;
         }
 
         /// <summary>
-        /// シチュエーションノードの接続
+        /// ノードの接続
         /// </summary>
+        /// <param name="key">State遷移するためのキー</param>
         /// <param name="onTransition">遷移時の通知</param>
-        public SituationTreeNode Connect<TSituation>(Action<TransitionInfo> onTransition = null)
-            where TSituation : Situation {
-            return Connect<TSituation>(null, onTransition);
+        public StateTreeNode<TKey> Connect(TKey key, Action<TransitionInfo> onTransition = null) {
+            return Connect(key, null, onTransition);
         }
 
         /// <summary>
-        /// シチュエーションノードの接続解除
+        /// ノードの接続解除
         /// </summary>
-        public bool Disconnect<T>()
-            where T : Situation {
-            var type = typeof(T);
-
+        public bool Disconnect(TKey key) {
+            if (!IsValid) {
+                return false;
+            }
+            
             // 該当のTypeがなければ何もしない
-            if (!_connectInfos.TryGetValue(type, out var connectInfo)) {
+            if (!_connectInfos.TryGetValue(key, out var connectInfo)) {
                 return false;
             }
 
             // ノードの削除
             connectInfo.NextNode.Dispose();
-            _connectInfos.Remove(type);
+            _connectInfos.Remove(key);
             return true;
         }
 
         /// <summary>
         /// 前のNodeを取得
         /// </summary>
-        internal SituationTreeNode GetPrevious() {
+        internal StateTreeNode<TKey> GetPrevious() {
             return _previous;
         }
 
         /// <summary>
         /// 型をもとに接続先のNodeを取得
         /// </summary>
-        internal SituationTreeNode TryGetNext(Type type) {
-            if (!_connectInfos.TryGetValue(type, out var connectInfo)) {
+        internal StateTreeNode<TKey> TryGetNext(TKey key) {
+            if (!_connectInfos.TryGetValue(key, out var connectInfo)) {
                 return null;
             }
 
@@ -166,14 +162,14 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="prevNode">遷移前のノード</param>
         /// <param name="back">戻り遷移か</param>
-        internal void OnTransition(SituationTreeNode prevNode, bool back) {
+        internal void OnTransition(StateTreeNode<TKey> prevNode, bool back) {
             // 遷移元がなければ何もしない
             if (prevNode == null) {
                 return;
             }
 
-            // Situation間の遷移以外は何もしない
-            if (prevNode.Situation == null || Situation == null) {
+            // State間の遷移以外は何もしない
+            if (prevNode.Key == null || Key == null) {
                 return;
             }
 
@@ -182,16 +178,16 @@ namespace GameFramework.SituationSystems {
                 NextNode = this,
                 Back = back
             };
-            
+
             // 戻り遷移の場合はConnect情報からイベントを探す
             if (back) {
-                if (_connectInfos.TryGetValue(prevNode.Situation.GetType(), out var connectInfo)) {
+                if (_connectInfos.TryGetValue(prevNode.Key, out var connectInfo)) {
                     connectInfo.TransitionEvent?.Invoke(transitionInfo);
                 }
             }
             // 進む遷移の場合は、前のノードのConnect情報からイベントを探す
             else {
-                if (prevNode._connectInfos.TryGetValue(Situation.GetType(), out var connectInfo)) {
+                if (prevNode._connectInfos.TryGetValue(Key, out var connectInfo)) {
                     connectInfo.TransitionEvent?.Invoke(transitionInfo);
                 }
                 // 接続情報がなく遷移した場合は、Fallback遷移とみなして通知する

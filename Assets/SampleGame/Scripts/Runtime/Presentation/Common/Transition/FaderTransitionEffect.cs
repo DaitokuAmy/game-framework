@@ -24,13 +24,13 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 遷移開始
         /// </summary>
-        void ITransitionEffect.Begin(){
+        void ITransitionEffect.BeginTransition(){
         }
 
         /// <summary>
         /// 開始ルーチン
         /// </summary>
-        IEnumerator ITransitionEffect.EnterRoutine() {
+        IEnumerator ITransitionEffect.EnterEffectRoutine() {
             yield return ResidentUIUtility.ColorFadeOutAsync(_color, _fadeOutDuration);
         }
 
@@ -43,14 +43,14 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 終了ルーチン
         /// </summary>
-        IEnumerator ITransitionEffect.ExitRoutine() {
+        IEnumerator ITransitionEffect.ExitEffectRoutine() {
             yield return ResidentUIUtility.ColorFadeInAsync(_fadeInDuration);
         }
         
         /// <summary>
         /// 遷移終了
         /// </summary>
-        void ITransitionEffect.End(){
+        void ITransitionEffect.EndTransition(){
         }
     }
 }

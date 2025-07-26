@@ -17,7 +17,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 読み込み処理
         /// </summary>
-        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             yield return base.LoadRoutineInternal(handle, scope);
             
             // UI読み込み

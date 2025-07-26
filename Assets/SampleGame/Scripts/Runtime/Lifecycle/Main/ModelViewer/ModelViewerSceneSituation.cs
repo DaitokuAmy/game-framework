@@ -34,7 +34,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 読み込み処理
         /// </summary>
-        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             yield return base.LoadRoutineInternal(handle, scope);
 
             async UniTask LoadAsync(CancellationToken ct) {
@@ -54,7 +54,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
+        protected override IEnumerator SetupRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
             SetupInfrastructures(scope);
@@ -83,7 +83,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// アクティブ時処理
         /// </summary>
-        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+        protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
             var appService = Services.Resolve<ModelViewerAppService>();
@@ -154,7 +154,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 非アクティブ時処理
         /// </summary>
-        protected override void DeactivateInternal(TransitionHandle handle) {
+        protected override void DeactivateInternal(TransitionHandle<Situation> handle) {
             // Debugページ削除
             var debugSheet = Services.Resolve<DebugSheet>();
             if (debugSheet != null) {

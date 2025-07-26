@@ -10,32 +10,32 @@ namespace GameFramework.UISystems {
         private string _currentKey;
 
         /// <inheritdoc/>
-        protected override void PostOpen(TransitionType transitionType, bool immediate) {
-            base.PostOpen(transitionType, immediate);
+        protected override void PostOpen(TransitionDirection transitionDirection, bool immediate) {
+            base.PostOpen(transitionDirection, immediate);
 
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
-                childView.uiScreen.OpenAsync(transitionType, true);
+                childView.uiScreen.OpenAsync(transitionDirection, true);
             }
         }
 
         /// <inheritdoc/>
-        protected override IEnumerator CloseRoutine(TransitionType transitionType, IScope cancelScope) {
-            yield return base.CloseRoutine(transitionType, cancelScope);
+        protected override IEnumerator CloseRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
+            yield return base.CloseRoutine(transitionDirection, cancelScope);
 
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
-                yield return childView.uiScreen.CloseAsync(transitionType, false);
+                yield return childView.uiScreen.CloseAsync(transitionDirection, false);
             }
         }
 
         /// <inheritdoc/>
-        protected override void PostClose(TransitionType transitionType, bool immediate) {
-            base.PostClose(transitionType, immediate);
+        protected override void PostClose(TransitionDirection transitionDirection, bool immediate) {
+            base.PostClose(transitionDirection, immediate);
 
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
-                childView.uiScreen.CloseAsync(transitionType, true);
+                childView.uiScreen.CloseAsync(transitionDirection, true);
             }
         }
 
@@ -49,7 +49,7 @@ namespace GameFramework.UISystems {
         /// <param name="force">同じキーだとしても開きなおすか</param>
         /// <param name="initAction">初期化アクション</param>
         /// <param name="effects">遷移中エフェクトリスト</param>
-        public AsyncOperationHandle<UIScreen> Change(string childKey, ITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false, Action<UIScreen> initAction = null, params ITransitionEffect[] effects) {
+        public AsyncOperationHandle<UIScreen> Change(string childKey, ITransition transition = null, TransitionDirection transitionDirection = TransitionDirection.Forward, bool immediate = false, bool force = false, Action<UIScreen> initAction = null, params ITransitionEffect[] effects) {
             if (IsTransitioning) {
                 return AsyncOperationHandle<UIScreen>.CanceledHandle;
             }
@@ -82,7 +82,7 @@ namespace GameFramework.UISystems {
             _currentKey = childKey;
 
             // 遷移開始
-            StartTransition(transition, prevScreen, nextScreen, transitionType, immediate, effects, initAction, op);
+            StartTransition(transition, prevScreen, nextScreen, transitionDirection, immediate, effects, initAction, op);
             return op;
         }
 
@@ -92,9 +92,9 @@ namespace GameFramework.UISystems {
         /// <param name="transition">遷移方法</param>
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時遷移するか</param>
-        public AsyncOperationHandle Clear(ITransition transition = null, TransitionType transitionType = TransitionType.Forward, bool immediate = false) {
+        public AsyncOperationHandle Clear(ITransition transition = null, TransitionDirection transitionDirection = TransitionDirection.Forward, bool immediate = false) {
             var op = new AsyncOperator();
-            var handle = Change(null, transition, transitionType, immediate);
+            var handle = Change(null, transition, transitionDirection, immediate);
             if (handle.IsError) {
                 op.Aborted(handle.Exception);
                 return op;

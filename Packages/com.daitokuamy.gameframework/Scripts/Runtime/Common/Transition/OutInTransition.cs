@@ -27,7 +27,7 @@ namespace GameFramework {
         /// </summary>
         /// <param name="resolver">遷移処理解決者</param>
         /// <param name="immediate">即時遷移か</param>
-        IEnumerator ITransition.TransitRoutine(ITransitionResolver resolver, bool immediate) {
+        IEnumerator ITransition.TransitionRoutine(ITransitionResolver resolver, bool immediate) {
             resolver.Start();
 
             // エフェクト開始＆閉じる

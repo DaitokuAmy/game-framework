@@ -27,7 +27,7 @@ namespace GameFramework.UISystems {
         private class TransitionInfo {
             public UIScreen PrevScreen;
             public UIScreen NextScreen;
-            public TransitionType TransitionType;
+            public TransitionDirection TransitionDirection;
             public IReadOnlyList<ITransitionEffect> Effects;
             public bool EffectActive;
         }
@@ -44,20 +44,20 @@ namespace GameFramework.UISystems {
         /// <inheritdoc/>
         void ITransitionResolver.Start() {
             foreach (var effect in _transitionInfo.Effects) {
-                effect.Begin();
+                effect.BeginTransition();
             }
         }
 
         /// <inheritdoc/>
         IEnumerator ITransitionResolver.EnterEffectRoutine() {
-            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.EnterRoutine()).ToArray());
+            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.EnterEffectRoutine()).ToArray());
             _transitionInfo.EffectActive = true;
         }
 
         /// <inheritdoc/>
         IEnumerator ITransitionResolver.ExitEffectRoutine() {
             _transitionInfo.EffectActive = false;
-            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.ExitRoutine()).ToArray());
+            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.ExitEffectRoutine()).ToArray());
         }
 
         /// <inheritdoc/>
@@ -72,14 +72,14 @@ namespace GameFramework.UISystems {
         /// <inheritdoc/>
         IEnumerator ITransitionResolver.OpenNextRoutine(bool immediate) {
             if (_transitionInfo.NextScreen != null) {
-                yield return _transitionInfo.NextScreen.OpenAsync(_transitionInfo.TransitionType, immediate);
+                yield return _transitionInfo.NextScreen.OpenAsync(_transitionInfo.TransitionDirection, immediate);
             }
         }
 
         /// <inheritdoc/>
         IEnumerator ITransitionResolver.ClosePrevRoutine(bool immediate) {
             if (_transitionInfo.PrevScreen != null) {
-                yield return _transitionInfo.PrevScreen.CloseAsync(_transitionInfo.TransitionType, immediate);
+                yield return _transitionInfo.PrevScreen.CloseAsync(_transitionInfo.TransitionDirection, immediate);
             }
         }
 
@@ -95,7 +95,7 @@ namespace GameFramework.UISystems {
         /// <inheritdoc/>
         void ITransitionResolver.Finish() {
             foreach (var effect in _transitionInfo.Effects) {
-                effect.End();
+                effect.EndTransition();
             }
         }
 
@@ -116,7 +116,7 @@ namespace GameFramework.UISystems {
             base.StartInternal(scope);
 
             foreach (var screen in _childScreens) {
-                screen.uiScreen.CloseAsync(TransitionType.None, true);
+                screen.uiScreen.CloseAsync(TransitionDirection.None, true);
             }
         }
 
@@ -138,15 +138,15 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く処理
         /// </summary>
-        public AnimationHandle OpenAsync(TransitionType transitionType, bool immediate) {
-            return base.OpenAsync(transitionType, immediate);
+        public AnimationHandle OpenAsync(TransitionDirection transitionDirection, bool immediate) {
+            return base.OpenAsync(transitionDirection, immediate);
         }
 
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        public AnimationHandle CloseAsync(TransitionType transitionType, bool immediate) {
-            return base.CloseAsync(transitionType, immediate);
+        public AnimationHandle CloseAsync(TransitionDirection transitionDirection, bool immediate) {
+            return base.CloseAsync(transitionDirection, immediate);
         }
 
         /// <summary>
@@ -166,7 +166,7 @@ namespace GameFramework.UISystems {
             }
 
             // 閉じておく
-            uIScreen.CloseAsync(TransitionType.None, true, true);
+            uIScreen.CloseAsync(TransitionDirection.None, true, true);
 
             // 要素を子として登録
             uIScreen.transform.SetParent(transform, false);
@@ -231,7 +231,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 遷移開始
         /// </summary>
-        protected Coroutine StartTransition(ITransition transition, UIScreen prevScreen, UIScreen nextScreen, TransitionType transitionType, bool immediate, ITransitionEffect[] effects, Action<UIScreen> initAction, AsyncOperator<UIScreen> asyncOperator) {
+        protected Coroutine StartTransition(ITransition transition, UIScreen prevScreen, UIScreen nextScreen, TransitionDirection transitionDirection, bool immediate, ITransitionEffect[] effects, Action<UIScreen> initAction, AsyncOperator<UIScreen> asyncOperator) {
             // 遷移中は失敗
             if (IsTransitioning) {
                 Debug.LogWarning("Already transitioning.");
@@ -242,7 +242,7 @@ namespace GameFramework.UISystems {
             _transitionInfo = new TransitionInfo {
                 PrevScreen = prevScreen,
                 NextScreen = nextScreen,
-                TransitionType = transitionType,
+                TransitionDirection = transitionDirection,
                 Effects = effects ?? Array.Empty<ITransitionEffect>(),
                 EffectActive = false
             };
@@ -253,7 +253,7 @@ namespace GameFramework.UISystems {
             }
 
             // 遷移
-            return StartCoroutine(transition.TransitRoutine(this, immediate),
+            return StartCoroutine(transition.TransitionRoutine(this, immediate),
                 () => {
                     asyncOperator.Completed(nextScreen);
                     _transitionInfo = null;

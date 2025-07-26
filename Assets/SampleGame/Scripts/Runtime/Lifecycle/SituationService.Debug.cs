@@ -14,7 +14,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void SetupDebug(IScope scope) {
             var situationTypeIndex = 0;
-            var leafSituations = _situationTree.GetSituations();
+            var leafSituations = _situationTreeRouter.GetStates();
             var situationLabels = leafSituations
                 .Select(x => x.GetType().Name.Replace("SceneSituation", "").Replace("Situation", ""))
                 .ToArray();

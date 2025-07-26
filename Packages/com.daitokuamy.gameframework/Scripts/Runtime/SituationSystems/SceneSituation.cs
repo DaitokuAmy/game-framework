@@ -45,7 +45,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 読み込み処理
         /// </summary>
-        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             // シーンの切り替え
             yield return SceneManager.LoadSceneAsync(SceneAssetPath, LoadSceneMode.Single);
 
@@ -68,7 +68,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// アンロード処理
         /// </summary>
-        protected override void UnloadInternal(TransitionHandle handle) {
+        protected override void UnloadInternal(TransitionHandle<Situation> handle) {
             // シーンの解放
             if (HasEmptyScene && Scene.IsValid()) {
                 SceneManager.LoadScene(EmptySceneAssetPath);
