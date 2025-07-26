@@ -7,7 +7,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// Situationスタック遷移
     /// </summary>
-    public class SituationStack : ISituationFlow {
+    public class SituationStack : ISituationRouter {
         private readonly SituationContainer _situationContainer;
         private readonly List<Situation> _stack = new();
         private readonly string _label;

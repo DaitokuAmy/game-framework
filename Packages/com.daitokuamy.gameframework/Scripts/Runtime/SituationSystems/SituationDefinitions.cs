@@ -68,7 +68,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>遷移後のシチュエーション</summary>
         public Situation Next => (Situation)_transitionInfo?.NextSituations.LastOrDefault();
         /// <summary>戻り遷移か</summary>
-        public bool Back => _transitionInfo != null && _transitionInfo.TransitionType == TransitionType.Back;
+        public bool Back => _transitionInfo != null && _transitionInfo.TransitionType == TransitionDirection.Back;
         /// <summary>遷移状態</summary>
         public TransitionState TransitionState => _transitionInfo?.State ?? TransitionState.Invalid;
         

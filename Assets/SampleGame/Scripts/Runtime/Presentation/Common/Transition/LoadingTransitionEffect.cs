@@ -32,13 +32,13 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 遷移開始
         /// </summary>
-        void ITransitionEffect.Begin(){
+        void ITransitionEffect.BeginTransition(){
         }
 
         /// <summary>
         /// 開始ルーチン
         /// </summary>
-        IEnumerator ITransitionEffect.EnterRoutine() {
+        IEnumerator ITransitionEffect.EnterEffectRoutine() {
             var loadKey = _loadKeys.OrderBy(key => RandomUtil.Range(0.0f, 1.0f)).FirstOrDefault();
             yield return ResidentUIUtility.ShowLoading(loadKey);
             yield return new WaitForSeconds(1f);
@@ -53,7 +53,7 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 終了ルーチン
         /// </summary>
-        IEnumerator ITransitionEffect.ExitRoutine() {
+        IEnumerator ITransitionEffect.ExitEffectRoutine() {
             // ローディング画面を閉じる処理は同期しない
             yield return ResidentUIUtility.HideLoading();
         }
@@ -61,7 +61,7 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 遷移終了
         /// </summary>
-        void ITransitionEffect.End(){
+        void ITransitionEffect.EndTransition(){
         }
     }
 }

@@ -320,7 +320,7 @@ namespace GameFramework.SituationSystems {
             var info = new SituationContainer.TransitionInfo {
                 PrevSituations = new[] { this },
                 NextSituations = Array.Empty<Situation>(),
-                TransitionType = TransitionType.Forward,
+                TransitionType = TransitionDirection.Forward,
                 State = TransitionState.Canceled
             };
             var handle = new TransitionHandle(info);

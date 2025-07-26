@@ -17,9 +17,9 @@ namespace GameFramework.Editor {
             /// 遷移情報のキャプチャ
             /// </summary>
             private class TransitionCapture {
-                public TransitionType Type;
-                public TransitionStep Step;
-                public TransitionState State;
+                public TransitionDirection Type;
+                public SituationSystems.TransitionStep Step;
+                public SituationSystems.TransitionState State;
                 public Type[] PrevSituationTypes = Array.Empty<Type>();
                 public Type[] NextSituationTypes = Array.Empty<Type>();
             }

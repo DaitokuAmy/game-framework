@@ -10,6 +10,6 @@ namespace GameFramework {
         /// </summary>
         /// <param name="resolver">遷移処理解決者</param>
         /// <param name="immediate">即時遷移か</param>
-        IEnumerator TransitRoutine(ITransitionResolver resolver, bool immediate = false);
+        IEnumerator TransitionRoutine(ITransitionResolver resolver, bool immediate = false);
     }
 }

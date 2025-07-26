@@ -13,14 +13,14 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 遷移開始
         /// </summary>
-        void ITransitionEffect.Begin(){
+        void ITransitionEffect.BeginTransition(){
             _handle = ResidentUIUtility.StartBlocking();
         }
         
         /// <summary>
         /// 開始ルーチン
         /// </summary>
-        IEnumerator ITransitionEffect.EnterRoutine() {
+        IEnumerator ITransitionEffect.EnterEffectRoutine() {
             yield break;
         }
 
@@ -33,14 +33,14 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 終了ルーチン
         /// </summary>
-        IEnumerator ITransitionEffect.ExitRoutine() {
+        IEnumerator ITransitionEffect.ExitEffectRoutine() {
             yield break;
         }
         
         /// <summary>
         /// 遷移終了
         /// </summary>
-        void ITransitionEffect.End(){
+        void ITransitionEffect.EndTransition(){
             _handle.Dispose();
         }
     }

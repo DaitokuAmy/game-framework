@@ -20,7 +20,7 @@ namespace SampleGame.Presentation {
         /// </summary>
         protected override void StartInternal(IScope scope) {
             base.StartInternal(scope);
-            CloseAsync(TransitionType.Forward, true);
+            CloseAsync(TransitionDirection.Forward, true);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace SampleGame.Presentation {
         public void Show(string message, float duration = 3.0f) {
             _text.text = message;
             _timer = duration;
-            OpenAsync(TransitionType.Forward, false, true);
+            OpenAsync(TransitionDirection.Forward, false, true);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace SampleGame.Presentation {
         /// </summary>
         public void Hide() {
             _timer = -1.0f;
-            CloseAsync(TransitionType.Forward, false);
+            CloseAsync(TransitionDirection.Forward, false);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーションツリー遷移
     /// </summary>
-    public class SituationTree : ISituationFlow {
+    public class SituationTree : ISituationRouter {
         private readonly Dictionary<Type, SituationTreeNode> _globalFallbackNodes = new();
         private readonly Dictionary<SituationTreeNode, Dictionary<Type, SituationTreeNode>> _fallbackNodes = new();
         private readonly string _label;

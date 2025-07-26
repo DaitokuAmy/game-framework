@@ -54,7 +54,7 @@ namespace GameFramework.UISystems {
         /// <param name="transitionType">遷移タイプ</param>
         /// <param name="immediate">即時完了するか</param>
         /// <param name="force">既に開いている場合でも開きなおすか</param>
-        public AnimationHandle OpenAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false) {
+        public AnimationHandle OpenAsync(TransitionDirection transitionDirection = TransitionDirection.Forward, bool immediate = false, bool force = false) {
             var status = new AnimationStatus();
             var handle = new AnimationHandle(status);
 
@@ -76,13 +76,13 @@ namespace GameFramework.UISystems {
 
             gameObject.SetActive(true);
             CurrentOpenStatus = OpenStatus.Opening;
-            PreOpen(transitionType, immediate);
+            PreOpen(transitionDirection, immediate);
             foreach (var handler in _handlers) {
                 handler.PreOpen();
             }
 
             void PostOpenInternal() {
-                PostOpen(transitionType, immediate);
+                PostOpen(transitionDirection, immediate);
                 foreach (var handler in _handlers) {
                     handler.PostOpen();
                 }
@@ -99,7 +99,7 @@ namespace GameFramework.UISystems {
                 status.Complete();
             }
             else {
-                StartCoroutine(OpenRoutine(transitionType, _animationScope),
+                StartCoroutine(OpenRoutine(transitionDirection, _animationScope),
                     onCompleted: () => {
                         PostOpenInternal();
                         _animationScope.Clear();
@@ -126,7 +126,7 @@ namespace GameFramework.UISystems {
         /// <param name="transitionType">遷移向き</param>
         /// <param name="immediate">即時完了するか</param>
         /// <param name="force">既に閉じている場合でも閉じなおすか</param>
-        public AnimationHandle CloseAsync(TransitionType transitionType = TransitionType.Forward, bool immediate = false, bool force = false) {
+        public AnimationHandle CloseAsync(TransitionDirection transitionDirection = TransitionDirection.Forward, bool immediate = false, bool force = false) {
             var status = new AnimationStatus();
             var handle = new AnimationHandle(status);
 
@@ -154,13 +154,13 @@ namespace GameFramework.UISystems {
 
             Deactivate();
             CurrentOpenStatus = OpenStatus.Closing;
-            PreClose(transitionType, immediate);
+            PreClose(transitionDirection, immediate);
             foreach (var handler in _handlers) {
                 handler.PreClose();
             }
 
             void PostCloseInternal() {
-                PostClose(transitionType, immediate);
+                PostClose(transitionDirection, immediate);
                 foreach (var handler in _handlers) {
                     handler.PostClose();
                 }
@@ -177,7 +177,7 @@ namespace GameFramework.UISystems {
                 status.Complete();
             }
             else {
-                StartCoroutine(CloseRoutine(transitionType, _animationScope),
+                StartCoroutine(CloseRoutine(transitionDirection, _animationScope),
                     onCompleted: () => {
                         PostCloseInternal();
                         _animationScope.Clear();
@@ -228,20 +228,20 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く直前の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PreOpen(TransitionType transitionType, bool immediate) {
+        protected virtual void PreOpen(TransitionDirection transitionDirection, bool immediate) {
         }
 
         /// <summary>
         /// 開く処理
         /// </summary>
-        protected virtual IEnumerator OpenRoutine(TransitionType transitionType, IScope cancelScope) {
+        protected virtual IEnumerator OpenRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
             yield break;
         }
 
         /// <summary>
         /// 開いた直後の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PostOpen(TransitionType transitionType, bool immediate) {
+        protected virtual void PostOpen(TransitionDirection transitionDirection, bool immediate) {
         }
 
         /// <summary>
@@ -259,20 +259,20 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じる直前の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PreClose(TransitionType transitionType, bool immediate) {
+        protected virtual void PreClose(TransitionDirection transitionDirection, bool immediate) {
         }
 
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        protected virtual IEnumerator CloseRoutine(TransitionType transitionType, IScope cancelScope) {
+        protected virtual IEnumerator CloseRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
             yield break;
         }
 
         /// <summary>
         /// 閉じた直後の処理（アニメーションを飛ばした場合も使用）
         /// </summary>
-        protected virtual void PostClose(TransitionType transitionType, bool immediate) {
+        protected virtual void PostClose(TransitionDirection transitionDirection, bool immediate) {
         }
 
         /// <summary>

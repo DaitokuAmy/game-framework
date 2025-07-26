@@ -31,7 +31,7 @@ namespace GameFramework.SituationSystems {
             public IReadOnlyList<ISituation> NextSituations;
             public TransitionState State;
             public TransitionStep Step;
-            public TransitionType TransitionType;
+            public TransitionDirection TransitionType;
             public IReadOnlyList<ITransitionEffect> Effects;
             public bool EffectActive;
         }
@@ -136,7 +136,7 @@ namespace GameFramework.SituationSystems {
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
-                TransitionType = TransitionType.Forward,
+                TransitionType = TransitionDirection.Forward,
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,
@@ -148,7 +148,7 @@ namespace GameFramework.SituationSystems {
             onSetup?.Invoke(Current);
 
             // コルーチンの登録
-            _coroutineRunner.StartCoroutine(transition.TransitRoutine(this), () => { _transitionInfo = null; });
+            _coroutineRunner.StartCoroutine(transition.TransitionRoutine(this), () => { _transitionInfo = null; });
 
             // ハンドルの返却
             return new TransitionHandle(_transitionInfo);
@@ -243,7 +243,7 @@ namespace GameFramework.SituationSystems {
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
-                TransitionType = (option != null && option.Back) ? TransitionType.Back : TransitionType.Forward,
+                TransitionType = (option != null && option.Back) ? TransitionDirection.Back : TransitionDirection.Forward,
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,
@@ -530,7 +530,7 @@ namespace GameFramework.SituationSystems {
             // 初期化処理
             onSetup?.Invoke(Current);
 
-            yield return transition.TransitRoutine(this);
+            yield return transition.TransitionRoutine(this);
         }
 
         /// <summary>
@@ -589,7 +589,7 @@ namespace GameFramework.SituationSystems {
         void ITransitionResolver.Start() {
             _transitionInfo.State = TransitionState.Standby;
             foreach (var effect in _transitionInfo.Effects) {
-                effect.Begin();
+                effect.BeginTransition();
             }
         }
 
@@ -597,7 +597,7 @@ namespace GameFramework.SituationSystems {
         /// エフェクト開始コルーチン
         /// </summary>
         IEnumerator ITransitionResolver.EnterEffectRoutine() {
-            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.EnterRoutine()).ToArray());
+            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.EnterEffectRoutine()).ToArray());
             _transitionInfo.EffectActive = true;
         }
 
@@ -606,7 +606,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         IEnumerator ITransitionResolver.ExitEffectRoutine() {
             _transitionInfo.EffectActive = false;
-            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.ExitRoutine()).ToArray());
+            yield return new MergedCoroutine(_transitionInfo.Effects.Select(x => x.ExitEffectRoutine()).ToArray());
         }
 
         /// <summary>
@@ -725,7 +725,7 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         void ITransitionResolver.Finish() {
             foreach (var effect in _transitionInfo.Effects) {
-                effect.End();
+                effect.EndTransition();
             }
 
             _transitionInfo.State = TransitionState.Completed;

@@ -1,47 +1,46 @@
 using System.Collections.Generic;
 using GameFramework.Core;
-using GameFramework.SituationSystems;
 using UnityEditor;
 using UnityEngine;
 
 namespace GameFramework.Editor {
     /// <summary>
-    /// Situationの情報監視用ウィンドウ
+    /// StateMonitorWindowの情報監視用ウィンドウ
     /// </summary>
-    partial class SituationMonitorWindow {
+    partial class StateMonitorWindow {
         /// <summary>
-        /// フロー情報描画用パネル
+        /// ルーター情報描画用パネル
         /// </summary>
-        private class FlowPanel : PanelBase {
+        private class RouterPanel : PanelBase {
             private readonly List<(string label, string text)> _tempLines = new(16);
 
             private GUIStyle _richLabelStyle;
-            
-            /// <inheritdoc/>
-            public override string Label => "Flow";
 
             /// <inheritdoc/>
-            protected override void StartInternal(SituationMonitorWindow window, IScope scope) {
+            public override string Label => "Router";
+
+            /// <inheritdoc/>
+            protected override void StartInternal(StateMonitorWindow window, IScope scope) {
                 _richLabelStyle = new GUIStyle(GUI.skin.label);
                 _richLabelStyle.richText = true;
             }
 
             /// <inheritdoc/>
-            protected override void DrawGuiInternal(SituationMonitorWindow window) {
-                var flows = SituationMonitor.Flows;
+            protected override void DrawGuiInternal(StateMonitorWindow window) {
+                var routeres = StateMonitor.Routers;
 
-                foreach (var flow in flows) {
-                    DrawFlow(flow, window);
+                foreach (var router in routeres) {
+                    DrawRouter(router, window);
                 }
             }
 
             /// <summary>
             /// フロー情報の描画
             /// </summary>
-            private void DrawFlow(IMonitoredFlow router, SituationMonitorWindow window) {
+            private void DrawRouter(IMonitoredStateRouter router, StateMonitorWindow window) {
                 DrawFoldoutContent(router.Label, router, target => {
                     EditorGUILayout.LabelField("Type", router.GetType().Name);
-                    EditorGUILayout.LabelField("Back Target", window.GetSituationName(target.BackTarget));
+                    EditorGUILayout.LabelField("Back State Info", target.BackStateInfo);
                     _tempLines.Clear();
                     target.GetDetails(_tempLines);
                     if (_tempLines.Count > 0) {

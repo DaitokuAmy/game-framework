@@ -423,6 +423,16 @@ namespace GameFramework.DebugSystems.Editor {
             protected void DrawSeparator(bool useIndentLevel = false) {
                 DrawSeparator(Color.gray, useIndentLevel);
             }
+            
+            /// <summary>
+            /// 複数行描画
+            /// </summary>
+            protected void DrawMultiLines(string label, string text) {
+                var lines = text.Split('\n');
+                for (var i = 0; i < lines.Length; i++) {
+                    EditorGUILayout.LabelField(i == 0 ? label : " ", lines[i]);
+                }
+            }
         }
 
         private readonly List<PanelBase> _panels = new();

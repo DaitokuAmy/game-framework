@@ -4,7 +4,7 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション遷移用インターフェース
     /// </summary>
-    public interface ISituationFlow : IDisposable, IMonitoredFlow {
+    public interface ISituationRouter : IDisposable, IMonitoredFlow {
         /// <summary>現在のSituation</summary>
         Situation Current { get; }
         /// <summary>トランジション中か</summary>

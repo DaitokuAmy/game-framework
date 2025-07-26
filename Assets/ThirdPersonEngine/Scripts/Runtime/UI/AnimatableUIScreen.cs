@@ -41,41 +41,41 @@ namespace ThirdPersonEngine {
         /// <summary>
         /// 開く処理
         /// </summary>
-        protected override IEnumerator OpenRoutine(TransitionType transitionType, IScope cancelScope) {
-            yield return base.OpenRoutine(transitionType, cancelScope);
+        protected override IEnumerator OpenRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
+            yield return base.OpenRoutine(transitionDirection, cancelScope);
             yield return _animationPlayer.Play(_openAnimation);
         }
 
         /// <summary>
         /// 開く後処理
         /// </summary>
-        protected override void PostOpen(TransitionType transitionType, bool immediate) {
-            base.PostOpen(transitionType, immediate);
+        protected override void PostOpen(TransitionDirection transitionDirection, bool immediate) {
+            base.PostOpen(transitionDirection, immediate);
             _animationPlayer.Skip(_openAnimation);
         }
 
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        protected override IEnumerator CloseRoutine(TransitionType transitionType, IScope cancelScope) {
-            yield return base.CloseRoutine(transitionType, cancelScope);
-            yield return _animationPlayer.Play(GetCloseAnimation(transitionType));
+        protected override IEnumerator CloseRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
+            yield return base.CloseRoutine(transitionDirection, cancelScope);
+            yield return _animationPlayer.Play(GetCloseAnimation(transitionDirection));
         }
 
         /// <summary>
         /// 閉じる後処理
         /// </summary>
-        protected override void PostClose(TransitionType transitionType, bool immediate) {
-            base.PostOpen(transitionType, immediate);
-            _animationPlayer.Skip(GetCloseAnimation(transitionType));
+        protected override void PostClose(TransitionDirection transitionDirection, bool immediate) {
+            base.PostOpen(transitionDirection, immediate);
+            _animationPlayer.Skip(GetCloseAnimation(transitionDirection));
         }
 
         /// <summary>
         /// CloseAnimationの取得
         /// </summary>
-        private IUIAnimation GetCloseAnimation(TransitionType transitionType) {
+        private IUIAnimation GetCloseAnimation(TransitionDirection transitionDirection) {
             var closeAnimation = _closeAnimation;
-            if (transitionType == TransitionType.Back) {
+            if (transitionDirection == TransitionDirection.Back) {
                 if (_backAnimation != null) {
                     closeAnimation = _backAnimation;
                 }

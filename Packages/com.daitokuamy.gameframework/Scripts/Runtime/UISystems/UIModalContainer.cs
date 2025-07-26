@@ -46,7 +46,7 @@ namespace GameFramework.UISystems {
                     prevUIScreen.Interactable = false;
                 }
                 
-                yield return nextUIScreen.OpenAsync(TransitionType.Forward, immediate);
+                yield return nextUIScreen.OpenAsync(TransitionDirection.Forward, immediate);
 
                 nextUIScreen.Interactable = true;
             }
@@ -82,7 +82,7 @@ namespace GameFramework.UISystems {
             IEnumerator Routine() {
                 if (prevUIScreen != null) {
                     prevUIScreen.Interactable = false;
-                    yield return prevUIScreen.CloseAsync(TransitionType.Forward, immediate);
+                    yield return prevUIScreen.CloseAsync(TransitionDirection.Forward, immediate);
                 }
 
                 if (nextUIScreen != null) {
@@ -120,7 +120,7 @@ namespace GameFramework.UISystems {
             IEnumerator Routine() {
                 if (prevUIScreen != null) {
                     prevUIScreen.Interactable = false;
-                    yield return prevUIScreen.CloseAsync(TransitionType.Forward, immediate);
+                    yield return prevUIScreen.CloseAsync(TransitionDirection.Forward, immediate);
                 }
             }
             
@@ -135,36 +135,36 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く処理（後処理）
         /// </summary>
-        protected override void PostOpen(TransitionType transitionType, bool immediate) {
-            base.PostOpen(transitionType, immediate);
+        protected override void PostOpen(TransitionDirection transitionDirection, bool immediate) {
+            base.PostOpen(transitionDirection, immediate);
 
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
-                childView.uiScreen.OpenAsync(transitionType, true);
+                childView.uiScreen.OpenAsync(transitionDirection, true);
             }
         }
 
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        protected override IEnumerator CloseRoutine(TransitionType transitionType, IScope cancelScope) {
-            yield return base.CloseRoutine(transitionType, cancelScope);
+        protected override IEnumerator CloseRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
+            yield return base.CloseRoutine(transitionDirection, cancelScope);
             
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
-                yield return childView.uiScreen.CloseAsync(transitionType, false);
+                yield return childView.uiScreen.CloseAsync(transitionDirection, false);
             }
         }
 
         /// <summary>
         /// 閉じる処理（後処理）
         /// </summary>
-        protected override void PostClose(TransitionType transitionType, bool immediate) {
-            base.PostClose(transitionType, immediate);
+        protected override void PostClose(TransitionDirection transitionDirection, bool immediate) {
+            base.PostClose(transitionDirection, immediate);
             
             var childView = FindChild(_currentKey);
             if (childView != null && childView.uiScreen != null) {
-                childView.uiScreen.CloseAsync(transitionType, true);
+                childView.uiScreen.CloseAsync(transitionDirection, true);
             }
         }
     }
