@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace GameFramework {
     /// <summary>
     /// Tree管理用StateRouter
     /// </summary>
-    public abstract class StateTreeRouter<TKey, TState, TOption> : IStateRouter<TKey, TState, TOption>
+    public class StateTreeRouter<TKey, TState, TOption> : IStateRouter<TKey, TState, TOption>
         where TKey : class
         where TState : class {
         private readonly IStateContainer<TKey, TState, TOption> _stateContainer;
@@ -45,10 +46,10 @@ namespace GameFramework {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        protected StateTreeRouter(IStateContainer<TKey, TState, TOption> container, string label) {
+        public StateTreeRouter(IStateContainer<TKey, TState, TOption> container, string label = "", [CallerFilePath] string caller = "") {
             _stateContainer = container;
-            _label = label;
-            _rootNode = new StateTreeNode<TKey>(default, null);
+            _label = string.IsNullOrEmpty(label) ? caller : label;
+            _rootNode = new StateTreeNode<TKey>(null, null);
             StateMonitor.AddRouter(this);
         }
 
