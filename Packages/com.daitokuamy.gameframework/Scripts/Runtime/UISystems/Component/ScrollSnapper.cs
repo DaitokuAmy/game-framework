@@ -16,16 +16,25 @@ namespace GameFramework.UISystems {
         private float _spacing = 0.0f;
         [SerializeField, Tooltip("スナップ開始時の速度閾値")]
         private float _snapSpeedThreshold = 100.0f;
-        [SerializeField, Tooltip("スナップバネの強さ")]
-        private float _snapSpring = 0.1f;
+        [SerializeField, Tooltip("慣性の影響割合")]
+        private float _inertiaInfluenceRate = 1.0f;
+        [SerializeField, Tooltip("スナップにかかる時間")]
+        private float _snapDuration = 0.2f;
         [SerializeField, Tooltip("スナップ位置を中央に揃えるか（falseなら左上基準）")]
         private bool _centerAlign = true;
 
         private ScrollRect _scrollRect;
         private bool _isDragging;
+        private float _timeScale = 1.0f;
+        private float _inertiaOffsetIndex;
 
         /// <summary>現在カレント扱いとなっているIndex(小数あり)</summary>
         public float CurrentIndex { get; private set; } = -1.0f;
+        /// <summary>タイムスケール</summary>
+        public float TimeScale {
+            get => _timeScale;
+            set => _timeScale = Mathf.Max(0.0f, _timeScale);
+        }
 
         /// <summary>要素を入れるRectTransform</summary>
         private RectTransform Content => _scrollRect.content;
@@ -61,11 +70,14 @@ namespace GameFramework.UISystems {
         /// 更新処理
         /// </summary>
         private void Update() {
-            UpdateCurrentIndex();
+            var deltaTime = Time.deltaTime * TimeScale;
+            
+            // CurrentIndexの更新
+            UpdateCurrentIndex(deltaTime);
 
             // スナップ処理
             if (ShouldSnap()) {
-                Snap();
+                Snap(deltaTime);
             }
         }
 
@@ -88,7 +100,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// スナップ処理
         /// </summary>
-        private void Snap() {
+        private void Snap(float deltaTime) {
             if (Content.childCount == 0) {
                 return;
             }
@@ -98,7 +110,7 @@ namespace GameFramework.UISystems {
             var snapPosition = GetSnapPosition();
 
             // 目標位置を算出
-            var index = Mathf.RoundToInt(CurrentIndex);
+            var index = Mathf.RoundToInt(CurrentIndex + _inertiaOffsetIndex);
             var snapTarget = GetElementPosition(index);
             var delta = snapPosition - snapTarget;
             if (IsHorizontal) {
@@ -109,8 +121,9 @@ namespace GameFramework.UISystems {
             }
 
             // 位置補正
-            Content.anchoredPosition = Vector2.Lerp(Content.anchoredPosition, targetPosition, _snapSpring);
-            
+            var t = _snapDuration > float.Epsilon ? 1.0f - Mathf.Exp(-1.0f / _snapDuration * deltaTime) : 1.0f;
+            Content.anchoredPosition = Vector2.Lerp(Content.anchoredPosition, targetPosition, t);
+
             // 速度をリセット
             _scrollRect.velocity = Vector2.zero;
         }
@@ -146,9 +159,10 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// カレントIndexを更新
         /// </summary>
-        private void UpdateCurrentIndex() {
+        private void UpdateCurrentIndex(float deltaTime) {
             if (Content.childCount == 0) {
                 CurrentIndex = -1.0f;
+                _inertiaOffsetIndex = 0.0f;
                 return;
             }
 
@@ -166,6 +180,46 @@ namespace GameFramework.UISystems {
             var elementPos = GetElementPosition(0);
             var diff = snapPosition - elementPos;
             CurrentIndex = diff / unitSize;
+
+            // 移動速度を元に慣性オフセットを算出
+            if (deltaTime > 0.001f) {
+                if (_scrollRect.inertia) {
+                    var speed = IsHorizontal ? _scrollRect.velocity.x : _scrollRect.velocity.y;
+                    var offset = EstimateInertiaOffset(speed, _scrollRect.decelerationRate, deltaTime);
+                    _inertiaOffsetIndex = Mathf.Clamp(offset / unitSize * _inertiaInfluenceRate, -1, 1);
+                }
+                else {
+                    _inertiaOffsetIndex = 0.0f;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 自動停止するまでの距離を求める計算
+        /// </summary>
+        /// <param name="speed">現在速度</param>
+        /// <param name="decelerationRate">減衰割合</param>
+        /// <param name="deltaTime">変位時間</param>
+        /// <param name="stopSpeed">停止とみなす速度</param>
+        private float EstimateInertiaOffset(float speed, float decelerationRate, float deltaTime, float stopSpeed = 0.01f) {
+            if (deltaTime <= 0.0f || decelerationRate >= 1.0f) {
+                return speed >= 0.0f ? float.MaxValue : float.MinValue;
+            }
+
+            if (Mathf.Approximately(speed, 0.0f) || decelerationRate <= 0.0f) {
+                return 0.0f;
+            }
+
+            var currentSpeed = speed;
+            var offset = 0.0f;
+            var decayFactor = Mathf.Pow(decelerationRate, deltaTime);
+
+            while (Mathf.Abs(currentSpeed) > stopSpeed) {
+                offset += currentSpeed * deltaTime;
+                currentSpeed *= decayFactor;
+            }
+
+            return offset;
         }
     }
 }

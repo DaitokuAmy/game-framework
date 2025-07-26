@@ -981,7 +981,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6971809472225606029}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.99999994
+  m_Size: 0.9997901
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2157,7 +2157,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 460753987609432184}
   m_Direction: 0
   m_Value: 0
-  m_Size: 0.1201923
+  m_Size: 0.120192304
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3963,8 +3963,9 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   _spacing: 0
-  _snapSpeedThreshold: 100
-  _snapSpring: 0.1
+  _snapSpeedThreshold: 200
+  _inertiaInfluenceRate: 1.5
+  _snapDuration: 0.2
   _centerAlign: 1
 --- !u!1 &7618940955897591900
 GameObject:
@@ -4200,7 +4201,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.000255227, y: 0}
+  m_AnchoredPosition: {x: -0.0002659313, y: 0}
   m_SizeDelta: {x: 500, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1054970422388789785
@@ -5437,6 +5438,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   _spacing: 0
-  _snapSpeedThreshold: 100
-  _snapSpring: 0.1
+  _snapSpeedThreshold: 200
+  _inertiaInfluenceRate: 1.5
+  _snapDuration: 0.2
   _centerAlign: 1
