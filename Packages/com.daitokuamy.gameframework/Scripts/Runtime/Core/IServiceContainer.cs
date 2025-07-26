@@ -5,6 +5,9 @@ namespace GameFramework.Core {
     /// インスタンス提供用のロケーター
     /// </summary>
     public interface IServiceContainer : IDisposable {
+        /// <summary>親のDisposeに合わせて消えるか</summary>
+        bool WithParentDispose { get; }
+        
         /// <summary>
         /// コンテナのクリア
         /// </summary>

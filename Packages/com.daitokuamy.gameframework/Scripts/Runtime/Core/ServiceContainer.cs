@@ -48,7 +48,7 @@ namespace GameFramework.Core {
         }
 
         private readonly string _label;
-        private readonly bool _autoDispose;
+        private readonly bool _withParentDispose;
         private readonly List<IServiceContainer> _children = new();
         private readonly Dictionary<Type, RegisteredServiceInfo> _registeredServiceInfos = new();
         private readonly List<IDisposable> _disposableServices = new();
@@ -59,23 +59,25 @@ namespace GameFramework.Core {
         string IMonitoredServiceContainer.Label => _label;
         /// <inheritdoc/>
         IReadOnlyList<IMonitoredServiceContainer> IMonitoredServiceContainer.Children => _children.OfType<IMonitoredServiceContainer>().ToArray();
+        /// <inheritdoc/>
+        bool IServiceContainer.WithParentDispose => _withParentDispose;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="parent">親ServiceContainer</param>
-        /// <param name="autoDispose">登録したServiceを自動Disposeするか</param>
+        /// <param name="withParentDispose">親のDisposeに合わせてDisposeを自動で行うか</param>
         /// <param name="label">デバッグ表示用ラベル</param>
-        public ServiceContainer(IServiceContainer parent = null, bool autoDispose = true, string label = "") {
+        public ServiceContainer(IServiceContainer parent = null, bool withParentDispose = true, string label = "") {
             _label = label;
-            
+
             if (parent == null && GetType() != typeof(Services)) {
                 parent = Services.Instance;
             }
 
             ServiceMonitor.AddContainer(this);
 
-            _autoDispose = autoDispose;
+            _withParentDispose = withParentDispose;
 
             if (parent is ServiceContainer container) {
                 container._children.Add(this);
@@ -134,12 +136,11 @@ namespace GameFramework.Core {
                 return;
             }
 
-            if (_autoDispose) {
-                if (info.Instance is IDisposable disposable) {
-                    info.Instance = null;
-                    disposable.Dispose();
-                }
+            if (info.Instance is IDisposable disposable) {
+                disposable.Dispose();
             }
+
+            info.Instance = null;
         }
 
         /// <summary>
@@ -275,6 +276,7 @@ namespace GameFramework.Core {
 
             if (info.Instance is IDisposable disposable) {
                 disposable.Dispose();
+                _disposableServices.Remove(disposable);
             }
         }
 
@@ -284,21 +286,23 @@ namespace GameFramework.Core {
         private void ClearInternal() {
             // 子を解放
             for (var i = _children.Count - 1; i >= 0; i--) {
+                if (!_children[i].WithParentDispose) {
+                    continue;
+                }
+
                 _children[i].Dispose();
             }
 
             _children.Clear();
 
-            if (_autoDispose) {
-                // 逆順に解放
-                for (var i = _disposableServices.Count - 1; i >= 0; i--) {
-                    var disposable = _disposableServices[i];
-                    if (disposable == null) {
-                        continue;
-                    }
-
-                    disposable.Dispose();
+            // 逆順に解放
+            for (var i = _disposableServices.Count - 1; i >= 0; i--) {
+                var disposable = _disposableServices[i];
+                if (disposable == null) {
+                    continue;
                 }
+
+                disposable.Dispose();
             }
 
             // サービス参照をクリア
