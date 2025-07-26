@@ -51,6 +51,8 @@ namespace GameFramework {
         public TState Next => _transitionInfo?.Next;
         /// <summary>遷移向き</summary>
         public TransitionDirection Direction => _transitionInfo?.Direction ?? TransitionDirection.Forward;
+        /// <summary>戻り遷移か</summary>
+        public bool IsBack => Direction == TransitionDirection.Back;
         /// <summary>遷移状態</summary>
         public TransitionState TransitionState => _transitionInfo?.State ?? TransitionState.Invalid;
         
