@@ -11,10 +11,10 @@ namespace SampleGame.Lifecycle {
     public partial class SituationService : DisposableFixedUpdatableTask {
         private readonly DisposableScope _scope;
         private readonly SituationContainer _situationContainer;
-        private readonly SituationTree _situationTree;
+        private readonly SituationTreeRouter _situationTreeRouter;
 
         /// <summary>現在のNodeが対象としているSituationを取得する</summary>
-        public Situation CurrentNodeSituation => _situationTree.Current;
+        public Situation CurrentNodeSituation => _situationTreeRouter.Current;
 
         /// <summary>
         /// コンストラクタ
@@ -22,7 +22,7 @@ namespace SampleGame.Lifecycle {
         public SituationService() {
             _scope = new DisposableScope();
             _situationContainer = new SituationContainer().RegisterTo(_scope);
-            _situationTree = new SituationTree(_situationContainer).RegisterTo(_scope);
+            _situationTreeRouter = new SituationTreeRouter(_situationContainer).RegisterTo(_scope);
         }
 
         /// <inheritdoc/>
@@ -54,74 +54,69 @@ namespace SampleGame.Lifecycle {
                 return;
             }
 
-            if (_situationContainer == null || _situationTree == null) {
+            if (_situationContainer == null || _situationTreeRouter == null) {
                 Debug.LogError("SituationContainer or SituationFlow is null");
                 return;
             }
 
             SetupContainer(_situationContainer, _scope);
-            SetupTree(_situationTree, _scope);
+            SetupTree(_situationTreeRouter, _scope);
             SetupDebug(_scope);
         }
 
         /// <summary>
         /// 指定したSituationへ遷移する
         /// </summary>
-        public TransitionHandle Transition(Type type, Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) {
+        public TransitionHandle<Situation> Transition(Type type, Action<Situation> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) {
             var (transition, effects) = GetTransitionInfo(transitionType);
             if (refresh) {
-                return _situationTree.RefreshTransition(type, onSetup, transition, effects);
+                var option = new SituationContainer.TransitionOption { Refresh = true };
+                return _situationTreeRouter.Transition(type, option, TransitionStep.Complete, setupAction, transition, effects);
             }
 
-            return _situationTree.Transition(type, onSetup, transition, effects);
+            return _situationTreeRouter.Transition(type, null, TransitionStep.Complete, setupAction, transition, effects);
         }
 
         /// <summary>
         /// 指定したSituationへ遷移する
         /// </summary>
-        public TransitionHandle Transition<T>(Action<T> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) where T : Situation {
-            var (transition, effects) = GetTransitionInfo(transitionType);
-            if (refresh) {
-                return _situationTree.RefreshTransition(onSetup, transition, effects);
-            }
-
-            return _situationTree.Transition(onSetup, transition, effects);
+        public TransitionHandle<Situation> Transition<T>(Action<T> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) where T : Situation {
+            return Transition(typeof(T), s => setupAction?.Invoke((T)s), transitionType, refresh);
         }
 
         /// <summary>
         /// 戻り遷移
         /// </summary>
-        public TransitionHandle Back(Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) {
+        public TransitionHandle<Situation> Back(int depth, Action<Situation> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault) {
             var (transition, effects) = GetTransitionInfo(transitionType);
-            return _situationTree.Back(onSetup, transition, effects);
+            return _situationTreeRouter.Back(depth, null,  setupAction, transition, effects);
         }
 
         /// <summary>
         /// 戻り遷移
         /// </summary>
-        public TransitionHandle Back(int depth, Action<Situation> onSetup = null, TransitionType transitionType = TransitionType.ScreenDefault) {
-            var (transition, effects) = GetTransitionInfo(transitionType);
-            return _situationTree.Back(depth, onSetup, transition, effects);
+        public TransitionHandle<Situation> Back(Action<Situation> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault) {
+            return Back(1, setupAction, transitionType);
         }
 
         /// <summary>
         /// 現在のSituationNodeをリセット
         /// </summary>
-        public TransitionHandle Reset(Action<Situation> onSetup = null) {
+        public TransitionHandle<Situation> Reset(Action<Situation> setupAction = null) {
             var (_, effects) = GetTransitionInfo(TransitionType.SceneDefault);
-            return _situationTree.Reset(onSetup, effects);
+            return _situationTreeRouter.Reset(setupAction, effects);
         }
 
         /// <summary>
         /// ノードの接続
         /// </summary>
-        private SituationTreeNode ConnectNode<T>(SituationTreeNode parentNode)
+        private StateTreeNode<Type> ConnectNode<T>(StateTreeNode<Type> parentNode)
             where T : Situation {
             if (parentNode == null) {
-                return _situationTree.ConnectRoot<T>();
+                return _situationTreeRouter.ConnectRoot(typeof(T));
             }
 
-            return parentNode.Connect<T>();
+            return parentNode.Connect(typeof(T));
         }
     }
 }

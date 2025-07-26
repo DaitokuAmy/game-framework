@@ -31,7 +31,7 @@ namespace GameFramework {
         /// <summary>
         /// 遷移情報の取得
         /// </summary>
-        void GetTransitionInfo(out TransitionInfo info);
+        bool TryGetTransitionInfo(out TransitionInfo info);
 
         /// <summary>
         /// 詳細情報取得

@@ -23,10 +23,11 @@ namespace GameFramework {
         /// </summary>
         /// <param name="key">遷移ターゲットを決めるキー</param>
         /// <param name="option">遷移時に渡すオプション</param>
+        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        TransitionHandle<TState> Transition(TKey key, TOption option, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects);
+        TransitionHandle<TState> Transition(TKey key, TOption option = default, TransitionStep step = TransitionStep.Complete, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects);
         
         /// <summary>
         /// 戻り遷移処理
@@ -36,13 +37,13 @@ namespace GameFramework {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        TransitionHandle<TState> Back(int depth, TOption option, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects);
+        TransitionHandle<TState> Back(int depth = 1, TOption option = default, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects);
         
         /// <summary>
         /// 状態リセット
         /// </summary>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="effects">遷移時演出</param>
-        TransitionHandle<TState> Reset(Action<TState> setupAction, params ITransitionEffect[] effects);
+        TransitionHandle<TState> Reset(Action<TState> setupAction = null, params ITransitionEffect[] effects);
     }
 }

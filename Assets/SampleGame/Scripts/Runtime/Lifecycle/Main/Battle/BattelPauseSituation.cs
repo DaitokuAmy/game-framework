@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
@@ -12,7 +13,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// アクティブ時処理
         /// </summary>
-        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+        protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
             
             var situationService = Services.Resolve<SituationService>();

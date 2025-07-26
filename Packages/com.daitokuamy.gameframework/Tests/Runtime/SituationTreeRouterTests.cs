@@ -2,12 +2,13 @@ using System.Collections;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using NUnit.Framework;
+using System;
 
 namespace GameFramework.Tests {
     /// <summary>
     /// SituationTree を通じての遷移構成・制御・状態遷移を検証するテストクラスです。
     /// </summary>
-    public class SituationTreeTests {
+    public class SituationTreeRouterTests {
         /// <summary>
         /// SituationTree の接続と遷移制御を検証するテスト用基底クラスです。
         /// 各種ライフサイクル処理の呼び出し記録が可能です。
@@ -20,7 +21,7 @@ namespace GameFramework.Tests {
             /// <summary>
             /// 読み込み処理（LoadRoutine）の呼び出しを記録します。
             /// </summary>
-            protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+            protected override IEnumerator LoadRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
                 LoadCalled = true;
                 yield break;
             }
@@ -28,7 +29,7 @@ namespace GameFramework.Tests {
             /// <summary>
             /// 初期化処理（SetupRoutine）の呼び出しを記録します。
             /// </summary>
-            protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
+            protected override IEnumerator SetupRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
                 SetupCalled = true;
                 yield break;
             }
@@ -36,7 +37,7 @@ namespace GameFramework.Tests {
             /// <summary>
             /// アクティベート処理（Activate）の呼び出しを記録します。
             /// </summary>
-            protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+            protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
                 Activated = true;
             }
         }
@@ -67,7 +68,7 @@ namespace GameFramework.Tests {
 
         private CoroutineRunner _runner;
         private SituationContainer _container;
-        private SituationTree _tree;
+        private SituationTreeRouter _tree;
 
         /// <summary>
         /// テスト開始前にコンテナとフローを初期化し、接続状態を構築します。
@@ -88,10 +89,10 @@ namespace GameFramework.Tests {
             _container.Setup(situationRoot);
 
             // ルート接続と遷移関係の構築
-            _tree = new SituationTree(_container);
-            var aNode = _tree.ConnectRoot<MockSituationA>();
-            var bNode = aNode.Connect<MockSituationB>();
-            bNode.Connect<MockSituationC>();
+            _tree = new SituationTreeRouter(_container);
+            var aNode = _tree.ConnectRoot(typeof(MockSituationA));
+            var bNode = aNode.Connect(typeof(MockSituationB));
+            bNode.Connect(typeof(MockSituationC));
         }
 
         /// <summary>
@@ -119,7 +120,7 @@ namespace GameFramework.Tests {
         /// </summary>
         [Test]
         public void TreeCanTransitBetweenConnectedSituations() {
-            var handle = _tree.Transition<MockSituationA>();
+            var handle = _tree.Transition(typeof(MockSituationA));
             RunCoroutineUntilDone(() => handle.IsDone);
 
             var current = _container.Current as MockSituationA;
@@ -135,7 +136,7 @@ namespace GameFramework.Tests {
         [Test]
         public void TreeTransitionToUnconnectedSituationFails() {
             // 未接続のノードを直接追加してテスト
-            var handle = _tree.Transition<MockSituationB>();
+            var handle = _tree.Transition(typeof(MockSituationB));
             RunCoroutineUntilDone(() => handle.IsDone);
 
             Assert.IsFalse(handle.IsValid);
@@ -147,11 +148,11 @@ namespace GameFramework.Tests {
         /// </summary>
         [Test]
         public void TreeCanTransitToDeepChild() {
-            var handle1 = _tree.Transition<MockSituationA>();
+            var handle1 = _tree.Transition(typeof(MockSituationA));
             RunCoroutineUntilDone(() => handle1.IsDone);
-            var handle2 = _tree.Transition<MockSituationB>();
+            var handle2 = _tree.Transition(typeof(MockSituationB));
             RunCoroutineUntilDone(() => handle2.IsDone);
-            var handle3 = _tree.Transition<MockSituationC>();
+            var handle3 = _tree.Transition(typeof(MockSituationC));
             RunCoroutineUntilDone(() => handle3.IsDone);
 
             var current = _container.Current as MockSituationC;
@@ -166,11 +167,11 @@ namespace GameFramework.Tests {
         /// </summary>
         [Test]
         public void TreeCanBackToDeepChild() {
-            var handle1 = _tree.Transition<MockSituationA>();
+            var handle1 = _tree.Transition(typeof(MockSituationA));
             RunCoroutineUntilDone(() => handle1.IsDone);
-            var handle2 = _tree.Transition<MockSituationB>();
+            var handle2 = _tree.Transition(typeof(MockSituationB));
             RunCoroutineUntilDone(() => handle2.IsDone);
-            var handle3 = _tree.Transition<MockSituationC>();
+            var handle3 = _tree.Transition(typeof(MockSituationC));
             RunCoroutineUntilDone(() => handle3.IsDone);
             var handle4 = _tree.Back();
             RunCoroutineUntilDone(() => handle4.IsDone);

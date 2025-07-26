@@ -10,49 +10,53 @@ namespace GameFramework.SituationSystems {
     /// <summary>
     /// シチュエーション管理用クラス
     /// </summary>
-    public sealed class SituationContainer : IDisposable, ITransitionResolver, IMonitoredContainer {
+    public sealed class SituationContainer : ITransitionResolver, IStateContainer<Type, Situation, SituationContainer.TransitionOption>, IMonitoredStateContainer {
         /// <summary>
         /// 遷移オプション
         /// </summary>
         public class TransitionOption {
-            /// <summary>バック遷移</summary>
-            public bool Back = false;
             /// <summary>Rootから再構築して遷移するか</summary>
             public bool Refresh = false;
-            /// <summary>遷移ステップ(どこまで遷移を進めるか)</summary>
-            public TransitionStep Step = TransitionStep.Complete;
         }
 
         /// <summary>
         /// 遷移情報
         /// </summary>
-        public class TransitionInfo {
-            public IReadOnlyList<ISituation> PrevSituations;
-            public IReadOnlyList<ISituation> NextSituations;
-            public TransitionState State;
-            public TransitionStep Step;
-            public TransitionDirection TransitionType;
-            public IReadOnlyList<ITransitionEffect> Effects;
-            public bool EffectActive;
+        internal class TransitionInfo : ITransitionInfo<Situation> {
+            public IReadOnlyList<ISituation> PrevSituations { get; set; }
+            public IReadOnlyList<ISituation> NextSituations { get; set; }
+            public IReadOnlyList<ITransitionEffect> Effects { get; set; }
+            public bool EffectActive { get; set; }
+
+            public TransitionDirection Direction { get; set; }
+            public TransitionState State { get; set; }
+            public TransitionStep EndStep { get; set; }
+            public Situation Prev => PrevSituations.FirstOrDefault() as Situation;
+            public Situation Next => NextSituations.LastOrDefault() as Situation;
+
+            public bool ChangeEndStep(TransitionStep step) {
+                if (step <= EndStep) {
+                    return false;
+                }
+
+                EndStep = step;
+                return true;
+            }
         }
 
         private readonly CoroutineRunner _coroutineRunner = new();
         private readonly List<Situation> _preloadSituations = new();
         private readonly List<ISituation> _runningSituations = new();
         private readonly string _label;
-        
+
         private TransitionInfo _transitionInfo;
         private bool _disposed;
 
         /// <inheritdoc/>
-        string IMonitoredContainer.Label => _label;
+        string IMonitoredStateContainer.Label => _label;
         /// <inheritdoc/>
-        TransitionInfo IMonitoredContainer.CurrentTransitionInfo => _transitionInfo;
-        /// <inheritdoc/>
-        IReadOnlyList<Situation> IMonitoredContainer.PreloadSituations => _preloadSituations;
-        /// <inheritdoc/>
-        IReadOnlyList<Situation> IMonitoredContainer.RunningSituations => _runningSituations.Cast<Situation>().ToArray();
-        
+        string IMonitoredStateContainer.CurrentStateInfo => Current != null ? Current.GetType().Name : "None";
+
         /// <summary>RootとなるSituation</summary>
         public Situation RootSituation { get; private set; }
         /// <summary>現在のシチュエーション</summary>
@@ -70,7 +74,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="caller">自動解決用呼び出し元設定変数</param>
         public SituationContainer(string label = "", [CallerFilePath] string caller = "") {
             _label = string.IsNullOrEmpty(label) ? caller : label;
-            SituationMonitor.AddContainer(this);
+            StateMonitor.AddContainer(this);
         }
 
         /// <summary>
@@ -82,8 +86,83 @@ namespace GameFramework.SituationSystems {
             }
 
             _disposed = true;
-            SituationMonitor.RemoveContainer(this);
+            StateMonitor.RemoveContainer(this);
+
             Clear();
+        }
+
+        /// <summary>
+        /// 遷移情報の取得
+        /// </summary>
+        bool IMonitoredStateContainer.TryGetTransitionInfo(out IMonitoredStateContainer.TransitionInfo info) {
+            if (_transitionInfo == null) {
+                info = default;
+                return false;
+            }
+
+            info.State = _transitionInfo.State;
+            info.Direction = _transitionInfo.Direction;
+            info.EndStep = _transitionInfo.EndStep;
+            info.PrevStateInfo = string.Join('\n', _transitionInfo.PrevSituations
+                .Select(x => x.GetType().Name));
+            info.NextStateInfo = string.Join('\n', _transitionInfo.NextSituations
+                .Select(x => x.GetType().Name));
+            return true;
+        }
+
+        /// <summary>
+        /// 詳細情報取得
+        /// </summary>
+        void IMonitoredStateContainer.GetDetails(List<(string label, string text)> lines) {
+            lines.Add(("Root", RootSituation?.GetType().Name ?? "None"));
+            for (var i = 0; i < _runningSituations.Count; i++) {
+                lines.Add((i == 0 ? "Running Situations" : "", _runningSituations[i].GetType().Name));
+            }
+
+            for (var i = 0; i < _preloadSituations.Count; i++) {
+                lines.Add((i == 0 ? "Preload Situations" : "", _preloadSituations[i].GetType().Name));
+            }
+        }
+
+        /// <inheritdoc/>
+        Situation IStateContainer<Type, Situation, TransitionOption>.FindState(Type key) {
+            Situation Find(Situation situation, Type targetType) {
+                if (situation == null) {
+                    return null;
+                }
+                
+                if (situation.GetType() == targetType) {
+                    return situation;
+                }
+
+                foreach (var child in situation.Children) {
+                    var result = Find(child, targetType);
+                    if (result != null) {
+                        return result;
+                    }
+                }
+
+                return null;
+            }
+
+            return Find(RootSituation, key);
+        }
+
+        /// <inheritdoc/>
+        Situation[] IStateContainer<Type, Situation, TransitionOption>.GetStates() {
+            var result = new List<Situation>();
+            
+            void Add(Situation situation, List<Situation> list) {
+                if (situation == null) {
+                    return;
+                }
+
+                list.Add(situation);
+                list.AddRange(situation.Children);
+            }
+
+            Add(RootSituation, result);
+            return result.ToArray();
         }
 
         /// <summary>
@@ -101,85 +180,17 @@ namespace GameFramework.SituationSystems {
             ((ISituation)rootSituation).Standby(this);
         }
 
-        /// <summary>
-        /// 現在のシチュエーションを再構築する(遷移オプション使用不可 = クロス系の同時にライフサイクルが存在する物は使用不可)
-        /// </summary>
-        /// <param name="onSetup">初期化処理</param>
-        /// <param name="effects">遷移演出</param>
-        public TransitionHandle Reset(Action<Situation> onSetup, params ITransitionEffect[] effects) {
-            if (Current == null) {
-                return new TransitionHandle(new Exception("Current situation is null"));
-            }
-
-            var situationName = Current.GetType().Name;
-
-            if (IsTransitioning) {
-                return new TransitionHandle(new Exception($"In transit other. Situation:{situationName}"));
-            }
-
-            // 閉じるSituationのリスト化
-            var prevSituations = new List<ISituation>();
-            var situation = (ISituation)Current;
-            while (situation != null) {
-                prevSituations.Add(situation);
-                situation = (ISituation)situation.Parent;
-            }
-
-            // 開くSituationのリスト化
-            var nextSituations = new List<ISituation>();
-            for (var i = prevSituations.Count - 1; i >= 0; i--) {
-                nextSituations.Add(prevSituations[i]);
-            }
-
-            // 遷移はOutIn専用
-            var transition = (ITransition)new OutInTransition();
-
-            // 遷移情報を生成            
-            _transitionInfo = new TransitionInfo {
-                TransitionType = TransitionDirection.Forward,
-                PrevSituations = prevSituations,
-                NextSituations = nextSituations,
-                State = TransitionState.Standby,
-                Step = TransitionStep.Complete,
-                Effects = effects
-            };
-
-            // 初期化通知
-            onSetup?.Invoke(Current);
-
-            // コルーチンの登録
-            _coroutineRunner.StartCoroutine(transition.TransitionRoutine(this), () => { _transitionInfo = null; });
-
-            // ハンドルの返却
-            return new TransitionHandle(_transitionInfo);
-        }
-
-        /// <summary>
-        /// 現在のシチュエーションを再構築する(遷移オプション使用不可 = クロス系の同時にライフサイクルが存在する物は使用不可)
-        /// </summary>
-        /// <param name="effects">遷移演出</param>
-        public TransitionHandle Reset(params ITransitionEffect[] effects) {
-            return Reset(null, effects);
-        }
-
-        /// <summary>
-        /// 遷移実行
-        /// </summary>
-        /// <param name="situationType">遷移予定のSituationの型</param>
-        /// <param name="onSetup">初期化処理</param>
-        /// <param name="option">遷移オプション</param>
-        /// <param name="overrideTransition">上書き用の遷移処理</param>
-        /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition(Type situationType, Action<Situation> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects) {
-            var situation = FindSituation(situationType);
+        /// <inheritdoc/>
+        public TransitionHandle<Situation> Transition(Type key, TransitionOption option, bool back, TransitionStep endStep, Action<Situation> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+            var situation = FindSituation(key);
             if (situation == null) {
-                return new TransitionHandle(new Exception($"Not found situation:{situationType.Name}"));
+                return new TransitionHandle<Situation>(new Exception($"Not found situation:{key.Name}"));
             }
 
             var nextName = situation.GetType().Name;
 
             if (IsTransitioning) {
-                return new TransitionHandle(new Exception($"In transit other. Situation:{nextName}"));
+                return new TransitionHandle<Situation>(new Exception($"In transit other. Situation:{nextName}"));
             }
 
             var prev = (ISituation)Current;
@@ -187,7 +198,7 @@ namespace GameFramework.SituationSystems {
 
             // 遷移の必要がなければキャンセル扱い
             if (prev == next) {
-                return new TransitionHandle(new Exception($"Cancel transit. Situation:{nextName}"));
+                return TransitionHandle<Situation>.Empty;
             }
 
             // 遷移先の共通親を探す
@@ -233,70 +244,153 @@ namespace GameFramework.SituationSystems {
             }
 
             // 遷移情報の取得
-            var transition = overrideTransition ?? GetDefaultTransition(next);
+            transition ??= GetDefaultTransition(next);
 
             // 遷移可能チェック
             if (!CheckTransition(prevSituations, nextSituations, transition)) {
-                return new TransitionHandle(
+                return new TransitionHandle<Situation>(
                     new Exception($"Cant transition. Situation:{nextName} Transition:{transition}"));
             }
 
             // 遷移情報を生成            
             _transitionInfo = new TransitionInfo {
-                TransitionType = (option != null && option.Back) ? TransitionDirection.Back : TransitionDirection.Forward,
+                Direction = back ? TransitionDirection.Back : TransitionDirection.Forward,
                 PrevSituations = prevSituations,
                 NextSituations = nextSituations,
                 State = TransitionState.Standby,
-                Step = option != null ? option.Step : TransitionStep.Complete,
+                EndStep = endStep,
                 Effects = effects
             };
 
             // コルーチンの登録
-            _coroutineRunner.StartCoroutine(TransitionRoutine(next, onSetup, transition), () => _transitionInfo = null);
+            _coroutineRunner.StartCoroutine(TransitionRoutine(next, setupAction, transition), () => _transitionInfo = null);
 
             // ハンドルの返却
-            return new TransitionHandle(_transitionInfo);
+            return new TransitionHandle<Situation>(_transitionInfo);
+        }
+
+        /// <inheritdoc/>
+        public TransitionHandle<Situation> Reset(Action<Situation> setupAction, params ITransitionEffect[] effects) {
+            if (Current == null) {
+                return new TransitionHandle<Situation>(new Exception("Current situation is null"));
+            }
+
+            var situationName = Current.GetType().Name;
+
+            if (IsTransitioning) {
+                return new TransitionHandle<Situation>(new Exception($"In transit other. Situation:{situationName}"));
+            }
+
+            // 閉じるSituationのリスト化
+            var prevSituations = new List<ISituation>();
+            var situation = (ISituation)Current;
+            while (situation != null) {
+                prevSituations.Add(situation);
+                situation = situation.Parent;
+            }
+
+            // 開くSituationのリスト化
+            var nextSituations = new List<ISituation>();
+            for (var i = prevSituations.Count - 1; i >= 0; i--) {
+                nextSituations.Add(prevSituations[i]);
+            }
+
+            // 遷移はOutIn専用
+            var transition = (ITransition)new OutInTransition();
+
+            // 遷移情報を生成            
+            _transitionInfo = new TransitionInfo {
+                Direction = TransitionDirection.Forward,
+                PrevSituations = prevSituations,
+                NextSituations = nextSituations,
+                State = TransitionState.Standby,
+                EndStep = TransitionStep.Complete,
+                Effects = effects
+            };
+
+            // 初期化通知
+            setupAction?.Invoke(Current);
+
+            // コルーチンの登録
+            _coroutineRunner.StartCoroutine(transition.TransitionRoutine(this), () => { _transitionInfo = null; });
+
+            // ハンドルの返却
+            return new TransitionHandle<Situation>(_transitionInfo);
+        }
+
+        /// <summary>
+        /// 現在のシチュエーションを再構築する(遷移オプション使用不可 = クロス系の同時にライフサイクルが存在する物は使用不可)
+        /// </summary>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle<Situation> Reset(params ITransitionEffect[] effects) {
+            return Reset(null, effects);
         }
 
         /// <summary>
         /// 遷移実行
         /// </summary>
-        /// <param name="onSetup">初期化処理</param>
+        /// <param name="option">遷移時に渡すオプション</param>
+        /// <param name="back">戻り遷移か</param>
+        /// <param name="endStep">終了ステップ</param>
+        /// <param name="setupAction">遷移先初期化用関数</param>
+        /// <param name="transition">遷移方法</param>
+        /// <param name="effects">遷移時演出</param>
+        public TransitionHandle<Situation> Transition<TSituation>(TransitionOption option, bool back, TransitionStep endStep, Action<TSituation> setupAction, ITransition transition = null, params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            return Transition(typeof(TSituation), option, back, endStep, s => setupAction?.Invoke((TSituation)s), transition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="option">遷移時に渡すオプション</param>
+        /// <param name="endStep">終了ステップ</param>
+        /// <param name="setupAction">遷移先初期化用関数</param>
+        /// <param name="transition">遷移方法</param>
+        /// <param name="effects">遷移時演出</param>
+        public TransitionHandle<Situation> Transition<TSituation>(TransitionOption option, TransitionStep endStep, Action<TSituation> setupAction, ITransition transition = null, params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            return Transition(option, true, endStep, setupAction, transition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="setupAction">遷移先初期化用関数</param>
+        /// <param name="transition">遷移方法</param>
+        /// <param name="effects">遷移時演出</param>
+        public TransitionHandle<Situation> Transition<TSituation>(Action<TSituation> setupAction, ITransition transition = null, params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            return Transition(null, TransitionStep.Complete, setupAction, transition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
+        /// <param name="transition">上書き用の遷移処理</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle<Situation> Transition<TSituation>(ITransition transition, params ITransitionEffect[] effects)
+            where TSituation : Situation {
+            return Transition<TSituation>(null, transition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
         /// <param name="option">遷移オプション</param>
-        /// <param name="overrideTransition">上書き用の遷移処理</param>
         /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition<TSituation>(Action<TSituation> onSetup, TransitionOption option, ITransition overrideTransition = null, params ITransitionEffect[] effects)
+        public TransitionHandle<Situation> Transition<TSituation>(TransitionOption option, params ITransitionEffect[] effects)
             where TSituation : Situation {
-            return Transition(typeof(TSituation), s => onSetup?.Invoke((TSituation)s), option, overrideTransition, effects);
-        }
-
-        /// <summary>
-        /// 遷移実行
-        /// </summary>
-        /// <param name="overrideTransition">上書き用の遷移処理</param>
-        /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition<TSituation>(ITransition overrideTransition, params ITransitionEffect[] effects)
-            where TSituation : Situation {
-            return Transition<TSituation>(null, null, overrideTransition, effects);
-        }
-
-        /// <summary>
-        /// 遷移実行
-        /// </summary>
-        /// <param name="option">遷移オプション</param>
-        /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition<TSituation>(TransitionOption option, params ITransitionEffect[] effects)
-            where TSituation : Situation {
-            return Transition<TSituation>(null, option, null, effects);
+            return Transition<TSituation>(option, true, TransitionStep.Complete, null, null, effects);
         }
 
         /// <summary>
         /// 遷移実行
         /// </summary>
         /// <param name="effects">遷移演出</param>
-        public TransitionHandle Transition<TSituation>(params ITransitionEffect[] effects)
+        public TransitionHandle<Situation> Transition<TSituation>(params ITransitionEffect[] effects)
             where TSituation : Situation {
-            return Transition<TSituation>(null, null, null, effects);
+            return Transition<TSituation>(null, null, effects);
         }
 
         /// <summary>
@@ -526,7 +620,7 @@ namespace GameFramework.SituationSystems {
                 }
             }
             ChangedCurrentEvent?.Invoke(Current);
-            
+
             // 初期化処理
             onSetup?.Invoke(Current);
 
@@ -613,7 +707,7 @@ namespace GameFramework.SituationSystems {
         /// ディアクティベート
         /// </summary>
         void ITransitionResolver.DeactivatePrev() {
-            var handle = new TransitionHandle(_transitionInfo);
+            var handle = new TransitionHandle<Situation>(_transitionInfo);
             for (var i = 0; i < _transitionInfo.PrevSituations.Count; i++) {
                 _transitionInfo.PrevSituations[i].Deactivate(handle);
             }
@@ -623,7 +717,7 @@ namespace GameFramework.SituationSystems {
         /// 閉じるコルーチン
         /// </summary>
         IEnumerator ITransitionResolver.ClosePrevRoutine(bool immediate) {
-            var handle = new TransitionHandle(_transitionInfo);
+            var handle = new TransitionHandle<Situation>(_transitionInfo);
             for (var i = 0; i < _transitionInfo.PrevSituations.Count; i++) {
                 _transitionInfo.PrevSituations[i].PreClose(handle);
             }
@@ -646,7 +740,7 @@ namespace GameFramework.SituationSystems {
         /// 解放コルーチン
         /// </summary>
         IEnumerator ITransitionResolver.UnloadPrevRoutine() {
-            var handle = new TransitionHandle(_transitionInfo);
+            var handle = new TransitionHandle<Situation>(_transitionInfo);
             for (var i = 0; i < _transitionInfo.PrevSituations.Count; i++) {
                 _transitionInfo.PrevSituations[i].Cleanup(handle);
             }
@@ -664,7 +758,7 @@ namespace GameFramework.SituationSystems {
         IEnumerator ITransitionResolver.LoadNextRoutine() {
             _transitionInfo.State = TransitionState.Initializing;
 
-            var handle = new TransitionHandle(_transitionInfo);
+            var handle = new TransitionHandle<Situation>(_transitionInfo);
             var routines = new List<IEnumerator>();
             for (var i = 0; i < _transitionInfo.NextSituations.Count; i++) {
                 routines.Add(_transitionInfo.NextSituations[i].LoadRoutine(handle, false));
@@ -672,7 +766,7 @@ namespace GameFramework.SituationSystems {
 
             yield return new MergedCoroutine(routines);
 
-            while (_transitionInfo.Step <= TransitionStep.Load) {
+            while (_transitionInfo.EndStep <= TransitionStep.Load) {
                 yield return null;
             }
 
@@ -680,7 +774,7 @@ namespace GameFramework.SituationSystems {
                 yield return _transitionInfo.NextSituations[i].SetupRoutine(handle);
             }
 
-            while (_transitionInfo.Step <= TransitionStep.Setup) {
+            while (_transitionInfo.EndStep <= TransitionStep.Setup) {
                 yield return null;
             }
         }
@@ -691,7 +785,7 @@ namespace GameFramework.SituationSystems {
         IEnumerator ITransitionResolver.OpenNextRoutine(bool immediate) {
             _transitionInfo.State = TransitionState.Opening;
 
-            var handle = new TransitionHandle(_transitionInfo);
+            var handle = new TransitionHandle<Situation>(_transitionInfo);
             for (var i = 0; i < _transitionInfo.NextSituations.Count; i++) {
                 _transitionInfo.NextSituations[i].PreOpen(handle);
             }
@@ -714,7 +808,7 @@ namespace GameFramework.SituationSystems {
         /// アクティベート
         /// </summary>
         void ITransitionResolver.ActivateNext() {
-            var handle = new TransitionHandle(_transitionInfo);
+            var handle = new TransitionHandle<Situation>(_transitionInfo);
             for (var i = 0; i < _transitionInfo.NextSituations.Count; i++) {
                 _transitionInfo.NextSituations[i].Activate(handle);
             }

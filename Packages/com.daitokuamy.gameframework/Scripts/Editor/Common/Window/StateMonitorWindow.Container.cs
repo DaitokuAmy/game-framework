@@ -48,13 +48,13 @@ namespace GameFramework.Editor {
             /// コンテナ情報のキャプチャ
             /// </summary>
             private void CaptureContainer(IMonitoredStateContainer container, StateMonitorWindow window) {
-                if (!_transitionInfos.TryGetValue(container, out var transitionInfo)) {
-                    transitionInfo = new IMonitoredStateContainer.TransitionInfo();
-                    _transitionInfos.Add(container, transitionInfo);
-                }
-
                 // 遷移情報を取得
-                container.GetTransitionInfo(out transitionInfo);
+                if (!container.TryGetTransitionInfo(out var info)) {
+                    return;
+                }
+                
+                // 遷移情報の更新
+                _transitionInfos[container] = info;
             }
 
             /// <summary>

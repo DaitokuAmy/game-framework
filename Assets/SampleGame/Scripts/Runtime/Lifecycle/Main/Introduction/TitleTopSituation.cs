@@ -14,7 +14,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 開く処理
         /// </summary>
-        protected override IEnumerator OpenRoutineInternal(TransitionHandle handle, IScope animationScope) {
+        protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -25,7 +25,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 開きが完了する処理
         /// </summary>
-        protected override void PostOpenInternal(TransitionHandle handle, IScope scope) {
+        protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -36,7 +36,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        protected override IEnumerator CloseRoutineInternal(TransitionHandle handle, IScope animationScope) {
+        protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -47,7 +47,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 閉じが完了する処理
         /// </summary>
-        protected override void PostCloseInternal(TransitionHandle handle) {
+        protected override void PostCloseInternal(TransitionHandle<Situation> handle) {
             base.PostCloseInternal(handle);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -58,7 +58,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// アクティブ時処理
         /// </summary>
-        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+        protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
             var situationService = Services.Resolve<SituationService>();

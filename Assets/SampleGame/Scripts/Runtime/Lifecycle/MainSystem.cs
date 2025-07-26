@@ -125,7 +125,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 開始Situationへ遷移する
         /// </summary>
-        private TransitionHandle TransitionStartSituation(object[] args) {
+        private TransitionHandle<Situation> TransitionStartSituation(object[] args) {
             ParseArguments(args, out var situationType, out var onSetup);
             return _situationService.Transition(situationType, onSetup, SituationService.TransitionType.SceneDefault);
         }

@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace GameFramework {
     /// <summary>
     /// Tree管理用StateRouter
     /// </summary>
-    public class StateTreeRouter<TKey, TState, TOption> : IStateRouter<TKey, TState, TOption>
-        where TState : class
-        where TKey : IEquatable<TKey> {
+    public abstract class StateTreeRouter<TKey, TState, TOption> : IStateRouter<TKey, TState, TOption>
+        where TKey : class
+        where TState : class {
         private readonly IStateContainer<TKey, TState, TOption> _stateContainer;
         private readonly Dictionary<TKey, StateTreeNode<TKey>> _globalFallbackNodes = new();
         private readonly Dictionary<StateTreeNode<TKey>, Dictionary<TKey, StateTreeNode<TKey>>> _fallbackNodes = new();
@@ -18,7 +17,7 @@ namespace GameFramework {
 
         private bool _disposed;
         private StateTreeNode<TKey> _rootNode;
-        
+
         /// <inheritdoc/>
         string IMonitoredStateRouter.Label => _label;
         /// <summary>戻り先の情報</summary>
@@ -46,9 +45,9 @@ namespace GameFramework {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public StateTreeRouter(IStateContainer<TKey, TState, TOption> container, string label = "", [CallerFilePath] string caller = "") {
+        protected StateTreeRouter(IStateContainer<TKey, TState, TOption> container, string label) {
             _stateContainer = container;
-            _label = string.IsNullOrEmpty(label) ? caller : label;
+            _label = label;
             _rootNode = new StateTreeNode<TKey>(default, null);
             StateMonitor.AddRouter(this);
         }
@@ -63,6 +62,8 @@ namespace GameFramework {
 
             _disposed = true;
             StateMonitor.RemoveRouter(this);
+
+            DisposeInternal();
 
             if (_rootNode != null) {
                 _rootNode.Dispose();
@@ -87,7 +88,7 @@ namespace GameFramework {
                     indent.Remove(indent.Length - 4, 4);
                 }
             }
-            
+
             var builder = new StringBuilder();
 
             // Tree情報
@@ -118,7 +119,7 @@ namespace GameFramework {
                 builder.Clear();
                 GetPath(pair.Key, builder);
                 lines.Add(("[Base]", builder.ToString()));
-                
+
                 var fallbackKeys = pair.Value.Keys.ToArray();
                 for (var i = 0; i < fallbackKeys.Length; i++) {
                     lines.Add((i == 0 ? "    <Fallbacks>" : "", fallbackKeys[i].ToString()));
@@ -129,6 +130,12 @@ namespace GameFramework {
         /// <inheritdoc/>
         public TState[] GetStates() {
             return GetNodes().Select(x => _stateContainer.FindState(x.Key)).Distinct().ToArray();
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected virtual void DisposeInternal() {
         }
 
         /// <summary>
@@ -154,6 +161,24 @@ namespace GameFramework {
             nodes.RemoveAt(0);
 
             return nodes.ToArray();
+        }
+
+        /// <summary>
+        /// Rootに接続する
+        /// </summary>
+        /// <returns>接続したKeyを保持するNode</returns>
+        public StateTreeNode<TKey> ConnectRoot(TKey key) {
+            var node = _rootNode.Connect(key);
+            SetFallbackNode(node);
+            return node;
+        }
+
+        /// <summary>
+        /// Rootから接続を解除する
+        /// </summary>
+        /// <returns>解除に成功したか</returns>
+        public bool DisconnectRoot(TKey key) {
+            return _rootNode.Disconnect(key);
         }
 
         /// <summary>
@@ -233,13 +258,27 @@ namespace GameFramework {
         /// </summary>
         /// <param name="key">遷移ターゲットを決めるキー</param>
         /// <param name="option">遷移時に渡すオプション</param>
+        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<TState> Transition(TKey key, TOption option, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        public TransitionHandle<TState> Transition(TKey key, TOption option = default, TransitionStep step = TransitionStep.Complete, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
             // 遷移先Nodeの取得
             var nextNode = GetNextNode(key);
-            return TransitionInternal(nextNode, option, false, setupAction, transition, effects);
+            return TransitionInternal(nextNode, option, false, step, setupAction, transition, effects);
+        }
+
+        /// <summary>
+        /// 遷移処理
+        /// </summary>
+        /// <param name="nextNode">遷移先のNode</param>
+        /// <param name="option">遷移時に渡すオプション</param>
+        /// <param name="step">終了ステップ</param>
+        /// <param name="setupAction">遷移先初期化用関数</param>
+        /// <param name="transition">遷移方法</param>
+        /// <param name="effects">遷移時演出</param>
+        public TransitionHandle<TState> Transition(StateTreeNode<TKey> nextNode, TOption option = default, TransitionStep step = TransitionStep.Complete, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
+            return TransitionInternal(nextNode, option, false, step, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -250,7 +289,7 @@ namespace GameFramework {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<TState> Back(int depth, TOption option, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        public TransitionHandle<TState> Back(int depth = 1, TOption option = default, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
             // 階層が無効なら無視
             if (depth <= 0) {
                 return TransitionHandle<TState>.Empty;
@@ -272,7 +311,7 @@ namespace GameFramework {
                 backNode = b;
             }
 
-            return TransitionInternal(backNode, option, true, setupAction, transition, effects);
+            return TransitionInternal(backNode, option, true, TransitionStep.Complete, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -280,7 +319,7 @@ namespace GameFramework {
         /// </summary>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<TState> Reset(Action<TState> setupAction, params ITransitionEffect[] effects) {
+        public TransitionHandle<TState> Reset(Action<TState> setupAction = null, params ITransitionEffect[] effects) {
             return ResetInternal(setupAction, effects);
         }
 
@@ -290,10 +329,11 @@ namespace GameFramework {
         /// <param name="nextNode">遷移先のNode</param>
         /// <param name="option">遷移時に渡すオプション</param>
         /// <param name="back">戻りか</param>
+        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        private TransitionHandle<TState> TransitionInternal(StateTreeNode<TKey> nextNode, TOption option, bool back, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        private TransitionHandle<TState> TransitionInternal(StateTreeNode<TKey> nextNode, TOption option, bool back, TransitionStep step, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
             // 既に遷移中なら失敗
             if (IsTransitioning) {
                 return new TransitionHandle<TState>(new Exception("In transitioning"));
@@ -313,7 +353,7 @@ namespace GameFramework {
             CurrentNode = nextNode;
 
             // 遷移実行
-            return _stateContainer.Transition(nextNode.Key, option, back, setupAction, transition, effects);
+            return _stateContainer.Transition(nextNode.Key, option, back, step, setupAction, transition, effects);
         }
 
         /// <summary>

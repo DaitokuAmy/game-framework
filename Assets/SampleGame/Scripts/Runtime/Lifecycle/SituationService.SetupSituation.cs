@@ -22,21 +22,21 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 遷移関係の初期化
         /// </summary>
-        private void SetupTree(SituationTree tree, IScope scope) {
-            if (tree == null) {
+        private void SetupTree(SituationTreeRouter treeRouter, IScope scope) {
+            if (treeRouter == null) {
                 return;
             }
             
-            var titleTopNode = tree.ConnectRoot<TitleTopSituation>();
-            var titleOptionNode = titleTopNode.Connect<TitleOptionSituation>();
-            var modelViewerSceneNode = titleTopNode.Connect<ModelViewerSceneSituation>();
-            var battleSceneNode = titleTopNode.Connect<BattleSceneSituation>();
-            var battlePauseNode = battleSceneNode.Connect<BattlePauseSituation>();
-            tree.SetFallbackNode(modelViewerSceneNode);
-            tree.SetFallbackNode(battleSceneNode);
+            var titleTopNode = treeRouter.ConnectRoot(typeof(TitleTopSituation));
+            var titleOptionNode = titleTopNode.Connect(typeof(TitleOptionSituation));
+            var modelViewerSceneNode = titleTopNode.Connect(typeof(ModelViewerSceneSituation));
+            var battleSceneNode = titleTopNode.Connect(typeof(BattleSceneSituation));
+            var battlePauseNode = battleSceneNode.Connect(typeof(BattlePauseSituation));
+            treeRouter.SetFallbackNode(modelViewerSceneNode);
+            treeRouter.SetFallbackNode(battleSceneNode);
             
-            tree.SetFallbackNode(titleOptionNode, titleTopNode);
-            tree.SetFallbackNode(battlePauseNode, battleSceneNode);
+            treeRouter.SetFallbackNode(titleOptionNode, titleTopNode);
+            treeRouter.SetFallbackNode(battlePauseNode, battleSceneNode);
         }
     }
 }

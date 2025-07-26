@@ -20,7 +20,7 @@ namespace GameFramework.Tests {
             /// <summary>
             /// 読み込み処理（呼び出し確認用）
             /// </summary>
-            protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+            protected override IEnumerator LoadRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
                 LoadCalled = true;
                 yield break;
             }
@@ -28,7 +28,7 @@ namespace GameFramework.Tests {
             /// <summary>
             /// 初期化処理（呼び出し確認用）
             /// </summary>
-            protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
+            protected override IEnumerator SetupRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
                 SetupCalled = true;
                 yield break;
             }
@@ -36,7 +36,7 @@ namespace GameFramework.Tests {
             /// <summary>
             /// アクティブ化処理（呼び出し確認用）
             /// </summary>
-            protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+            protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
                 Activated = true;
             }
         }

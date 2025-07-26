@@ -22,20 +22,16 @@ namespace GameFramework {
         TState[] GetStates();
         
         /// <summary>
-        /// 対象のキーが含まれているか
-        /// </summary>
-        bool ContainsKey(TKey key);
-        
-        /// <summary>
         /// 遷移処理
         /// </summary>
         /// <param name="key">遷移ターゲットを決めるキー</param>
         /// <param name="option">遷移時に渡すオプション</param>
         /// <param name="back">戻り遷移か</param>
+        /// <param name="endStep">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        TransitionHandle<TState> Transition(TKey key, TOption option, bool back, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects);
+        TransitionHandle<TState> Transition(TKey key, TOption option, bool back, TransitionStep endStep, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects);
         
         /// <summary>
         /// 状態リセット

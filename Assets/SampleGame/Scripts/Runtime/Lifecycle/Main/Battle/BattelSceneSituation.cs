@@ -36,7 +36,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 読み込み処理
         /// </summary>
-        protected override IEnumerator LoadRoutineInternal(TransitionHandle handle, IScope scope) {
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             yield return base.LoadRoutineInternal(handle, scope);
 
             // UI読み込み
@@ -49,7 +49,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override IEnumerator SetupRoutineInternal(TransitionHandle handle, IScope scope) {
+        protected override IEnumerator SetupRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
             SetupInfrastructures(scope);
@@ -90,7 +90,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// クリーンアップ
         /// </summary>
-        protected override void CleanupInternal(TransitionHandle handle) {
+        protected override void CleanupInternal(TransitionHandle<Situation> handle) {
             Services.Resolve<BattleAppService>()?.Cleanup();
 
             base.CleanupInternal(handle);
@@ -99,7 +99,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 開く処理
         /// </summary>
-        protected override IEnumerator OpenRoutineInternal(TransitionHandle handle, IScope animationScope) {
+        protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -110,7 +110,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 開いた後の処理
         /// </summary>
-        protected override void PostOpenInternal(TransitionHandle handle, IScope scope) {
+        protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -121,7 +121,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 閉く処理
         /// </summary>
-        protected override IEnumerator CloseRoutineInternal(TransitionHandle handle, IScope animationScope) {
+        protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -132,7 +132,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 閉じた後の処理
         /// </summary>
-        protected override void PostCloseInternal(TransitionHandle handle) {
+        protected override void PostCloseInternal(TransitionHandle<Situation> handle) {
             base.PostCloseInternal(handle);
 
             var uiManager = Services.Resolve<UIManager>();
@@ -143,7 +143,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// アクティブ時処理
         /// </summary>
-        protected override void ActivateInternal(TransitionHandle handle, IScope scope) {
+        protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
             var situationService = Services.Resolve<SituationService>();

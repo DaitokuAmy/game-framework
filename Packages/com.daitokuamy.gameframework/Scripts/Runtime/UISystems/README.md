@@ -78,7 +78,7 @@ AssetHandle<GameObject> GetPrefabAssetHandle(string key);
 
 | メンバー                                          | 説明                           |
 | --------------------------------------------- | ---------------------------- |
-| `OpenAsync(transitionType, immediate, force)` | アニメーション付きで開く                 |
+| `OpenAsync(transitionDirection, immediate, force)` | アニメーション付きで開く                 |
 | `CloseAsync(...)`                             | 閉じる                          |
 | `IsActivated` / `OpenStatus`                  | 状態フラグ                        |
 | `RegisterHandler(handler)`                    | `IUIScreenHandler` 登録でイベント通知 |

@@ -7,7 +7,7 @@ namespace GameFramework {
     /// ステート遷移情報格納用ツリー用ノード
     /// </summary>
     public class StateTreeNode<TKey> : IDisposable
-        where TKey : IEquatable<TKey> {
+        where TKey : class {
         /// <summary>
         /// 遷移情報
         /// </summary>
@@ -26,8 +26,8 @@ namespace GameFramework {
         }
 
         private readonly Dictionary<TKey, ConnectInfo> _connectInfos = new();
-
-        private TKey _key;
+        private readonly TKey _key;
+        
         private StateTreeNode<TKey> _previous;
         private bool _disposed;
 
@@ -36,7 +36,7 @@ namespace GameFramework {
         /// <summary>遷移時に使うキー</summary>
         public TKey Key => _key;
         /// <summary>ルートノードか</summary>
-        public bool IsRoot => _key.Equals(default);
+        public bool IsRoot => _key == null;
 
         /// <summary>遷移先のノードリスト</summary>
         internal StateTreeNode<TKey>[] NextNodes => _connectInfos.Select(x => x.Value.NextNode).ToArray();

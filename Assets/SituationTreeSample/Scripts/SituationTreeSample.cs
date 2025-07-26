@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework;
@@ -16,13 +17,13 @@ namespace SituationTreeSample {
 
         private DisposableScope _scope;
         private SituationContainer _situationContainer;
-        private SituationTree _situationTree;
+        private StateTreeRouter<Type, Situation, SituationContainer.TransitionOption> _situationTree;
         private List<ISampleSituation> _nodeSituations = new();
 
         /// <summary>遷移先選択メニューView</summary>
         public TransitionMenuView MenuView => _transitionMenuView;
-        /// <summary>遷移に使うFlow</summary>
-        public SituationTree Tree => _situationTree;
+        /// <summary>遷移に使うRouter</summary>
+        public StateTreeRouter<Type, Situation, SituationContainer.TransitionOption> Tree => _situationTree;
 
         /// <summary>
         /// 初期化処理
@@ -82,18 +83,18 @@ namespace SituationTreeSample {
             _situationContainer.Setup(situationRoot);
 
             // シチュエーションの遷移関係を構築
-            _situationTree = new SituationTree(_situationContainer);
-            var aNode = _situationTree.ConnectRoot<SampleSituationA>();
-            var aA1Node = aNode.Connect<SampleSituationA1>(); // A -> A1
-            var a1A2Node = aA1Node.Connect<SampleSituationA2>(); // A1 -> A2
-            var a2B1Node = a1A2Node.Connect<SampleSituationB1>(); // A2 -> B1
-            var b1B21Node = a2B1Node.Connect<SampleSituationB21>(); // B1 -> B21
-            var b1B22Node = a2B1Node.Connect<SampleSituationB22>(); // B1 -> B22
-            var b22CNode = b1B22Node.Connect<SampleSceneSituationC>(); // B22 -> C
-            var cC1Node = b22CNode.Connect<SampleSituationC1>(); // C -> C1
-            var b22C1Node = b1B22Node.Connect<SampleSituationC1>(); // B22 -> C1
-            var c1B3Node = b22C1Node.Connect<SampleSceneSituationB3>(); // C1 -> B3
-            var c1A2Node = b22C1Node.Connect<SampleSituationA2>(); // C1 -> A2
+            _situationTree = new SituationTreeRouter(_situationContainer);
+            var aNode = _situationTree.ConnectRoot(typeof(SampleSituationA));
+            var aA1Node = aNode.Connect(typeof(SampleSituationA1)); // A -> A1
+            var a1A2Node = aA1Node.Connect(typeof(SampleSituationA2)); // A1 -> A2
+            var a2B1Node = a1A2Node.Connect(typeof(SampleSituationB1)); // A2 -> B1
+            var b1B21Node = a2B1Node.Connect(typeof(SampleSituationB21)); // B1 -> B21
+            var b1B22Node = a2B1Node.Connect(typeof(SampleSituationB22)); // B1 -> B22
+            var b22CNode = b1B22Node.Connect(typeof(SampleSceneSituationC)); // B22 -> C
+            var cC1Node = b22CNode.Connect(typeof(SampleSituationC1)); // C -> C1
+            var b22C1Node = b1B22Node.Connect(typeof(SampleSituationC1)); // B22 -> C1
+            var c1B3Node = b22C1Node.Connect(typeof(SampleSceneSituationB3)); // C1 -> B3
+            var c1A2Node = b22C1Node.Connect(typeof(SampleSituationA2)); // C1 -> A2
 
             // Fallback
             _situationTree.SetFallbackNode(a1A2Node);
@@ -103,7 +104,7 @@ namespace SituationTreeSample {
             // Viewの初期化
             _nodeSituations.Clear();
             var nodes = _situationTree.GetNodes();
-            var nodeSituations = nodes.Select(x => x.Situation).Distinct();
+            var nodeSituations = nodes.Select(x => _situationContainer.FindSituation(x.Key)).Distinct();
             _nodeSituations.AddRange(nodeSituations.Cast<ISampleSituation>());
             _transitionMenuView.SetupItems(-1, _nodeSituations.Select(x => x.DisplayName).ToArray());
 

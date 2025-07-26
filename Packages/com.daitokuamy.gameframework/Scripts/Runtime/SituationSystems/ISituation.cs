@@ -45,37 +45,37 @@ namespace GameFramework.SituationSystems {
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         /// <param name="preload">事前読みか</param>
-        IEnumerator LoadRoutine(TransitionHandle handle, bool preload);
+        IEnumerator LoadRoutine(TransitionHandle<Situation> handle, bool preload);
 
         /// <summary>
         /// 初期化処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        IEnumerator SetupRoutine(TransitionHandle handle);
+        IEnumerator SetupRoutine(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 開く直前の処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void PreOpen(TransitionHandle handle);
+        void PreOpen(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 開く処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        IEnumerator OpenRoutine(TransitionHandle handle);
+        IEnumerator OpenRoutine(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 開く直後の処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void PostOpen(TransitionHandle handle);
+        void PostOpen(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// アクティブ化された時の処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void Activate(TransitionHandle handle);
+        void Activate(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 更新
@@ -96,37 +96,37 @@ namespace GameFramework.SituationSystems {
         /// ディアクティブ化された時の処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void Deactivate(TransitionHandle handle);
+        void Deactivate(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 閉じる直前の処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void PreClose(TransitionHandle handle);
+        void PreClose(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 閉じる処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        IEnumerator CloseRoutine(TransitionHandle handle);
+        IEnumerator CloseRoutine(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 閉じる直後の処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void PostClose(TransitionHandle handle);
+        void PostClose(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 終了処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void Cleanup(TransitionHandle handle);
+        void Cleanup(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 解放処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        void Unload(TransitionHandle handle);
+        void Unload(TransitionHandle<Situation> handle);
 
         /// <summary>
         /// 解除処理
