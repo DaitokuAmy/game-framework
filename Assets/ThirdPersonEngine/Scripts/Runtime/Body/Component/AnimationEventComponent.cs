@@ -1,5 +1,6 @@
 using System;
 using GameFramework.ActorSystems;
+using GameFramework.Core;
 
 namespace ThirdPersonEngine {
     /// <summary>
@@ -22,8 +23,8 @@ namespace ThirdPersonEngine {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void InitializeInternal() {
-            base.InitializeInternal();
+        protected override void InitializeInternal(IScope scope) {
+            base.InitializeInternal(scope);
 
             Provider = Body.GetComponent<AnimationEventReceiver>();
             if (Provider == null) {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using GameFramework.Core;
 using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
@@ -293,7 +294,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void InitializeInternal() {
+        protected override void InitializeInternal(IScope scope) {
             _animator = Body.GetComponent<Animator>();
             _meshComponent = Body.GetBodyComponent<MeshComponent>();
 

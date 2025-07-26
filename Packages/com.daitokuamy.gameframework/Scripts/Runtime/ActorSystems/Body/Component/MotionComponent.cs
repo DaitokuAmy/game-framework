@@ -1,3 +1,4 @@
+using GameFramework.Core;
 using GameFramework.PlayableSystems;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -60,7 +61,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void InitializeInternal() {
+        protected override void InitializeInternal(IScope scope) {
             Animator = Body.GetComponent<Animator>();
             _player = new MotionPlayer(Animator, _updateMode);
 

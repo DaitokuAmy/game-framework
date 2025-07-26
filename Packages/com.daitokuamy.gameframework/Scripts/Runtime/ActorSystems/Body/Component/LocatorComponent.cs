@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.ActorSystems {
@@ -34,7 +35,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void InitializeInternal() {
+        protected override void InitializeInternal(IScope scope) {
             var meshController = Body.GetBodyComponent<MeshComponent>();
             meshController.RefreshedEvent += RefreshLocatorPartsList;
             RefreshLocatorPartsList();

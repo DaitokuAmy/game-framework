@@ -1,4 +1,5 @@
 using System;
+using GameFramework.Core;
 using UnityEngine.Profiling;
 
 namespace GameFramework.ActorSystems {
@@ -8,6 +9,8 @@ namespace GameFramework.ActorSystems {
     public abstract class BodyComponent : IBodyComponent {
         private CustomSampler _updateSampler;
         private CustomSampler _lateUpdateSampler;
+        private DisposableScope _scope;
+        private bool _disposed;
 
         /// <summary>実行優先度</summary>
         public virtual int ExecutionOrder => 0;
@@ -23,16 +26,23 @@ namespace GameFramework.ActorSystems {
         void IBodyComponent.Initialize(Body body) {
             _updateSampler = CustomSampler.Create($"BodyComponent.{GetType().Name}.Update()");
             _lateUpdateSampler = CustomSampler.Create($"BodyComponent.{GetType().Name}.LateUpdate()");
+            _scope = new DisposableScope();
 
             Body = body;
-            InitializeInternal();
+            InitializeInternal(_scope);
         }
 
         /// <summary>
         /// 廃棄時処理
         /// </summary>
         void IDisposable.Dispose() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;            
             DisposeInternal();
+            _scope.Dispose();
             Body = null;
         }
 
@@ -45,7 +55,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected virtual void InitializeInternal() {
+        protected virtual void InitializeInternal(IScope scope) {
         }
 
         /// <summary>

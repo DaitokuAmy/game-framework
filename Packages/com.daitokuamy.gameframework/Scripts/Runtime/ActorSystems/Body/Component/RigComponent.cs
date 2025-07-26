@@ -1,6 +1,7 @@
 ﻿#if USE_ANIMATION_RIGGING
 using System.Collections.Generic;
 using System.Linq;
+using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -85,7 +86,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void InitializeInternal() {
+        protected override void InitializeInternal(IScope scope) {
             _rigBuilder = Body.GetComponent<RigBuilder>();
             
             var meshController = Body.GetBodyComponent<MeshComponent>();

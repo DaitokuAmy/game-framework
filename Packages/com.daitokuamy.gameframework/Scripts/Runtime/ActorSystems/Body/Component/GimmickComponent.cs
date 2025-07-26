@@ -1,4 +1,5 @@
-﻿using GameFramework.GimmickSystems;
+﻿using GameFramework.Core;
+using GameFramework.GimmickSystems;
 
 namespace GameFramework.ActorSystems {
     /// <summary>
@@ -36,7 +37,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void InitializeInternal() {
+        protected override void InitializeInternal(IScope scope) {
             _gimmickPlayer = new GimmickPlayer();
             var meshController = Body.GetBodyComponent<MeshComponent>();
             meshController.RefreshedEvent += RefreshGimmicks;

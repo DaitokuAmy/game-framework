@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using System.Linq;
+using GameFramework.Core;
 using UnityEngine.Animations;
 
 namespace GameFramework.ActorSystems {
@@ -60,7 +61,7 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        protected override void InitializeInternal() {
+        protected override void InitializeInternal(IScope scope) {
             _animator = Body.GetComponent<Animator>();
             _boneComponent = Body.GetBodyComponent<BoneComponent>();
 
