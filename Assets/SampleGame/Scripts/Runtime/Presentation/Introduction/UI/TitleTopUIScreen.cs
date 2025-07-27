@@ -1,4 +1,3 @@
-using System;
 using R3;
 using ThirdPersonEngine;
 using UnityEngine;
@@ -14,6 +13,8 @@ namespace SampleGame.Presentation.Introduction {
         private ButtonUIView _optionButtonView;
         [SerializeField, Tooltip("モデルビューアーボタン")]
         private ButtonUIView _modelViewerButtonView;
+        [SerializeField, Tooltip("UITestボタン")]
+        private ButtonUIView _uiTestButtonView;
 
         /// <summary>開始ボタン押下時通知</summary>
         public Observable<Unit> ClickedStartButtonSubject => _startButtonView.ClickedSubject;
@@ -21,5 +22,7 @@ namespace SampleGame.Presentation.Introduction {
         public Observable<Unit> ClickedOptionButtonSubject => _optionButtonView.ClickedSubject;
         /// <summary>モデルビューアーボタン押下通知</summary>
         public Observable<Unit> ClickedModelViewerButtonSubject => _modelViewerButtonView.ClickedSubject;
+        /// <summary>UITestボタン押下通知</summary>
+        public Observable<Unit> ClickedUITestButtonSubject => _uiTestButtonView.ClickedSubject;
     }
 }

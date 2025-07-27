@@ -1,3 +1,5 @@
+using System;
+using GameFramework;
 using GameFramework.SituationSystems;
 
 namespace SampleGame.Lifecycle {
@@ -15,6 +17,15 @@ namespace SampleGame.Lifecycle {
             titleTopSituation.SetParent(introductionSceneSituation);
             var titleOptionSituation = new TitleOptionSituation();
             titleOptionSituation.SetParent(introductionSceneSituation);
+        }
+
+        /// <summary>
+        /// Introduction関連のTreeNode初期化
+        /// </summary>
+        private StateTreeNode<Type> SetupIntroductionTreeNodes(StateTreeNode<Type> parentNode) {
+            var titleTopNode = ConnectNode<TitleTopSituation>(parentNode);
+            var titleOptionNode = ConnectNode<TitleOptionSituation>(titleTopNode);
+            return titleTopNode;
         }
     }
 }

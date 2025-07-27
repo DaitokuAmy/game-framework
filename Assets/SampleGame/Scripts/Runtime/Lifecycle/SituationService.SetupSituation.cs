@@ -14,6 +14,7 @@ namespace SampleGame.Lifecycle {
             
             SetupIntroductionSituations(mainSituation);
             SetupBattleSituations(mainSituation);
+            SetupUITestSituations(mainSituation);
             SetupViewerSituations(mainSituation);
             
             container.Setup(mainSituation);
@@ -26,17 +27,15 @@ namespace SampleGame.Lifecycle {
             if (treeRouter == null) {
                 return;
             }
+
+            var titleTopNode = SetupIntroductionTreeNodes(null);
+            var battleNode = SetupBattleTreeNodes(titleTopNode);
+            var uiTestNode = SetupUITestTreeNodes(titleTopNode);
+            var modelViewerNode = SetupViewerTreeNodes(titleTopNode);
             
-            var titleTopNode = treeRouter.ConnectRoot(typeof(TitleTopSituation));
-            var titleOptionNode = titleTopNode.Connect(typeof(TitleOptionSituation));
-            var modelViewerSceneNode = titleTopNode.Connect(typeof(ModelViewerSceneSituation));
-            var battleSceneNode = titleTopNode.Connect(typeof(BattleSceneSituation));
-            var battlePauseNode = battleSceneNode.Connect(typeof(BattlePauseSituation));
-            treeRouter.SetFallbackNode(modelViewerSceneNode);
-            treeRouter.SetFallbackNode(battleSceneNode);
-            
-            treeRouter.SetFallbackNode(titleOptionNode, titleTopNode);
-            treeRouter.SetFallbackNode(battlePauseNode, battleSceneNode);
+            treeRouter.SetFallbackNode(modelViewerNode);
+            treeRouter.SetFallbackNode(battleNode);
+            treeRouter.SetFallbackNode(uiTestNode);
         }
     }
 }

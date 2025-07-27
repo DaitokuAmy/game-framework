@@ -1,31 +1,22 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
-using GameFramework.ActorSystems;
-using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
-using SampleGame.Infrastructure;
-using SampleGame.Infrastructure.Battle;
-using SampleGame.Presentation.Battle;
+using SampleGame.Presentation.UITest;
 using R3;
-using SampleGame.Application.Battle;
-using SampleGame.Domain.Battle;
+using SampleGame.Presentation;
 using ThirdPersonEngine;
-using TMPro;
-using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
-    /// Battle用のSceneSituation
+    /// UITest用のSceneSituation
     /// </summary>
-    public class BattleSceneSituation : SceneSituation {
-        protected override string SceneAssetPath => "Assets/SampleGame/Scenes/battle.unity";
+    public class UITestSceneSituation : SceneSituation {
+        protected override string SceneAssetPath => "Assets/SampleGame/Scenes/ui_test.unity";
 
         /// <summary>
         /// 読み込み処理
@@ -52,18 +43,6 @@ namespace SampleGame.Lifecycle {
             SetupApplications(scope);
             SetupFactories(scope);
             SetupPresentations(scope);
-
-            // 初期化処理
-            yield return Services.Resolve<BattleAppService>().SetupAsync(1, 1, scope.Token).ToCoroutine();
-        }
-
-        /// <summary>
-        /// クリーンアップ
-        /// </summary>
-        protected override void CleanupInternal(TransitionHandle<Situation> handle) {
-            Services.Resolve<BattleAppService>()?.Cleanup();
-
-            base.CleanupInternal(handle);
         }
 
         /// <summary>
@@ -73,8 +52,8 @@ namespace SampleGame.Lifecycle {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
             var uiManager = Services.Resolve<UIManager>();
-            var battleHudUIService = uiManager.GetService<BattleHudUIService>();
-            yield return battleHudUIService.BattleHudUIScreen.OpenAsync();
+            var hudUIService = uiManager.GetService<UITestHudUIService>();
+            yield return hudUIService.UITestHudUIScreen.OpenAsync();
         }
 
         /// <summary>
@@ -84,8 +63,8 @@ namespace SampleGame.Lifecycle {
             base.PostOpenInternal(handle, scope);
 
             var uiManager = Services.Resolve<UIManager>();
-            var battleHudUIService = uiManager.GetService<BattleHudUIService>();
-            battleHudUIService.BattleHudUIScreen.OpenAsync(immediate: true);
+            var hudUIService = uiManager.GetService<UITestHudUIService>();
+            hudUIService.UITestHudUIScreen.OpenAsync(immediate: true);
         }
 
         /// <summary>
@@ -95,8 +74,8 @@ namespace SampleGame.Lifecycle {
             yield return base.CloseRoutineInternal(handle, animationScope);
 
             var uiManager = Services.Resolve<UIManager>();
-            var battleHudUIService = uiManager.GetService<BattleHudUIService>();
-            yield return battleHudUIService.BattleHudUIScreen.CloseAsync();
+            var hudUIService = uiManager.GetService<UITestHudUIService>();
+            yield return hudUIService.UITestHudUIScreen.CloseAsync();
         }
 
         /// <summary>
@@ -106,8 +85,8 @@ namespace SampleGame.Lifecycle {
             base.PostCloseInternal(handle);
 
             var uiManager = Services.Resolve<UIManager>();
-            var battleHudUIService = uiManager.GetService<BattleHudUIService>();
-            battleHudUIService.BattleHudUIScreen.CloseAsync(immediate: true);
+            var hudUIService = uiManager.GetService<UITestHudUIService>();
+            hudUIService.UITestHudUIScreen.CloseAsync(immediate: true);
         }
 
         /// <summary>
@@ -118,12 +97,32 @@ namespace SampleGame.Lifecycle {
 
             var situationService = Services.Resolve<SituationService>();
             var uiManager = Services.Resolve<UIManager>();
-            var battleHudUIService = uiManager.GetService<BattleHudUIService>();
+            var hudUIService = uiManager.GetService<UITestHudUIService>();
+            var dialogUIService = uiManager.GetService<DialogUIService>();
 
             // メニューボタン
-            battleHudUIService.BattleHudUIScreen.ClickedMenuButtonSubject
+            hudUIService.UITestHudUIScreen.ClickedMenuButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<BattlePauseSituation>(); });
+                .SubscribeAwait(async (_, ct) => {
+                    // ダイアログを開く
+                    var result = await dialogUIService.OpenSelectionDialogAsync(
+                        title: "メインメニュー",
+                        itemLabels: new[] {
+                            "タイトルに戻る"
+                        },
+                        ct: ct);
+
+                    if (result == 0) {
+                        situationService.Transition<TitleTopSituation>(transitionType: SituationService.TransitionType.SceneDefault);
+                    }
+                });
+        }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        protected override void UpdateInternal() {
+            base.UpdateInternal();
         }
 
         /// <summary>
@@ -136,61 +135,54 @@ namespace SampleGame.Lifecycle {
                 return uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
             }
 
-            return UniTask.WhenAll(LoadAsync("battle"));
+            return UniTask.WhenAll(LoadAsync("ui_test"));
         }
 
         /// <summary>
         /// Infrastructure初期化
         /// </summary>
         private void SetupInfrastructures(IScope scope) {
-            ServiceContainer.Register<IBattleTableRepository, BattleTableRepository>().RegisterTo(scope);
-            ServiceContainer.Register<IModelRepository, ModelRepository>().RegisterTo(scope);
-            ServiceContainer.Register<BattleCharacterAssetRepository>().RegisterTo(scope);
-            ServiceContainer.Register<BodyPrefabRepository>().RegisterTo(scope);
-            ServiceContainer.Register<EnvironmentSceneRepository>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Manager初期化
         /// </summary>
         private void SetupManagers(IScope scope) {
-            var actorManager = new ActorEntityManager();
-            ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
-
-            var cameraManager = Services.Resolve<CameraManager>();
-            cameraManager.RegisterTask(TaskOrder.Camera);
         }
 
         /// <summary>
         /// Domain初期化
         /// </summary>
         private void SetupDomains(IScope scope) {
-            Services.Resolve<IModelRepository>().CreateSingleModel<BattleModel>().RegisterTo(scope);
-
-            ServiceContainer.Register<BattleDomainService>().RegisterTo(scope);
-            ServiceContainer.Register<CharacterDomainService>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Application初期化
         /// </summary>
         private void SetupApplications(IScope scope) {
-            ServiceContainer.Register<BattleAppService>().RegisterTo(scope);
-            ServiceContainer.Register<PlayerAppService>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Factory初期化
         /// </summary>
         private void SetupFactories(IScope scope) {
-            ServiceContainer.Register<ICharacterActorFactory, CharacterActorFactory>().RegisterTo(scope);
-            ServiceContainer.Register<IFieldActorFactory, FieldActorFactory>().RegisterTo(scope);
         }
 
         /// <summary>
         /// Presentation初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
+            T AddLogic<T>(T logic, IScope scp)
+                where T : Logic {
+                logic.RegisterTask(TaskOrder.Logic);
+                logic.RegisterTo(scp);
+                logic.Activate();
+                return logic;
+            }
+            
+            var uiManager = Services.Resolve<UIManager>();
+            var hudUIService = uiManager.GetService<UITestHudUIService>();
+            hudUIService.UITestHudUIScreen.RegisterHandler(AddLogic(new HudUIScreenPresenter(), scope));
         }
     }
 }

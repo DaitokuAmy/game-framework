@@ -79,6 +79,11 @@ namespace SampleGame.Lifecycle {
             introductionUIService.TitleTopUIScreen.ClickedModelViewerButtonSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => { situationService.Transition<ModelViewerSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
+
+            // UITestボタン
+            introductionUIService.TitleTopUIScreen.ClickedUITestButtonSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => { situationService.Transition<UITestSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
         }
     }
 }

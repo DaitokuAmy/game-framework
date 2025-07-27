@@ -86,6 +86,8 @@ namespace GameFramework.UISystems {
         /// <summary>ItemView削除時イベント</summary>
         public event Action<IItemView> DeletedItemViewEvent;
 
+        /// <summary>有効な状態か</summary>
+        private bool IsValid => _dataList != null && _initAction != null;
         /// <summary>縦スクロールか</summary>
         private bool IsVertical => _scrollRect.vertical;
         /// <summary>項目格納用コンテナ</summary>
@@ -153,6 +155,10 @@ namespace GameFramework.UISystems {
         public void SetNormalizedScrollPosition(float normalizedPosition) {
             Initialize();
 
+            if (!IsValid) {
+                return;
+            }
+
             if (IsVertical) {
                 _scrollRect.verticalNormalizedPosition = normalizedPosition;
             }
@@ -193,6 +199,10 @@ namespace GameFramework.UISystems {
         /// 後更新処理
         /// </summary>
         private void LateUpdate() {
+            if (!IsValid) {
+                return;
+            }
+
             if ((_scrollRect.normalizedPosition - _prevScrollPosition).sqrMagnitude > float.Epsilon) {
                 UpdateVisibleItems();
                 _prevScrollPosition = _scrollRect.normalizedPosition;
@@ -287,6 +297,10 @@ namespace GameFramework.UISystems {
         /// 表示中の要素を再構築
         /// </summary>
         private void Rebuild() {
+            if (!IsValid) {
+                return;
+            }
+            
             ClearItems();
             UpdateVisibleItems();
 

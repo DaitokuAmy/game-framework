@@ -1,3 +1,5 @@
+using System;
+using GameFramework;
 using GameFramework.SituationSystems;
 
 namespace SampleGame.Lifecycle {
@@ -13,6 +15,15 @@ namespace SampleGame.Lifecycle {
             battleSceneSituation.SetParent(parentSituation);
             var battlePauseSituation = new BattlePauseSituation();
             battlePauseSituation.SetParent(battleSceneSituation);
+        }
+
+        /// <summary>
+        /// Battle関連のTreeNode初期化
+        /// </summary>
+        private StateTreeNode<Type> SetupBattleTreeNodes(StateTreeNode<Type> parentNode) {
+            var battleNode = ConnectNode<BattleSceneSituation>(parentNode);
+            var battlePauseNode = ConnectNode<BattlePauseSituation>(battleNode);
+            return battleNode;
         }
     }
 }

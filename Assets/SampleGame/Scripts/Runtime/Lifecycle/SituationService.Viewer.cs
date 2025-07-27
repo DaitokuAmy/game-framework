@@ -1,3 +1,5 @@
+using System;
+using GameFramework;
 using GameFramework.SituationSystems;
 
 namespace SampleGame.Lifecycle {
@@ -12,6 +14,14 @@ namespace SampleGame.Lifecycle {
             var modelViewerSituation = new ModelViewerSceneSituation();
             
             modelViewerSituation.SetParent(parentSituation);
+        }
+
+        /// <summary>
+        /// Viewer関連のTreeNode初期化
+        /// </summary>
+        private StateTreeNode<Type> SetupViewerTreeNodes(StateTreeNode<Type> parentNode) {
+            var modelViewerNode = ConnectNode<ModelViewerSceneSituation>(parentNode);
+            return modelViewerNode;
         }
     }
 }

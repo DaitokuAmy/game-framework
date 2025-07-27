@@ -51,7 +51,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 開く処理
         /// </summary>
-        /// <param name="transitionType">遷移タイプ</param>
+        /// <param name="transitionDirection">遷移方向</param>
         /// <param name="immediate">即時完了するか</param>
         /// <param name="force">既に開いている場合でも開きなおすか</param>
         public AnimationHandle OpenAsync(TransitionDirection transitionDirection = TransitionDirection.Forward, bool immediate = false, bool force = false) {
@@ -123,7 +123,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 閉じる処理
         /// </summary>
-        /// <param name="transitionType">遷移向き</param>
+        /// <param name="transitionDirection">遷移方向</param>
         /// <param name="immediate">即時完了するか</param>
         /// <param name="force">既に閉じている場合でも閉じなおすか</param>
         public AnimationHandle CloseAsync(TransitionDirection transitionDirection = TransitionDirection.Forward, bool immediate = false, bool force = false) {
@@ -322,6 +322,15 @@ namespace GameFramework.UISystems {
 
             _handlers.Add(handler);
             handler.OnRegistered(this);
+            
+            // Open状態だった場合関数を呼び出しておく
+            if (CurrentOpenStatus == OpenStatus.Opened || CurrentOpenStatus == OpenStatus.Closing) {
+                handler.PreOpen();
+                handler.PostOpen();
+            }
+            else if (CurrentOpenStatus == OpenStatus.Opening) {
+                handler.PreOpen();
+            }
 
             // Active状態だった場合関数を呼び出しておく
             if (IsActivated) {
@@ -334,6 +343,11 @@ namespace GameFramework.UISystems {
                     handler.Deactivate();
                 }
             }
+            
+            // Close中だった場合必要な関数を呼び出しておく
+            if (CurrentOpenStatus == OpenStatus.Closing) {
+                handler.PreClose();
+            }
         }
 
         /// <summary>
@@ -345,6 +359,20 @@ namespace GameFramework.UISystems {
             }
 
             _handlers.Remove(handler);
+            
+            // 閉じていない場合関数を呼び出しておく
+            if (CurrentOpenStatus == OpenStatus.Closing) {
+                handler.PostClose();
+            }
+            else if (CurrentOpenStatus == OpenStatus.Opened) {
+                handler.PreClose();
+                handler.PostClose();
+            }
+            else if (CurrentOpenStatus == OpenStatus.Opening) {
+                handler.PostOpen();
+                handler.PreClose();
+                handler.PostClose();
+            }
 
             // Active状態だった場合関数を呼び出しておく
             if (handler.IsActive) {
