@@ -47,6 +47,7 @@ namespace GameFramework.UISystems {
         /// <inheritdoc/>
         void IBeginDragHandler.OnBeginDrag(PointerEventData eventData) {
             _isDragging = true;
+            _targetIndex = null;
         }
 
         /// <inheritdoc/>
@@ -143,18 +144,17 @@ namespace GameFramework.UISystems {
                 var t = _snapDuration > float.Epsilon ? 1.0f - Mathf.Exp(-1.0f / _snapDuration * deltaTime) : 1.0f;
                 Content.anchoredPosition = Vector2.Lerp(Content.anchoredPosition, targetPosition, t);
             }
+            
+            // 到着判定
+            var current = IsHorizontal ? Content.anchoredPosition.x : Content.anchoredPosition.y;
+            var target = IsHorizontal ? targetPosition.x : targetPosition.y;
+            if (Mathf.Abs(current - target) <= 0.1f) {
+                Content.anchoredPosition = targetPosition;
+                _targetIndex = null;
+            }
 
             // 速度をリセット
             _scrollRect.velocity = Vector2.zero;
-            
-            // ターゲットIndexがある場合、到着したらnullに戻す
-            if (_targetIndex.HasValue) {
-                var current = IsHorizontal ? Content.anchoredPosition.x : Content.anchoredPosition.y;
-                var target = IsHorizontal ? targetPosition.x : targetPosition.y;
-                if (Mathf.Approximately(current, target)) {
-                    _targetIndex = null;
-                }
-            }
         }
 
         /// <summary>
