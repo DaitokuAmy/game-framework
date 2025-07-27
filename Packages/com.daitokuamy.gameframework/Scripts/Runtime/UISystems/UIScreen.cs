@@ -281,11 +281,10 @@ namespace GameFramework.UISystems {
         protected override void DisposeInternal() {
             Deactivate();
 
-            foreach (var handler in _handlers) {
-                handler.OnUnregistered();
+            for (var i = _handlers.Count - 1; i >= 0; i--) {
+                var handler = _handlers[i];
+                UnregisterHandler(handler);
             }
-
-            _handlers.Clear();
 
             base.DisposeInternal();
         }

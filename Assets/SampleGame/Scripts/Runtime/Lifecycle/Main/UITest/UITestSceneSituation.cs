@@ -172,17 +172,20 @@ namespace SampleGame.Lifecycle {
         /// Presentation初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
-            T AddLogic<T>(T logic, IScope scp)
+            T AddLogic<T>(T logic, bool activate, IScope scp)
                 where T : Logic {
                 logic.RegisterTask(TaskOrder.Logic);
                 logic.RegisterTo(scp);
-                logic.Activate();
+                if (activate) {
+                    logic.Activate();
+                }
+
                 return logic;
             }
-            
+
             var uiManager = Services.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
-            hudUIService.UITestHudUIScreen.RegisterHandler(AddLogic(new HudUIScreenPresenter(), scope));
+            hudUIService.UITestHudUIScreen.RegisterHandler(AddLogic(new HudUIScreenPresenter(), false, scope));
         }
     }
 }
