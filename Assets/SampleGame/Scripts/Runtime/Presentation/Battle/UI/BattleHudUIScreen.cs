@@ -14,6 +14,10 @@ namespace SampleGame.Presentation.Battle {
         private RecyclableScrollList _testScrollVList;
         [SerializeField, Tooltip("テスト用のスクロールリスト")]
         private RecyclableScrollList _testScrollHList;
+        [SerializeField, Tooltip("テスト用のスクロールスナッパー")]
+        private ScrollSnapper _scrollSnapperV;
+        [SerializeField, Tooltip("テスト用のスクロールスナッパー")]
+        private ScrollSnapper _scrollSnapperH;
         
         /// <summary>テスト用のスクロールリスト(垂直)</summary>
         public RecyclableScrollList TestScrollVList => _testScrollVList;
@@ -22,5 +26,10 @@ namespace SampleGame.Presentation.Battle {
         
         /// <summary>戻るボタン押下通知</summary>
         public Observable<Unit> ClickedMenuButtonSubject => _menuButtonView.ClickedSubject;
+
+        public void SetScrollSnapperIndex(int index, bool immediate = false) {
+            _scrollSnapperV.SetTargetIndex(index, immediate);
+            _scrollSnapperH.SetTargetIndex(index, immediate);
+        }
     }
 }

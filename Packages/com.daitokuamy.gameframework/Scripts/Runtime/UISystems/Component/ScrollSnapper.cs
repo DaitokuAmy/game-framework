@@ -27,6 +27,7 @@ namespace GameFramework.UISystems {
         private bool _isDragging;
         private float _timeScale = 1.0f;
         private float _inertiaOffsetIndex;
+        private float? _targetIndex;
 
         /// <summary>現在カレント扱いとなっているIndex(小数あり)</summary>
         public float CurrentIndex { get; private set; } = -1.0f;
@@ -51,6 +52,16 @@ namespace GameFramework.UISystems {
         /// <inheritdoc/>
         void IEndDragHandler.OnEndDrag(PointerEventData eventData) {
             _isDragging = false;
+        }
+
+        /// <summary>
+        /// ターゲットIndexの設定
+        /// </summary>
+        public void SetTargetIndex(float index, bool immediate = true) {
+            _targetIndex = index;
+            if (immediate) {
+                Snap(0.1f, true);
+            }
         }
 
         /// <summary>
@@ -85,6 +96,10 @@ namespace GameFramework.UISystems {
         /// スナップすべきか
         /// </summary>
         private bool ShouldSnap() {
+            if (_targetIndex.HasValue) {
+                return true;
+            }
+            
             if (_isDragging) {
                 return false;
             }
@@ -100,7 +115,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// スナップ処理
         /// </summary>
-        private void Snap(float deltaTime) {
+        private void Snap(float deltaTime, bool immediate = false) {
             if (Content.childCount == 0) {
                 return;
             }
@@ -110,7 +125,7 @@ namespace GameFramework.UISystems {
             var snapPosition = GetSnapPosition();
 
             // 目標位置を算出
-            var index = Mathf.RoundToInt(CurrentIndex + _inertiaOffsetIndex);
+            var index = Mathf.RoundToInt(_targetIndex ?? CurrentIndex + _inertiaOffsetIndex);
             var snapTarget = GetElementPosition(index);
             var delta = snapPosition - snapTarget;
             if (IsHorizontal) {
@@ -121,11 +136,25 @@ namespace GameFramework.UISystems {
             }
 
             // 位置補正
-            var t = _snapDuration > float.Epsilon ? 1.0f - Mathf.Exp(-1.0f / _snapDuration * deltaTime) : 1.0f;
-            Content.anchoredPosition = Vector2.Lerp(Content.anchoredPosition, targetPosition, t);
+            if (immediate) {
+                Content.anchoredPosition = targetPosition;
+            }
+            else {
+                var t = _snapDuration > float.Epsilon ? 1.0f - Mathf.Exp(-1.0f / _snapDuration * deltaTime) : 1.0f;
+                Content.anchoredPosition = Vector2.Lerp(Content.anchoredPosition, targetPosition, t);
+            }
 
             // 速度をリセット
             _scrollRect.velocity = Vector2.zero;
+            
+            // ターゲットIndexがある場合、到着したらnullに戻す
+            if (_targetIndex.HasValue) {
+                var current = IsHorizontal ? Content.anchoredPosition.x : Content.anchoredPosition.y;
+                var target = IsHorizontal ? targetPosition.x : targetPosition.y;
+                if (Mathf.Approximately(current, target)) {
+                    _targetIndex = null;
+                }
+            }
         }
 
         /// <summary>

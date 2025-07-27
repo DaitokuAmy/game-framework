@@ -981,7 +981,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6971809472225606029}
   m_Direction: 0
   m_Value: 1
-  m_Size: 0.9997901
+  m_Size: 0.9999738
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -4201,7 +4201,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: -0.0002659313, y: 0}
+  m_AnchoredPosition: {x: -0.000084609834, y: 0}
   m_SizeDelta: {x: 500, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &1054970422388789785
@@ -4449,6 +4449,8 @@ MonoBehaviour:
   _menuButtonView: {fileID: 2228037898792121303}
   _testScrollVList: {fileID: 1353193772328780141}
   _testScrollHList: {fileID: 5711303003872626521}
+  _scrollSnapperV: {fileID: 5944184885989262643}
+  _scrollSnapperH: {fileID: 6590203470664085937}
 --- !u!1 &8339480604740890693
 GameObject:
   m_ObjectHideFlags: 0

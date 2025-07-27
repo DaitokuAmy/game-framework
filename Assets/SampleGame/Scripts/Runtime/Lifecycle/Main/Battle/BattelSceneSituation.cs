@@ -184,6 +184,14 @@ namespace SampleGame.Lifecycle {
                 DebugLog.Exception(new Exception("Hoge"));
                 SystemLog.Exception(new Exception("Hoge"));
             }
+
+            for (var i = 0; i < 4; i++) {
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i)) {
+                    var uiService = Services.Resolve<UIManager>().GetService<BattleHudUIService>();
+                    var screen = uiService.BattleHudUIScreen;
+                    screen.SetScrollSnapperIndex(i + 1, Input.GetKey(KeyCode.LeftShift));
+                }
+            }
         }
 
         /// <summary>
