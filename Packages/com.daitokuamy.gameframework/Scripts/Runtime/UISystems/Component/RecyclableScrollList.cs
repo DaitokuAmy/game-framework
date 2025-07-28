@@ -54,7 +54,7 @@ namespace GameFramework.UISystems {
 
         [SerializeField, Tooltip("リストとして利用するScrollRect")]
         private ScrollRect _scrollRect;
-        [SerializeField]
+        [SerializeField, Tooltip("テンプレート情報")]
         private TemplateInfo[] _templateInfos;
 
         private readonly Dictionary<RectTransform, ObjectPool<IItemView>> _viewPools = new();
@@ -65,8 +65,8 @@ namespace GameFramework.UISystems {
         private readonly List<float> _itemSizes = new();
 
         private bool _initialized;
-        private LayoutElement _topSpacer;
-        private LayoutElement _bottomSpacer;
+        private LayoutElement _beginSpacer;
+        private LayoutElement _endSpacer;
         private ObjectPool<ItemInfo> _itemInfoPool;
         private IReadOnlyList<IData> _dataList;
         private Action<IItemView, IData> _initAction;
@@ -310,8 +310,8 @@ namespace GameFramework.UISystems {
             }
 
             // Spacerの作成
-            _topSpacer = CreateSpacer("TopSpacer");
-            _bottomSpacer = CreateSpacer("BottomSpacer");
+            _beginSpacer = CreateSpacer("BeginSpacer");
+            _endSpacer = CreateSpacer("EndSpacer");
         }
 
         /// <summary>
@@ -340,17 +340,17 @@ namespace GameFramework.UISystems {
             var accumulated = (float)(IsVertical ? _layoutGroup.padding.top : _layoutGroup.padding.left);
             var spacing = _layoutGroup.spacing;
             var startIndex = 0;
-            var topSpace = 0.0f;
+            var beginSpace = 0.0f;
             for (var i = 0; i < _dataList.Count; i++) {
                 var size = GetItemSize(i);
                 if (accumulated + size > scrollOffset) {
                     startIndex = i;
-                    topSpace -= spacing;
+                    beginSpace -= spacing;
                     break;
                 }
 
                 accumulated += size + spacing;
-                topSpace += size + spacing;
+                beginSpace += size + spacing;
             }
 
             var visibleExtent = 0.0f;
@@ -363,12 +363,12 @@ namespace GameFramework.UISystems {
                 }
             }
 
-            var bottomSpace = 0.0f;
+            var endSpace = 0.0f;
             for (var i = endIndex + 1; i < _dataList.Count; i++) {
-                bottomSpace += GetItemSize(i) + spacing;
+                endSpace += GetItemSize(i) + spacing;
             }
 
-            bottomSpace -= spacing;
+            endSpace -= spacing;
 
             // StartIndexとEndIndexが変わっていなければ何もしない
             if (startIndex == _prevStartIndex && endIndex == _prevEndIndex) {
@@ -383,7 +383,7 @@ namespace GameFramework.UISystems {
             _prevEndIndex = endIndex;
 
             // 表示対象生成
-            var startSiblingIndex = _topSpacer.transform.GetSiblingIndex();
+            var startSiblingIndex = _beginSpacer.transform.GetSiblingIndex();
             for (var i = startIndex; i <= endIndex; i++) {
                 var data = _dataList[i];
                 var key = GetItemTemplateKey(i);
@@ -407,10 +407,10 @@ namespace GameFramework.UISystems {
                 });
             }
 
-            _bottomSpacer.transform.SetAsLastSibling();
+            _endSpacer.transform.SetAsLastSibling();
 
-            SetSpacerSize(_topSpacer, topSpace);
-            SetSpacerSize(_bottomSpacer, bottomSpace);
+            SetSpacerSize(_beginSpacer, beginSpace);
+            SetSpacerSize(_endSpacer, endSpace);
         }
 
         /// <summary>

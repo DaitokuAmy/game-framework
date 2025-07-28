@@ -11,7 +11,7 @@ namespace GameFramework.Core {
         /// <summary>廃棄済みか</summary>
         public bool Disposed { get; private set; }
         /// <summary>キャンセルハンドリング用トークン</summary>
-        public CancellationToken Token => _cancellationTokenSource.Token;
+        public CancellationToken Token => _cancellationTokenSource?.Token ?? CancellationToken.None;
 
         /// <summary>スコープ終了通知</summary>
         public event Action ExpiredEvent;
