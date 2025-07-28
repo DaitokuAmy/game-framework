@@ -49,6 +49,7 @@ namespace GameFramework.UISystems {
         private class ItemInfo {
             public RectTransform Template;
             public IItemView View;
+            public IData Data;
         }
 
         [SerializeField, Tooltip("リストとして利用するScrollRect")]
@@ -166,6 +167,18 @@ namespace GameFramework.UISystems {
             }
 
             UpdateVisibleItems();
+        }
+
+        /// <summary>
+        /// IItemViewにアタッチされているDataの取得（なければnull）
+        /// </summary>
+        public IData GetData(IItemView view) {
+            var index = _activeViews.IndexOf(view);
+            if (index < 0) {
+                return null;
+            }
+
+            return _activeItemInfos[index].Data;
         }
 
         /// <summary>
@@ -299,7 +312,7 @@ namespace GameFramework.UISystems {
             if (!IsValid) {
                 return;
             }
-            
+
             ClearItems();
             UpdateVisibleItems();
 
@@ -381,6 +394,7 @@ namespace GameFramework.UISystems {
                 _activeItemInfos.Add(new ItemInfo {
                     Template = templateInfo.template,
                     View = view,
+                    Data = data,
                 });
             }
 
@@ -422,6 +436,9 @@ namespace GameFramework.UISystems {
                     pool.Release(info.View);
                 }
 
+                info.Template = null;
+                info.View = null;
+                info.Data = null;
                 _itemInfoPool.Release(info);
             }
 
