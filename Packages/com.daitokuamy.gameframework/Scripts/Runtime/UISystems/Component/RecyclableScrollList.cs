@@ -111,7 +111,8 @@ namespace GameFramework.UISystems {
         /// <param name="dataList">項目を初期化する際に使うデータのリスト</param>
         /// <param name="getTemplateKeyFunc">Templateのキーを選択する関数</param>
         /// <param name="calcItemSizeFunc">項目サイズを計算する関数(未指定だとTemplate側に設定された物が利用される, 0以下を返しても同様)</param>
-        public void SetDataList(IReadOnlyList<IData> dataList, Func<IData, string> getTemplateKeyFunc = null, Func<IData, IItemView, float> calcItemSizeFunc = null) {
+        /// <param name="normalizedPosition">初期値となるスクロール位置</param>
+        public void SetDataList(IReadOnlyList<IData> dataList, Func<IData, string> getTemplateKeyFunc = null, Func<IData, IItemView, float> calcItemSizeFunc = null, float normalizedPosition = 0.0f) {
             Initialize();
             _dataList = dataList;
 
@@ -137,6 +138,13 @@ namespace GameFramework.UISystems {
                 }
 
                 _itemSizes.Add(size);
+            }
+
+            if (IsVertical) {
+                _scrollRect.verticalNormalizedPosition = normalizedPosition;
+            }
+            else {
+                _scrollRect.horizontalNormalizedPosition = normalizedPosition;
             }
 
             Rebuild();
@@ -323,7 +331,7 @@ namespace GameFramework.UISystems {
             }
 
             ClearItems();
-            UpdateVisibleItems();
+            UpdateVisibleItems(true);
 
             // RectTransformをリビルド
             LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_scrollRect.transform);
@@ -332,7 +340,7 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// 可視アイテムの再計算
         /// </summary>
-        private void UpdateVisibleItems() {
+        private void UpdateVisibleItems(bool force = false) {
             var scrollOffset = IsVertical ? Content.anchoredPosition.y : -Content.anchoredPosition.x;
             var viewportSize = IsVertical ? Viewport.rect.height : Viewport.rect.width;
 
@@ -371,7 +379,7 @@ namespace GameFramework.UISystems {
             endSpace -= spacing;
 
             // StartIndexとEndIndexが変わっていなければ何もしない
-            if (startIndex == _prevStartIndex && endIndex == _prevEndIndex) {
+            if (!force && startIndex == _prevStartIndex && endIndex == _prevEndIndex) {
                 return;
             }
 
