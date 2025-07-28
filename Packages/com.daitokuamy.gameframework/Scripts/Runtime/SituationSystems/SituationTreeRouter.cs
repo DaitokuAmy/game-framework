@@ -10,7 +10,7 @@ namespace GameFramework.SituationSystems {
         /// コンストラクタ
         /// </summary>
         public SituationTreeRouter(SituationContainer container, string label = "", [CallerFilePath] string caller = "")
-            : base(container, string.IsNullOrEmpty(label) ? $"[SituationTree]{caller}" : $"[SituationTree]{label}") {
+            : base(container, string.IsNullOrEmpty(label) ? $"[SituationTree]{PathUtility.GetRelativePath(caller)}" : $"[SituationTree]{label}") {
         }
     }
 }

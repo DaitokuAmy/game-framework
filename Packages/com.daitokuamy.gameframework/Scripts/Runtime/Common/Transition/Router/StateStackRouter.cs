@@ -40,7 +40,7 @@ namespace GameFramework {
         /// </summary>
         public StateStackRouter(IStateContainer<TKey, TState, TOption> container, string label = "", [CallerFilePath] string caller = "") {
             _stateContainer = container;
-            _label = string.IsNullOrEmpty(label) ? caller : label;
+            _label = string.IsNullOrEmpty(label) ? PathUtility.GetRelativePath(caller) : label;
             StateMonitor.AddRouter(this);
         }
 

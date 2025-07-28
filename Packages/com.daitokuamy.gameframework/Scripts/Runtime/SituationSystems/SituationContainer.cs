@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using GameFramework.Core;
@@ -73,7 +74,7 @@ namespace GameFramework.SituationSystems {
         /// <param name="label">デバッグ等で利用するラベル</param>
         /// <param name="caller">自動解決用呼び出し元設定変数</param>
         public SituationContainer(string label = "", [CallerFilePath] string caller = "") {
-            _label = string.IsNullOrEmpty(label) ? caller : label;
+            _label = string.IsNullOrEmpty(label) ? PathUtility.GetRelativePath(caller) : label;
             StateMonitor.AddContainer(this);
         }
 
@@ -130,7 +131,7 @@ namespace GameFramework.SituationSystems {
                 if (situation == null) {
                     return null;
                 }
-                
+
                 if (situation.GetType() == targetType) {
                     return situation;
                 }
@@ -151,7 +152,7 @@ namespace GameFramework.SituationSystems {
         /// <inheritdoc/>
         Situation[] IStateContainer<Type, Situation, TransitionOption>.GetStates() {
             var result = new List<Situation>();
-            
+
             void Add(Situation situation, List<Situation> list) {
                 if (situation == null) {
                     return;

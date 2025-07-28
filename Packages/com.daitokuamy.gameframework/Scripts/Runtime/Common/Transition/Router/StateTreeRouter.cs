@@ -48,7 +48,7 @@ namespace GameFramework {
         /// </summary>
         public StateTreeRouter(IStateContainer<TKey, TState, TOption> container, string label = "", [CallerFilePath] string caller = "") {
             _stateContainer = container;
-            _label = string.IsNullOrEmpty(label) ? caller : label;
+            _label = string.IsNullOrEmpty(label) ? PathUtility.GetRelativePath(caller) : label;
             _rootNode = new StateTreeNode<TKey>(null, null);
             StateMonitor.AddRouter(this);
         }

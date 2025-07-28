@@ -1,7 +1,7 @@
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace GameFramework.ActorSystems {
+namespace GameFramework {
     /// <summary>
     /// GameObject用のユーティリティ
     /// </summary>
