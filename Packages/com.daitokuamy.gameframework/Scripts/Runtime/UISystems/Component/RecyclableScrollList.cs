@@ -111,8 +111,7 @@ namespace GameFramework.UISystems {
         /// <param name="dataList">項目を初期化する際に使うデータのリスト</param>
         /// <param name="getTemplateKeyFunc">Templateのキーを選択する関数</param>
         /// <param name="calcItemSizeFunc">項目サイズを計算する関数(未指定だとTemplate側に設定された物が利用される, 0以下を返しても同様)</param>
-        /// <param name="normalizedPosition">初期値となるスクロール位置</param>
-        public void SetDataList(IReadOnlyList<IData> dataList, Func<IData, string> getTemplateKeyFunc = null, Func<IData, IItemView, float> calcItemSizeFunc = null, float normalizedPosition = 0.0f) {
+        public void SetDataList(IReadOnlyList<IData> dataList, Func<IData, string> getTemplateKeyFunc = null, Func<IData, IItemView, float> calcItemSizeFunc = null) {
             Initialize();
             _dataList = dataList;
 
@@ -140,11 +139,12 @@ namespace GameFramework.UISystems {
                 _itemSizes.Add(size);
             }
 
+            // 一度スクロール位置を初期値にしておく
             if (IsVertical) {
-                _scrollRect.verticalNormalizedPosition = normalizedPosition;
+                _scrollRect.verticalNormalizedPosition = 1.0f;
             }
             else {
-                _scrollRect.horizontalNormalizedPosition = normalizedPosition;
+                _scrollRect.horizontalNormalizedPosition = 0.0f;
             }
 
             Rebuild();
@@ -175,7 +175,7 @@ namespace GameFramework.UISystems {
                 _scrollRect.horizontalNormalizedPosition = normalizedPosition;
             }
 
-            UpdateVisibleItems();
+            UpdateVisibleItems(true);
         }
 
         /// <summary>
