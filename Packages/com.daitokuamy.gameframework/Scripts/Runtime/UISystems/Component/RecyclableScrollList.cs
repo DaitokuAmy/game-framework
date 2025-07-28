@@ -71,6 +71,7 @@ namespace GameFramework.UISystems {
         private IReadOnlyList<IData> _dataList;
         private Action<IItemView, IData> _initAction;
 
+        private bool _updateListRequest;
         private int _prevStartIndex = -1;
         private int _prevEndIndex = -1;
         private Vector2 _prevScrollPosition;
@@ -208,6 +209,13 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// アクティブ時
+        /// </summary>
+        private void OnEnable() {
+            _updateListRequest = true;
+        }
+
+        /// <summary>
         /// 後更新処理
         /// </summary>
         private void LateUpdate() {
@@ -215,9 +223,10 @@ namespace GameFramework.UISystems {
                 return;
             }
 
-            if ((_scrollRect.normalizedPosition - _prevScrollPosition).sqrMagnitude > float.Epsilon) {
+            if (_updateListRequest || (_scrollRect.normalizedPosition - _prevScrollPosition).sqrMagnitude > float.Epsilon) {
                 UpdateVisibleItems();
                 _prevScrollPosition = _scrollRect.normalizedPosition;
+                _updateListRequest = false;
             }
         }
 
