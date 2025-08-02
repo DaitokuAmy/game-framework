@@ -73,6 +73,20 @@ namespace GameFramework {
         }
 
         /// <summary>
+        /// 暗黙のNullableEnum→Enum?変換
+        /// </summary>
+        public static implicit operator TEnum?(NullableEnum<TEnum> value) {
+            return value._hasValue ? value._value : null;
+        }
+
+        /// <summary>
+        /// 暗黙のEnum?→NullableEnum変換
+        /// </summary>
+        public static implicit operator NullableEnum<TEnum>(TEnum? value) {
+            return value.HasValue ? new(value.Value) : None;
+        }
+
+        /// <summary>
         /// 比較演算子 ==
         /// </summary>
         public static bool operator ==(NullableEnum<TEnum> left, NullableEnum<TEnum> right) {
@@ -88,10 +102,46 @@ namespace GameFramework {
         }
 
         /// <summary>
+        /// 比較演算子 ==
+        /// </summary>
+        public static bool operator ==(NullableEnum<TEnum> left, TEnum? right) {
+            if (!left._hasValue && !right.HasValue) {
+                return true;
+            }
+
+            if (left._hasValue != right.HasValue) {
+                return false;
+            }
+
+            return left._value.Equals(right.Value);
+        }
+
+        /// <summary>
+        /// 比較演算子 ==
+        /// </summary>
+        public static bool operator ==(TEnum? left, NullableEnum<TEnum> right) {
+            return right == left;
+        }
+
+        /// <summary>
         /// 比較演算子 !=
         /// </summary>
         public static bool operator !=(NullableEnum<TEnum> left, NullableEnum<TEnum> right) {
             return !(left == right);
+        }
+
+        /// <summary>
+        /// 比較演算子 !=
+        /// </summary>
+        public static bool operator !=(NullableEnum<TEnum> left, TEnum? right) {
+            return !(left == right);
+        }
+
+        /// <summary>
+        /// 比較演算子 !=
+        /// </summary>
+        public static bool operator !=(TEnum? left, NullableEnum<TEnum> right) {
+            return !(right == left);
         }
     }
 }
