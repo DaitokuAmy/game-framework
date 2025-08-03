@@ -117,7 +117,8 @@ namespace GameFramework.SituationSystems {
         void IMonitoredStateContainer.GetDetails(List<(string label, string text)> lines) {
             lines.Add(("Root", RootSituation?.GetType().Name ?? "None"));
             for (var i = 0; i < _runningSituations.Count; i++) {
-                lines.Add((i == 0 ? "Running Situations" : "", _runningSituations[i].GetType().Name));
+                var situation = _runningSituations[i];
+                lines.Add((i == 0 ? "Running Situations" : "", $"{situation.GetType().Name}{(situation.IsFocused ? "(Focused)" : "")}"));
             }
 
             for (var i = 0; i < _preloadSituations.Count; i++) {
@@ -610,7 +611,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// 遷移ルーチン
         /// </summary>
-        private IEnumerator TransitionRoutine(ISituation nextSituation, Action<Situation> onSetup, ITransition transition) {
+        private IEnumerator TransitionRoutine(ISituation nextSituation, Action<Situation> setupAction, ITransition transition) {
             // アクティブなSituationの更新
             _runningSituations.Clear();
             {
@@ -623,7 +624,7 @@ namespace GameFramework.SituationSystems {
             ChangedCurrentEvent?.Invoke(Current);
 
             // 初期化処理
-            onSetup?.Invoke(Current);
+            setupAction?.Invoke(Current);
 
             yield return transition.TransitionRoutine(this);
         }
@@ -685,6 +686,15 @@ namespace GameFramework.SituationSystems {
             _transitionInfo.State = TransitionState.Standby;
             foreach (var effect in _transitionInfo.Effects) {
                 effect.BeginTransition();
+            }
+            
+            // 遷移開始時に全部のフォーカスを外す
+            foreach (var situation in _transitionInfo.PrevSituations) {
+                situation.SetFocus(false);
+            }
+            
+            foreach (var situation in _runningSituations) {
+                situation.SetFocus(false);
             }
         }
 
@@ -821,6 +831,11 @@ namespace GameFramework.SituationSystems {
         void ITransitionResolver.Finish() {
             foreach (var effect in _transitionInfo.Effects) {
                 effect.EndTransition();
+            }
+            
+            // 遷移開始時に戦闘にいる物にフォーカスを充てる
+            if (_runningSituations.Count > 0) {
+                _runningSituations[^1].SetFocus(true);
             }
 
             _transitionInfo.State = TransitionState.Completed;

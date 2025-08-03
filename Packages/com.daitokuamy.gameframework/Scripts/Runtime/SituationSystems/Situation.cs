@@ -22,22 +22,15 @@ namespace GameFramework.SituationSystems {
             OpenFinished, // オープン済
         }
 
-        // 子Situation
         private readonly List<Situation> _children = new();
-        
-        // 親Situation
+        private readonly DisposableScope _loadScope;
+        private readonly DisposableScope _setupScope;
+        private readonly DisposableScope _activeScope;
+        private readonly DisposableScope _openScope;
+        private readonly DisposableScope _animationScope;
+        private readonly DisposableScope _focusScope;
+
         private Situation _parent;
-        // 読み込みスコープ
-        private DisposableScope _loadScope;
-        // 初期化スコープ
-        private DisposableScope _setupScope;
-        // アクティブスコープ
-        private DisposableScope _activeScope;
-        // オープンスコープ
-        private DisposableScope _openScope;
-        // アニメーションスコープ
-        private DisposableScope _animationScope;
-        // 登録されているコンテナ
         private SituationContainer _container;
 
         /// <summary>UnitySceneを保持するSituationか</summary>
@@ -58,6 +51,8 @@ namespace GameFramework.SituationSystems {
         public bool IsActive { get; private set; }
         /// <summary>プリロード状態</summary>
         public PreLoadState PreLoadState { get; private set; } = PreLoadState.None;
+        /// <summary>フォーカス状態</summary>
+        public bool IsFocused { get; private set; }
         /// <summary>コンテナ返却プロパティ</summary>
         public SituationContainer Container => _container;
         /// <summary>RootSituationか</summary>
@@ -71,11 +66,15 @@ namespace GameFramework.SituationSystems {
         /// コンストラクタ
         /// </summary>
         protected Situation() {
+            _loadScope = new();
+            _setupScope = new();
+            _activeScope = new();
+            _openScope = new();
+            _animationScope = new();
+            _focusScope = new();
         }
 
-        /// <summary>
-        /// スタンバイ処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.Standby(SituationContainer container) {
             if (_container != null && _container != container) {
                 Debug.LogError("Already exists container.");
@@ -91,9 +90,7 @@ namespace GameFramework.SituationSystems {
             StandbyInternal(_container);
         }
 
-        /// <summary>
-        /// 読み込み処理
-        /// </summary>
+        /// <inheritdoc/>
         IEnumerator ISituation.LoadRoutine(TransitionHandle<Situation> handle, bool preload) {
             if (CurrentState >= State.Loaded) {
                 yield break;
@@ -108,72 +105,54 @@ namespace GameFramework.SituationSystems {
                 yield break;
             }
 
-            _loadScope = new DisposableScope();
             ServiceContainer = new ServiceContainer(_parent?.ServiceContainer ?? Services.Instance, false, GetType().FullName);
             CurrentState = State.Loading;
             yield return LoadRoutineInternal(handle, _loadScope);
             CurrentState = State.Loaded;
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         IEnumerator ISituation.SetupRoutine(TransitionHandle<Situation> handle) {
             if (CurrentState >= State.SetupFinished) {
                 yield break;
             }
 
-            _setupScope = new DisposableScope();
             yield return SetupRoutineInternal(handle, _setupScope);
             CurrentState = State.SetupFinished;
         }
 
-        /// <summary>
-        /// アクティブ時処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.Activate(TransitionHandle<Situation> handle) {
             if (IsActive) {
                 return;
             }
 
             IsActive = true;
-            _activeScope = new DisposableScope();
             ActivateInternal(handle, _activeScope);
         }
 
-        /// <summary>
-        /// 開く直前の処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.PreOpen(TransitionHandle<Situation> handle) {
             if (CurrentState >= State.Opening) {
                 return;
             }
 
-            _openScope = new DisposableScope();
             PreOpenInternal(handle, _openScope);
             CurrentState = State.Opening;
         }
 
-        /// <summary>
-        /// 開く処理
-        /// </summary>
+        /// <inheritdoc/>
         IEnumerator ISituation.OpenRoutine(TransitionHandle<Situation> handle) {
-            _animationScope = new DisposableScope();
             yield return OpenRoutineInternal(handle, _animationScope);
-            _animationScope.Dispose();
-            _animationScope = null;
+            _animationScope.Clear();
         }
 
-        /// <summary>
-        /// 開く直後の処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.PostOpen(TransitionHandle<Situation> handle) {
             PostOpenInternal(handle, _openScope);
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.Update() {
             if (CurrentState == State.Invalid) {
                 return;
@@ -188,9 +167,7 @@ namespace GameFramework.SituationSystems {
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.LateUpdate() {
             if (CurrentState == State.Invalid) {
                 return;
@@ -205,9 +182,7 @@ namespace GameFramework.SituationSystems {
             }
         }
 
-        /// <summary>
-        /// 物理更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.FixedUpdate() {
             if (CurrentState == State.Invalid) {
                 return;
@@ -222,9 +197,7 @@ namespace GameFramework.SituationSystems {
             }
         }
 
-        /// <summary>
-        /// 閉じる直前の処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.PreClose(TransitionHandle<Situation> handle) {
             if (CurrentState <= State.SetupFinished) {
                 return;
@@ -233,19 +206,13 @@ namespace GameFramework.SituationSystems {
             PreCloseInternal(handle);
         }
 
-        /// <summary>
-        /// 閉じる処理
-        /// </summary>
+        /// <inheritdoc/>
         IEnumerator ISituation.CloseRoutine(TransitionHandle<Situation> handle) {
-            _animationScope = new DisposableScope();
             yield return CloseRoutineInternal(handle, _animationScope);
-            _animationScope.Dispose();
-            _animationScope = null;
+            _animationScope.Clear();
         }
 
-        /// <summary>
-        /// 閉じる直後の処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.PostClose(TransitionHandle<Situation> handle) {
             if (CurrentState <= State.SetupFinished) {
                 return;
@@ -253,27 +220,24 @@ namespace GameFramework.SituationSystems {
 
             CurrentState = State.SetupFinished;
             PostCloseInternal(handle);
-            _openScope.Dispose();
-            _openScope = null;
+            _openScope.Clear();
         }
 
-        /// <summary>
-        /// 非アクティブ時処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.Deactivate(TransitionHandle<Situation> handle) {
             if (!IsActive) {
                 return;
             }
+            
+            // 非アクティブ時にはフォーカスは外す
+            ((ISituation)this).SetFocus(false);
 
             IsActive = false;
             DeactivateInternal(handle);
-            _activeScope.Dispose();
-            _activeScope = null;
+            _activeScope.Clear();
         }
 
-        /// <summary>
-        /// 終了処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.Cleanup(TransitionHandle<Situation> handle) {
             if (CurrentState <= State.Loaded) {
                 return;
@@ -281,13 +245,10 @@ namespace GameFramework.SituationSystems {
 
             CurrentState = State.Loaded;
             CleanupInternal(handle);
-            _setupScope.Dispose();
-            _setupScope = null;
+            _setupScope.Clear();
         }
 
-        /// <summary>
-        /// 解放処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.Unload(TransitionHandle<Situation> handle) {
             if (CurrentState <= State.Standby) {
                 return;
@@ -299,14 +260,11 @@ namespace GameFramework.SituationSystems {
 
             CurrentState = State.Standby;
             UnloadInternal(handle);
-            _loadScope.Dispose();
+            _loadScope.Clear();
             ServiceContainer.Dispose();
-            _loadScope = null;
         }
 
-        /// <summary>
-        /// 登録解除処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.Release(SituationContainer container) {
             if (_container != null && _container != container) {
                 Debug.LogError("Invalid release parent.");
@@ -351,14 +309,12 @@ namespace GameFramework.SituationSystems {
             ReleaseInternal(container);
         }
 
-        /// <summary>
-        /// プリロード処理
-        /// </summary>
+        /// <inheritdoc/>
         IEnumerator ISituation.PreLoadRoutine() {
             if (PreLoadState != PreLoadState.None) {
                 yield break;
             }
-            
+
             var situation = (ISituation)this;
             if (!situation.CanPreLoad) {
                 yield break;
@@ -369,9 +325,7 @@ namespace GameFramework.SituationSystems {
             PreLoadState = PreLoadState.PreLoaded;
         }
 
-        /// <summary>
-        /// プリロード解除処理
-        /// </summary>
+        /// <inheritdoc/>
         void ISituation.UnPreLoad() {
             if (PreLoadState == PreLoadState.None) {
                 return;
@@ -381,7 +335,7 @@ namespace GameFramework.SituationSystems {
             if (!situation.CanPreLoad) {
                 return;
             }
-            
+
             PreLoadState = PreLoadState.None;
 
             // 稼働中ならUnloadは呼ばない
@@ -390,6 +344,22 @@ namespace GameFramework.SituationSystems {
             }
 
             situation.Unload(TransitionHandle<Situation>.Empty);
+        }
+
+        /// <inheritdoc/>
+        void ISituation.SetFocus(bool focus) {
+            if (focus == IsFocused) {
+                return;
+            }
+
+            IsFocused = focus;
+            if (IsFocused) {
+                FocusedInternal(_focusScope);
+            }
+            else {
+                UnfocusedInternal();
+                _focusScope.Clear();
+            }
         }
 
         /// <summary>
@@ -549,6 +519,18 @@ namespace GameFramework.SituationSystems {
         /// Active以外も実行される物理更新処理(内部用)
         /// </summary>
         protected virtual void SystemFixedUpdateInternal() {
+        }
+
+        /// <summary>
+        /// フォーカスを得た時の処理
+        /// </summary>
+        protected virtual void FocusedInternal(IScope scope) {
+        }
+
+        /// <summary>
+        /// フォーカスを失った時の処理
+        /// </summary>
+        protected virtual void UnfocusedInternal() {
         }
 
         /// <summary>

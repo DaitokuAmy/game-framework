@@ -29,6 +29,8 @@ namespace GameFramework.SituationSystems {
         IReadOnlyList<ISituation> Children { get; }
         /// <summary>RootSituationか(親を持たない)</summary>
         bool IsRoot { get; }
+        /// <summary>Focusされているか</summary>
+        bool IsFocused { get; }
         /// <summary>UnitySceneを保持するSituationか</summary>
         bool HasScene { get; }
         /// <summary>PreLoad可能か</summary>
@@ -143,6 +145,11 @@ namespace GameFramework.SituationSystems {
         /// プリロード解除処理
         /// </summary>
         void UnPreLoad();
+
+        /// <summary>
+        /// フォーカスの設定
+        /// </summary>
+        void SetFocus(bool focus);
 
         /// <summary>
         /// 次に遷移する際のデフォルト遷移方法を取得

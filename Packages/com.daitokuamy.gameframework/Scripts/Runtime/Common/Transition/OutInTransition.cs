@@ -30,6 +30,9 @@ namespace GameFramework {
         IEnumerator ITransition.TransitionRoutine(ITransitionResolver resolver, bool immediate) {
             resolver.Start();
 
+            // 非アクティブ
+            resolver.DeactivatePrev();
+
             // エフェクト開始＆閉じる
             if (_closeImmediate) {
                 yield return resolver.EnterEffectRoutine();
@@ -38,9 +41,6 @@ namespace GameFramework {
             else {
                 yield return new MergedCoroutine(resolver.EnterEffectRoutine(), resolver.ClosePrevRoutine(immediate));
             }
-
-            // 非アクティブ
-            resolver.DeactivatePrev();
 
             // BGスレッド優先度の変更
             var prevThreadPriority = Application.backgroundLoadingPriority;
@@ -55,9 +55,6 @@ namespace GameFramework {
             // BGスレッド優先度を戻す
             Application.backgroundLoadingPriority = prevThreadPriority;
 
-            // アクティブ化
-            resolver.ActivateNext();
-
             // エフェクト終了＆開く
             if (_openImmediate) {
                 yield return resolver.OpenNextRoutine(true);
@@ -66,6 +63,9 @@ namespace GameFramework {
             else {
                 yield return new MergedCoroutine(resolver.ExitEffectRoutine(), resolver.OpenNextRoutine(immediate));
             }
+
+            // アクティブ化
+            resolver.ActivateNext();
 
             resolver.Finish();
         }
