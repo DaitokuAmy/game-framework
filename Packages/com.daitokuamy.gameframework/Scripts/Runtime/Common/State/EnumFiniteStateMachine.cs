@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using GameFramework.Core;
-using UnityEngine;
 
 namespace GameFramework {
     /// <summary>
     /// 列挙型ベースの状態制御クラス
     /// </summary>
-    public class EnumStateContainer<TKey> : StateContainer<EnumStateContainer<TKey>.EnumState, TKey>
+    public class EnumFiniteStateMachine<TKey> : FiniteStateMachine<EnumFiniteStateMachine<TKey>.EnumState, TKey>
         where TKey : Enum {
         
         /// <summary>
@@ -59,7 +58,7 @@ namespace GameFramework {
         /// <summary>
         /// 初期化処理(enum用)
         /// </summary>
-        public void SetupFromEnum(TKey invalidKey, bool useStack = true) {
+        public void SetupFromEnum(TKey invalidKey) {
             var states = new List<EnumState>();
             foreach (TKey key in Enum.GetValues(typeof(TKey))) {
                 if (key.Equals(invalidKey)) {
@@ -69,7 +68,7 @@ namespace GameFramework {
                 states.Add(new EnumState(key));
             }
 
-            Setup(invalidKey, useStack, states.ToArray());
+            Setup(invalidKey, states.ToArray());
         }
 
         /// <summary>
@@ -79,12 +78,10 @@ namespace GameFramework {
         /// <param name="onEnter">状態開始時処理</param>
         /// <param name="onUpdate">状態更新中処理</param>
         /// <param name="onExit">状態終了時処理</param>
-        public void SetFunction(TKey key, EnterAction onEnter, UpdateAction onUpdate = null,
-            ExitAction onExit = null) {
+        public void SetFunction(TKey key, EnterAction onEnter, UpdateAction onUpdate = null, ExitAction onExit = null) {
             var state = FindState(key);
             if (state == null) {
-                Debug.LogError($"Invalid state. [{key}]");
-                return;
+                throw new Exception($"Invalid state. [{key}]");
             }
 
             state.EnterEvent = onEnter;

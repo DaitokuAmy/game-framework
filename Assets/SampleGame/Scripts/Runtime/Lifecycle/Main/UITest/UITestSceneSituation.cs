@@ -95,7 +95,6 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = Services.Resolve<SituationService>();
             var uiManager = Services.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             var dialogUIService = uiManager.GetService<DialogUIService>();
@@ -113,6 +112,7 @@ namespace SampleGame.Lifecycle {
                         ct: ct);
 
                     if (result == 0) {
+                        var situationService = Services.Resolve<SituationService>();
                         situationService.Transition<TitleTopSituation>(transitionType: SituationService.TransitionType.SceneDefault);
                     }
                 });

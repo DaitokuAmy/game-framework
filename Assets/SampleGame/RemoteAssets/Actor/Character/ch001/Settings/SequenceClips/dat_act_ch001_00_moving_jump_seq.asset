@@ -46,6 +46,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   label: "Actor/\u91CD\u529B\u30B9\u30B1\u30FC\u30EB\u5909\u66F4"
   active: 1
-  enterTime: 0.083333336
-  exitTime: 0.46666667
+  enterTime: 0
+  exitTime: 0.5833333
   scale: 0

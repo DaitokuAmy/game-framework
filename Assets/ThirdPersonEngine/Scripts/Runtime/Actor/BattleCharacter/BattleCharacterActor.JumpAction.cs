@@ -37,8 +37,8 @@ namespace ThirdPersonEngine {
                 // 移動中か
                 var isMoving = Owner.MoveComponent.IsMoving;
                 
-                // 速度のリセット
-                Owner._velocityComponent.ResetVelocity();
+                // 重力をリセット
+                Owner._velocityComponent.ResetGravity();
 
                 // アクション再生
                 var actionInfo = Owner._data.jumpActionInfo;

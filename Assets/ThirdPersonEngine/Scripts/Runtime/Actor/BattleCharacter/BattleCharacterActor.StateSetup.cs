@@ -117,8 +117,8 @@ namespace ThirdPersonEngine {
             /// <summary>
             /// ステートの変更
             /// </summary>
-            protected void ChangeState(StateType nextKey, bool immediate = true) {
-                Owner._stateContainer.Change(nextKey, immediate);
+            protected void ChangeState(StateType nextKey) {
+                Owner._fsm.Change(nextKey);
             }
         }
 
@@ -137,34 +137,33 @@ namespace ThirdPersonEngine {
             }
         }
 
-        private StateContainer<StateBase, StateType> _stateContainer;
+        private FiniteStateMachine<StateBase, StateType> _fsm;
         private StateGroup _stateGroup;
 
         /// <summary>現在のStateType</summary>
-        public StateType CurrentStateType => _stateContainer.CurrentKey;
-        
+        public StateType CurrentStateType => _fsm.CurrentKey;
         /// <summary>現在のActionState</summary>
-        private StateBase CurrentState => _stateContainer.FindState(_stateContainer.CurrentKey);
+        private StateBase CurrentState => _fsm.FindState(_fsm.CurrentKey);
 
         /// <summary>
         /// ステートの初期化
         /// </summary>
         private void SetupStates(IScope scope) {
-            _stateContainer?.Dispose();
-            _stateContainer = new StateContainer<StateBase, StateType>().RegisterTo(scope);
+            _fsm?.Dispose();
+            _fsm = new FiniteStateMachine<StateBase, StateType>().RegisterTo(scope);
             _stateGroup = new StateGroup();
-            _stateContainer.Setup(
+            _fsm.Setup(
                 StateType.Invalid,
                 _stateGroup.CreateStates(this)
             );
-            _stateContainer.Change(StateType.Locomotion, true);
+            _fsm.Change(StateType.Locomotion);
         }
 
         /// <summary>
         /// ステートの更新
         /// </summary>
         private void UpdateState(float deltaTime) {
-            _stateContainer.Update(deltaTime);
+            _fsm.Update(deltaTime);
         }
     }
 }

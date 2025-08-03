@@ -86,10 +86,10 @@ namespace ThirdPersonEngine {
         /// StateActionの再生
         /// </summary>
         private UniTask PlayStateActionAsync(StateType stateType, CancellationToken ct) {
-            _stateContainer.Change(stateType, true);
+            _fsm.Change(stateType, true);
 
             // Stateを抜けるまで待機
-            return UniTask.WaitUntil(() => _stateContainer.CurrentKey != stateType, cancellationToken: ct);
+            return UniTask.WaitUntil(() => _fsm.CurrentKey != stateType, cancellationToken: ct);
         }
     }
 }

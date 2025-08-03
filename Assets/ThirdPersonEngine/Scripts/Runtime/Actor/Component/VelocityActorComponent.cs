@@ -28,6 +28,7 @@ namespace ThirdPersonEngine {
         private IMovableActor _actor;
         private LayeredScale _gravityScale;
         private Vector3 _velocity;
+        private float _gravitySpeed;
 
         /// <summary>有効状態か</summary>
         public bool IsActive {
@@ -47,14 +48,13 @@ namespace ThirdPersonEngine {
         /// <summary>重力加速度</summary>
         public float Gravity => _settings.Gravity * _gravityScale;
         /// <summary>現在の速度</summary>
-        public Vector3 Velocity => _velocity;
+        public Vector3 Velocity => _velocity + Vector3.up * _gravitySpeed;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="actor">制御対象のActor</param>
         /// <param name="settings">設定値</param>
-        /// <param name="gravity">重力加速度</param>
         public VelocityActorComponent(IMovableActor actor, ISettings settings) {
             _actor = actor;
             _settings = settings;
@@ -96,6 +96,7 @@ namespace ThirdPersonEngine {
             }
 
             _velocity.z = velocity.z;
+            _gravitySpeed = 0.0f;
         }
 
         /// <summary>
@@ -103,6 +104,14 @@ namespace ThirdPersonEngine {
         /// </summary>
         public void ResetVelocity() {
             _velocity = Vector3.zero;
+            _gravitySpeed = 0.0f;
+        }
+
+        /// <summary>
+        /// 重力による速度をリセット
+        /// </summary>
+        public void ResetGravity() {
+            _gravitySpeed = 0.0f;
         }
 
         /// <summary>
@@ -135,14 +144,11 @@ namespace ThirdPersonEngine {
             var isGrounded = _actor.IsGrounded;
 
             if (isGrounded) {
-                // 下方向に移動する際、地上にいるなら速度のY軸をなくす
-                if (_velocity.y < 0) {
-                    _velocity.y = 0.0f;
-                }
+                _gravitySpeed = 0.0f;
             }
             else {
                 // 重力加速度を反映
-                _velocity.y += Gravity * deltaTime;
+                _gravitySpeed += Gravity * deltaTime;
             }
 
             // ブレーキ反映
@@ -161,6 +167,7 @@ namespace ThirdPersonEngine {
 
             // 座標更新
             position += _velocity * deltaTime;
+            position.y += _gravitySpeed * _gravityScale * deltaTime;
             position.y = Mathf.Max(_actor.GroundHeight, position.y);
             _actor.SetPosition(position);
         }
