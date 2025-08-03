@@ -15,6 +15,7 @@ using SampleGame.Presentation.Battle;
 using R3;
 using SampleGame.Application.Battle;
 using SampleGame.Domain.Battle;
+using SampleGame.Presentation.UITest;
 using ThirdPersonEngine;
 using TMPro;
 using UnityEngine;
@@ -191,6 +192,20 @@ namespace SampleGame.Lifecycle {
         /// Presentation初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
+            T AddLogic<T>(T logic, bool activate, IScope scp)
+                where T : Logic {
+                logic.RegisterTask(TaskOrder.Logic);
+                logic.RegisterTo(scp);
+                if (activate) {
+                    logic.Activate();
+                }
+
+                return logic;
+            }
+
+            var uiManager = Services.Resolve<UIManager>();
+            var overlayUIService = uiManager.GetService<BattleOverlayUIService>();
+            overlayUIService.OverlayScreenContainer.RegisterHandler(AddLogic(new OverlayUIScreenPresenter(), false, scope));
         }
     }
 }

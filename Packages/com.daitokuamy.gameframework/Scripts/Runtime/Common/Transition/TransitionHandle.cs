@@ -28,16 +28,18 @@ namespace GameFramework {
     /// <summary>
     /// 遷移確認用ハンドル
     /// </summary>
-    public struct TransitionHandle<TState> : IProcess
+    public struct TransitionHandle<TState> : IProcess<TState>
         where TState : class {
         /// <summary>無効なハンドル</summary>
         public static readonly TransitionHandle<TState> Empty = new();
 
         private readonly ITransitionInfo<TState> _transitionInfo;
-        
+
         /// <inheritdoc/>
         object IEnumerator.Current => null;
 
+        /// <summary>結果</summary>
+        public TState Result => Next;
         /// <summary>有効なハンドルか</summary>
         public bool IsValid => _transitionInfo != null;
         /// <summary>遷移完了か</summary>
@@ -55,7 +57,7 @@ namespace GameFramework {
         public bool IsBack => Direction == TransitionDirection.Back;
         /// <summary>遷移状態</summary>
         public TransitionState TransitionState => _transitionInfo?.State ?? TransitionState.Invalid;
-        
+
         /// <summary>
         /// コンストラクタ
         /// </summary>

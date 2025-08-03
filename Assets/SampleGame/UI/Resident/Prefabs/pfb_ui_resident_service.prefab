@@ -278,7 +278,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6083506309135853072}
   - component: {fileID: 8053810614192182770}
-  - component: {fileID: 1786564187286638790}
+  - component: {fileID: 8805518108490105962}
   m_Layer: 5
   m_Name: LoadingScreenContainer
   m_TagString: Untagged
@@ -318,7 +318,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &1786564187286638790
+--- !u!114 &8805518108490105962
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -327,7 +327,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1507422063864111303}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82fb9ccb230f545d2bba35f9c8dd5b2f, type: 3}
+  m_Script: {fileID: 11500000, guid: efe0e12745137924fa719651282bd7f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _openOnStart: 1
@@ -610,7 +610,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7b060304bad98417eadf6b4f51062cfd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _loadingScreenContainer: {fileID: 1786564187286638790}
+  _loadingScreenContainer: {fileID: 8805518108490105962}
   _blockScreen: {fileID: 5773490810487257099}
   _notificationScreen: {fileID: 3518569687681838944}
   _faderScreen: {fileID: 3503840879188770212}

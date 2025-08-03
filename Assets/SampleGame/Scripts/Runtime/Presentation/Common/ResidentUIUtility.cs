@@ -20,7 +20,7 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// ローディングの表示
         /// </summary>
-        public static IProcess<UIScreen> ShowLoading(string key) {
+        public static IProcess ShowLoading(string key) {
             return UIService.ShowLoading(key);
         }
 

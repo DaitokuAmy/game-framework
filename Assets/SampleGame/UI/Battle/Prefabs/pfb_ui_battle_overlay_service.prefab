@@ -710,7 +710,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 06de52e974ee99748b2b3936354c0000, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _overlayScreenContainer: {fileID: 2748905555140820114}
+  _overlayScreenContainer: {fileID: 8931536005412175486}
 --- !u!1 &8298002178807518328
 GameObject:
   m_ObjectHideFlags: 0
@@ -721,7 +721,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7273360084080519985}
   - component: {fileID: 6336558748266330762}
-  - component: {fileID: 2748905555140820114}
+  - component: {fileID: 8931536005412175486}
   m_Layer: 5
   m_Name: OverlayScreenContainer
   m_TagString: Untagged
@@ -762,7 +762,7 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &2748905555140820114
+--- !u!114 &8931536005412175486
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -771,7 +771,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 8298002178807518328}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 82fb9ccb230f545d2bba35f9c8dd5b2f, type: 3}
+  m_Script: {fileID: 11500000, guid: efe0e12745137924fa719651282bd7f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _openOnStart: 1

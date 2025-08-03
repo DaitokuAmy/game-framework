@@ -9,7 +9,7 @@ namespace SampleGame.Presentation {
     /// </summary>
     public class ResidentUIService : UIService {
         [SerializeField, Tooltip("ローディング画面用のコンテナ")]
-        private UISheetContainer _loadingScreenContainer;
+        private UIScreenContainer _loadingScreenContainer;
         [SerializeField, Tooltip("ブロック画面")]
         private BlockUIScreen _blockScreen;
         [SerializeField, Tooltip("通知用スクリーン")]
@@ -27,8 +27,8 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// ローディングの表示
         /// </summary>
-        public IProcess<UIScreen> ShowLoading(string key) {
-            return _loadingScreenContainer.Change(key);
+        public IProcess ShowLoading(string key) {
+            return _loadingScreenContainer.Transition(key);
         }
 
         /// <summary>

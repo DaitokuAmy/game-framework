@@ -7,27 +7,9 @@ namespace SampleGame.Presentation.Battle {
     /// </summary>
     public class BattleOverlayUIService : UIService {
         [SerializeField, Tooltip("オーバーレイ演出用のコンテナー")]
-        private UISheetContainer _overlayScreenContainer;
-
-        /// <summary>
-        /// 勝利画面表示
-        /// </summary>
-        public void PlayWin() {
-            _overlayScreenContainer.Change("Win");
-        }
+        private UIScreenContainer _overlayScreenContainer;
         
-        /// <summary>
-        /// 敗北画面表示
-        /// </summary>
-        public void PlayLose() {
-            _overlayScreenContainer.Change("Lose");
-        }
-        
-        /// <summary>
-        /// 画面をクリア
-        /// </summary>
-        public void Clear() {
-            _overlayScreenContainer.Clear();
-        }
+        /// <summary>オーバーレイ演出用のコンテナー</summary>
+        public UIScreenContainer OverlayScreenContainer => _overlayScreenContainer;
     }
 }

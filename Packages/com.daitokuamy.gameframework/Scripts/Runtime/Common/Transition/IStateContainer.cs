@@ -40,4 +40,11 @@ namespace GameFramework {
         /// <param name="effects">遷移時演出</param>
         TransitionHandle<TState> Reset(Action<TState> setupAction, params ITransitionEffect[] effects);
     }
+
+    /// <summary>
+    /// ステート管理用コンテナーインターフェース
+    /// </summary>
+    public interface IStateContainer<in TKey, TState> : IStateContainer<TKey, TState, object>
+        where TState : class {
+    }
 }
