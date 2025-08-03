@@ -35,6 +35,10 @@ namespace GameFramework.SituationSystems {
             public Situation Prev => PrevSituations.FirstOrDefault() as Situation;
             public Situation Next => NextSituations.LastOrDefault() as Situation;
 
+            /// <inheritdoc/>
+            public event Action<Situation> FinishedEvent;
+
+            /// <inheritdoc/>
             public bool ChangeEndStep(TransitionStep step) {
                 if (step <= EndStep) {
                     return false;
@@ -42,6 +46,11 @@ namespace GameFramework.SituationSystems {
 
                 EndStep = step;
                 return true;
+            }
+
+            public void SendFinish() {
+                FinishedEvent?.Invoke(Next);
+                FinishedEvent = null;
             }
         }
 
@@ -839,6 +848,7 @@ namespace GameFramework.SituationSystems {
             }
 
             _transitionInfo.State = TransitionState.Completed;
+            _transitionInfo.SendFinish();
         }
     }
 }

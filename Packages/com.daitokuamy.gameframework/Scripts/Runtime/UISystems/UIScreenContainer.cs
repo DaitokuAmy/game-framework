@@ -36,8 +36,17 @@ namespace GameFramework.UISystems {
             public UIScreen Next { get; set; }
             public Coroutine Coroutine { get; set; }
 
+            /// <inheritdoc/>
+            public event Action<UIScreen> FinishedEvent;
+
+            /// <inheritdoc/>
             public bool ChangeEndStep(TransitionStep step) {
                 return false;
+            }
+
+            public void SendFinish() {
+                FinishedEvent?.Invoke(Next);
+                FinishedEvent = null;
             }
         }
 
@@ -146,6 +155,7 @@ namespace GameFramework.UISystems {
             }
 
             _transitionInfo.State = TransitionState.Completed;
+            _transitionInfo.SendFinish();
         }
 
         /// <summary>

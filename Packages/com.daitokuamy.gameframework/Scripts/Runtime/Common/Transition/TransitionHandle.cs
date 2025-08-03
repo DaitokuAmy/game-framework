@@ -19,6 +19,9 @@ namespace GameFramework {
         /// <summary>遷移後のState</summary>
         TState Next { get; }
 
+        /// <summary>終了通知</summary>
+        event Action<TState> FinishedEvent;
+
         /// <summary>
         /// 終了ステップの変更
         /// </summary>
@@ -28,7 +31,7 @@ namespace GameFramework {
     /// <summary>
     /// 遷移確認用ハンドル
     /// </summary>
-    public struct TransitionHandle<TState> : IProcess<TState>
+    public struct TransitionHandle<TState> : IEventProcess<TState>
         where TState : class {
         /// <summary>無効なハンドル</summary>
         public static readonly TransitionHandle<TState> Empty = new();
@@ -37,6 +40,20 @@ namespace GameFramework {
 
         /// <inheritdoc/>
         object IEnumerator.Current => null;
+
+        /// <summary>終了通知</summary>
+        event Action<TState> IEventProcess<TState>.ExitEvent {
+            add {
+                if (_transitionInfo != null) {
+                    _transitionInfo.FinishedEvent += value;
+                }
+            }
+            remove {
+                if (_transitionInfo != null) {
+                    _transitionInfo.FinishedEvent -= value;
+                }
+            }
+        }
 
         /// <summary>結果</summary>
         public TState Result => Next;
