@@ -13,4 +13,15 @@ namespace GameFramework.UISystems {
         /// </summary>
         void Cancel();
     }
+
+    /// <summary>
+    /// 明示的に戻り値を与えるタイプのDialog用インターフェース
+    /// </summary>
+    public interface IDialog<out T> : IDialog {
+        /// <summary>
+        /// 結果の取得
+        /// </summary>
+        /// <param name="selectedIndex">選択したIndex</param>
+        T GetResult(int selectedIndex);
+    }
 }

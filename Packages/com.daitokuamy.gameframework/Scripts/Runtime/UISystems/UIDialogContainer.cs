@@ -58,21 +58,67 @@ namespace GameFramework.UISystems {
                     return;
                 }
 
-                Dialog.SelectedIndexEvent -= OnSelectedIndex;
                 IsDone = true;
             }
 
             /// <summary>
             /// 選択時処理
             /// </summary>
-            private void OnSelectedIndex(int index) {
+            protected virtual void OnSelectedIndex(int index) {
                 if (IsDone) {
                     return;
                 }
 
                 Result = index;
                 IsDone = true;
+                Dialog.SelectedIndexEvent -= OnSelectedIndex;
                 _selectedIndexAction?.Invoke(this);
+            }
+        }
+
+        /// <summary>
+        /// アクティブ中ダイアログ情報
+        /// </summary>
+        internal class DialogInfo<TResult> : DialogInfo {
+            private Action<TResult> _selectedAction;
+
+            /// <summary>結果通知</summary>
+            public event Action<TResult> SelectedEvent {
+                add => _selectedAction += value;
+                remove => _selectedAction -= value;
+            }
+
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            public DialogInfo(Action<DialogInfo> selectedIndexAction, IDialog dialog, bool canBack)
+                : base(selectedIndexAction, dialog, canBack) {
+                _selectedAction = null;
+            }
+
+            /// <summary>
+            /// 選択時処理
+            /// </summary>
+            protected override void OnSelectedIndex(int index) {
+                base.OnSelectedIndex(index);
+
+                if (Dialog is IDialog<TResult> dialog) {
+                    _selectedAction?.Invoke(dialog.GetResult(index));
+                }
+                else {
+                    _selectedAction?.Invoke(default);
+                }
+            }
+
+            /// <summary>
+            /// 結果の取得
+            /// </summary>
+            public TResult GetResult() {
+                if (Dialog is IDialog<TResult> dialog) {
+                    return dialog.GetResult(Result);
+                }
+
+                return default;
             }
         }
 
@@ -142,7 +188,7 @@ namespace GameFramework.UISystems {
                 info.Dispose();
                 _activeDialogInfos.RemoveAt(i);
             }
-            
+
             // Poolに返却
             for (var i = _activeScreenInfos.Count - 1; i >= 0; i--) {
                 var screenInfo = _activeScreenInfos[i];
@@ -150,7 +196,7 @@ namespace GameFramework.UISystems {
                 pool.Release(screenInfo.Screen);
                 _activeScreenInfos.RemoveAt(i);
             }
-            
+
             base.DisposeInternal();
         }
 
@@ -175,52 +221,33 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
-        /// ダイアログを開く処理
+        /// ダイアログを開く処理(戻り値が明示的な場合)
+        /// </summary>
+        public DialogHandle<TResult> OpenDialog<TScreen, TResult>(string key, Action<TScreen> setupAction = null, bool canBack = true)
+            where TScreen : UIScreen, IDialog<TResult> {
+            var dialogInfo = OpenDialogInternal(
+                key,
+                (d, b) => new DialogInfo<TResult>(OnSelectedIndex, d, b),
+                setupAction, canBack);
+            if (dialogInfo == null) {
+                return DialogHandle<TResult>.Empty;
+            }
+
+            return new DialogHandle<TResult>((DialogInfo<TResult>)dialogInfo);
+        }
+
+        /// <summary>
+        /// ダイアログを開く処理(戻り値が選択Indexの場合)
         /// </summary>
         public DialogHandle OpenDialog<TScreen>(string key, Action<TScreen> setupAction = null, bool canBack = true)
             where TScreen : UIScreen, IDialog {
-            if (!_dialogViewPools.TryGetValue(key, out var pool)) {
-                DebugLog.Warning($"Not found dialog key. [{key}]");
+            var dialogInfo = OpenDialogInternal(
+                key,
+                (d, b) => new DialogInfo(OnSelectedIndex, d, b),
+                setupAction, canBack);
+            if (dialogInfo == null) {
                 return DialogHandle.Empty;
             }
-
-            // Poolから取得して初期化
-            var screen = pool.Get();
-            if (screen is TScreen s) {
-                setupAction?.Invoke(s);
-            }
-
-            // 現在開いている物があれば閉じる
-            if (_activeDialogInfos.Count > 0) {
-                var currentInfo = _activeDialogInfos[^1];
-                ((UIScreen)currentInfo.Dialog).CloseAsync(TransitionDirection.Back);
-            }
-
-            // Handlerの生成と登録
-            var handler = default(IUIScreenHandler);
-            if (_createHandlerFunctions.TryGetValue(key, out var func)) {
-                handler = func();
-                screen.RegisterHandler(handler);
-            }
-
-            // ダイアログ情報の作成
-            var dialogInfo = new DialogInfo(OnSelectedIndex, (IDialog)screen, canBack);
-            _activeDialogInfos.Add(dialogInfo);
-
-            // アクティブスクリーン情報に追加
-            var screenInfo = new ScreenInfo {
-                Key = key,
-                Screen = screen,
-                Handler = handler,
-                DialogInfo = dialogInfo
-            };
-            _activeScreenInfos.Add(screenInfo);
-
-            // 描画順のコントロール
-            screen.transform.SetAsLastSibling();
-
-            // 開く
-            screen.OpenAsync();
 
             return new DialogHandle(dialogInfo);
         }
@@ -281,6 +308,57 @@ namespace GameFramework.UISystems {
                 info.Screen.UnregisterHandler(info.Handler);
                 info.Handler = null;
             }
+        }
+
+        /// <summary>
+        /// 内部用ダイアログを開く処理
+        /// </summary>
+        private DialogInfo OpenDialogInternal<TScreen>(string key, Func<IDialog, bool, DialogInfo> createDialogInfoFunc, Action<TScreen> setupAction, bool canBack)
+            where TScreen : UIScreen, IDialog {
+            if (!_dialogViewPools.TryGetValue(key, out var pool)) {
+                DebugLog.Warning($"Not found dialog key. [{key}]");
+                return null;
+            }
+
+            // Poolから取得して初期化
+            var screen = pool.Get();
+            if (screen is TScreen s) {
+                setupAction?.Invoke(s);
+            }
+
+            // 現在開いている物があれば閉じる
+            if (_activeDialogInfos.Count > 0) {
+                var currentInfo = _activeDialogInfos[^1];
+                ((UIScreen)currentInfo.Dialog).CloseAsync(TransitionDirection.Back);
+            }
+
+            // Handlerの生成と登録
+            var handler = default(IUIScreenHandler);
+            if (_createHandlerFunctions.TryGetValue(key, out var func)) {
+                handler = func();
+                screen.RegisterHandler(handler);
+            }
+
+            // ダイアログ情報の作成
+            var dialogInfo = createDialogInfoFunc((IDialog)screen, canBack);
+            _activeDialogInfos.Add(dialogInfo);
+
+            // アクティブスクリーン情報に追加
+            var screenInfo = new ScreenInfo {
+                Key = key,
+                Screen = screen,
+                Handler = handler,
+                DialogInfo = dialogInfo
+            };
+            _activeScreenInfos.Add(screenInfo);
+
+            // 描画順のコントロール
+            screen.transform.SetAsLastSibling();
+
+            // 開く
+            screen.OpenAsync();
+
+            return dialogInfo;
         }
 
         /// <summary>
