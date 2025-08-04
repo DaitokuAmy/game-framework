@@ -57,6 +57,11 @@ namespace GameFramework.PlayableSystems {
             /// </summary>
             void IEnumerator.Reset() {
             }
+        
+            /// <inheritdoc/>
+            public EventProcessAwaiter GetAwaiter() {
+                return new EventProcessAwaiter(this);
+            }
         }
 
         /// <summary>

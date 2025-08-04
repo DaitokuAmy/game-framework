@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace GameFramework.UISystems {
     /// <summary>
-    /// Dialogコンテナクラス（未実装）
+    /// Dialogコンテナクラス
     /// </summary>
-    public abstract class UIDialogContainer : UIScreen {
+    public sealed class UIDialogContainer : UIScreen {
         /// <summary>
         /// アクティブ中ダイアログ情報
         /// </summary>
@@ -54,14 +54,11 @@ namespace GameFramework.UISystems {
             /// 廃棄時処理
             /// </summary>
             public void Dispose() {
-                if (Dialog == null) {
+                if (IsDone) {
                     return;
                 }
 
-                Result = -1;
-                CanBack = true;
                 Dialog.SelectedIndexEvent -= OnSelectedIndex;
-                Dialog = null;
                 IsDone = true;
             }
 
@@ -181,7 +178,7 @@ namespace GameFramework.UISystems {
         /// ダイアログを開く処理
         /// </summary>
         public DialogHandle OpenDialog<TScreen>(string key, Action<TScreen> setupAction = null, bool canBack = true)
-            where TScreen : UIScreen {
+            where TScreen : UIScreen, IDialog {
             if (!_dialogViewPools.TryGetValue(key, out var pool)) {
                 DebugLog.Warning($"Not found dialog key. [{key}]");
                 return DialogHandle.Empty;

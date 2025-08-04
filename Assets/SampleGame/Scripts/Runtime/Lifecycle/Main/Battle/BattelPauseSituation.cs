@@ -15,17 +15,22 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
-            
+
             var situationService = Services.Resolve<SituationService>();
             var uiManager = Services.Resolve<UIManager>();
             var dialogUIService = uiManager.GetService<DialogUIService>();
 
-            var itemLabels = new[] { "タイトルに戻る" };
+            var itemLabels = new[] { "タイトルに戻る", "メッセージテスト" };
             dialogUIService.OpenSelectionDialogAsync("ポーズメニュー", itemLabels, useBackgroundCancel: true, ct: scope.Token)
                 .ContinueWith(result => {
                     switch (result) {
                         case 0:
                             situationService.Transition<TitleTopSituation>(transitionType: SituationService.TransitionType.SceneDefault);
+                            break;
+                        case 1:
+                            dialogUIService.OpenMessageDialogAsync("テスト", "メッセージサブ", "メッセージ内容", useBackgroundCancel: true, ct: scope.Token)
+                                .ContinueWith(r => { SystemLog.Info($"MessageResult:{r}"); });
+                            situationService.Back();
                             break;
                         default:
                             situationService.Back();

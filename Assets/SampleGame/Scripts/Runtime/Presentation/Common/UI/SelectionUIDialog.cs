@@ -8,9 +8,9 @@ using ThirdPersonEngine;
 
 namespace SampleGame.Presentation {
     /// <summary>
-    /// 汎用選択用ダイアログ用のスクリーン
+    /// 汎用選択用ダイアログ
     /// </summary>
-    public class SelectionDialogUIScreen : DialogUIScreen {
+    public class SelectionUIDialog : UIDialog {
         [SerializeField, Tooltip("タイトル設定用テキスト")]
         private TextMeshProUGUI _titleText;
         [SerializeField, Tooltip("項目ボタン用のボタンテンプレート")]
@@ -18,11 +18,8 @@ namespace SampleGame.Presentation {
         [SerializeField, Tooltip("Closeボタン用のView")]
         private ButtonUIView _closeButtonView;
 
-        private List<ButtonUIView> _itemButtonViews = new();
-        private DisposableScope _setupScope = new();
-
-        /// <summary>背面タッチをした時に返却するIndex</summary>
-        protected override int BackgroundButtonIndex => -1;
+        private readonly List<ButtonUIView> _itemButtonViews = new();
+        private readonly DisposableScope _setupScope = new();
 
         /// <summary>
         /// アクティブ時処理
@@ -33,7 +30,7 @@ namespace SampleGame.Presentation {
             // ボタンの監視
             _closeButtonView.ClickedSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => Select(-1));
+                .Subscribe(_ => SelectIndex(CanceledIndex));
         }
 
         /// <summary>
@@ -64,7 +61,7 @@ namespace SampleGame.Presentation {
                 SetText(view, label);
                 view.ClickedSubject
                     .TakeUntil(_setupScope)
-                    .Subscribe(_ => { Select(index); });
+                    .Subscribe(_ => { SelectIndex(index); });
                 _itemButtonViews.Add(view);
             }
 

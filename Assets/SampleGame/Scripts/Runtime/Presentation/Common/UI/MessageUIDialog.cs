@@ -9,7 +9,7 @@ namespace SampleGame.Presentation {
     /// <summary>
     /// 汎用メッセージダイアログ用のスクリーン
     /// </summary>
-    public class MessageDialogUIScreen : DialogUIScreen {
+    public class MessageUIDialog : UIDialog {
         /// <summary>
         /// 結果のIndex
         /// </summary>
@@ -29,7 +29,10 @@ namespace SampleGame.Presentation {
         private ButtonUIView _decideButtonView;
         [SerializeField, Tooltip("Cancelボタン用のView")]
         private ButtonUIView _cancelButtonView;
-        
+
+        /// <inheritdoc/>
+        protected override int CanceledIndex => (int)Result.Cancel;
+
         /// <summary>
         /// アクティブ時処理
         /// </summary>
@@ -39,11 +42,11 @@ namespace SampleGame.Presentation {
             // ボタンの監視
             _decideButtonView.ClickedSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => Select((int)Result.Decide));
+                .Subscribe(_ => SelectIndex((int)Result.Decide));
             
             _cancelButtonView.ClickedSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => Select((int)Result.Cancel));
+                .Subscribe(_ => SelectIndex((int)Result.Cancel));
         }
 
         /// <summary>

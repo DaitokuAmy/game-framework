@@ -67,6 +67,11 @@ namespace GameFramework.UISystems {
                     _playingInfo.FinishedEvent -= value;
                 }
             }
+        
+            /// <inheritdoc/>
+            public EventProcessAwaiter GetAwaiter() {
+                return new EventProcessAwaiter(this);
+            }
 
             /// <summary>
             /// アニメーションスキップ

@@ -50,6 +50,11 @@ namespace GameFramework.ActorSystems {
         void IEnumerator.Reset() {
         }
         
+        /// <inheritdoc/>
+        public EventProcessAwaiter GetAwaiter() {
+            return new EventProcessAwaiter(this);
+        }
+        
         /// <summary>
         /// アクションの遷移
         /// </summary>

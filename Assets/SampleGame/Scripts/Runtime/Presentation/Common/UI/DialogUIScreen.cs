@@ -1,7 +1,7 @@
-using System.Threading;
-using Cysharp.Threading.Tasks;
+using System;
 using GameFramework;
 using GameFramework.Core;
+using GameFramework.UISystems;
 using R3;
 using ThirdPersonEngine;
 using UnityEngine;
@@ -9,49 +9,31 @@ using UnityEngine.UI;
 
 namespace SampleGame.Presentation {
     /// <summary>
-    /// 汎用ダイアログ用の基底スクリーン
+    /// ダイアログ基底
     /// </summary>
-    public abstract class DialogUIScreen : AnimatableUIScreen {
+    public abstract class UIDialog : AnimatableUIScreen, IDialog {
         [SerializeField, Tooltip("背面タッチ判定用のボタン")]
         private Button _backgroundButton;
 
-        private Subject<int> _selectedSubject = new();
-
         /// <summary>背面ボタンを使うか</summary>
         public bool UseBackgroundButton { get; set; } = true;
-        /// <summary>選択時通知</summary>
-        public Observable<int> SelectedSubject => _selectedSubject;
+        
+        /// <summary>キャンセルされた際に返すIndex</summary>
+        protected virtual int CanceledIndex => -1;
+        
+        /// <inheritdoc/>
+        public event Action<int> SelectedIndexEvent;
 
-        /// <summary>背面タッチをした時に返却するIndex</summary>
-        protected virtual int BackgroundButtonIndex => 0;
-
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
-        protected override void InitializeInternal(IScope scope) {
-            base.InitializeInternal(scope);
-
-            _selectedSubject = new Subject<int>();
+        /// <inheritdoc/>
+        public void Cancel() {
+            SelectIndex(CanceledIndex);
         }
 
         /// <summary>
-        /// 開始処理
+        /// 選択処理
         /// </summary>
-        protected override void StartInternal(IScope scope) {
-            base.StartInternal(scope);
-
-            // 閉じておく
-            CloseAsync(immediate: true);
-        }
-
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        protected override void DisposeInternal() {
-            _selectedSubject.OnCompleted();
-            _selectedSubject.Dispose();
-
-            base.DisposeInternal();
+        public void SelectIndex(int index) {
+            SelectedIndexEvent?.Invoke(index);
         }
 
         /// <summary>
@@ -64,48 +46,8 @@ namespace SampleGame.Presentation {
                 _backgroundButton.OnClickAsObservable()
                     .TakeUntil(scope)
                     .Where(_ => UseBackgroundButton)
-                    .Subscribe(_ => { Select(BackgroundButtonIndex); });
+                    .Subscribe(_ => { SelectIndex(CanceledIndex); });
             }
-        }
-
-        /// <summary>
-        /// ダイアログを開く処理
-        /// </summary>
-        public async UniTask<int> OpenDialogAsync(CancellationToken ct = default) {
-            ct.ThrowIfCancellationRequested();
-
-            // 開く
-            await OpenAsync().ToUniTask(cancellationToken: ct);
-
-            // 選択待ち
-            var result = -1;
-            _selectedSubject
-                .TakeUntil(ct.ToScope())
-                .Subscribe(x => result = x);
-
-            // 閉じるのを監視
-            await UniTask.WaitWhile(() => CurrentOpenStatus == OpenStatus.Opened, cancellationToken: ct);
-
-            // 閉じていない状態だったら閉じる
-            if (CurrentOpenStatus == OpenStatus.Opening || CurrentOpenStatus == OpenStatus.Opened) {
-                CloseAsync().ToUniTask(cancellationToken: ct).Forget();
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 選択
-        /// </summary>
-        /// <param name="index">通知用Index</param>
-        protected void Select(int index) {
-            if (CurrentOpenStatus != OpenStatus.Opened) {
-                Debug.LogWarning("Dialogを開いてない状態で結果選択が行われました");
-                return;
-            }
-
-            _selectedSubject.OnNext(index);
-            CloseAsync();
         }
     }
 }

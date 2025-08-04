@@ -100,6 +100,11 @@ namespace GameFramework {
         void IEnumerator.Reset() {
             throw new NotImplementedException();
         }
+        
+        /// <inheritdoc/>
+        public EventProcessAwaiter<TState> GetAwaiter() {
+            return new EventProcessAwaiter<TState>(this);
+        }
 
         /// <summary>
         /// 遷移ステップを進める

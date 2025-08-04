@@ -23,7 +23,7 @@ namespace SampleGame.Presentation {
         /// <param name="cancelText">キャンセルボタンの表示テキスト</param>
         /// <param name="useBackgroundCancel">背面キャンセルボタンを使うか</param>
         /// <param name="ct">キャンセルハンドリング用</param>
-        public static UniTask<MessageDialogUIScreen.Result> OpenMessageDialogAsync(string title, string subTitle, string content, string decideText = "決定", string cancelText = "キャンセル", bool useBackgroundCancel = false, CancellationToken ct = default) {
+        public static UniTask<MessageUIDialog.Result> OpenMessageDialogAsync(string title, string subTitle, string content, string decideText = "決定", string cancelText = "キャンセル", bool useBackgroundCancel = false, CancellationToken ct = default) {
             return UIService.OpenMessageDialogAsync(title, subTitle, content, decideText, cancelText, useBackgroundCancel, ct);
         }
     }

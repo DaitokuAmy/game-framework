@@ -4,7 +4,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// UIDialogクラス（UIDialogContainerに登録して使う想定の物）
     /// </summary>
-    public class Dialog : UIScreen, IDialog {
+    public class UIDialog : UIScreen, IDialog {
         /// <summary>キャンセルされた際に返すIndex</summary>
         protected virtual int CanceledIndex => -1;
         

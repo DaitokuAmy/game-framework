@@ -56,6 +56,11 @@ namespace GameFramework.CutsceneSystems {
             internal Handle(PlayingInfo playingInfo) {
                 _playingInfo = playingInfo;
             }
+        
+            /// <inheritdoc/>
+            public EventProcessAwaiter GetAwaiter() {
+                return new EventProcessAwaiter(this);
+            }
 
             /// <summary>
             /// 再生

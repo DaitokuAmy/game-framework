@@ -7,6 +7,11 @@ namespace GameFramework.Core {
     public interface IEventProcess : IProcess {
         /// <summary>終了通知</summary>
         event Action ExitEvent;
+
+        /// <summary>
+        /// Awaiterの実装
+        /// </summary>
+        EventProcessAwaiter GetAwaiter();
     }
     
     /// <summary>
@@ -15,5 +20,10 @@ namespace GameFramework.Core {
     public interface IEventProcess<T> : IProcess<T> {
         /// <summary>終了通知</summary>
         event Action<T> ExitEvent;
+
+        /// <summary>
+        /// Awaiterの実装
+        /// </summary>
+        EventProcessAwaiter<T> GetAwaiter();
     }
 }

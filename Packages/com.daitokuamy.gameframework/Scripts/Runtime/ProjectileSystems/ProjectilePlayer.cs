@@ -68,6 +68,11 @@ namespace GameFramework.ProjectileSystems {
             /// <inheritdoc/>
             void IEnumerator.Reset() {
             }
+        
+            /// <inheritdoc/>
+            public EventProcessAwaiter GetAwaiter() {
+                return new EventProcessAwaiter(this);
+            }
 
             /// <summary>
             /// コリジョン判定に使うレイを取得

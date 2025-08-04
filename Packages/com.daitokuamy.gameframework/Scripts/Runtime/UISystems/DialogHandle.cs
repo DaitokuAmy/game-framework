@@ -51,5 +51,10 @@ namespace GameFramework.UISystems {
                 }
             }
         }
+        
+        /// <inheritdoc/>
+        public EventProcessAwaiter<int> GetAwaiter() {
+            return new EventProcessAwaiter<int>(this);
+        }
     }
 }
