@@ -65,9 +65,9 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
-        /// 追加
+        /// プールへのから取得
         /// </summary>
-        public TView Add(Action<TView, int, IScope> addedAction = null) {
+        public TView Get(Action<TView, int, IScope> addedAction = null) {
             var activeInfo = _activeInfoPool.Get();
             var view = _viewPool.Get();
             activeInfo.View = view;
@@ -76,6 +76,25 @@ namespace GameFramework.UISystems {
             var index = _activeInfos.Count - 1;
             addedAction?.Invoke(view, index, activeInfo.Scope);
             return view;
+        }
+
+        /// <summary>
+        /// プールへ返却
+        /// </summary>
+        public void Release(TView view) {
+            for (var i = 0; i < _activeInfos.Count; i++) {
+                var info = _activeInfos[i];
+                if (info.View != view) {
+                    continue;
+                }
+
+                info.Scope.Clear();
+                info.View = null;
+                _activeInfos.RemoveAt(i);
+                _viewPool.Release(view);
+                _activeInfoPool.Release(info);
+                break;
+            }
         }
 
         /// <summary>
