@@ -72,19 +72,21 @@ namespace GameFramework.Core {
             return handle;
         }
 
-        /// <summary>
-        /// IEventProcess用のAwaiter取得
-        /// </summary>
-        public static EventProcessAwaiter GetAwaiter(this IEventProcess source) {
-            return new EventProcessAwaiter(source);
-        }
-
-        /// <summary>
-        /// IEventProcess用のAwaiter取得
-        /// </summary>
-        public static EventProcessAwaiter<T> GetAwaiter<T>(this IEventProcess<T> source) {
-            return new EventProcessAwaiter<T>(source);
-        }
+        // UniTaskの拡張メソッドに持ってかれてしまうので、明示的な関数呼び出し方式に変更したためオミット
+        // C#13移行になったらAttributeが増えるため、それを検証するため残す
+        // /// <summary>
+        // /// IEventProcess用のAwaiter取得
+        // /// </summary>
+        // public static EventProcessAwaiter GetAwaiter(this IEventProcess source) {
+        //     return new EventProcessAwaiter(source);
+        // }
+        //
+        // /// <summary>
+        // /// IEventProcess用のAwaiter取得
+        // /// </summary>
+        // public static EventProcessAwaiter<T> GetAwaiter<T>(this IEventProcess<T> source) {
+        //     return new EventProcessAwaiter<T>(source);
+        // }
         
 #if USE_UNI_TASK
         /// <summary>
