@@ -185,7 +185,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 966826313103360916, guid: 4b58d4ad4d9cc5a47897bc2f603f6452, type: 3}
       propertyPath: m_Name
-      value: prfb_global_object
+      value: pfb_global_object
       objectReference: {fileID: 0}
     - target: {fileID: 966826313103360917, guid: 4b58d4ad4d9cc5a47897bc2f603f6452, type: 3}
       propertyPath: m_RootOrder

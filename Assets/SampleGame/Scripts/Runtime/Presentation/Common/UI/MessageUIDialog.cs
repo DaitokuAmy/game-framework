@@ -1,5 +1,6 @@
 using GameFramework;
 using GameFramework.Core;
+using GameFramework.UISystems;
 using TMPro;
 using UnityEngine;
 using R3;
@@ -9,7 +10,7 @@ namespace SampleGame.Presentation {
     /// <summary>
     /// 汎用メッセージダイアログ用のスクリーン
     /// </summary>
-    public class MessageUIDialog : UIDialog {
+    public class MessageUIDialog : AnimatableUIDialog {
         /// <summary>
         /// 結果のIndex
         /// </summary>

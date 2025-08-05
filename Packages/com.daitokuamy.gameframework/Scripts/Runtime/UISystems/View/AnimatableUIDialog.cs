@@ -1,17 +1,13 @@
 using System;
-using GameFramework;
 using GameFramework.Core;
-using GameFramework.UISystems;
-using R3;
-using ThirdPersonEngine;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SampleGame.Presentation {
+namespace GameFramework.UISystems {
     /// <summary>
-    /// ダイアログ基底
+    /// Animation機能付きのUIDialog
     /// </summary>
-    public abstract class UIDialog : AnimatableUIScreen, IDialog {
+    public class AnimatableUIDialog : AnimatableUIScreen, IDialog {
         [SerializeField, Tooltip("背面タッチ判定用のボタン")]
         private Button _backgroundButton;
 
@@ -29,6 +25,24 @@ namespace SampleGame.Presentation {
             SelectIndex(CanceledIndex);
         }
 
+        /// <inheritdoc/>
+        protected override void ActivateInternal(IScope scope) {
+            base.ActivateInternal(scope);
+
+            if (_backgroundButton != null) {
+                _backgroundButton.onClick.AddListener(OnClickBackgroundButton);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected override void DeactivateInternal() {
+            if (_backgroundButton != null) {
+                _backgroundButton.onClick.RemoveListener(OnClickBackgroundButton);
+            }
+            
+            base.DeactivateInternal();
+        }
+
         /// <summary>
         /// 選択処理
         /// </summary>
@@ -37,17 +51,14 @@ namespace SampleGame.Presentation {
         }
 
         /// <summary>
-        /// アクティブ時処理
+        /// 背面ボタン押下時処理
         /// </summary>
-        protected override void ActivateInternal(IScope scope) {
-            base.ActivateInternal(scope);
-
-            if (_backgroundButton != null) {
-                _backgroundButton.OnClickAsObservable()
-                    .TakeUntil(scope)
-                    .Where(_ => UseBackgroundButton)
-                    .Subscribe(_ => { SelectIndex(CanceledIndex); });
+        private void OnClickBackgroundButton() {
+            if (!UseBackgroundButton) {
+                return;
             }
+
+            Cancel();
         }
     }
 }

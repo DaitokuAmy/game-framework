@@ -192,6 +192,10 @@ namespace GameFramework.UISystems {
             // Poolに返却
             for (var i = _activeScreenInfos.Count - 1; i >= 0; i--) {
                 var screenInfo = _activeScreenInfos[i];
+                if (screenInfo.Handler != null) {
+                    screenInfo.Screen.UnregisterHandler(screenInfo.Handler);
+                }
+
                 var pool = _dialogViewPools[screenInfo.Key];
                 pool.Release(screenInfo.Screen);
                 _activeScreenInfos.RemoveAt(i);
@@ -213,6 +217,10 @@ namespace GameFramework.UISystems {
 
                 // ステータスが閉じていたらプールに戻す
                 if (screenInfo.Screen.CurrentOpenStatus == OpenStatus.Closed) {
+                    if (screenInfo.Handler != null) {
+                        screenInfo.Screen.UnregisterHandler(screenInfo.Handler);
+                    }
+
                     var pool = _dialogViewPools[screenInfo.Key];
                     pool.Release(screenInfo.Screen);
                     _activeScreenInfos.RemoveAt(i);

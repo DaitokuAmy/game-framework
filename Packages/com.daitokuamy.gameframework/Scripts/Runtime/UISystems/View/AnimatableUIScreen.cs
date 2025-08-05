@@ -1,10 +1,8 @@
 using System.Collections;
-using GameFramework;
 using GameFramework.Core;
-using GameFramework.UISystems;
 using UnityEngine;
 
-namespace ThirdPersonEngine {
+namespace GameFramework.UISystems {
     /// <summary>
     /// Animation機能付きのUIScreen
     /// </summary>

@@ -30,6 +30,8 @@ namespace ThirdPersonEngine {
         }
         /// <summary>選択中のIndex</summary>
         public int SelectedIndex { get; private set; } = -1;
+        /// <summary>選択Indexの変更通知</summary>
+        public Observable<int> ChangedSelectedIndexSubject => _changedSelectedIndexSubject;
 
         /// <summary>
         /// 初期化処理

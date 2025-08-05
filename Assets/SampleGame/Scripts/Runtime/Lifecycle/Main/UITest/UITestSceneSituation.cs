@@ -98,6 +98,7 @@ namespace SampleGame.Lifecycle {
             var uiManager = Services.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             var dialogUIService = uiManager.GetService<DialogUIService>();
+            var uiTestDialogUIService = uiManager.GetService<UITestDialogUIService>();
 
             // メニューボタン
             hudUIService.UITestHudUIScreen.ClickedMenuButtonSubject
@@ -107,22 +108,19 @@ namespace SampleGame.Lifecycle {
                     var result = await dialogUIService.OpenSelectionDialogAsync(
                         title: "メインメニュー",
                         itemLabels: new[] {
+                            "購入ダイアログテスト",
                             "タイトルに戻る"
                         },
                         ct: ct);
 
                     if (result == 0) {
+                        await uiTestDialogUIService.OpenBuyItemDialogAsync(1, ct);
+                    }
+                    else if (result == 1) {
                         var situationService = Services.Resolve<SituationService>();
                         situationService.Transition<TitleTopSituation>(transitionType: SituationService.TransitionType.SceneDefault);
                     }
                 });
-        }
-
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        protected override void UpdateInternal() {
-            base.UpdateInternal();
         }
 
         /// <summary>
@@ -185,7 +183,9 @@ namespace SampleGame.Lifecycle {
 
             var uiManager = Services.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
+            var dialogUIService = uiManager.GetService<UITestDialogUIService>();
             hudUIService.UITestHudUIScreen.RegisterHandler(AddLogic(new HudUIScreenPresenter(), false, scope));
+            dialogUIService.SetBuyItemDialogHandler(() => new BuyItemUIDialogPresenter().RegisterTo(scope));
         }
     }
 }

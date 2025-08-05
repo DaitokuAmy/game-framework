@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using GameFramework;
 using GameFramework.Core;
+using GameFramework.UISystems;
 using TMPro;
 using UnityEngine;
 using R3;
@@ -10,16 +11,23 @@ namespace SampleGame.Presentation {
     /// <summary>
     /// 汎用選択用ダイアログ
     /// </summary>
-    public class SelectionUIDialog : UIDialog {
+    public class SelectionUIDialog : AnimatableUIDialog {
         [SerializeField, Tooltip("タイトル設定用テキスト")]
         private TextMeshProUGUI _titleText;
         [SerializeField, Tooltip("項目ボタン用のボタンテンプレート")]
         private ButtonUIView _templateItemButtonView;
         [SerializeField, Tooltip("Closeボタン用のView")]
         private ButtonUIView _closeButtonView;
+        
+        private UIViewPool<ButtonUIView> _viewPool;
 
-        private readonly List<ButtonUIView> _itemButtonViews = new();
-        private readonly DisposableScope _setupScope = new();
+        /// <inheritdoc/>
+        protected override void InitializeInternal(IScope scope) {
+            base.InitializeInternal(scope);
+
+            _viewPool = new UIViewPool<ButtonUIView>(_templateItemButtonView, template => InstantiateView(template, template.transform.parent))
+                .RegisterTo(scope);
+        }
 
         /// <summary>
         /// アクティブ時処理
@@ -30,7 +38,7 @@ namespace SampleGame.Presentation {
             // ボタンの監視
             _closeButtonView.ClickedSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => SelectIndex(CanceledIndex));
+                .Subscribe(_ => Cancel());
         }
 
         /// <summary>
@@ -46,26 +54,16 @@ namespace SampleGame.Presentation {
             UseBackgroundButton = useBackgroundCancel;
 
             // 項目の初期化
-            for (var i = 0; i < _itemButtonViews.Count; i++) {
-                Destroy(_itemButtonViews[i].gameObject);
-            }
-
-            _setupScope.Clear();
-            _itemButtonViews.Clear();
-
-            _templateItemButtonView.gameObject.SetActive(true);
+            _viewPool.Clear();
             for (var i = 0; i < itemLabels.Count; i++) {
-                var index = i;
                 var label = itemLabels[i];
-                var view = InstantiateView(_templateItemButtonView, _templateItemButtonView.transform.parent);
+                var view = _viewPool.Get((v, idx, scp) => {
+                    v.ClickedSubject
+                        .TakeUntil(scp)
+                        .Subscribe(_ => { SelectIndex(idx); });
+                });
                 SetText(view, label);
-                view.ClickedSubject
-                    .TakeUntil(_setupScope)
-                    .Subscribe(_ => { SelectIndex(index); });
-                _itemButtonViews.Add(view);
             }
-
-            _templateItemButtonView.gameObject.SetActive(false);
         }
 
         /// <summary>
