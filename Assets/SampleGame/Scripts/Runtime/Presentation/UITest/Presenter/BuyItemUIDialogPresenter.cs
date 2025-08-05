@@ -31,6 +31,9 @@ namespace SampleGame.Presentation.UITest {
                 .SubscribeAwait(async (cnt, ct) => {
                     var result = await dialogUIService.OpenMessageDialogAsync("確認", string.Empty, $"{cnt}個購入します\nよろしいですか？", "はい", "いいえ", true, ct);
                     if (result == MessageUIDialog.Result.Decide) {
+                        // todo:ここで購入処理を行う
+                        
+                        // ダイアログを決定扱いで閉じる
                         Screen.Decide();
                     }
                 });

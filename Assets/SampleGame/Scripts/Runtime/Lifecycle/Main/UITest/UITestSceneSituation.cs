@@ -114,7 +114,8 @@ namespace SampleGame.Lifecycle {
                         ct: ct);
 
                     if (result == 0) {
-                        await uiTestDialogUIService.OpenBuyItemDialogAsync(1, ct);
+                        var buyResult = await uiTestDialogUIService.OpenBuyItemDialogAsync(1, ct);
+                        DebugLog.Info($"アイテムId{buyResult.ItemId}を{buyResult.Count}個購入した");
                     }
                     else if (result == 1) {
                         var situationService = Services.Resolve<SituationService>();
