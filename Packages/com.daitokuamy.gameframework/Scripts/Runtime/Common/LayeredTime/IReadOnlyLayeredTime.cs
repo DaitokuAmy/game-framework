@@ -15,6 +15,8 @@ namespace GameFramework {
         float DeltaTime { get; }
         /// <summary>親のDeltaTime</summary>
         float ParentDeltaTime { get; }
+        /// <summary>親のLayeredTime</summary>
+        IReadOnlyLayeredTime Parent { get; }
         
         /// <summary>TimeScaleの変更通知</summary>
         event Action<float> ChangedTimeScaleEvent;

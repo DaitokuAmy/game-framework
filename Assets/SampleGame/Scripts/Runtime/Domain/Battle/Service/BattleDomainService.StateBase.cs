@@ -62,7 +62,7 @@ namespace SampleGame.Domain.Battle {
             /// ステートの変更
             /// </summary>
             protected void ChangeState(BattleSequenceType nextKey) {
-                Owner.BattleModelInternal.StateMachine.Change(nextKey);
+                Owner.BattleModelInternal.ChangeState(nextKey);
             }
         }
     }

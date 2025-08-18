@@ -10,7 +10,7 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// プレイヤー用のキャラアクターの生成
         /// </summary>
-        UniTask<ICharacterActorPort> CreatePlayerAsync(IReadOnlyPlayerModel model, LayeredTime layeredTime, CancellationToken ct);
+        UniTask<ICharacterActorPort> CreatePlayerAsync(IReadOnlyPlayerModel model, IReadOnlyLayeredTime parentLayeredTime, CancellationToken ct);
         
         /// <summary>
         /// プレイヤー用のキャラアクターの削除

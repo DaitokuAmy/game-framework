@@ -1,5 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using SampleGame.Domain.ModelViewer;
 
 namespace SampleGame.Domain.Battle {
@@ -10,7 +11,7 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// 背景生成
         /// </summary>
-        UniTask<IFieldActorPort> CreateAsync(IReadOnlyFieldModel model, CancellationToken ct);
+        UniTask<IFieldActorPort> CreateAsync(IReadOnlyFieldModel model, IReadOnlyLayeredTime parentLayeredTime, CancellationToken ct);
         
         /// <summary>
         /// 背景削除

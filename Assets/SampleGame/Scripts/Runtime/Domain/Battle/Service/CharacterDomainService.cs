@@ -40,6 +40,11 @@ namespace SampleGame.Domain.Battle {
                 return;
             }
 
+            // 入力可能チェック
+            if (!CheckInput()) {
+                return;
+            }
+
             // アクターに伝達
             var actorModel = model.ActorModelInternal;
             actorModel.Port.InputMove(input);
@@ -51,6 +56,11 @@ namespace SampleGame.Domain.Battle {
         public void InputSprint(int modelId, bool sprint) {
             var model = _modelRepository.GetAutoIdModel<CharacterModel>(modelId);
             if (model == null) {
+                return;
+            }
+
+            // 入力可能チェック
+            if (!CheckInput()) {
                 return;
             }
 
@@ -69,9 +79,22 @@ namespace SampleGame.Domain.Battle {
                 return;
             }
 
+            // 入力可能チェック
+            if (!CheckInput()) {
+                return;
+            }
+
             // アクターに伝達
             var actorModel = model.ActorModelInternal;
             actorModel.Port.InputJump();
+        }
+
+        /// <summary>
+        /// 入力可能かチェック
+        /// </summary>
+        private bool CheckInput() {
+            var battleModel = _modelRepository.GetSingleModel<BattleModel>();
+            return battleModel.CurrentSequenceType == BattleSequenceType.Playing;
         }
     }
 }

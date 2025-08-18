@@ -26,20 +26,20 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
-        /// カメラハンドリング用クラス
+        /// カメラ情報
         /// </summary>
-        private class CameraHandler : IDisposable {
+        private class CameraInfo : IDisposable {
             private int _activateCount;
             private int _overridePriority;
 
             public string Name { get; }
             public ICameraComponent Component { get; }
-            public ICameraController Controller { get; private set; }
+            public ICameraHandler Handler { get; private set; }
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            public CameraHandler(string cameraName, ICameraComponent cameraComponent) {
+            public CameraInfo(string cameraName, ICameraComponent cameraComponent) {
                 Name = cameraName;
                 Component = cameraComponent;
                 _overridePriority = int.MinValue;
@@ -50,7 +50,7 @@ namespace GameFramework.CameraSystems {
             /// 廃棄時処理
             /// </summary>
             public void Dispose() {
-                SetController(null);
+                SetHandler(null);
                 if (Component != null) {
                     Component.Dispose();
                 }
@@ -106,19 +106,19 @@ namespace GameFramework.CameraSystems {
             }
 
             /// <summary>
-            /// コントローラーの設定
+            /// ハンドラー設定
             /// </summary>
-            public void SetController(ICameraController controller) {
-                if (Controller != null) {
-                    Controller.Dispose();
-                    Controller = null;
+            public void SetHandler(ICameraHandler handler) {
+                if (Handler != null) {
+                    Handler.Dispose();
+                    Handler = null;
                 }
 
-                Controller = controller;
-                if (Controller != null) {
-                    Controller.Initialize(Component);
+                Handler = handler;
+                if (Handler != null) {
+                    Handler.Initialize(Component);
                     if (Component.IsActive) {
-                        controller.Activate();
+                        handler.Activate();
                     }
                 }
             }
@@ -131,11 +131,11 @@ namespace GameFramework.CameraSystems {
                 if (active != Component.IsActive) {
                     if (active) {
                         Component.Activate();
-                        Controller?.Activate();
+                        Handler?.Activate();
                     }
                     else {
                         Component.Deactivate();
-                        Controller?.Deactivate();
+                        Handler?.Deactivate();
                     }
                 }
             }
@@ -147,7 +147,7 @@ namespace GameFramework.CameraSystems {
         private class CameraGroupInfo {
             public GameObject Prefab;
             public CameraGroup CameraGroup;
-            public Dictionary<string, CameraHandler> Handlers = new();
+            public Dictionary<string, CameraInfo> CameraInfos = new();
             public Dictionary<string, Transform> TargetPoints = new();
         }
 
@@ -351,12 +351,12 @@ namespace GameFramework.CameraSystems {
         public bool CheckActivate(string groupKey, string cameraName) {
             Initialize();
 
-            var handlers = GetCameraHandlers(groupKey);
-            if (!handlers.TryGetValue(cameraName, out var handler)) {
+            var infos = GetCameraInfos(groupKey);
+            if (!infos.TryGetValue(cameraName, out var info)) {
                 return false;
             }
 
-            return handler.CheckActivate();
+            return info.CheckActivate();
         }
 
         /// <summary>
@@ -375,8 +375,8 @@ namespace GameFramework.CameraSystems {
                 groupKey = MainCameraGroupKey;
             }
 
-            var handlers = GetCameraHandlers(groupKey);
-            return handlers.Keys.ToArray();
+            var infos = GetCameraInfos(groupKey);
+            return infos.Keys.ToArray();
         }
 
         /// <summary>
@@ -412,8 +412,8 @@ namespace GameFramework.CameraSystems {
 
             // TargetPointsの生成
             CreateTargetPointsInternal(groupInfo.TargetPoints, cameraGroup.TargetPointRoot != null ? cameraGroup.TargetPointRoot.transform : null);
-            // CameraHandlerの生成
-            CreateCameraHandlersInternal(groupInfo.Handlers, cameraGroup.CameraRoot.transform);
+            // CameraInfoの生成
+            CreateCameraInfosInternal(groupInfo.CameraInfos, cameraGroup.CameraRoot.transform);
         }
 
         /// <summary>
@@ -446,7 +446,7 @@ namespace GameFramework.CameraSystems {
             Initialize();
 
             if (_cameraGroupInfos.TryGetValue(key, out var info)) {
-                ClearCameraHandlersInternal(info.Handlers);
+                ClearCameraInfosInternal(info.CameraInfos);
                 ClearTargetPointsInternal(info.TargetPoints);
                 if (info.CameraGroup != null) {
                     if (info.Prefab != null) {
@@ -500,13 +500,13 @@ namespace GameFramework.CameraSystems {
             where TCameraComponent : class, ICameraComponent {
             Initialize();
 
-            var handlers = GetCameraHandlers(groupKey);
+            var infos = GetCameraInfos(groupKey);
 
-            if (!handlers.TryGetValue(cameraName, out var handler)) {
+            if (!infos.TryGetValue(cameraName, out var info)) {
                 return default;
             }
 
-            return handler.Component as TCameraComponent;
+            return info.Component as TCameraComponent;
         }
 
         /// <summary>
@@ -519,57 +519,57 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
-        /// CameraControllerの設定
+        /// Cameraハンドラーの設定
         /// </summary>
         /// <param name="groupKey">CameraGroupとして登録したキー</param>
         /// <param name="cameraName">対象のカメラ名</param>
-        /// <param name="cameraController">設定するController</param>
-        public void SetCameraController(string groupKey, string cameraName, ICameraController cameraController) {
+        /// <param name="cameraHandler">設定するHandler</param>
+        public void SetCameraHandler(string groupKey, string cameraName, ICameraHandler cameraHandler) {
             Initialize();
 
-            var handlers = GetCameraHandlers(groupKey);
+            var infos = GetCameraInfos(groupKey);
 
-            if (!handlers.TryGetValue(cameraName, out var handler)) {
+            if (!infos.TryGetValue(cameraName, out var info)) {
                 return;
             }
 
-            handler.SetController(cameraController);
+            info.SetHandler(cameraHandler);
         }
 
         /// <summary>
-        /// CameraControllerの設定
+        /// Cameraハンドラーの設定
         /// </summary>
         /// <param name="cameraName">対象のカメラ名</param>
-        /// <param name="cameraController">設定するController</param>
-        public void SetCameraController(string cameraName, ICameraController cameraController) {
-            SetCameraController(MainCameraGroupKey, cameraName, cameraController);
+        /// <param name="cameraHandler">設定するHandler</param>
+        public void SetCameraHandler(string cameraName, ICameraHandler cameraHandler) {
+            SetCameraHandler(MainCameraGroupKey, cameraName, cameraHandler);
         }
 
         /// <summary>
-        /// CameraControllerの取得
+        /// Cameraハンドラーの取得
         /// </summary>
         /// <param name="groupKey">CameraGroupとして登録したキー</param>
         /// <param name="cameraName">対象のカメラ名</param>
-        public TCameraController GetCameraController<TCameraController>(string groupKey, string cameraName)
-            where TCameraController : class, ICameraController {
+        public TCameraHandler GetCameraHandler<TCameraHandler>(string groupKey, string cameraName)
+            where TCameraHandler : class, ICameraHandler {
             Initialize();
 
-            var handlers = GetCameraHandlers(groupKey);
+            var infos = GetCameraInfos(groupKey);
 
-            if (!handlers.TryGetValue(cameraName, out var handler)) {
+            if (!infos.TryGetValue(cameraName, out var info)) {
                 return null;
             }
 
-            return handler.Controller as TCameraController;
+            return info.Handler as TCameraHandler;
         }
 
         /// <summary>
-        /// CameraControllerの取得
+        /// Cameraハンドラーの取得
         /// </summary>
         /// <param name="cameraName">対象のカメラ名</param>
-        public TCameraController GetCameraController<TCameraController>(string cameraName)
-            where TCameraController : class, ICameraController {
-            return GetCameraController<TCameraController>(MainCameraGroupKey, cameraName);
+        public TCameraHandler GetCameraHandler<TCameraHandler>(string cameraName)
+            where TCameraHandler : class, ICameraHandler {
+            return GetCameraHandler<TCameraHandler>(MainCameraGroupKey, cameraName);
         }
 
         /// <summary>
@@ -621,7 +621,7 @@ namespace GameFramework.CameraSystems {
 
             // カメラ情報を廃棄
             foreach (var info in _cameraGroupInfos) {
-                ClearCameraHandlersInternal(info.Value.Handlers);
+                ClearCameraInfosInternal(info.Value.CameraInfos);
             }
 
             _cameraGroupInfos.Clear();
@@ -649,20 +649,20 @@ namespace GameFramework.CameraSystems {
         protected override void LateUpdateInternal() {
             var deltaTime = LayeredTime.DeltaTime;
 
-            // Controllerの更新
+            // Handlerの更新
             foreach (var pair in _cameraGroupInfos) {
-                foreach (var p in pair.Value.Handlers) {
-                    if (p.Value.Controller == null) {
+                foreach (var p in pair.Value.CameraInfos) {
+                    if (p.Value.Handler == null) {
                         continue;
                     }
 
-                    p.Value.Controller.Update(deltaTime);
+                    p.Value.Handler.Update(deltaTime);
                 }
             }
 
             // Componentの更新
             foreach (var pair in _cameraGroupInfos) {
-                foreach (var p in pair.Value.Handlers) {
+                foreach (var p in pair.Value.CameraInfos) {
                     if (p.Value.Component == null) {
                         continue;
                     }
@@ -680,42 +680,42 @@ namespace GameFramework.CameraSystems {
         /// カメラのアクティブ化
         /// </summary>
         private void ActivateInternal(string groupKey, string cameraName, CameraBlend cameraBlend, bool force, int overridePriority) {
-            var handlers = GetCameraHandlers(groupKey);
+            var infos = GetCameraInfos(groupKey);
 
-            if (!handlers.TryGetValue(cameraName, out var handler)) {
+            if (!infos.TryGetValue(cameraName, out var info)) {
                 return;
             }
 
-            _toCameraBlends[handler.Component.BaseCamera] = cameraBlend;
+            _toCameraBlends[info.Component.BaseCamera] = cameraBlend;
 
-            handler.Activate(force);
+            info.Activate(force);
         }
 
         /// <summary>
         /// カメラの非アクティブ化
         /// </summary>
         private void DeactivateInternal(string groupKey, string cameraName, CameraBlend cameraBlend, bool force) {
-            var handlers = GetCameraHandlers(groupKey);
+            var cameraInfos = GetCameraInfos(groupKey);
 
-            if (!handlers.TryGetValue(cameraName, out var handler)) {
+            if (!cameraInfos.TryGetValue(cameraName, out var info)) {
                 return;
             }
 
-            _fromCameraBlends[handler.Component.BaseCamera] = cameraBlend;
+            _fromCameraBlends[info.Component.BaseCamera] = cameraBlend;
 
-            handler.Deactivate(force);
+            info.Deactivate(force);
         }
 
         /// <summary>
-        /// カメラハンドラー格納用Dictionaryの取得
+        /// カメラ情報格納用Dictionaryの取得
         /// </summary>
-        private Dictionary<string, CameraHandler> GetCameraHandlers(string groupKey) {
+        private Dictionary<string, CameraInfo> GetCameraInfos(string groupKey) {
             if (string.IsNullOrEmpty(groupKey)) {
                 groupKey = MainCameraGroupKey;
             }
 
             if (_cameraGroupInfos.TryGetValue(groupKey, out var info)) {
-                return info.Handlers;
+                return info.CameraInfos;
             }
 
             return new();
@@ -737,16 +737,16 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
-        /// CameraHandlerの生成
+        /// CameraInfoの生成
         /// </summary>
-        private void CreateCameraHandlersInternal(Dictionary<string, CameraHandler> handlers, Transform rootTransform) {
-            handlers.Clear();
+        private void CreateCameraInfosInternal(Dictionary<string, CameraInfo> infos, Transform rootTransform) {
+            infos.Clear();
 
             void Create(Transform root) {
                 foreach (Transform child in root) {
                     // カメラ名が既にあれば何もしない
                     var cameraName = child.name;
-                    if (handlers.ContainsKey(cameraName)) {
+                    if (infos.ContainsKey(cameraName)) {
                         Debug.LogWarning($"Already exists camera name. [{cameraName}]");
                         continue;
                     }
@@ -766,8 +766,8 @@ namespace GameFramework.CameraSystems {
 
                     component.Initialize(this);
 
-                    var handler = new CameraHandler(cameraName, component);
-                    handlers[cameraName] = handler;
+                    var info = new CameraInfo(cameraName, component);
+                    infos[cameraName] = info;
                 }
             }
 
@@ -775,15 +775,15 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
-        /// CameraHandlerの解放
+        /// CameraInfoの解放
         /// </summary>
-        private void ClearCameraHandlersInternal(Dictionary<string, CameraHandler> handlers) {
+        private void ClearCameraInfosInternal(Dictionary<string, CameraInfo> infos) {
             // カメラ情報を廃棄
-            foreach (var pair in handlers) {
+            foreach (var pair in infos) {
                 pair.Value.Dispose();
             }
 
-            handlers.Clear();
+            infos.Clear();
         }
 
         /// <summary>
@@ -812,7 +812,7 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
-        /// CameraHandlerの解放
+        /// ターゲットポイントの解放
         /// </summary>
         private void ClearTargetPointsInternal(Dictionary<string, Transform> targetPoints) {
             targetPoints.Clear();

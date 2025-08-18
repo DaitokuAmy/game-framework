@@ -8,13 +8,13 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// モデルビューア用カメラ制御クラス
     /// </summary>
-    public class PreviewCameraController : CameraController<PreviewCameraComponent> {
+    public class PreviewCameraHandler : CameraHandler<PreviewCameraComponent> {
         private readonly IPreviewCameraMaster _master;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public PreviewCameraController(IPreviewCameraMaster master) {
+        public PreviewCameraHandler(IPreviewCameraMaster master) {
             _master = master;
         }
 

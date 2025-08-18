@@ -63,7 +63,7 @@ namespace SampleGame.Domain.Battle {
             await CreatePlayerAsync(playerMaster, ct);
             
             // 入り演出に遷移
-            BattleModelInternal.StateMachine.Change(BattleSequenceType.Enter);
+            BattleModelInternal.ChangeState(BattleSequenceType.Enter);
         }
 
         /// <summary>
@@ -86,6 +86,13 @@ namespace SampleGame.Domain.Battle {
         }
 
         /// <summary>
+        /// LayeredTimeの取得
+        /// </summary>
+        public IReadOnlyLayeredTime GetLayeredTime(BattleTimeType type) {
+            return BattleModelInternal.TimeModelInternal.GetLayeredTime(type);
+        }
+
+        /// <summary>
         /// プレイヤーの生成
         /// </summary>
         private async UniTask CreatePlayerAsync(IPlayerMaster master, CancellationToken ct) {
@@ -97,7 +104,7 @@ namespace SampleGame.Domain.Battle {
             playerModel.Setup(master);
 
             // アクターの生成
-            var port = await _characterActorFactory.CreatePlayerAsync(playerModel, null, ct);
+            var port = await _characterActorFactory.CreatePlayerAsync(playerModel, GetLayeredTime(BattleTimeType.ViewPrimary), ct);
             playerModel.ActorModelInternal.Setup(port);
 
             // モデルの登録
@@ -135,7 +142,7 @@ namespace SampleGame.Domain.Battle {
             fieldModel.Setup(master);
 
             // アクターの生成
-            var port = await _fieldActorFactory.CreateAsync(fieldModel, ct);
+            var port = await _fieldActorFactory.CreateAsync(fieldModel, GetLayeredTime(BattleTimeType.ViewPrimary), ct);
             fieldModel.ActorModelInternal.Setup(port);
 
             // モデルの登録

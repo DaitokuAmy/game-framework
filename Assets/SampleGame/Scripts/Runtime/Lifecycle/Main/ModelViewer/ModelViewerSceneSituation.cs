@@ -67,7 +67,7 @@ namespace SampleGame.Lifecycle {
 
             // カメラ操作用Controllerの設定
             var cameraManager = Services.Resolve<CameraManager>();
-            cameraManager.SetCameraController("Default", new PreviewCameraController(_configData.camera));
+            cameraManager.SetCameraHandler("Default", new PreviewCameraHandler(_configData.camera));
 
             // Recorderのセットアップ
             var recorder = Services.Resolve<ModelRecorder>();

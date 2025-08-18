@@ -48,9 +48,26 @@ namespace SampleGame.Domain.Battle {
         }
 
         /// <summary>
+        /// TimeScaleの設定
+        /// </summary>
+        public void SetTimeScale(BattleTimeType type, float timeScale) {
+            var layeredTime = GetLayeredTimeInternal(type);
+            if (layeredTime != null) {
+                layeredTime.LocalTimeScale = timeScale;
+            }
+        }
+
+        /// <summary>
+        /// TimeScaleのリセット
+        /// </summary>
+        public void ResetTimeScale(BattleTimeType type) {
+            SetTimeScale(type, 1.0f);
+        }
+
+        /// <summary>
         /// 管理されたLayeredTimeの取得
         /// </summary>
-        internal LayeredTime GetLayeredTimeInternal(BattleTimeType type) {
+        private LayeredTime GetLayeredTimeInternal(BattleTimeType type) {
             switch (type) {
                 case BattleTimeType.System:
                     return _system;

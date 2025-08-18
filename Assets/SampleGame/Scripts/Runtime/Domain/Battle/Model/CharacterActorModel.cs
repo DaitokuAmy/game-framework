@@ -1,4 +1,5 @@
 using GameFramework.Core;
+using UnityEngine;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -7,6 +8,16 @@ namespace SampleGame.Domain.Battle {
     public interface IReadOnlyCharacterActorModel {
         /// <summary>識別子</summary>
         public int Id { get; }
+
+        /// <summary>
+        /// ルート座標の取得
+        /// </summary>
+        Vector3 GetRootPosition();
+
+        /// <summary>
+        /// ルート向きの取得
+        /// </summary>
+        Quaternion GetRootRotation();
     }
 
     /// <summary>
@@ -20,6 +31,16 @@ namespace SampleGame.Domain.Battle {
         /// コンストラクタ
         /// </summary>
         public CharacterActorModel(int id) : base(id) {
+        }
+
+        /// <inheritdoc/>
+        public Vector3 GetRootPosition() {
+            return Port.Position;
+        }
+
+        /// <inheritdoc/>
+        public Quaternion GetRootRotation() {
+            return Port.Rotation;
         }
 
         /// <summary>

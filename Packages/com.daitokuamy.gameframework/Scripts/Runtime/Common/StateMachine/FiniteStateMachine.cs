@@ -13,7 +13,9 @@ namespace GameFramework {
         private readonly DisposableScope _scope = new();
 
         /// <summary>状態変更通知(Prev > Next)</summary>
-        public event Action<TKey, TKey> ChangedStateEvent;
+        public event Action<TKey, TKey> ChangedPrevNextStateEvent;
+        /// <summary>状態変更通知(Next)</summary>
+        public event Action<TKey> ChangedStateEvent;
 
         /// <summary>現在のステートキー</summary>
         public TKey CurrentKey { get; private set; }
@@ -89,7 +91,8 @@ namespace GameFramework {
                 CurrentKey = InvalidKey;
             }
 
-            ChangedStateEvent?.Invoke(prevKey, prevKey);
+            ChangedPrevNextStateEvent?.Invoke(prevKey, CurrentKey);
+            ChangedStateEvent?.Invoke(CurrentKey);
         }
 
         /// <summary>

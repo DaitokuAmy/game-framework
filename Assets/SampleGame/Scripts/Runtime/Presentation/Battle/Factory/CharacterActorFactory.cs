@@ -36,7 +36,7 @@ namespace SampleGame.Presentation.Battle {
         }
 
         /// <inheritdoc/>
-        async UniTask<ICharacterActorPort> ICharacterActorFactory.CreatePlayerAsync(IReadOnlyPlayerModel model, LayeredTime layeredTime, CancellationToken ct) {
+        async UniTask<ICharacterActorPort> ICharacterActorFactory.CreatePlayerAsync(IReadOnlyPlayerModel model, IReadOnlyLayeredTime parentLayeredTime, CancellationToken ct) {
             if (model == null) {
                 return null;
             }
@@ -44,7 +44,7 @@ namespace SampleGame.Presentation.Battle {
             // body生成
             var prefab = await _bodyPrefabRepository.LoadCharacterPrefabAsync(model.Master.AssetKey, ct);
             var body = new Body(Object.Instantiate(prefab, _actorEntityManager.RootTransform), new BodyBuilder());
-            body.LayeredTime.SetParent(layeredTime);
+            body.LayeredTime.SetParent(parentLayeredTime);
             body.RegisterTask(TaskOrder.Body);
 
             // actor生成

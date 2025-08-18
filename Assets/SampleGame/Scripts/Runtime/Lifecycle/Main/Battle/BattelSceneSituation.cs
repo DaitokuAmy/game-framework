@@ -52,10 +52,11 @@ namespace SampleGame.Lifecycle {
             SetupDomains(scope);
             SetupApplications(scope);
             SetupFactories(scope);
-            SetupPresentations(scope);
 
             // 初期化処理
             yield return Services.Resolve<BattleAppService>().SetupAsync(1, 1, scope.Token).ToCoroutine();
+            
+            SetupPresentations(scope);
         }
 
         /// <summary>
@@ -214,6 +215,8 @@ namespace SampleGame.Lifecycle {
             var uiManager = Services.Resolve<UIManager>();
             var overlayUIService = uiManager.GetService<BattleOverlayUIService>();
             overlayUIService.OverlayScreenContainer.RegisterHandler(AddLogic(new OverlayUIScreenPresenter(), false, scope));
+
+            AddLogic(new CameraPresenter(), true, scope);
         }
     }
 }

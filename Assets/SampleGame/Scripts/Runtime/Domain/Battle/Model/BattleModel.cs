@@ -1,5 +1,6 @@
 using GameFramework;
 using GameFramework.Core;
+using R3;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -14,12 +15,19 @@ namespace SampleGame.Domain.Battle {
         IReadOnlyPlayerModel PlayerModel { get; }
         /// <summary>フィールド用モデル</summary>
         IReadOnlyFieldModel FieldModel { get; }
+        /// <summary>現在のシーケンスタイプ</summary>
+        BattleSequenceType CurrentSequenceType { get; }
+        
+        /// <summary>シーケンスタイプの変更通知</summary>
+        Observable<BattleSequenceType> ChangedCurrentSequenceTypeSubject { get; }
     }
 
     /// <summary>
     /// 表示用アクターモデル
     /// </summary>
     public class BattleModel : SingleModel<BattleModel>, IReadOnlyBattleModel {
+        private FiniteStateMachine<BattleSequenceType> _stateMachine;
+        
         /// <inheritdoc/>
         public IBattleMaster Master { get; private set; }
         /// <inheritdoc/>
@@ -28,19 +36,22 @@ namespace SampleGame.Domain.Battle {
         public IReadOnlyPlayerModel PlayerModel => PlayerModelInternal;
         /// <inheritdoc/>
         public IReadOnlyFieldModel FieldModel => FieldModelInternal;
+        /// <inheritdoc/>
+        public BattleSequenceType CurrentSequenceType => _stateMachine.CurrentKey;
+
+        /// <inheritdoc/>
+        public Observable<BattleSequenceType> ChangedCurrentSequenceTypeSubject => _stateMachine.ChangedStateAsObservable();
         
         /// <summary>時間管理用モデル</summary>
-        public BattleTimeModel TimeModelInternal { get; private set; }
+        internal BattleTimeModel TimeModelInternal { get; private set; }
         /// <summary>プレイヤー用モデル</summary>
         internal PlayerModel PlayerModelInternal { get; private set; }
         /// <summary>フィールド用モデル</summary>
         internal FieldModel FieldModelInternal { get; private set; }
-        /// <summary>シーケンス管理用FSM</summary>
-        internal FiniteStateMachine<BattleSequenceType> StateMachine { get; private set; }
 
         /// <inheritdoc/>
         protected override void OnCreatedInternal(IScope scope) {
-            StateMachine = new FiniteStateMachine<BattleSequenceType>().RegisterTo(scope);
+            _stateMachine = new FiniteStateMachine<BattleSequenceType>().RegisterTo(scope);
             
             TimeModelInternal = new BattleTimeModel().RegisterTo(scope);
         }
@@ -50,14 +61,21 @@ namespace SampleGame.Domain.Battle {
         /// </summary>
         public void Setup(IBattleMaster master, IState<BattleSequenceType>[] states) {
             Master = master;
-            StateMachine.Setup(BattleSequenceType.Invalid, states);
+            _stateMachine.Setup(BattleSequenceType.Invalid, states);
         }
 
         /// <summary>
         /// ステート更新処理
         /// </summary>
         public void UpdateState(float deltaTime) {
-            StateMachine.Update(deltaTime);
+            _stateMachine.Update(deltaTime);
+        }
+
+        /// <summary>
+        /// ステートの変更
+        /// </summary>
+        public void ChangeState(BattleSequenceType sequenceType) {
+            _stateMachine.Change(sequenceType);
         }
 
         /// <summary>

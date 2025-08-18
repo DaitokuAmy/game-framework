@@ -22,7 +22,7 @@ namespace GameFramework {
         private float _localTimeScale = 1.0f;
 
         /// <summary>親要素</summary>
-        public LayeredTime Parent { get; private set; }
+        public IReadOnlyLayeredTime Parent { get; private set; }
         /// <summary>親階層を考慮しないTimeScale</summary>
         public float LocalTimeScale {
             get => _localTimeScale;
@@ -64,20 +64,20 @@ namespace GameFramework {
         /// 親のTimeLayerの設定
         /// </summary>
         /// <param name="parent">親となるTimeLayer, 未指定の場合UnityEngine.Timeに直接依存</param>
-        public void SetParent(LayeredTime parent) {
+        public void SetParent(IReadOnlyLayeredTime parent) {
             if (IsDescendantOf(parent)) {
                 throw new InvalidOperationException("Cannot set parent: Circular reference detected.");
             }
 
             if (Parent != null) {
-                Parent._children.Remove(this);
+                ((LayeredTime)Parent)._children.Remove(this);
                 Parent = null;
             }
 
             Parent = parent;
 
             if (Parent != null) {
-                Parent._children.Add(this);
+                ((LayeredTime)Parent)._children.Add(this);
             }
 
             OnChangedParentTimeScale(ParentTimeScale);
@@ -88,7 +88,7 @@ namespace GameFramework {
         /// </summary>
         public void Dispose() {
             if (Parent != null) {
-                Parent._children.Remove(this);
+                ((LayeredTime)Parent)._children.Remove(this);
                 Parent = null;
             }
 
@@ -102,7 +102,7 @@ namespace GameFramework {
         /// <summary>
         /// 該当のLayeredTimeが自身に含まれているか
         /// </summary>
-        private bool IsDescendantOf(LayeredTime target) {
+        private bool IsDescendantOf(IReadOnlyLayeredTime target) {
             if (target == null) {
                 return false;
             }

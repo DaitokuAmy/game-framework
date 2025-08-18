@@ -3,9 +3,9 @@ using GameFramework.Core;
 
 namespace GameFramework.CameraSystems {
     /// <summary>
-    /// カメラ制御用コントローラのインターフェース
+    /// カメラハンドラー制御用インターフェース
     /// </summary>
-    public interface ICameraController : IDisposable {
+    public interface ICameraHandler : IDisposable {
         /// <summary>
         /// 初期化処理
         /// </summary>
@@ -30,22 +30,22 @@ namespace GameFramework.CameraSystems {
     }
 
     /// <summary>
-    /// カメラ制御用コントローラー
+    /// カメラハンドラー
     /// </summary>
-    public abstract class CameraController<TComponent> : ICameraController
+    public abstract class CameraHandler<TComponent> : ICameraHandler
         where TComponent : class, ICameraComponent {
-        private DisposableScope _scope = new();
-        private DisposableScope _activeScope = new();
+        private readonly DisposableScope _scope = new();
+        private readonly DisposableScope _activeScope = new();
 
         private bool _isActive;
 
-        // 制御に使うCameraComponent
+        /// <summary>制御に使うCameraComponent</summary>
         protected TComponent Component { get; private set; }
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        void ICameraController.Initialize(ICameraComponent component) {
+        void ICameraHandler.Initialize(ICameraComponent component) {
             Component = component as TComponent;
 
             InitializeInternal(_scope);
@@ -59,7 +59,7 @@ namespace GameFramework.CameraSystems {
                 return;
             }
 
-            ((ICameraController)this).Deactivate();
+            ((ICameraHandler)this).Deactivate();
             DisposeInternal();
             _scope.Dispose();
         }
@@ -67,7 +67,7 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// アクティブ化
         /// </summary>
-        void ICameraController.Activate() {
+        void ICameraHandler.Activate() {
             if (_isActive) {
                 return;
             }
@@ -79,7 +79,7 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// 非アクティブ化
         /// </summary>
-        void ICameraController.Deactivate() {
+        void ICameraHandler.Deactivate() {
             if (!_isActive) {
                 return;
             }
@@ -92,7 +92,7 @@ namespace GameFramework.CameraSystems {
         /// <summary>
         /// 更新処理
         /// </summary>
-        void ICameraController.Update(float deltaTime) {
+        void ICameraHandler.Update(float deltaTime) {
             UpdateInternal(deltaTime);
         }
 

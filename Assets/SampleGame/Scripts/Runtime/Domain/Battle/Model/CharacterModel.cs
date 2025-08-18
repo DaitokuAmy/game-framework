@@ -26,9 +26,6 @@ namespace SampleGame.Domain.Battle {
         
         /// <summary>アクター制御用モデル</summary>
         internal CharacterActorModel ActorModelInternal { get; private set; }
-
-        protected CharacterModel() {
-        }
         
         /// <summary>
         /// 生成処理
