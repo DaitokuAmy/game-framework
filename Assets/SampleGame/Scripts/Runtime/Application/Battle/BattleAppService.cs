@@ -56,5 +56,12 @@ namespace SampleGame.Application.Battle {
         public void Cleanup() {
             _battleDomainService.Cleanup();
         }
+
+        /// <summary>
+        /// フレーム更新
+        /// </summary>
+        public void UpdateFrame() {
+            _battleDomainService.Update();
+        }
     }
 }

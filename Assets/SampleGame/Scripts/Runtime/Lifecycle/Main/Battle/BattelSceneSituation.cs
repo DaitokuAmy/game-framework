@@ -128,6 +128,16 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <summary>
+        /// 更新処理
+        /// </summary>
+        protected override void UpdateInternal() {
+            base.UpdateInternal();
+
+            var battleAppService = Services.Resolve<BattleAppService>();
+            battleAppService.UpdateFrame();
+        }
+
+        /// <summary>
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
@@ -166,8 +176,6 @@ namespace SampleGame.Lifecycle {
         /// Domain初期化
         /// </summary>
         private void SetupDomains(IScope scope) {
-            Services.Resolve<IModelRepository>().CreateSingleModel<BattleModel>().RegisterTo(scope);
-
             ServiceContainer.Register<BattleDomainService>().RegisterTo(scope);
             ServiceContainer.Register<CharacterDomainService>().RegisterTo(scope);
         }

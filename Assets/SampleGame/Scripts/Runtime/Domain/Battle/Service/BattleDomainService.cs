@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.Core;
 using SampleGame.Infrastructure;
 
@@ -8,16 +9,19 @@ namespace SampleGame.Domain.Battle {
     /// <summary>
     /// バトル用のドメインサービス
     /// </summary>
-    public class BattleDomainService : IDisposable {
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public partial class BattleDomainService : IDisposable {
         private readonly IModelRepository _modelRepository;
         private readonly ICharacterActorFactory _characterActorFactory;
         private readonly IFieldActorFactory _fieldActorFactory;
-        private readonly BattleModel _battleModel;
 
         private DisposableScope _scope;
 
         /// <summary>バトルモデル</summary>
-        public IReadOnlyBattleModel BattleModel => _battleModel;
+        public IReadOnlyBattleModel BattleModel => BattleModelInternal;
+        
+        /// <summary>バトルモデル</summary>
+        internal BattleModel BattleModelInternal { get; private set; }
 
         /// <summary>
         /// コンストラクタ
@@ -26,7 +30,6 @@ namespace SampleGame.Domain.Battle {
             _modelRepository = Services.Resolve<IModelRepository>();
             _characterActorFactory = Services.Resolve<ICharacterActorFactory>();
             _fieldActorFactory = Services.Resolve<IFieldActorFactory>();
-            _battleModel = _modelRepository.GetSingleModel<BattleModel>();
 
             _scope = new DisposableScope();
         }
@@ -43,14 +46,24 @@ namespace SampleGame.Domain.Battle {
         /// セットアップ
         /// </summary>
         public async UniTask SetupAsync(IBattleMaster master, IPlayerMaster playerMaster, CancellationToken ct) {
+            // モデル生成
+            BattleModelInternal = _modelRepository.CreateSingleModel<BattleModel>();
+            
             // バトル初期化
-            _battleModel.Setup(master);
+            BattleModelInternal.Setup(master, new IState<BattleSequenceType>[] {
+                new EnterState(this),
+                new PlayingState(this),
+                new FinishState(this)
+            });
 
             // フィールドの生成
             await CreateFieldAsync(master.FieldMaster, ct);
 
             // プレイヤーの生成
             await CreatePlayerAsync(playerMaster, ct);
+            
+            // 入り演出に遷移
+            BattleModelInternal.StateMachine.Change(BattleSequenceType.Enter);
         }
 
         /// <summary>
@@ -59,9 +72,17 @@ namespace SampleGame.Domain.Battle {
         public void Cleanup() {
             // プレイヤーの削除
             DeleteCurrentPlayer();
-            
+
             // フィールドの削除
             DeleteCurrentField();
+        }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        public void Update() {
+            var deltaTime = BattleModelInternal.TimeModel.GetDeltaTime(BattleTimeType.System);
+            BattleModelInternal.UpdateState(deltaTime);
         }
 
         /// <summary>
@@ -80,20 +101,20 @@ namespace SampleGame.Domain.Battle {
             playerModel.ActorModelInternal.Setup(port);
 
             // モデルの登録
-            _battleModel.SetPlayerModel(playerModel);
+            BattleModelInternal.SetPlayerModel(playerModel);
         }
 
         /// <summary>
         /// 現在のプレイヤーの削除
         /// </summary>
         private void DeleteCurrentPlayer() {
-            var playerModel = _battleModel.PlayerModelInternal;
+            var playerModel = BattleModelInternal.PlayerModelInternal;
             if (playerModel == null) {
                 return;
             }
 
             // 登録解除
-            _battleModel.SetPlayerModel(null);
+            BattleModelInternal.SetPlayerModel(null);
 
             // アクターの削除
             _characterActorFactory.DestroyPlayer(playerModel);
@@ -118,20 +139,20 @@ namespace SampleGame.Domain.Battle {
             fieldModel.ActorModelInternal.Setup(port);
 
             // モデルの登録
-            _battleModel.SetFieldModel(fieldModel);
+            BattleModelInternal.SetFieldModel(fieldModel);
         }
 
         /// <summary>
         /// 現在のフィールドの削除
         /// </summary>
         private void DeleteCurrentField() {
-            var fieldModel = _battleModel.FieldModelInternal;
+            var fieldModel = BattleModelInternal.FieldModelInternal;
             if (fieldModel == null) {
                 return;
             }
 
             // 登録解除
-            _battleModel.SetFieldModel(null);
+            BattleModelInternal.SetFieldModel(null);
 
             // アクターの削除
             _fieldActorFactory.Destroy(fieldModel);
