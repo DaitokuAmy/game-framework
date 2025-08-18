@@ -31,7 +31,8 @@ namespace ThirdPersonEngine {
                 // todo:視線を元に変換
                 _moveDirection = new Vector3(input.x, 0, input.y);
                 _isRun = _moveDirection.sqrMagnitude >= 0.5 * 0.5f;
-                Owner.DirectionMove(_moveDirection, 0.0f);
+                var speed = Owner.IsAir ? 1.0f : 0.0f;
+                Owner.DirectionMove(_moveDirection, speed);
             }
 
             /// <summary>
@@ -72,7 +73,6 @@ namespace ThirdPersonEngine {
             private void UpdateAnimationProperties(bool ignoreDamping = false) {
                 var playable = Owner.BasePlayableComponent.Playable;
                 var body = Owner.Body;
-                var moveComponent = Owner.MoveComponent;
 
                 // 歩き移動に関するパラメータ
                 void UpdateDirection(string prefix, Vector3 target) {

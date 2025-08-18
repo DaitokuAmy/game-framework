@@ -17,9 +17,6 @@ using SampleGame.Application.Battle;
 using SampleGame.Domain.Battle;
 using SampleGame.Presentation.UITest;
 using ThirdPersonEngine;
-using TMPro;
-using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
