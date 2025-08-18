@@ -12,16 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5f6329eaa44d9f4d8c65fadb9bb36cc, type: 3}
   m_Name: dat_model_viewer_config
   m_EditorClassIdentifier: 
-  master:
-    defaultActorAssetKeyIndex: 0
-    actorAssetKeys:
-    - ch001_00_gunslinger001
-    - ch001_00_mixamo001
-    - ch001_00_unitychan001
-    defaultEnvironmentAssetKeyIndex: 1
-    environmentAssetKeys:
-    - fld000
-    - fld001
   camera:
     angleControlSpeed: 1
     lookAtOffsetControlSpeed: 0.01

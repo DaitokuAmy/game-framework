@@ -1,6 +1,5 @@
 using System;
 using GameFramework;
-using SampleGame.Domain.Battle;
 using UnityEngine;
 
 namespace SampleGame.Infrastructure.Battle {

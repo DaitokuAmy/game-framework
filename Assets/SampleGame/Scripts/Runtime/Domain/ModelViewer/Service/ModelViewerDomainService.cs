@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.Core;
 using SampleGame.Infrastructure;
 using ThirdPersonEngine;
@@ -57,10 +58,6 @@ namespace SampleGame.Domain.ModelViewer {
             _previewActorFactory = Services.Resolve<IPreviewActorFactory>();
             
             _scope = new DisposableScope();
-
-            ModelViewerModelInternal = _modelRepository.GetSingleModel<ModelViewerModel>();
-            RecordingModelInternal = _modelRepository.GetSingleModel<RecordingModel>();
-            SettingsModelInternal = _modelRepository.GetSingleModel<SettingsModel>();
         }
 
         /// <summary>
@@ -75,6 +72,12 @@ namespace SampleGame.Domain.ModelViewer {
         /// 初期化
         /// </summary>
         public void Setup(IModelViewerMaster master) {
+            // モデルの生成
+            ModelViewerModelInternal = _modelRepository.CreateSingleModel<ModelViewerModel>().RegisterTo(_scope);
+            RecordingModelInternal = _modelRepository.CreateSingleModel<RecordingModel>().RegisterTo(_scope);
+            SettingsModelInternal = _modelRepository.CreateSingleModel<SettingsModel>().RegisterTo(_scope);
+
+            // Modelの初期化
             ModelViewerModelInternal.Setup(master);
         }
 

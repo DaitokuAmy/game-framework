@@ -11,6 +11,17 @@ namespace SampleGame.Infrastructure.ModelViewer {
     }
     
     /// <summary>
+    /// ModelViewerMasterData用のAssetRequest
+    /// </summary>
+    public class ModelViewerMasterDataRequest : SystemAssetRequest<ModelViewerMasterData> {
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public ModelViewerMasterDataRequest() : base("ModelViewer/Master/dat_model_viewer_master.asset") {
+        }
+    }
+    
+    /// <summary>
     /// ModelViewer用のActorSetupData読み込みリクエスト
     /// </summary>
     public class ModelViewerActorMasterDataRequest : SystemAssetRequest<ModelViewerPreviewActorMasterData> {

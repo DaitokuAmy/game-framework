@@ -10,26 +10,6 @@ namespace SampleGame.Infrastructure.ModelViewer {
     [CreateAssetMenu(fileName = "dat_model_viewer_config.asset", menuName = "Sample Game/Model Viewer/Config Data")]
     public class ModelViewerConfigData : ScriptableObject {
         /// <summary>
-        /// マスター設定
-        /// </summary>
-        [Serializable]
-        public class MasterInfo : IModelViewerMaster {
-            [Tooltip("初期状態で読み込むアクターアセットキーのIndex")]
-            public int defaultActorAssetKeyIndex = 0;
-            [Tooltip("ActorDataのAssetKeyリスト")]
-            public string[] actorAssetKeys = Array.Empty<string>();
-            [Tooltip("初期状態で読み込む環境アセットキーのIndex")]
-            public int defaultEnvironmentAssetKeyIndex = 0;
-            [Tooltip("EnvironmentIDリスト")]
-            public string[] environmentAssetKeys = Array.Empty<string>();
-
-            int IModelViewerMaster.DefaultActorAssetKeyIndex => defaultActorAssetKeyIndex;
-            IReadOnlyList<string> IModelViewerMaster.ActorAssetKeys => actorAssetKeys;
-            int IModelViewerMaster.DefaultEnvironmentAssetKeyIndex => defaultEnvironmentAssetKeyIndex;
-            IReadOnlyList<string> IModelViewerMaster.EnvironmentAssetKeys => environmentAssetKeys;
-        }
-
-        /// <summary>
         /// カメラ設定
         /// </summary>
         [Serializable]
@@ -57,9 +37,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
             Vector3 IPreviewCameraMaster.StartAngles => startAngles;
             float IPreviewCameraMaster.StartDistance => startDistance;
         }
-
-        [Tooltip("初期状態")]
-        public MasterInfo master;
+        
         [Tooltip("カメラ")]
         public CameraInfo camera;
     }

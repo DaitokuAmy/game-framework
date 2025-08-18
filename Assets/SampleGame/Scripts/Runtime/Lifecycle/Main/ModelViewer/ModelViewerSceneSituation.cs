@@ -29,7 +29,6 @@ namespace SampleGame.Lifecycle {
         private ModelViewerDomainService _domainService;
 
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/Develop/model_viewer.unity";
-        protected override string EmptySceneAssetPath => "Assets/SampleGame/Scenes/empty.unity";
 
         /// <summary>
         /// 読み込み処理
@@ -62,15 +61,14 @@ namespace SampleGame.Lifecycle {
             SetupFactories(scope);
             SetupDomains(scope);
             SetupApplications(scope);
-            SetupPresentations(scope);
 
             // アプリケーション初期化
-            yield return _appService.SetupAsync(_configData.master, scope.Token).ToCoroutine();
+            yield return _appService.SetupAsync(scope.Token).ToCoroutine();
 
             // カメラ操作用Controllerの設定
             var cameraManager = Services.Resolve<CameraManager>();
             cameraManager.SetCameraController("Default", new PreviewCameraController(_configData.camera));
-            
+
             // Recorderのセットアップ
             var recorder = Services.Resolve<ModelRecorder>();
             recorder.ActorSlot = Services.Resolve<ActorEntityManager>().RootTransform;
@@ -78,6 +76,9 @@ namespace SampleGame.Lifecycle {
             // 初期値反映
             _appService.ChangePreviewActor(_domainService.ModelViewerModel.Master.DefaultActorAssetKeyIndex);
             _appService.ChangeEnvironment(_domainService.ModelViewerModel.Master.DefaultEnvironmentAssetKeyIndex);
+            
+            // プレゼンテーション初期化
+            SetupPresentations(scope);
         }
 
         /// <summary>
@@ -137,9 +138,7 @@ namespace SampleGame.Lifecycle {
                 // Actor生成監視
                 viewerModel.ChangedPreviewActorSubject
                     .TakeUntil(scope)
-                    .Prepend(() => new ChangedPreviewActorDto {
-                        Model = viewerModel.PreviewActorModel
-                    })
+                    .Prepend(() => new ChangedPreviewActorDto { Model = viewerModel.PreviewActorModel })
                     .Subscribe(dto => {
                         if (dto.Model != null) {
                             SetupMotionPage(dto.Model.Master);
@@ -189,12 +188,6 @@ namespace SampleGame.Lifecycle {
         /// Domain層の初期化
         /// </summary>
         private void SetupDomains(IScope scope) {
-            // モデルの生成
-            var modelRepository = Services.Resolve<IModelRepository>();
-            modelRepository.CreateSingleModel<ModelViewerModel>().RegisterTo(scope);
-            modelRepository.CreateSingleModel<RecordingModel>().RegisterTo(scope);
-            modelRepository.CreateSingleModel<SettingsModel>().RegisterTo(scope);
-            
             _domainService = new ModelViewerDomainService();
             ServiceContainer.RegisterInstance(_domainService).RegisterTo(scope);
         }

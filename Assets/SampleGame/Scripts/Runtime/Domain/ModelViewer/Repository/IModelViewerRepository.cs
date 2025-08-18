@@ -7,6 +7,11 @@ namespace SampleGame.Domain.ModelViewer {
     /// </summary>
     public interface IModelViewerRepository {
         /// <summary>
+        /// Masterの読み込み
+        /// </summary>
+        UniTask<IModelViewerMaster> LoadMasterAsync(CancellationToken ct);
+
+        /// <summary>
         /// ActorMasterの読み込み
         /// </summary>
         UniTask<IPreviewActorMaster> LoadActorMasterAsync(string assetKey, CancellationToken ct);

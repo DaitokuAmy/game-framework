@@ -37,13 +37,14 @@ namespace SampleGame.Application.ModelViewer {
         /// <summary>
         /// 初期化
         /// </summary>
-        public UniTask SetupAsync(IModelViewerMaster master, CancellationToken ct) {
+        public async UniTask SetupAsync(CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
-
-            // 設定ファイルで初期化
-            _domainService.Setup(master);
             
-            return UniTask.CompletedTask;
+            // マスター読み込み
+            var master = await _repository.LoadMasterAsync(ct);
+
+            // 基本機能の初期化
+            _domainService.Setup(master);
         }
 
         /// <summary>
@@ -55,7 +56,7 @@ namespace SampleGame.Application.ModelViewer {
                 return;
             }
 
-            // 設定ファイルを読み込み
+            // マスターを読み込んで、初期化
             _repository.LoadActorMasterAsync(assetKeys[index], _scope.Token)
                 .ContinueWith(result => { _domainService.ChangePreviewActorAsync(result, _scope.Token).Forget(); })
                 .Forget();
@@ -139,7 +140,7 @@ namespace SampleGame.Application.ModelViewer {
                 return;
             }
 
-            // 設定ファイルを読み込み
+            // マスターを読み込んで初期化
             _repository.LoadEnvironmentMasterAsync(assetKeys[index], _scope.Token)
                 .ContinueWith(result => { _domainService.ChangeEnvironmentAsync(result, _scope.Token).Forget(); })
                 .Forget();
