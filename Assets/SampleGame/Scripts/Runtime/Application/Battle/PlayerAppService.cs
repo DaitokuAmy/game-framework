@@ -42,6 +42,13 @@ namespace SampleGame.Application.Battle {
         }
 
         /// <summary>
+        /// 注視移動入力
+        /// </summary>
+        public void InputLookAt(int playerId, Vector2 input) {
+            _characterDomainService.InputLookAt(playerId, input);
+        }
+
+        /// <summary>
         /// スプリント入力
         /// </summary>
         public void InputSprint(int playerId, bool sprint) {

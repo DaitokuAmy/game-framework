@@ -17,6 +17,8 @@ namespace SampleGame.Presentation.Battle {
         Vector3 ICharacterActorPort.Position => _actor.Position;
         /// <inheritdoc/>
         Quaternion ICharacterActorPort.Rotation => _actor.Rotation;
+        /// <inheritdoc/>
+        Quaternion ICharacterActorPort.LookAtRotation => _actor.LookAtRotation;
 
         /// <summary>
         /// コンストラクタ
@@ -29,6 +31,11 @@ namespace SampleGame.Presentation.Battle {
         /// <inheritdoc/>
         void ICharacterActorPort.InputMove(Vector2 input) {
             _actor.InputMove(input);
+        }
+
+        /// <inheritdoc/>
+        void ICharacterActorPort.InputLookAt(Vector2 input) {
+            _actor.InputLookAt(input);
         }
 
         /// <inheritdoc/>

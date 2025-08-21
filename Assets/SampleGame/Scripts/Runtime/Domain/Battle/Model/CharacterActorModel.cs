@@ -18,6 +18,11 @@ namespace SampleGame.Domain.Battle {
         /// ルート向きの取得
         /// </summary>
         Quaternion GetRootRotation();
+
+        /// <summary>
+        /// 注視向きの取得
+        /// </summary>
+        Quaternion GetLookAtRotation();
     }
 
     /// <summary>
@@ -41,6 +46,11 @@ namespace SampleGame.Domain.Battle {
         /// <inheritdoc/>
         public Quaternion GetRootRotation() {
             return Port.Rotation;
+        }
+
+        /// <inheritdoc/>
+        public Quaternion GetLookAtRotation() {
+            return Port.LookAtRotation;
         }
 
         /// <summary>

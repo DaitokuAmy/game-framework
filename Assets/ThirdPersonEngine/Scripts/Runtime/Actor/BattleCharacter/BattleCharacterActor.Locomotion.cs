@@ -28,8 +28,8 @@ namespace ThirdPersonEngine {
             /// 移動入力
             /// </summary>
             public override void InputMove(Vector2 input) {
-                // todo:視線を元に変換
                 _moveDirection = new Vector3(input.x, 0, input.y);
+                _moveDirection = Owner.LookAtRotation * _moveDirection;
                 _isRun = _moveDirection.sqrMagnitude >= 0.5 * 0.5f;
                 var speed = Owner.IsAir ? 1.0f : 0.0f;
                 Owner.DirectionMove(_moveDirection, speed);

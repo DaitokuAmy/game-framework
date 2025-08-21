@@ -9,11 +9,18 @@ namespace SampleGame.Domain.Battle {
         Vector3 Position { get; }
         /// <summary>向き</summary>
         Quaternion Rotation { get; }
+        /// <summary>注視向き</summary>
+        Quaternion LookAtRotation { get; }
 
         /// <summary>
         /// 移動入力
         /// </summary>
         void InputMove(Vector2 input);
+
+        /// <summary>
+        /// 注視移動入力
+        /// </summary>
+        void InputLookAt(Vector2 input);
 
         /// <summary>
         /// スプリント入力

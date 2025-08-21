@@ -40,10 +40,12 @@ namespace SampleGame.Presentation.Battle {
             var playerActorModel = _battleAppService.BattleModel.PlayerModel.ActorModel;
             var playerPos = playerActorModel.GetRootPosition();
             var playerRot = playerActorModel.GetRootRotation();
+            var lookAtRot = playerActorModel.GetLookAtRotation();
 
             _center.position = playerPos;
             _center.rotation = playerRot;
             _rootAngle.position = playerPos;
+            _rootAngle.rotation = lookAtRot;
         }
     }
 }

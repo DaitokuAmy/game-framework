@@ -51,6 +51,27 @@ namespace SampleGame.Domain.Battle {
         }
 
         /// <summary>
+        /// 注視入力移動
+        /// </summary>
+        /// <param name="modelId">CharacterModelのId</param>
+        /// <param name="input">入力量</param>
+        public void InputLookAt(int modelId, Vector2 input) {
+            var model = _modelRepository.GetAutoIdModel<CharacterModel>(modelId);
+            if (model == null) {
+                return;
+            }
+
+            // 入力可能チェック
+            if (!CheckInput()) {
+                return;
+            }
+
+            // アクターに伝達
+            var actorModel = model.ActorModelInternal;
+            actorModel.Port.InputLookAt(input);
+        }
+
+        /// <summary>
         /// スプリント入力
         /// </summary>
         public void InputSprint(int modelId, bool sprint) {

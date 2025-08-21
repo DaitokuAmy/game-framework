@@ -24,8 +24,8 @@ namespace ThirdPersonEngine {
             /// 移動入力
             /// </summary>
             public override void InputMove(Vector2 input) {
-                // todo:視線を元に変換
                 var direction = new Vector3(input.x, 0, input.y);
+                direction = Owner.LookAtRotation * direction;
                 var speedMultiplier = direction.sqrMagnitude * Owner._data.jumpActionInfo.moveSpeedScale;
                 Owner.DirectionMove(direction, speedMultiplier);
             }

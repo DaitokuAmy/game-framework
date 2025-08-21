@@ -13,6 +13,7 @@ namespace SampleGame.Presentation.Battle {
         private readonly PlayerAppService _playerAppService;
         private readonly IReadOnlyCharacterModel _model;
         private readonly InputAction _moveAction;
+        private readonly InputAction _lookAtAction;
         private readonly InputAction _jumpAction;
         private readonly InputAction _attackAction;
         private readonly InputAction _sprintAction;
@@ -27,6 +28,7 @@ namespace SampleGame.Presentation.Battle {
 
             var playerInput = Services.Resolve<PlayerInput>();
             _moveAction = playerInput.actions["Move"];
+            _lookAtAction = playerInput.actions["LookAt"];
             _jumpAction = playerInput.actions["Jump"];
             _attackAction = playerInput.actions["Attack"];
             _sprintAction = playerInput.actions["Sprint"];
@@ -52,6 +54,9 @@ namespace SampleGame.Presentation.Battle {
             // 移動入力
             _playerAppService.InputMove(_model.Id, _moveAction.ReadValue<Vector2>());
             _playerAppService.InputSprint(_model.Id, _sprintAction.IsPressed());
+            
+            // 注視移動入力
+            _playerAppService.InputLookAt(_model.Id, _lookAtAction.ReadValue<Vector2>());
         }
 
         /// <summary>

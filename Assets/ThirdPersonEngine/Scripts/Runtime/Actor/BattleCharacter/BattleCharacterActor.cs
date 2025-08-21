@@ -9,15 +9,17 @@ namespace ThirdPersonEngine {
     /// バトルキャラアクター
     /// </summary>
     public partial class BattleCharacterActor : CharacterActor {
-        
         private readonly BattleCharacterActorData _data;
         private readonly CharacterController _characterController;
         private readonly VelocityActorComponent _velocityComponent;
         private readonly SensorActorComponent _sensorComponent;
+        private readonly LookAtControlActorComponent _lookAtControlComponent;
 
         /// <summary>地上にいるか</summary>
         public override bool IsGrounded => _characterController.isGrounded;
 
+        /// <summary>注視向き</summary>
+        public Quaternion LookAtRotation => _lookAtControlComponent.LookAtRotation;
         /// <summary>空中状態か</summary>
         public bool IsAir => _sensorComponent.IsAir;
 
@@ -30,6 +32,7 @@ namespace ThirdPersonEngine {
             _characterController = body.GetComponent<CharacterController>();
             _velocityComponent = AddComponent(new VelocityActorComponent(this, _data.moveActionInfo));
             _sensorComponent = AddComponent(new SensorActorComponent(this, _data.sensorInfo, LayerUtility.GetLayerMask(LayerType.Environment)));
+            _lookAtControlComponent = AddComponent(new LookAtControlActorComponent(this));
         }
 
         /// <summary>
@@ -66,6 +69,13 @@ namespace ThirdPersonEngine {
         /// </summary>
         public void InputMove(Vector2 input) {
             CurrentState.InputMove(input);
+        }
+
+        /// <summary>
+        /// 注視動入力
+        /// </summary>
+        public void InputLookAt(Vector2 input) {
+            _lookAtControlComponent.Rotate(input.x);
         }
 
         /// <summary>
