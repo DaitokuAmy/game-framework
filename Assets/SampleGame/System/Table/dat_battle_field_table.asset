@@ -16,3 +16,6 @@ MonoBehaviour:
   - _id: 1
     _name: "\u30D5\u30A3\u30FC\u30EB\u30C9A"
     _assetKey: fld001
+  - _id: 2
+    _name: "\u30D5\u30A3\u30FC\u30EB\u30C9B"
+    _assetKey: fld002

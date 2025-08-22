@@ -23,6 +23,9 @@ namespace SampleGame.Lifecycle {
     /// Battle用のSceneSituation
     /// </summary>
     public class BattleSceneSituation : SceneSituation {
+        private int _battleId = 1;
+        private int _playerId = 1;
+        
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/battle.unity";
 
         /// <summary>
@@ -51,7 +54,7 @@ namespace SampleGame.Lifecycle {
             SetupFactories(scope);
 
             // 初期化処理
-            yield return Services.Resolve<BattleAppService>().SetupAsync(1, 1, scope.Token).ToCoroutine();
+            yield return Services.Resolve<BattleAppService>().SetupAsync(_battleId, _playerId, scope.Token).ToCoroutine();
             
             SetupPresentations(scope);
         }
@@ -133,6 +136,14 @@ namespace SampleGame.Lifecycle {
 
             var battleAppService = Services.Resolve<BattleAppService>();
             battleAppService.UpdateFrame();
+        }
+
+        /// <summary>
+        /// セットアップ
+        /// </summary>
+        public void Setup(int battleId, int playerId) {
+            _battleId = battleId;
+            _playerId = playerId;
         }
 
         /// <summary>

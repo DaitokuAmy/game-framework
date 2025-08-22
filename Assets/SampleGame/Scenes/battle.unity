@@ -198,6 +198,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bootSceneName: entry
+  _battleId: 2
+  _playerId: 2
 --- !u!1 &1321176414
 GameObject:
   m_ObjectHideFlags: 0

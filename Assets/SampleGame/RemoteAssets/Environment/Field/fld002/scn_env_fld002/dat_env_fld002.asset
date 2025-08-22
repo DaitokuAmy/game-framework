@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b85b23ea6b2a4b4469708a5226219cbd, type: 3}
+  m_Name: dat_env_fld002
+  m_EditorClassIdentifier: 
+  defaultSettings:
+    subtractiveShadowColor: {r: 0, g: 0, b: 0, a: 0}
+    ambientMode: 1
+    ambientSkyColor: {r: 0.6937822, g: 0.922, b: 0.90830696, a: 0}
+    ambientEquatorColor: {r: 0.6023077, g: 0.82694614, b: 0.95699996, a: 0}
+    ambientGroundColor: {r: 0.32171953, g: 0.7022479, b: 0.851, a: 0}
+    ambientIntensity: 0
+    skyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+    defaultReflectionMode: 0
+    defaultReflectionResolution: 256
+    customReflectionTexture: {fileID: 0}
+    reflectionIntensity: 1
+    reflectionBounces: 1
+    fog: 1
+    fogColor: {r: 0.8962264, g: 0.8962264, b: 0.8962264, a: 1}
+    fogMode: 1
+    fogDensity: 0
+    fogStartDistance: 100
+    fogEndDistance: 1000
+    haloStrength: 0
+    flareStrength: 0
+    flareFadeSpeed: 0
+  environmentSaturate: 1
+  environmentMultiply: 1
+  changeShadowColorByDistance: 0
+  nearShadowColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  farShadowColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  shadowColorChangeDistance: 50
+  shadowColorBlendRange: 10

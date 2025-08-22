@@ -14,5 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   elements:
   - _id: 1
-    _name: "\u30C6\u30B9\u30C8"
+    _name: "\u30C6\u30B9\u30C8A"
     _fieldId: 1
+  - _id: 2
+    _name: "\u30C6\u30B9\u30C8B"
+    _fieldId: 2

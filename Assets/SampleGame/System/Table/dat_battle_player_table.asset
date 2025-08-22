@@ -17,3 +17,7 @@ MonoBehaviour:
     _name: "\u30D7\u30EC\u30A4\u30E4\u30FCA"
     _assetKey: ch001_00
     _actorAssetKey: ch001_00
+  - _id: 2
+    _name: "\u30D7\u30EC\u30A4\u30E4\u30FCB"
+    _assetKey: ch002_00
+    _actorAssetKey: ch001_00
