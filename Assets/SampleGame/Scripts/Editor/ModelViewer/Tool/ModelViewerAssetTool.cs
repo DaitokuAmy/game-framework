@@ -34,7 +34,7 @@ namespace SampleGame.Editor {
                 return;
             }
 
-            var assetKey = assetName.Substring("pfb_".Length);
+            var assetKey = assetName.Substring("pfb_act_".Length);
 
             // Viewer用のSetupDataを作成
             var setupDataPath = new ModelViewerActorMasterDataRequest(assetKey).Address;

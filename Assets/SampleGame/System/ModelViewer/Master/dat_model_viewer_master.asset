@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc97d38bfdc64959bcd213c0a41038e, type: 3}
   m_Name: dat_model_viewer_master
   m_EditorClassIdentifier: 
-  defaultActorAssetKeyIndex: 0
+  defaultActorAssetKeyIndex: 3
   actorAssetKeys:
   - ch001_00_gunslinger001
   - ch001_00_mixamo001
   - ch001_00_unitychan001
+  - ch002_00
   defaultEnvironmentAssetKeyIndex: 1
   environmentAssetKeys:
   - fld000
