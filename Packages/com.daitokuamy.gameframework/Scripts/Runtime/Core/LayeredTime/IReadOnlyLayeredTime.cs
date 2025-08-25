@@ -1,6 +1,6 @@
 using System;
 
-namespace GameFramework {
+namespace GameFramework.Core {
     /// <summary>
     /// 時間の階層管理用インターフェース
     /// </summary>

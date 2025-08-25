@@ -45,6 +45,9 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator StartRoutineInternal(object[] args) {
             // FPS初期化
             UnityEngine.Application.targetFrameRate = 60;
+            
+            // DeltaTimeProvider初期化
+            LayeredTime.DefaultProvider = new UnityDeltaTimeProvider();
 
             // RootのServiceにインスタンスを登録
             _globalObject.Install(Services.Instance);

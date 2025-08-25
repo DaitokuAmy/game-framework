@@ -1,4 +1,4 @@
-namespace GameFramework {
+namespace GameFramework.Core {
     /// <summary>
     /// DeltaTime提供インターフェース
     /// </summary>

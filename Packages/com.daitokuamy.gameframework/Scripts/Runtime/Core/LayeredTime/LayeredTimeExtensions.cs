@@ -4,7 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 #endif
 
-namespace GameFramework {
+namespace GameFramework.Core {
     /// <summary>
     /// LayeredTime用の拡張メソッド
     /// </summary>

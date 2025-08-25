@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using GameFramework.Core;
 #if USE_ANIMATION_RIGGING
 using UnityEngine.Animations.Rigging;
 #endif

@@ -1,22 +1,15 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
-using GameFramework.Core;
 
-namespace GameFramework {
+namespace GameFramework.Core {
     /// <summary>
     /// 時間の階層管理用クラス
     /// </summary>
     public class LayeredTime : IReadOnlyLayeredTime, IDisposable {
+        /// <summary>デフォルトのDeltaTimeProvider</summary>
+        public static IDeltaTimeProvider DefaultProvider = new FixedDeltaTimeProvider(60);
+        
         private readonly List<LayeredTime> _children = new(32);
-
-        /// <summary>
-        /// Unity用のDeltaTimeProvider
-        /// </summary>
-        private class UnityDeltaTimeProvider : IDeltaTimeProvider {
-            float IDeltaTimeProvider.DeltaTime => Time.deltaTime;
-        }
-
         private readonly IDeltaTimeProvider _deltaTimeProvider;
 
         private float _localTimeScale = 1.0f;
@@ -56,7 +49,7 @@ namespace GameFramework {
         /// <param name="parent">親となるTimeLayer, 未指定の場合UnityEngine.Timeに直接依存</param>
         /// <param name="deltaTimeProvider">基礎となるDeltaTimeを提供するクラス、nullだとTime.deltaTime</param>
         public LayeredTime(LayeredTime parent = null, IDeltaTimeProvider deltaTimeProvider = null) {
-            _deltaTimeProvider = deltaTimeProvider ?? new UnityDeltaTimeProvider();
+            _deltaTimeProvider = deltaTimeProvider ?? DefaultProvider;
             SetParent(parent);
         }
 

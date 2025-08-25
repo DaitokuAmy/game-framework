@@ -5,7 +5,7 @@ using System;
 using UniRx;
 #endif
 
-namespace GameFramework
+namespace GameFramework.Core
 {
     /// <summary>
     /// LayeredTime用のRx拡張メソッド
