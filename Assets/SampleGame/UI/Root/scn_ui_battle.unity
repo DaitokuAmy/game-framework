@@ -127,53 +127,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1988215630}
     m_Modifications:
-    - target: {fileID: 1205493815531911902, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1205493815531911902, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1205493815531911902, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1205493815531911902, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2900334889894863276, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2900334889894863276, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchorMin.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2900334889894863276, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2900334889894863276, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6913391204017473072, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchorMax.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6913391204017473072, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_AnchorMax.y
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 6991263394736825539, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
       propertyPath: m_Name
       value: pfb_ui_service_battle_hud
-      objectReference: {fileID: 0}
-    - target: {fileID: 7748572611221560972, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7987584177921985132, guid: 55d9bb4f3c596c9488b1185a84f218bd, type: 3}
       propertyPath: m_Pivot.x

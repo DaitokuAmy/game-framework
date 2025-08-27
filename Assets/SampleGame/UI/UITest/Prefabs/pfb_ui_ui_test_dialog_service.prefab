@@ -122,7 +122,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6578e0af05d7a52428c8b84618d70c94, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 66449fc0f016fbc49b8009598aa857cd, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -263,7 +263,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 44f91ce376eb95f479e757912fa01194, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 045ea32c48f3acb48b30373acdd4c3c4, type: 3}
   m_Type: 1
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -664,8 +664,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u30DD\u30FC\u30B7\u30E7\u30F3"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 015287898539aaf47a1ebc17715c6c84, type: 2}
-  m_sharedMaterial: {fileID: 1389011688255620359, guid: 015287898539aaf47a1ebc17715c6c84, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0a2f5882b5d94e24da6f7c84984cc276, type: 2}
+  m_sharedMaterial: {fileID: 4414572603900677553, guid: 0a2f5882b5d94e24da6f7c84984cc276, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1135,14 +1135,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5, g: 0.66666675, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 53a9b1e9bcbe4ae4da7b450bfc6f8af1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 045ea32c48f3acb48b30373acdd4c3c4, type: 3}
   m_Type: 1
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -1282,8 +1282,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u30AD\u30E3\u30F3\u30BB\u30EB"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 015287898539aaf47a1ebc17715c6c84, type: 2}
-  m_sharedMaterial: {fileID: 1389011688255620359, guid: 015287898539aaf47a1ebc17715c6c84, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0a2f5882b5d94e24da6f7c84984cc276, type: 2}
+  m_sharedMaterial: {fileID: 4414572603900677553, guid: 0a2f5882b5d94e24da6f7c84984cc276, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1418,8 +1418,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u8CFC\u5165"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 015287898539aaf47a1ebc17715c6c84, type: 2}
-  m_sharedMaterial: {fileID: 1389011688255620359, guid: 015287898539aaf47a1ebc17715c6c84, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 0a2f5882b5d94e24da6f7c84984cc276, type: 2}
+  m_sharedMaterial: {fileID: 4414572603900677553, guid: 0a2f5882b5d94e24da6f7c84984cc276, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1545,14 +1545,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.975, b: 0.85, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5d6ae03a1ba1c904c9636dea2385eb9e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 36ceb62de6a88d544afe711a9e41a046, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1589,13 +1589,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6589539207833273228}
-  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6254565440747797023}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
@@ -1629,7 +1629,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6578e0af05d7a52428c8b84618d70c94, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8deebf594c0ba9c4ab2696ab8af8a7a7, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
