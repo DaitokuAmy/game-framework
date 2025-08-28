@@ -68,7 +68,7 @@ namespace SampleGame.Lifecycle {
             // スタートボタン
             introductionUIService.TitleTopUIScreen.ClickedStartButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<BattleSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
+                .Subscribe(_ => { situationService.Transition<OutGameSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
 
             // オプションボタン
             introductionUIService.TitleTopUIScreen.ClickedOptionButtonSubject

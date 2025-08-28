@@ -13,6 +13,7 @@ namespace SampleGame.Lifecycle {
             var mainSituation = new MainSituation();
             
             SetupIntroductionSituations(mainSituation);
+            SetupOutGameSituations(mainSituation);
             SetupBattleSituations(mainSituation);
             SetupUITestSituations(mainSituation);
             SetupViewerSituations(mainSituation);
@@ -29,11 +30,13 @@ namespace SampleGame.Lifecycle {
             }
 
             var titleTopNode = SetupIntroductionTreeNodes(null);
-            var battleNode = SetupBattleTreeNodes(titleTopNode);
+            var homeTopNode = SetupOutGameTreeNodes(titleTopNode);
+            var battleNode = SetupBattleTreeNodes(homeTopNode);
             var uiTestNode = SetupUITestTreeNodes(titleTopNode);
             var modelViewerNode = SetupViewerTreeNodes(titleTopNode);
             
             treeRouter.SetFallbackNode(modelViewerNode);
+            treeRouter.SetFallbackNode(homeTopNode);
             treeRouter.SetFallbackNode(battleNode);
             treeRouter.SetFallbackNode(uiTestNode);
         }

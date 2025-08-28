@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/SampleGame/Scenes/battle.unity
     guid: d266e5241078a2c4a905808657d50d75
   - enabled: 1
+    path: Assets/SampleGame/Scenes/out_game.unity
+    guid: 4c95242846eea4040a246c4408939c73
+  - enabled: 1
     path: Assets/SampleGame/Scenes/ui_test.unity
     guid: 3d3ea96f768c85e448e81245b39aa41a
   - enabled: 1
