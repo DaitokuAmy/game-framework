@@ -20,6 +20,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private StateTreeNode<Type> SetupOutGameTreeNodes(StateTreeNode<Type> parentNode) {
             var sceneNode = ConnectNode<OutGameSceneSituation>(parentNode);
+            var optionNode = ConnectNode<OptionSituation>(sceneNode);
             return sceneNode;
         }
     }

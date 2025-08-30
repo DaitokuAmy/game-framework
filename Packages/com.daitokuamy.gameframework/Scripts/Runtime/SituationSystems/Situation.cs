@@ -13,16 +13,24 @@ namespace GameFramework.SituationSystems {
         /// 状態
         /// </summary>
         public enum State {
+            /// <summary>無効値</summary>
             Invalid = -1,
-            Standby, // 待機状態
-            Loading, // 読み込み中
-            Loaded, // 読み込み済
-            SetupFinished, // 初期化済
-            Opening, // オープン中
-            OpenFinished, // オープン済
+            /// <summary>待機状態</summary>
+            Standby, 
+            /// <summary>読み込み中</summary>
+            Loading, 
+            /// <summary>読み込み済</summary>
+            Loaded,
+            /// <summary>初期化済</summary>
+            SetupFinished,
+            /// <summary>オープン中</summary>
+            Opening,
+            /// <summary>オープン済</summary>
+            OpenFinished,
         }
 
         private readonly List<Situation> _children = new();
+        private readonly List<Type> _dynamicSituationTypes = new();
         private readonly DisposableScope _loadScope;
         private readonly DisposableScope _setupScope;
         private readonly DisposableScope _activeScope;
@@ -61,6 +69,8 @@ namespace GameFramework.SituationSystems {
         public Situation Parent => _parent;
         /// <summary>子Situationリスト</summary>
         public IReadOnlyList<Situation> Children => _children;
+        /// <summary>動的遷移可能なタイプリスト</summary>
+        public IReadOnlyList<Type> DynamicSituationTypes => _dynamicSituationTypes;
 
         /// <summary>
         /// コンストラクタ
@@ -262,6 +272,7 @@ namespace GameFramework.SituationSystems {
             UnloadInternal(handle);
             _loadScope.Clear();
             ServiceContainer.Dispose();
+            ServiceContainer = null;
         }
 
         /// <inheritdoc/>
@@ -567,6 +578,39 @@ namespace GameFramework.SituationSystems {
                     ((ISituation)this).Standby(_parent._container);
                 }
             }
+        }
+
+        /// <summary>
+        /// DynamicSituationのタイプ追加
+        /// </summary>
+        public void AddDynamicSituationType(Type type) {
+            if (_dynamicSituationTypes.Contains(type)) {
+                return;
+            }
+            
+            _dynamicSituationTypes.Add(type);
+        }
+
+        /// <summary>
+        /// DynamicSituationのタイプ追加
+        /// </summary>
+        public void AddDynamicSituationType<T>()
+            where T : Situation {
+            AddDynamicSituationType(typeof(T));
+        }
+
+        /// <summary>
+        /// DynamicSituationのタイプ一括クリア
+        /// </summary>
+        public void ClearDynamicSituationTypes() {
+            _dynamicSituationTypes.Clear();
+        }
+
+        /// <summary>
+        /// DynamicSituationTypeに含まれているかチェック
+        /// </summary>
+        public bool ContainsDynamicSituationType(Type type) {
+            return _dynamicSituationTypes.Contains(type);
         }
 
         /// <summary>

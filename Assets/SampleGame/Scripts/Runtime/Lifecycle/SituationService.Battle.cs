@@ -23,6 +23,7 @@ namespace SampleGame.Lifecycle {
         private StateTreeNode<Type> SetupBattleTreeNodes(StateTreeNode<Type> parentNode) {
             var battleNode = ConnectNode<BattleSceneSituation>(parentNode);
             var battlePauseNode = ConnectNode<BattlePauseSituation>(battleNode);
+            var optionNode = ConnectNode<OptionSituation>(battlePauseNode);
             return battleNode;
         }
     }

@@ -14,9 +14,9 @@ namespace GameFramework {
         bool IsTransitioning { get; }
 
         /// <summary>
-        /// 遷移可能なStateのリストを取得
+        /// 遷移可能なStateKeyのリストを取得
         /// </summary>
-        TState[] GetStates();
+        TKey[] GetStateKeys();
         
         /// <summary>
         /// 遷移処理

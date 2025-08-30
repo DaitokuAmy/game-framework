@@ -80,8 +80,8 @@ namespace GameFramework.UISystems {
         }
 
         /// <inheritdoc/>
-        UIScreen[] IStateContainer<string, UIScreen, Option>.GetStates() {
-            return _childScreens.Select(x => x.uiScreen).ToArray();
+        string[] IStateContainer<string, UIScreen, Option>.GetStateKeys() {
+            return _childScreens.Select(x => x.key).ToArray();
         }
 
         /// <inheritdoc/>

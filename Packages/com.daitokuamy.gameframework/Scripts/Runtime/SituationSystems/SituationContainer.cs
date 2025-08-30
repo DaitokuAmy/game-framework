@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using GameFramework.Core;
@@ -57,6 +56,8 @@ namespace GameFramework.SituationSystems {
         private readonly CoroutineRunner _coroutineRunner = new();
         private readonly List<Situation> _preloadSituations = new();
         private readonly List<ISituation> _runningSituations = new();
+        private readonly List<ISituation> _dynamicSituations = new();
+        private readonly Dictionary<Type, Situation> _dynamicSituationCache = new();
         private readonly string _label;
 
         private TransitionInfo _transitionInfo;
@@ -160,16 +161,19 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <inheritdoc/>
-        Situation[] IStateContainer<Type, Situation, TransitionOption>.GetStates() {
-            var result = new List<Situation>();
+        Type[] IStateContainer<Type, Situation, TransitionOption>.GetStateKeys() {
+            var result = new List<Type>();
 
-            void Add(Situation situation, List<Situation> list) {
+            void Add(Situation situation, List<Type> list) {
                 if (situation == null) {
                     return;
                 }
 
-                list.Add(situation);
-                list.AddRange(situation.Children);
+                list.Add(situation.GetType());
+                list.AddRange(situation.DynamicSituationTypes);
+                foreach (var child in situation.Children) {
+                    Add(child, list);
+                }
             }
 
             Add(RootSituation, result);
@@ -193,6 +197,12 @@ namespace GameFramework.SituationSystems {
 
         /// <inheritdoc/>
         public TransitionHandle<Situation> Transition(Type key, TransitionOption option, bool back, TransitionStep endStep, Action<Situation> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+            // Dynamic遷移可能な場合は専用処理に移動
+            if (CheckDynamicType(Current, key)) {
+                return DynamicTransitionInternal(key, option, endStep, setupAction, transition, effects);
+            }
+
+            // 遷移先のSituationを検索
             var situation = FindSituation(key);
             if (situation == null) {
                 return new TransitionHandle<Situation>(new Exception($"Not found situation:{key.Name}"));
@@ -260,7 +270,7 @@ namespace GameFramework.SituationSystems {
             // 遷移可能チェック
             if (!CheckTransition(prevSituations, nextSituations, transition)) {
                 return new TransitionHandle<Situation>(
-                    new Exception($"Cant transition. Situation:{nextName} Transition:{transition}"));
+                    new Exception($"Cant transition. Situation:{nextName} Transition:{transition.GetType().Name}"));
             }
 
             // 遷移情報を生成            
@@ -559,6 +569,10 @@ namespace GameFramework.SituationSystems {
                 situation.Release(this);
             }
 
+            // DynamicSituationの情報をクリア
+            _dynamicSituations.Clear();
+            _dynamicSituationCache.Clear();
+
             // PreLoad状態の物をUnPreLoad
             var preloadSituations = _preloadSituations.ToArray();
             foreach (var situation in preloadSituations) {
@@ -618,6 +632,90 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <summary>
+        /// 動的遷移可能な型かチェック
+        /// </summary>
+        private bool CheckDynamicType(Situation currentSituation, Type type) {
+            if (currentSituation == null) {
+                return false;
+            }
+
+            if (currentSituation.ContainsDynamicSituationType(type)) {
+                return true;
+            }
+
+            return CheckDynamicType(currentSituation.Parent, type);
+        }
+
+        /// <summary>
+        /// 動的インスタンス生成による遷移
+        /// </summary>
+        /// <param name="key">遷移ターゲットを決めるキー</param>
+        /// <param name="option">遷移時に渡すオプション</param>
+        /// <param name="endStep">終了ステップ</param>
+        /// <param name="setupAction">遷移先初期化用関数</param>
+        /// <param name="transition">遷移方法</param>
+        /// <param name="effects">遷移時演出</param>
+        private TransitionHandle<Situation> DynamicTransitionInternal(Type key, TransitionOption option, TransitionStep endStep, Action<Situation> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+            var nextName = key.Name;
+
+            if (IsTransitioning) {
+                return new TransitionHandle<Situation>(new Exception($"In transit other. Situation:{nextName}"));
+            }
+
+            // 既に開いているTypeの場合は失敗
+            foreach (var s in _dynamicSituations) {
+                if (s.GetType() == key) {
+                    return new TransitionHandle<Situation>(new Exception($"Dynamic situation is opened:{nextName}"));
+                }
+            }
+
+            if (!CheckDynamicType(Current, key)) {
+                return new TransitionHandle<Situation>(new Exception($"Not found dynamic situation:{nextName}"));
+            }
+
+            // DynamicSituationを生成して登録
+            if (!_dynamicSituationCache.TryGetValue(key, out var situation)) {
+                situation = (Situation)Activator.CreateInstance(key);
+            }
+
+            situation.SetParent(Current);
+            _dynamicSituations.Add(situation);
+
+            var next = (ISituation)situation;
+
+            // 閉じるSituationリスト
+            var prevSituations = new List<ISituation>();
+
+            // 開くSituationリスト
+            var nextSituations = new List<ISituation> { next };
+
+            // 遷移情報の取得
+            transition ??= GetDefaultTransition(next);
+
+            // 遷移可能チェック
+            if (!CheckTransition(prevSituations, nextSituations, transition)) {
+                return new TransitionHandle<Situation>(
+                    new Exception($"Cant transition. Situation:{nextName} Transition:{transition.GetType().Name}"));
+            }
+
+            // 遷移情報を生成            
+            _transitionInfo = new TransitionInfo {
+                Direction = TransitionDirection.Forward,
+                PrevSituations = prevSituations,
+                NextSituations = nextSituations,
+                State = TransitionState.Standby,
+                EndStep = endStep,
+                Effects = effects
+            };
+
+            // コルーチンの登録
+            _coroutineRunner.StartCoroutine(TransitionRoutine(next, setupAction, transition), () => _transitionInfo = null);
+
+            // ハンドルの返却
+            return new TransitionHandle<Situation>(_transitionInfo);
+        }
+
+        /// <summary>
         /// 遷移ルーチン
         /// </summary>
         private IEnumerator TransitionRoutine(ISituation nextSituation, Action<Situation> setupAction, ITransition transition) {
@@ -654,14 +752,14 @@ namespace GameFramework.SituationSystems {
             // SceneSituationが介在するかチェック
             var sceneSituationTransition = false;
             foreach (var situation in prevSituations) {
-                if (situation is SceneSituation) {
+                if (situation.HasScene) {
                     sceneSituationTransition = true;
                     break;
                 }
             }
 
             foreach (var situation in nextSituations) {
-                if (situation is SceneSituation) {
+                if (situation.HasScene) {
                     sceneSituationTransition = true;
                     break;
                 }
@@ -696,12 +794,12 @@ namespace GameFramework.SituationSystems {
             foreach (var effect in _transitionInfo.Effects) {
                 effect.BeginTransition();
             }
-            
+
             // 遷移開始時に全部のフォーカスを外す
             foreach (var situation in _transitionInfo.PrevSituations) {
                 situation.SetFocus(false);
             }
-            
+
             foreach (var situation in _runningSituations) {
                 situation.SetFocus(false);
             }
@@ -841,7 +939,14 @@ namespace GameFramework.SituationSystems {
             foreach (var effect in _transitionInfo.Effects) {
                 effect.EndTransition();
             }
-            
+
+            // 使用が終わったDynamicSituationがあれば削除
+            foreach (var situation in _transitionInfo.PrevSituations) {
+                if (_dynamicSituations.Remove(situation)) {
+                    situation.Release(this);
+                }
+            }
+
             // 遷移開始時に戦闘にいる物にフォーカスを充てる
             if (_runningSituations.Count > 0) {
                 _runningSituations[^1].SetFocus(true);

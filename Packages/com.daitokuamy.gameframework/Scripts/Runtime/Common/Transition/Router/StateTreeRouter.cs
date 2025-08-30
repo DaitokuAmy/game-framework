@@ -129,8 +129,8 @@ namespace GameFramework {
         }
 
         /// <inheritdoc/>
-        public TState[] GetStates() {
-            return GetNodes().Select(x => _stateContainer.FindState(x.Key)).Distinct().ToArray();
+        public TKey[] GetStateKeys() {
+            return GetNodes().Select(x => x.Key).Distinct().ToArray();
         }
 
         /// <summary>

@@ -4,7 +4,7 @@ namespace GameFramework {
     /// <summary>
     /// ステート管理用コンテナーインターフェース
     /// </summary>
-    public interface IStateContainer<in TKey, TState, in TOption> : IDisposable
+    public interface IStateContainer<TKey, TState, in TOption> : IDisposable
         where TState : class {
         /// <summary>現在のState</summary>
         TState Current { get; }
@@ -17,9 +17,9 @@ namespace GameFramework {
         TState FindState(TKey key);
 
         /// <summary>
-        /// 遷移可能なStateのリストを取得
+        /// 遷移可能なStateKeyのリストを取得
         /// </summary>
-        TState[] GetStates();
+        TKey[] GetStateKeys();
         
         /// <summary>
         /// 遷移処理
@@ -44,7 +44,7 @@ namespace GameFramework {
     /// <summary>
     /// ステート管理用コンテナーインターフェース
     /// </summary>
-    public interface IStateContainer<in TKey, TState> : IStateContainer<TKey, TState, object>
+    public interface IStateContainer<TKey, TState> : IStateContainer<TKey, TState, object>
         where TState : class {
     }
 }

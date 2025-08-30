@@ -11,6 +11,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void SetupContainer(SituationContainer container, IScope scope) {
             var mainSituation = new MainSituation();
+            mainSituation.AddDynamicSituationType<OptionSituation>();
             
             SetupIntroductionSituations(mainSituation);
             SetupOutGameSituations(mainSituation);

@@ -69,8 +69,8 @@ namespace GameFramework {
         }
 
         /// <inheritdoc/>
-        TState[] IStateRouter<TKey, TState, TOption>.GetStates() {
-            return _stateContainer.GetStates();
+        TKey[] IStateRouter<TKey, TState, TOption>.GetStateKeys() {
+            return _stateContainer.GetStateKeys();
         }
 
         /// <summary>
