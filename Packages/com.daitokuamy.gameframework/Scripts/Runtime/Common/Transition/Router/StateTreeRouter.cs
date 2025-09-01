@@ -340,14 +340,14 @@ namespace GameFramework {
                 return new TransitionHandle<TState>(new Exception("In transitioning"));
             }
 
-            // 同じ場所なら何もしない
-            if (nextNode == CurrentNode) {
-                return TransitionHandle<TState>.Empty;
-            }
-
             // NextNodeがない
             if (nextNode == null) {
                 return new TransitionHandle<TState>(new Exception("Next node is null."));
+            }
+
+            // 同じ場所なら何もしない
+            if (nextNode == CurrentNode) {
+                return TransitionHandle<TState>.Empty;
             }
 
             // 現在のNodeを置き換えて遷移する

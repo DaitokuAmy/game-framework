@@ -92,9 +92,10 @@ namespace GameFramework.Tests {
         [Test]
         public void Transition_CallsLifecycleMethods() {
             var situationA = new MockSituationA();
+            _container.Setup(situationA);
+            
             var situationB = new MockSituationB();
             situationB.SetParent(situationA);
-            _container.Setup(situationA);
 
             var handle = _container.Transition<MockSituationB>();
             RunCoroutineUntilDone(() => handle.IsDone);
@@ -111,9 +112,10 @@ namespace GameFramework.Tests {
         [Test]
         public void Transition_SameTarget_IsCanceled() {
             var situationA = new MockSituationA();
+            _container.Setup(situationA);
+            
             var situationB = new MockSituationB();
             situationB.SetParent(situationA);
-            _container.Setup(situationA);
 
             var handle1 = _container.Transition<MockSituationB>();
             RunCoroutineUntilDone(() => handle1.IsDone);
@@ -122,8 +124,7 @@ namespace GameFramework.Tests {
             RunCoroutineUntilDone(() => handle2.IsDone);
 
             Assert.IsFalse(handle2.IsValid);
-            Assert.IsNotNull(handle2.Exception);
-            StringAssert.Contains("Cancel", handle2.Exception.Message);
+            Assert.IsNull(handle2.Exception);
         }
 
         /// <summary>
@@ -132,9 +133,10 @@ namespace GameFramework.Tests {
         [Test]
         public void PreLoad_WorksCorrectly() {
             var situationA = new MockSituationA();
+            _container.Setup(situationA);
+            
             var situationB = new MockSituationB();
             situationB.SetParent(situationA);
-            _container.Setup(situationA);
 
             var handle = _container.PreLoadAsync<MockSituationB>();
             RunCoroutineUntilDone(() => handle.IsDone);

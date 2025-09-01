@@ -2,7 +2,6 @@ using System.Collections;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using NUnit.Framework;
-using System;
 
 namespace GameFramework.Tests {
     /// <summary>
