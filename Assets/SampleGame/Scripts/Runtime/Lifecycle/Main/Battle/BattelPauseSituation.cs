@@ -16,8 +16,8 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = Services.Resolve<SituationService>();
-            var uiManager = Services.Resolve<UIManager>();
+            var situationService = ServiceResolver.Resolve<SituationService>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var dialogUIService = uiManager.GetService<DialogUIService>();
 
             var itemLabels = new[] { "タイトルに戻る", "メッセージテスト" };

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace GameFramework.Core {
     /// <summary>
@@ -49,7 +48,7 @@ namespace GameFramework.Core {
 
         private readonly string _label;
         private readonly bool _withParentDispose;
-        private readonly List<IServiceContainer> _children = new();
+        private readonly IServiceResolver _parentResolver;
         private readonly Dictionary<Type, RegisteredServiceInfo> _registeredServiceInfos = new();
         private readonly List<IDisposable> _disposableServices = new();
 
@@ -58,30 +57,23 @@ namespace GameFramework.Core {
         /// <inheritdoc/>
         string IMonitoredServiceContainer.Label => _label;
         /// <inheritdoc/>
-        IReadOnlyList<IMonitoredServiceContainer> IMonitoredServiceContainer.Children => _children.OfType<IMonitoredServiceContainer>().ToArray();
+        IMonitoredServiceContainer IMonitoredServiceContainer.Parent => (IMonitoredServiceContainer)_parentResolver;
         /// <inheritdoc/>
         bool IServiceContainer.WithParentDispose => _withParentDispose;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="parent">親ServiceContainer</param>
+        /// <param name="parentResolver">親ServiceResolver</param>
         /// <param name="withParentDispose">親のDisposeに合わせてDisposeを自動で行うか</param>
         /// <param name="label">デバッグ表示用ラベル</param>
-        public ServiceContainer(IServiceContainer parent = null, bool withParentDispose = true, string label = "") {
+        public ServiceContainer(IServiceResolver parentResolver = null, bool withParentDispose = true, string label = "") {
             _label = label;
-
-            if (parent == null && GetType() != typeof(Services)) {
-                parent = Services.Instance;
-            }
 
             ServiceMonitor.AddContainer(this);
 
             _withParentDispose = withParentDispose;
-
-            if (parent is ServiceContainer container) {
-                container._children.Add(this);
-            }
+            _parentResolver = parentResolver;
         }
 
         /// <summary>
@@ -110,24 +102,26 @@ namespace GameFramework.Core {
         }
 
         /// <inheritdoc/>
-        object IServiceContainer.Resolve(Type type) {
-            for (var i = _children.Count - 1; i >= 0; i--) {
-                var result = _children[i].Resolve(type);
-                if (result != null) {
-                    return result;
-                }
-            }
-
+        object IServiceResolver.Resolve(Type type) {
             if (_registeredServiceInfos.TryGetValue(type, out var info)) {
                 return GetInstance(info);
             }
 
-            return null;
+            return _parentResolver?.Resolve(type);
         }
 
         /// <inheritdoc/>
-        T IServiceContainer.Resolve<T>() {
-            return (T)((IServiceContainer)this).Resolve(typeof(T));
+        T IServiceResolver.Resolve<T>() {
+            return (T)((IServiceResolver)this).Resolve(typeof(T));
+        }
+
+        /// <inheritdoc/>
+        void IServiceResolver.Import(IServiceUser user) {
+            if (user == null) {
+                return;
+            }
+            
+            user.ImportService(this);
         }
 
         /// <inheritdoc/>
@@ -166,10 +160,7 @@ namespace GameFramework.Core {
                 throw new Exception($"Not assignable. Type:{interfaceType}, InstanceType:{classType}");
             }
 
-            info = new RegisteredServiceInfo {
-                Type = classType,
-                CreateFunc = createFunc,
-            };
+            info = new RegisteredServiceInfo { Type = classType, CreateFunc = createFunc, };
 
             _registeredServiceInfos[interfaceType] = info;
             return new Disposable(this, interfaceType);
@@ -186,10 +177,7 @@ namespace GameFramework.Core {
                 throw new Exception($"Already registered type. Type:{classType}");
             }
 
-            info = new RegisteredServiceInfo {
-                Type = classType,
-                CreateFunc = createFunc,
-            };
+            info = new RegisteredServiceInfo { Type = classType, CreateFunc = createFunc, };
 
             _registeredServiceInfos[classType] = info;
             return new Disposable(this, classType);
@@ -232,16 +220,16 @@ namespace GameFramework.Core {
                 throw new Exception($"Already registered type. Type:{type}");
             }
 
-            info = new RegisteredServiceInfo {
-                Type = type,
-                CreateFunc = null,
-                Instance = instance,
-            };
+            info = new RegisteredServiceInfo { Type = type, CreateFunc = null, Instance = instance, };
 
             _registeredServiceInfos[type] = info;
 
             if (instance is IDisposable disposable) {
                 _disposableServices.Add(disposable);
+            }
+
+            if (instance is IServiceUser user) {
+                user.ImportService(this);
             }
 
             return new Disposable(this, type);
@@ -284,17 +272,6 @@ namespace GameFramework.Core {
         /// コンテナ内のクリア
         /// </summary>
         private void ClearInternal() {
-            // 子を解放
-            for (var i = _children.Count - 1; i >= 0; i--) {
-                if (!_children[i].WithParentDispose) {
-                    continue;
-                }
-
-                _children[i].Dispose();
-            }
-
-            _children.Clear();
-
             // 逆順に解放
             for (var i = _disposableServices.Count - 1; i >= 0; i--) {
                 var disposable = _disposableServices[i];
@@ -331,6 +308,10 @@ namespace GameFramework.Core {
 
             if (info.Instance is IDisposable disposable) {
                 _disposableServices.Add(disposable);
+            }
+
+            if (info.Instance is IServiceUser user) {
+                user.ImportService(this);
             }
 
             return info.Instance;

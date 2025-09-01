@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using UnityEngine;
@@ -9,22 +10,29 @@ namespace SampleGame.Infrastructure {
     /// <summary>
     /// ボディプレファブアセット用のリポジトリ
     /// </summary>
-    public class BodyPrefabRepository : IDisposable {
-        private readonly SimpleAssetStorage<GameObject> _bodyPrefabAssetStorage;
+    public class BodyPrefabRepository : IDisposable, IServiceUser {
+        private readonly DisposableScope _scope;
+        
+        private SimpleAssetStorage<GameObject> _bodyPrefabAssetStorage;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public BodyPrefabRepository() {
-            var assetManager = Services.Resolve<AssetManager>();
-            _bodyPrefabAssetStorage = new SimpleAssetStorage<GameObject>(assetManager);
+            _scope = new DisposableScope();
         }
 
         /// <summary>
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            _bodyPrefabAssetStorage.Dispose();
+            _scope.Dispose();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            var assetManager = resolver.Resolve<AssetManager>();
+            _bodyPrefabAssetStorage = new SimpleAssetStorage<GameObject>(assetManager).RegisterTo(_scope);
         }
 
         /// <summary>

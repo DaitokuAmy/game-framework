@@ -70,6 +70,8 @@ namespace GameFramework.SituationSystems {
 
         /// <summary>RootとなるSituation</summary>
         public Situation RootSituation { get; private set; }
+        /// <summary>ベースに存在するServiceResolver</summary>
+        public IServiceResolver BaseServiceResolver { get; }
         /// <summary>現在のシチュエーション</summary>
         public Situation Current => _runningSituations.Count > 0 ? (Situation)_runningSituations[^1] : null;
         /// <summary>遷移中か</summary>
@@ -81,10 +83,12 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
+        /// <param name="baseServiceResolver">ベースに存在するServiceResolver</param>
         /// <param name="label">デバッグ等で利用するラベル</param>
         /// <param name="caller">自動解決用呼び出し元設定変数</param>
-        public SituationContainer(string label = "", [CallerFilePath] string caller = "") {
+        public SituationContainer(IServiceResolver baseServiceResolver = null, string label = "", [CallerFilePath] string caller = "") {
             _label = string.IsNullOrEmpty(label) ? PathUtility.GetRelativePath(caller) : label;
+            BaseServiceResolver = baseServiceResolver;
             StateMonitor.AddContainer(this);
         }
 

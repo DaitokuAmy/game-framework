@@ -7,7 +7,11 @@ namespace SampleGame.Presentation.UITest {
     /// <summary>
     /// BuyItemUIDialogのPresenter
     /// </summary>
-    public class BuyItemUIDialogPresenter : UIScreenLogic<UITestBuyItemUIDialog> {
+    public class BuyItemUIDialogPresenter : UIScreenLogic<UITestBuyItemUIDialog>, IServiceUser {
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+        }
+        
         /// <inheritdoc/>
         protected override void PreOpenInternal() {
             base.PreOpenInternal();
@@ -21,15 +25,13 @@ namespace SampleGame.Presentation.UITest {
         /// <inheritdoc/>
         protected override void ActivateInternal(IScope scope) {
             base.ActivateInternal(scope);
-
-            var dialogUIService = Services.Resolve<UIManager>().GetService<DialogUIService>();
             
             // 購入ボタン押下
             Screen.DecidedSubject
                 .TakeUntil(scope)
                 .Where(cnt => cnt > 0)
                 .SubscribeAwait(async (cnt, ct) => {
-                    var result = await dialogUIService.OpenMessageDialogAsync("確認", string.Empty, $"{cnt}個購入します\nよろしいですか？", "はい", "いいえ", true, ct);
+                    var result = await DialogUIUtility.OpenMessageDialogAsync("確認", string.Empty, $"{cnt}個購入します\nよろしいですか？", "はい", "いいえ", true, ct);
                     if (result == MessageUIDialog.Result.Decide) {
                         // todo:ここで購入処理を行う
                         

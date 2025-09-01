@@ -38,7 +38,7 @@ namespace SampleGame.Lifecycle {
 
             async UniTask LoadAsync(CancellationToken ct) {
                 // Config読み込み
-                var assetManager = Services.Resolve<AssetManager>();
+                var assetManager = ServiceResolver.Resolve<AssetManager>();
                 await new ModelViewerConfigDataRequest()
                     .LoadAsync(assetManager, scope, cancellationToken: ct)
                     .ContinueWith(x => {
@@ -66,12 +66,12 @@ namespace SampleGame.Lifecycle {
             yield return _appService.SetupAsync(scope.Token).ToCoroutine();
 
             // カメラ操作用Controllerの設定
-            var cameraManager = Services.Resolve<CameraManager>();
+            var cameraManager = ServiceResolver.Resolve<CameraManager>();
             cameraManager.SetCameraHandler("Default", new PreviewCameraHandler(_configData.camera));
 
             // Recorderのセットアップ
-            var recorder = Services.Resolve<ModelRecorder>();
-            recorder.ActorSlot = Services.Resolve<ActorEntityManager>().RootTransform;
+            var recorder = ServiceResolver.Resolve<ModelRecorder>();
+            recorder.ActorSlot = ServiceResolver.Resolve<ActorEntityManager>().RootTransform;
 
             // 初期値反映
             _appService.ChangePreviewActor(_domainService.ModelViewerModel.Master.DefaultActorAssetKeyIndex);
@@ -79,6 +79,9 @@ namespace SampleGame.Lifecycle {
             
             // プレゼンテーション初期化
             SetupPresentations(scope);
+
+            // Debug用
+            ServiceResolver.Import(new ModelViewerDebugServiceResolver().RegisterTo(scope));
         }
 
         /// <summary>
@@ -87,11 +90,11 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var appService = Services.Resolve<ModelViewerAppService>();
+            var appService = ServiceResolver.Resolve<ModelViewerAppService>();
             var viewerModel = appService.DomainService.ModelViewerModel;
 
             // DebugPage初期化
-            var debugSheet = Services.Resolve<DebugSheet>();
+            var debugSheet = ServiceResolver.Resolve<DebugSheet>();
             var rootPage = debugSheet.GetOrCreateInitialPage();
             var motionsPageId = -1;
             _debugPageId = rootPage.AddPageLinkButton("Model Viewer", onLoad: pageTuple => {
@@ -155,7 +158,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         protected override void DeactivateInternal(TransitionHandle<Situation> handle) {
             // Debugページ削除
-            var debugSheet = Services.Resolve<DebugSheet>();
+            var debugSheet = ServiceResolver.Resolve<DebugSheet>();
             if (debugSheet != null) {
                 var rootPage = debugSheet.GetOrCreateInitialPage();
                 rootPage.RemoveItem(_debugPageId);
@@ -180,7 +183,7 @@ namespace SampleGame.Lifecycle {
             var actorManager = new ActorEntityManager();
             ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
 
-            var cameraManager = Services.Resolve<CameraManager>();
+            var cameraManager = ServiceResolver.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
         }
 
@@ -212,17 +215,23 @@ namespace SampleGame.Lifecycle {
         /// Presentation層の初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
-            void SetupLogic(Logic logic, bool addService = false) {
-                logic.Activate();
+            T AddLogic<T>(T logic, bool activate, IScope scp)
+                where T : Logic {
                 logic.RegisterTask(TaskOrder.Logic);
-                logic.RegisterTo(scope);
+                logic.RegisterTo(scp);
 
-                if (addService) {
-                    ServiceContainer.RegisterInstance(logic).RegisterTo(scope);
+                if (logic is IServiceUser user) {
+                    ServiceResolver.Import(user);
                 }
+                
+                if (activate) {
+                    logic.Activate();
+                }
+
+                return logic;
             }
 
-            SetupLogic(new ModelViewerPresenter());
+            AddLogic(new ModelViewerPresenter(), true, scope);
         }
     }
 }

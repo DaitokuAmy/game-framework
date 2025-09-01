@@ -12,19 +12,13 @@ namespace SampleGame.ModelViewer.Editor {
         /// SettingsPanel
         /// </summary>
         private class SettingsPanel : PanelBase {
-            public override string Title => "Settings";
-            
-            /// <summary>
-            /// 初期化処理
-            /// </summary>
-            protected override void InitializeInternal(IScope scope) {
-            }
+            public override string Label => "Settings";
             
             /// <summary>
             /// GUI描画
             /// </summary>
-            protected override void OnGUIInternal() {
-                var appService = Services.Resolve<ModelViewerAppService>();
+            protected override void DrawGuiInternal(ModelViewerWindow window) {
+                var appService = window.Resolver.Resolve<ModelViewerAppService>();
                 var settingsModel = appService.DomainService.SettingsModel;
 
                 // カメラ制御タイプ

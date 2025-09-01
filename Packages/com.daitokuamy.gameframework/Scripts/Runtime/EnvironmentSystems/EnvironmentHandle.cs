@@ -11,7 +11,7 @@ namespace GameFramework.EnvironmentSystems {
         // 有効なハンドルか
         public bool IsValid => _environmentInfo != null;
         // 完了したか
-        public bool IsDone => !IsValid || _environmentInfo.timer <= 0.0f;
+        public bool IsDone => !IsValid || _environmentInfo.Timer <= 0.0f;
 
         /// <summary>
         /// コンストラクタ
@@ -29,7 +29,7 @@ namespace GameFramework.EnvironmentSystems {
                 return null;
             }
 
-            return _environmentInfo.context;
+            return _environmentInfo.Context;
         }
 
         /// <summary>
@@ -40,8 +40,8 @@ namespace GameFramework.EnvironmentSystems {
                 return;
             }
 
-            _environmentInfo.context = context;
-            _environmentInfo.timer = Mathf.Max(0.0f, _environmentInfo.timer);
+            _environmentInfo.Context = context;
+            _environmentInfo.Timer = Mathf.Max(0.0f, _environmentInfo.Timer);
         }
 
         /// <summary>

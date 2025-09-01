@@ -1,5 +1,4 @@
 using System.Linq;
-using GameFramework.Core;
 using GameFramework.UISystems;
 using UnityDebugMenu;
 using UnityEngine;
@@ -24,15 +23,13 @@ namespace SampleGame.Lifecycle {
             });
 
             DebugMenu.AddWindowItem("Common/UI", _ => {
-                using (var changeCheckScope = new DebugMenuUtil.ChangeCheckScope()) {
-                    if (DebugMenuUtil.ButtonField("Canvas Toggle", "実行")) {
-                        var uiManager = Services.Resolve<UIManager>();
-                        var canvases = uiManager.GetCanvases();
-                        if (canvases.Length > 0) {
-                            var active = canvases[0].gameObject.activeSelf;
-                            foreach (var canvas in canvases) {
-                                canvas.gameObject.SetActive(!active);
-                            }
+                if (DebugMenuUtil.ButtonField("Canvas Toggle", "実行")) {
+                    var uiManager = _globalServiceContainer.Resolve<UIManager>();
+                    var canvases = uiManager.GetCanvases();
+                    if (canvases.Length > 0) {
+                        var active = canvases[0].gameObject.activeSelf;
+                        foreach (var canvas in canvases) {
+                            canvas.gameObject.SetActive(!active);
                         }
                     }
                 }

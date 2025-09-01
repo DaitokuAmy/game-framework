@@ -24,12 +24,12 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// モデルビューア用のドメインモデル
     /// </summary>
-    public class ModelViewerDomainService : IDisposable, IReadOnlyModelViewerDomainService {
-        private readonly IModelRepository _modelRepository;
-        private readonly IEnvironmentActorFactory _environmentActorFactory;
-        private readonly IPreviewActorFactory _previewActorFactory;
-        
+    public class ModelViewerDomainService : IDisposable, IServiceUser, IReadOnlyModelViewerDomainService {
         private DisposableScope _scope;
+        
+        private IModelRepository _modelRepository;
+        private IEnvironmentActorFactory _environmentActorFactory;
+        private IPreviewActorFactory _previewActorFactory;
 
         /// <summary>モデルビューア全体管理用モデル</summary>
         public IReadOnlyModelViewerModel ModelViewerModel => ModelViewerModelInternal;
@@ -53,9 +53,6 @@ namespace SampleGame.Domain.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public ModelViewerDomainService() {
-            _modelRepository = Services.Resolve<IModelRepository>();
-            _environmentActorFactory = Services.Resolve<IEnvironmentActorFactory>();
-            _previewActorFactory = Services.Resolve<IPreviewActorFactory>();
             
             _scope = new DisposableScope();
         }
@@ -66,6 +63,13 @@ namespace SampleGame.Domain.ModelViewer {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _modelRepository = resolver.Resolve<IModelRepository>();
+            _environmentActorFactory = resolver.Resolve<IEnvironmentActorFactory>();
+            _previewActorFactory = resolver.Resolve<IPreviewActorFactory>();
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ using GameFramework.EnvironmentSystems;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Infrastructure;
+using SampleGame.Presentation;
 using ThirdPersonEngine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -22,18 +23,18 @@ namespace SampleGame.Lifecycle {
 
         private TaskRunner _taskRunner;
         private SituationService _situationService;
+        private IServiceContainer _globalServiceContainer;
 
         /// <summary>
         /// Reboot処理
         /// </summary>
         protected override IEnumerator RebootRoutineInternal(object[] args) {
             // Scene用のContainerの作成しなおし
-            Services.Instance.Remove<SituationService>();
-            _situationService?.Dispose();
-            _situationService = new SituationService();
+            _globalServiceContainer.Remove<SituationService>();
+            _situationService = new SituationService(_globalServiceContainer);
             _situationService.Initialize();
             _situationService.RegisterTask(TaskOrder.Logic);
-            Services.Instance.RegisterInstance(_situationService);
+            _globalServiceContainer.RegisterInstance(_situationService);
 
             // 開始Situationへの遷移
             yield return TransitionStartSituation(args);
@@ -43,6 +44,8 @@ namespace SampleGame.Lifecycle {
         /// 初期化処理
         /// </summary>
         protected override IEnumerator StartRoutineInternal(object[] args) {
+            _globalServiceContainer = new ServiceContainer(label: "Global");
+            
             // FPS初期化
             UnityEngine.Application.targetFrameRate = 60;
             
@@ -50,40 +53,45 @@ namespace SampleGame.Lifecycle {
             LayeredTime.DefaultProvider = new UnityDeltaTimeProvider();
 
             // RootのServiceにインスタンスを登録
-            _globalObject.Install(Services.Instance);
+            _globalObject.Install(_globalServiceContainer);
             DontDestroyOnLoad(_globalObject.gameObject);
 
             // 各種システム初期化
             _taskRunner = new TaskRunner();
-            Services.Instance.RegisterInstance(_taskRunner);
+            _globalServiceContainer.RegisterInstance(_taskRunner);
+            TaskUtility.Initialize(_globalServiceContainer);
 
             var environmentManager = new EnvironmentManager(new EnvironmentResolver());
             environmentManager.RegisterTask(TaskOrder.PostSystem);
-            Services.Instance.RegisterInstance(environmentManager);
+            _globalServiceContainer.RegisterInstance(environmentManager);
 
             // Addressables初期化
             yield return Addressables.InitializeAsync();
 
             var assetManager = new AssetManager();
             assetManager.Initialize(new AddressablesAssetProvider(), new ResourcesAssetProvider(), new AssetDatabaseAssetProvider());
-            Services.Instance.RegisterInstance(assetManager);
+            _globalServiceContainer.RegisterInstance(assetManager);
 
             var uiManager = new UIManager();
             uiManager.Initialize(new UIAssetLoader(assetManager));
             uiManager.RegisterTask(TaskOrder.UI);
-            Services.Instance.RegisterInstance(uiManager);
+            _globalServiceContainer.RegisterInstance(uiManager);
 
             // SituationServiceの初期化
-            _situationService = new SituationService();
+            _situationService = new SituationService(_globalServiceContainer);
             _situationService.Initialize();
             _situationService.RegisterTask(TaskOrder.Logic);
-            Services.Instance.RegisterInstance(_situationService);
+            _globalServiceContainer.RegisterInstance(_situationService);
 
             // Debug初期化
             SetupDebug();
 
             // 常駐UIの読み込み
             yield return uiManager.LoadPrefabAsync("resident");
+            
+            // Utility初期化
+            ResidentUIUtility.Initialize(_globalServiceContainer);
+            DialogUIUtility.Initialize(_globalServiceContainer);
 
             // 開始Situationへの遷移
             yield return TransitionStartSituation(args);
@@ -122,7 +130,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void OnApplicationQuit() {
             CleanupDebug();
-            Services.Instance.Clear();
+            _globalServiceContainer.Dispose();
         }
 
         /// <summary>

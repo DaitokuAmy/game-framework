@@ -17,7 +17,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             yield return introductionUIService.TitleTopUIScreen.OpenAsync();
         }
@@ -28,7 +28,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             introductionUIService.TitleTopUIScreen.OpenAsync(immediate: true);
         }
@@ -39,7 +39,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             yield return introductionUIService.TitleTopUIScreen.CloseAsync();
         }
@@ -50,7 +50,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostCloseInternal(TransitionHandle<Situation> handle) {
             base.PostCloseInternal(handle);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             introductionUIService.TitleTopUIScreen.CloseAsync(immediate: true);
         }
@@ -61,8 +61,8 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = Services.Resolve<SituationService>();
-            var uiManager = Services.Resolve<UIManager>();
+            var situationService = ServiceResolver.Resolve<SituationService>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
 
             // スタートボタン

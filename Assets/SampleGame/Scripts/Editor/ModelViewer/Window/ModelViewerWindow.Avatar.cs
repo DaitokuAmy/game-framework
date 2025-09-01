@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameFramework;
 using GameFramework.Core;
+using GameFramework.DebugSystems.Editor;
 using R3;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
@@ -16,7 +17,7 @@ namespace SampleGame.ModelViewer.Editor {
         /// AvatarPanel
         /// </summary>
         private class AvatarPanel : PanelBase {
-            public override string Title => "Avatar";
+            public override string Label => "Avatar";
 
             private Dictionary<string, FoldoutList<GameObject>> _meshAvatarFoldoutLists = new();
             private Dictionary<string, GameObject[]> _meshAvatarPrefabLists = new();
@@ -24,15 +25,13 @@ namespace SampleGame.ModelViewer.Editor {
             /// <summary>
             /// 初期化処理
             /// </summary>
-            protected override void InitializeInternal(IScope scope) {
-                var viewerModel = Services.Resolve<ModelViewerAppService>().DomainService.ModelViewerModel;
-                
+            protected override void StartInternal(ModelViewerWindow window, IScope scope) {
+                var viewerModel = window.Resolver.Resolve<ModelViewerAppService>().DomainService.ModelViewerModel;
+
                 // Actor生成監視
                 viewerModel.ChangedPreviewActorSubject
                     .TakeUntil(scope)
-                    .Prepend(() => new ChangedPreviewActorDto {
-                        Model = viewerModel.PreviewActorModel
-                    })
+                    .Prepend(() => new ChangedPreviewActorDto { Model = viewerModel.PreviewActorModel })
                     .Subscribe(dto => {
                         var actorModel = dto.Model;
                         if (actorModel == null) {
@@ -50,7 +49,7 @@ namespace SampleGame.ModelViewer.Editor {
                                 .ToArray();
                         }
                     });
-                
+
                 // PreviewActor削除監視
                 viewerModel.DeletedPreviewActorSubject
                     .TakeUntil(scope)
@@ -63,8 +62,8 @@ namespace SampleGame.ModelViewer.Editor {
             /// <summary>
             /// GUI描画
             /// </summary>
-            protected override void OnGUIInternal() {
-                var appService = Services.Resolve<ModelViewerAppService>();
+            protected override void DrawGuiInternal(ModelViewerWindow window) {
+                var appService = window.Resolver.Resolve<ModelViewerAppService>();
                 var actorModel = appService.DomainService.PreviewActorModel;
                 var prevColor = GUI.color;
 
@@ -75,13 +74,13 @@ namespace SampleGame.ModelViewer.Editor {
                     }
 
                     GUI.color = prevColor;
-                    
+
                     var prefabs = _meshAvatarPrefabLists[key];
                     list.OnGUI(prefabs, (prefab, index) => {
                         actorModel.CurrentMeshAvatars.TryGetValue(key, out var currentPrefab);
                         var current = currentPrefab == prefab;
                         GUI.color = current ? Color.green : Color.gray;
-                        
+
                         if (prefab != null) {
                             if (GUILayout.Button(prefab.name)) {
                                 appService.ChangeMeshAvatar(key, index);

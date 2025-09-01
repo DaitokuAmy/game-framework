@@ -9,15 +9,13 @@ namespace SampleGame.Infrastructure.Battle {
     /// <summary>
     /// バトルキャラアセット用のリポジトリ
     /// </summary>
-    public class BattleCharacterAssetRepository : IDisposable {
-        private readonly SimpleAssetStorage<BattleCharacterActorData> _battleCharacterActorDataStorage;
+    public class BattleCharacterAssetRepository : IDisposable, IServiceUser {
+        private SimpleAssetStorage<BattleCharacterActorData> _battleCharacterActorDataStorage;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public BattleCharacterAssetRepository() {
-            var assetManager = Services.Resolve<AssetManager>();
-            _battleCharacterActorDataStorage = new SimpleAssetStorage<BattleCharacterActorData>(assetManager);
         }
 
         /// <summary>
@@ -25,6 +23,12 @@ namespace SampleGame.Infrastructure.Battle {
         /// </summary>
         public void Dispose() {
             _battleCharacterActorDataStorage.Dispose();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            var assetManager = resolver.Resolve<AssetManager>();
+            _battleCharacterActorDataStorage = new SimpleAssetStorage<BattleCharacterActorData>(assetManager);
         }
         
         /// <summary>

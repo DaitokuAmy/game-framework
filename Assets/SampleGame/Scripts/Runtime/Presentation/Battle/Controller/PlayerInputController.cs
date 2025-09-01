@@ -9,24 +9,28 @@ namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// Player制御用コントローラー
     /// </summary>
-    public class PlayerInputController : ActorEntityLogic {
-        private readonly PlayerAppService _playerAppService;
+    public class PlayerInputController : ActorEntityLogic, IServiceUser {
         private readonly IReadOnlyCharacterModel _model;
-        private readonly InputAction _moveAction;
-        private readonly InputAction _lookAtAction;
-        private readonly InputAction _jumpAction;
-        private readonly InputAction _attackAction;
-        private readonly InputAction _sprintAction;
+        
+        private PlayerAppService _playerAppService;
+        private InputAction _moveAction;
+        private InputAction _lookAtAction;
+        private InputAction _jumpAction;
+        private InputAction _attackAction;
+        private InputAction _sprintAction;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public PlayerInputController(IReadOnlyCharacterModel model) {
-            _playerAppService = Services.Resolve<PlayerAppService>();
-            
             _model = model;
+        }
 
-            var playerInput = Services.Resolve<PlayerInput>();
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _playerAppService = resolver.Resolve<PlayerAppService>();
+            
+            var playerInput = resolver.Resolve<PlayerInput>();
             _moveAction = playerInput.actions["Move"];
             _lookAtAction = playerInput.actions["LookAt"];
             _jumpAction = playerInput.actions["Jump"];

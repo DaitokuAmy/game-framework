@@ -12,16 +12,24 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// ModelViewer全体のPresenter
     /// </summary>
-    public class ModelViewerPresenter : Logic {
+    public class ModelViewerPresenter : Logic, IServiceUser {
         private ModelViewerAppService _appService;
         private ActorEntityManager _actorEntityManager;
+        private CameraManager _cameraManager;
+        private ModelRecorder _modelRecorder;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public ModelViewerPresenter() {
-            _appService = Services.Resolve<ModelViewerAppService>();
-            _actorEntityManager = Services.Resolve<ActorEntityManager>();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _appService = resolver.Resolve<ModelViewerAppService>();
+            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
+            _cameraManager = resolver.Resolve<CameraManager>();
+            _modelRecorder = resolver.Resolve<ModelRecorder>();
         }
 
         /// <summary>
@@ -32,8 +40,6 @@ namespace SampleGame.Presentation.ModelViewer {
 
             var ct = scope.Token;
 
-            var cameraManager = Services.Resolve<CameraManager>();
-            var actorEntityManager = Services.Resolve<ActorEntityManager>();
             var domainService = _appService.DomainService;
             var modelViewerModel = domainService.ModelViewerModel;
             var settingsModel = domainService.SettingsModel;
@@ -43,17 +49,16 @@ namespace SampleGame.Presentation.ModelViewer {
                 .TakeUntil(scope)
                 .Subscribe(dto => {
                     // モデルビューアのSlot位置を変更
-                    actorEntityManager.RootTransform.position = dto.Model.ActorMaster.RootPosition;
-                    actorEntityManager.RootTransform.eulerAngles = dto.Model.ActorMaster.RootAngles;
+                    _actorEntityManager.RootTransform.position = dto.Model.ActorMaster.RootPosition;
+                    _actorEntityManager.RootTransform.eulerAngles = dto.Model.ActorMaster.RootAngles;
                     
                     // AngleRootを変更
-                    var angleRoot = cameraManager.GetTargetPoint("AngleRoot");
+                    var angleRoot = _cameraManager.GetTargetPoint("AngleRoot");
                     angleRoot.position = dto.Model.ActorMaster.RootPosition;
                     angleRoot.eulerAngles = dto.Model.ActorMaster.RootAngles;
                     
                     // Recorderの同期
-                    var recorder = Services.Resolve<ModelRecorder>();
-                    recorder.LightSlot = dto.Model.LightSlot;
+                    _modelRecorder.LightSlot = dto.Model.LightSlot;
                 });
 
             // カメラの切り替え
@@ -63,12 +68,12 @@ namespace SampleGame.Presentation.ModelViewer {
                 .Subscribe(type => {
                     switch (type) {
                         case CameraControlType.Default:
-                            cameraManager.ForceDeactivate("SceneView");
-                            cameraManager.ForceActivate("Default");
+                            _cameraManager.ForceDeactivate("SceneView");
+                            _cameraManager.ForceActivate("Default");
                             break;
                         case CameraControlType.SceneView:
-                            cameraManager.ForceActivate("SceneView");
-                            cameraManager.ForceDeactivate("Default");
+                            _cameraManager.ForceActivate("SceneView");
+                            _cameraManager.ForceDeactivate("Default");
                             break;
                     }
                 });
@@ -97,7 +102,7 @@ namespace SampleGame.Presentation.ModelViewer {
             // CameraのModelTransformを更新
             var actorModel = _appService.DomainService.PreviewActorModel;
             if (actorModel != null) { 
-                var modelTrans = Services.Resolve<CameraManager>().GetTargetPoint("Model");
+                var modelTrans = _cameraManager.GetTargetPoint("Model");
                 modelTrans.position = actorModel.Position;
                 modelTrans.rotation = actorModel.Rotation;
             }

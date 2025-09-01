@@ -55,7 +55,7 @@ namespace ThirdPersonEngine {
         private readonly List<BlockInfo> _blockInfos = new();
 
         /// <summary>ブロック中のタップ検知</summary>
-        public Observable<Unit> OnClickedSubject => _button != null ? _button.OnClickAsObservable() : Observable.Empty<Unit>();
+        public Observable<Unit> ClickedSubject => _button != null ? _button.OnClickAsObservable() : Observable.Empty<Unit>();
 
         /// <summary>
         /// 初期化処理

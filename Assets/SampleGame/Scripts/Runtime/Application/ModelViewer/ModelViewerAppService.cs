@@ -9,11 +9,11 @@ namespace SampleGame.Application.ModelViewer {
     /// <summary>
     /// モデルビューア用のアプリケーション層サービス
     /// </summary>
-    public class ModelViewerAppService : IDisposable {
-        private readonly ModelViewerDomainService _domainService;
-        private readonly IModelViewerRepository _repository;
-
+    public class ModelViewerAppService : IDisposable, IServiceUser {
         private DisposableScope _scope;
+        
+        private ModelViewerDomainService _domainService;
+        private IModelViewerRepository _repository;
 
         public IReadOnlyModelViewerDomainService DomainService => _domainService;
 
@@ -21,8 +21,6 @@ namespace SampleGame.Application.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public ModelViewerAppService() {
-            _domainService = Services.Resolve<ModelViewerDomainService>();
-            _repository = Services.Resolve<IModelViewerRepository>();
             _scope = new DisposableScope();
         }
 
@@ -32,6 +30,12 @@ namespace SampleGame.Application.ModelViewer {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _domainService = resolver.Resolve<ModelViewerDomainService>();
+            _repository = resolver.Resolve<IModelViewerRepository>();
         }
 
         /// <summary>

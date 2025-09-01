@@ -1,6 +1,5 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework;
 using GameFramework.ActorSystems;
 using GameFramework.Core;
 using SampleGame.Domain.Battle;
@@ -13,7 +12,7 @@ namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// CharacterActor生成クラス
     /// </summary>
-    public class CharacterActorFactory : ICharacterActorFactory {
+    public class CharacterActorFactory : ICharacterActorFactory, IServiceUser {
         /// <summary>
         /// Body生成用のBuilder
         /// </summary>
@@ -22,17 +21,23 @@ namespace SampleGame.Presentation.Battle {
             }
         }
 
-        private readonly BodyPrefabRepository _bodyPrefabRepository;
-        private readonly BattleCharacterAssetRepository _characterAssetRepository;
-        private readonly ActorEntityManager _actorEntityManager;
+        private IServiceResolver _serviceResolver;
+        private BodyPrefabRepository _bodyPrefabRepository;
+        private BattleCharacterAssetRepository _characterAssetRepository;
+        private ActorEntityManager _actorEntityManager;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public CharacterActorFactory() {
-            _bodyPrefabRepository = Services.Resolve<BodyPrefabRepository>();
-            _characterAssetRepository = Services.Resolve<BattleCharacterAssetRepository>();
-            _actorEntityManager = Services.Resolve<ActorEntityManager>();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _serviceResolver = resolver;
+            _bodyPrefabRepository = resolver.Resolve<BodyPrefabRepository>();
+            _characterAssetRepository = resolver.Resolve<BattleCharacterAssetRepository>();
+            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
         }
 
         /// <inheritdoc/>
@@ -58,6 +63,7 @@ namespace SampleGame.Presentation.Battle {
             
             // controller生成
             var controller = new PlayerInputController(model);
+            _serviceResolver.Import(controller);
             controller.RegisterTask(TaskOrder.Input);
 
             // entity構築

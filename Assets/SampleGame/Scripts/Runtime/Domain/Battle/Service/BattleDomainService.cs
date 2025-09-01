@@ -10,12 +10,12 @@ namespace SampleGame.Domain.Battle {
     /// バトル用のドメインサービス
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
-    public partial class BattleDomainService : IDisposable {
-        private readonly IModelRepository _modelRepository;
-        private readonly ICharacterActorFactory _characterActorFactory;
-        private readonly IFieldActorFactory _fieldActorFactory;
-
+    public partial class BattleDomainService : IDisposable, IServiceUser {
         private DisposableScope _scope;
+        
+        private IModelRepository _modelRepository;
+        private ICharacterActorFactory _characterActorFactory;
+        private IFieldActorFactory _fieldActorFactory;
 
         /// <summary>バトルモデル</summary>
         public IReadOnlyBattleModel BattleModel => BattleModelInternal;
@@ -27,10 +27,6 @@ namespace SampleGame.Domain.Battle {
         /// コンストラクタ
         /// </summary>
         public BattleDomainService() {
-            _modelRepository = Services.Resolve<IModelRepository>();
-            _characterActorFactory = Services.Resolve<ICharacterActorFactory>();
-            _fieldActorFactory = Services.Resolve<IFieldActorFactory>();
-
             _scope = new DisposableScope();
         }
 
@@ -40,6 +36,13 @@ namespace SampleGame.Domain.Battle {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _modelRepository = resolver.Resolve<IModelRepository>();
+            _characterActorFactory = resolver.Resolve<ICharacterActorFactory>();
+            _fieldActorFactory = resolver.Resolve<IFieldActorFactory>();
         }
 
         /// <summary>

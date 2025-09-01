@@ -72,9 +72,9 @@ using SampleGame.Infrastructure;
 using UnityEngine;
 
 // 依存リポジトリやマネージャの取得
-var bodyPrefabRepository = Services.Resolve<BodyPrefabRepository>();
-var characterAssetRepository = Services.Resolve<BattleCharacterAssetRepository>();
-var actorEntityManager = Services.Resolve<ActorEntityManager>();
+var bodyPrefabRepository = ServiceResolver.Resolve<BodyPrefabRepository>();
+var characterAssetRepository = ServiceResolver.Resolve<BattleCharacterAssetRepository>();
+var actorEntityManager = ServiceResolver.Resolve<ActorEntityManager>();
 
 // プレイヤー用モデル（IReadOnlyPlayerModel）とLayeredTimeが与えられている前提
 // CancellationToken ct も必要

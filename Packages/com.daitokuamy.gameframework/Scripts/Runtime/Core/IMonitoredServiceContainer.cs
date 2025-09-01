@@ -8,8 +8,8 @@ namespace GameFramework.Core {
     public interface IMonitoredServiceContainer {
         /// <summary>表示用ラベル</summary>
         string Label { get; }
-        /// <summary>子階層のServiceContainer</summary>
-        IReadOnlyList<IMonitoredServiceContainer> Children { get; }
+        /// <summary>親のServiceContainer</summary>
+        IMonitoredServiceContainer Parent { get; }
 
         /// <summary>
         /// 登録済みサービス情報の取得

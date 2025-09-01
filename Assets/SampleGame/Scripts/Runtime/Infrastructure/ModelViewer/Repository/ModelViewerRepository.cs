@@ -10,28 +10,33 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// モデルビューア用のリポジトリ
     /// </summary>
-    public class ModelViewerRepository : IDisposable, IModelViewerRepository {
-        private readonly DisposableScope _unloadScope;
-        private readonly SimpleAssetStorage<ModelViewerMasterData> _masterDataStorage;
-        private readonly PoolAssetStorage<ModelViewerPreviewActorMasterData> _previewActorMasterDataStorage;
-        private readonly PoolAssetStorage<ModelViewerEnvironmentActorMasterData> _environmentActorMasterDataStorage;
+    public class ModelViewerRepository : IDisposable, IServiceUser, IModelViewerRepository {
+        private readonly DisposableScope _scope;
+        
+        private SimpleAssetStorage<ModelViewerMasterData> _masterDataStorage;
+        private PoolAssetStorage<ModelViewerPreviewActorMasterData> _previewActorMasterDataStorage;
+        private PoolAssetStorage<ModelViewerEnvironmentActorMasterData> _environmentActorMasterDataStorage;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public ModelViewerRepository() {
-            _unloadScope = new DisposableScope();
-            var assetManager = Services.Resolve<AssetManager>();
-            _masterDataStorage = new SimpleAssetStorage<ModelViewerMasterData>(assetManager).RegisterTo(_unloadScope);
-            _previewActorMasterDataStorage = new PoolAssetStorage<ModelViewerPreviewActorMasterData>(assetManager, 2).RegisterTo(_unloadScope);
-            _environmentActorMasterDataStorage = new PoolAssetStorage<ModelViewerEnvironmentActorMasterData>(assetManager, 2).RegisterTo(_unloadScope);
+            _scope = new DisposableScope();
         }
 
         /// <summary>
         /// 廃棄処理
         /// </summary>
         public void Dispose() {
-            _unloadScope.Dispose();
+            _scope.Dispose();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            var assetManager = resolver.Resolve<AssetManager>();
+            _masterDataStorage = new SimpleAssetStorage<ModelViewerMasterData>(assetManager).RegisterTo(_scope);
+            _previewActorMasterDataStorage = new PoolAssetStorage<ModelViewerPreviewActorMasterData>(assetManager, 2).RegisterTo(_scope);
+            _environmentActorMasterDataStorage = new PoolAssetStorage<ModelViewerEnvironmentActorMasterData>(assetManager, 2).RegisterTo(_scope);
         }
 
         /// <summary>

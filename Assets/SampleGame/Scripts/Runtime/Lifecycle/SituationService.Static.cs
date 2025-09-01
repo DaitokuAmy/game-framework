@@ -19,14 +19,19 @@ namespace SampleGame.Lifecycle {
             SceneDefault,
         }
 
+        private static ITransition OutInTransition => new OutInTransition();
+        private static ITransition CrossTransition => new CrossTransition();
+        private static ITransitionEffect[] BlockOnlyEffects => new ITransitionEffect[] { new BlockTransitionEffect() };
+        private static ITransitionEffect[] LoadingEffects => new ITransitionEffect[] { new BlockTransitionEffect(), new LoadingTransitionEffect() };
+
         /// <summary>
         /// 遷移に使用する情報を取得
         /// </summary>
         private static (ITransition, ITransitionEffect[]) GetTransitionInfo(TransitionType type) {
             return type switch {
-                TransitionType.ScreenDefault => (new OutInTransition(), new ITransitionEffect[]{ new BlockTransitionEffect() }),
-                TransitionType.ScreenCross => (new CrossTransition(), new ITransitionEffect[]{ new BlockTransitionEffect() }),
-                TransitionType.SceneDefault => (new OutInTransition(), new ITransitionEffect[]{ new BlockTransitionEffect(), new LoadingTransitionEffect() }),
+                TransitionType.ScreenDefault => (OutInTransition, BlockOnlyEffects),
+                TransitionType.ScreenCross => (CrossTransition, BlockOnlyEffects),
+                TransitionType.SceneDefault => (OutInTransition, LoadingEffects),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }

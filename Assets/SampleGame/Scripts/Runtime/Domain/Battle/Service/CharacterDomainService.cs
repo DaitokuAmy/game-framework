@@ -7,17 +7,14 @@ namespace SampleGame.Domain.Battle {
     /// <summary>
     /// キャラ制御用のドメインサービス
     /// </summary>
-    public class CharacterDomainService : IDisposable {
-        private readonly IModelRepository _modelRepository;
-        
+    public class CharacterDomainService : IDisposable, IServiceUser {
         private DisposableScope _scope;
+        private IModelRepository _modelRepository;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public CharacterDomainService() {
-            _modelRepository = Services.Resolve<IModelRepository>();
-            
             _scope = new DisposableScope();
         }
 
@@ -27,6 +24,11 @@ namespace SampleGame.Domain.Battle {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver serviceResolver) {
+            _modelRepository = serviceResolver.Resolve<IModelRepository>();
         }
 
         /// <summary>

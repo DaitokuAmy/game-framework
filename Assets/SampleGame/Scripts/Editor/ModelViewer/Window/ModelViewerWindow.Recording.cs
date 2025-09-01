@@ -16,19 +16,13 @@ namespace SampleGame.ModelViewer.Editor {
         /// RecordingPanel
         /// </summary>
         private class RecordingPanel : PanelBase {
-            public override string Title => "Recording";
-
-            /// <summary>
-            /// 初期化処理
-            /// </summary>
-            protected override void InitializeInternal(IScope scope) {
-            }
+            public override string Label => "Recording";
 
             /// <summary>
             /// GUI描画
             /// </summary>
-            protected override void OnGUIInternal() {
-                var appService = Services.Resolve<ModelViewerAppService>();
+            protected override void DrawGuiInternal(ModelViewerWindow window) {
+                var appService = window.Resolver.Resolve<ModelViewerAppService>();
                 var recordingModel = appService.DomainService.RecordingModel;
 
                 // オプション
@@ -50,14 +44,14 @@ namespace SampleGame.ModelViewer.Editor {
                 }
 
                 // 録画開始
-                var recorder = Services.Resolve<ModelRecorder>();
+                var recorder = window.Resolver.Resolve<ModelRecorder>();
                 using (new EditorGUI.DisabledScope(recorder.IsRecording)) {
                     if (GUILayout.Button("Record")) {
                         var displayName = appService.DomainService.PreviewActorModel.Master.DisplayName;
                         var settings = appService.DomainService.RecordingModel;
 
                         // カメラの情報を複製
-                        var cameraManager = Services.Resolve<CameraManager>();
+                        var cameraManager = window.Resolver.Resolve<CameraManager>();
                         var defaultCameraComponent = cameraManager.GetCameraComponent<PreviewCameraComponent>("Default");
                         var relativePosition = defaultCameraComponent.CalcRelativePosition();
                         var lookAtPosition = defaultCameraComponent.CalcLookAtPosition();

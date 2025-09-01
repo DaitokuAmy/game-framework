@@ -11,23 +11,20 @@ namespace GameFramework.EnvironmentSystems {
         /// 環境設定情報
         /// </summary>
         public class EnvironmentInfo {
-            // 設定値
-            public IEnvironmentContext context;
-            // 遷移残り時間
-            public float timer;
-            // 遷移時間
-            public float duration;
+            /// <summary>設定値</summary>
+            public IEnvironmentContext Context;
+            /// <summary>遷移残り時間</summary>
+            public float Timer;
+            /// <summary>遷移時間</summary>
+            public float Duration;
         }
 
-        // 環境情報のスタック
-        private List<EnvironmentInfo> _stack = new List<EnvironmentInfo>();
-        // 環境情報
-        private Dictionary<EnvironmentHandle, EnvironmentInfo> _environmentInfos =
-            new Dictionary<EnvironmentHandle, EnvironmentInfo>();
-        // 制御用Resolver
+        private readonly List<EnvironmentInfo> _stack = new();
+        private readonly Dictionary<EnvironmentHandle, EnvironmentInfo> _environmentInfos = new();
+        private readonly LayeredTime _layeredTime;
+        
         private IEnvironmentResolver _resolver;
-        // 時間制御クラス
-        private LayeredTime _layeredTime;
+        private bool _disposed;
 
         /// <summary>
         /// コンストラクタ
@@ -43,6 +40,11 @@ namespace GameFramework.EnvironmentSystems {
         /// 廃棄時処理
         /// </summary>
         protected override void DisposeInternal() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;
             _stack.Clear();
             _environmentInfos.Clear();
             _resolver = null;
@@ -54,11 +56,15 @@ namespace GameFramework.EnvironmentSystems {
         /// <param name="context">反映設定用のコンテキスト</param>
         /// <param name="duration">遷移時間</param>
         public EnvironmentHandle Push(IEnvironmentContext context, float duration) {
+            if (_disposed) {
+                return default;
+            }
+            
             // 今回の環境情報の生成
             var info = new EnvironmentInfo {
-                context = context,
-                timer = duration,
-                duration = duration
+                Context = context,
+                Timer = duration,
+                Duration = duration
             };
             var handle = new EnvironmentHandle(info);
 
@@ -73,6 +79,10 @@ namespace GameFramework.EnvironmentSystems {
         /// 環境の適用解除
         /// </summary>
         public void Remove(EnvironmentHandle handle) {
+            if (_disposed) {
+                return;
+            }
+            
             if (!_environmentInfos.TryGetValue(handle, out var target)) {
                 // 対象ではない
                 Debug.LogError("Not found environment handle.");
@@ -82,8 +92,8 @@ namespace GameFramework.EnvironmentSystems {
             // カレントを戻す場合、バック処理を行う
             var current = GetCurrent();
             if (current == target && _stack.Count > 1) {
-                var back = _stack[_stack.Count - 2];
-                back.timer = current.duration;
+                var back = _stack[^2];
+                back.Timer = current.Duration;
             }
 
             // インスタンス管理から除外
@@ -95,12 +105,16 @@ namespace GameFramework.EnvironmentSystems {
         /// 強制更新フラグ
         /// </summary>
         public void ForceApply(float blendDuration = 0.0f) {
+            if (_disposed) {
+                return;
+            }
+            
             if (_stack.Count <= 0) {
                 return;
             }
 
-            var currentInfo = _stack[_stack.Count - 1];
-            currentInfo.timer = Mathf.Max(blendDuration, currentInfo.timer);
+            var currentInfo = _stack[^1];
+            currentInfo.Timer = Mathf.Max(blendDuration, currentInfo.Timer);
         }
 
         /// <summary>
@@ -112,21 +126,21 @@ namespace GameFramework.EnvironmentSystems {
             // スタックの状態を調べる
             for (var i = 0; i < _stack.Count; i++) {
                 var info = _stack[i];
-                if (info.timer < 0.0f) {
+                if (info.Timer < 0.0f) {
                     continue;
                 }
 
                 // カレントではなければ、時間を-1にする
                 if (i != _stack.Count - 1) {
-                    info.timer = -1.0f;
+                    info.Timer = -1.0f;
                     continue;
                 }
 
                 // ブレンド処理を行う
-                info.timer -= deltaTime;
-                var blendRate = info.timer > float.Epsilon ? Mathf.Clamp01(deltaTime / info.timer) : 1.0f;
+                info.Timer -= deltaTime;
+                var blendRate = info.Timer > float.Epsilon ? Mathf.Clamp01(deltaTime / info.Timer) : 1.0f;
                 var current = _resolver.GetCurrent();
-                var context = _resolver.Lerp(current, info.context, blendRate);
+                var context = _resolver.Lerp(current, info.Context, blendRate);
 
                 // 設定反映
                 _resolver.Apply(context);
@@ -137,7 +151,7 @@ namespace GameFramework.EnvironmentSystems {
         /// 現在適用されているEnvironment情報を取得
         /// </summary>
         private EnvironmentInfo GetCurrent() {
-            return _stack.Count > 0 ? _stack[_stack.Count - 1] : null;
+            return _stack.Count > 0 ? _stack[^1] : null;
         }
     }
 }

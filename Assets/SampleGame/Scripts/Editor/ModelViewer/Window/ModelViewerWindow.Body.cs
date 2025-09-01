@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.ActorSystems;
 using GameFramework.Core;
+using GameFramework.DebugSystems.Editor;
 using GameFramework.GimmickSystems;
 using SampleGame.Application.ModelViewer;
-using SampleGame.Presentation.ModelViewer;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,19 +17,13 @@ namespace SampleGame.ModelViewer.Editor {
         /// ComponentPanel
         /// </summary>
         private class BodyPanel : PanelBase {
-            public override string Title => "Body";
+            public override string Label => "Body";
 
             private const float FoldoutHeight = 300;
-
-            private class BoosterInfo {
-                public float Power;
-            }
 
             private FoldoutList<string> _locatorFoldoutList;
             private FoldoutList<string> _materialFoldoutList;
             private FoldoutList<string> _gimmickFoldoutList;
-            private Foldout _boosterFoldout;
-            private Foldout _finalIKFoldout;
             private bool _animationGimmickResume;
 
             private Dictionary<string, Color> _gimmickColorParams = new();
@@ -38,25 +31,22 @@ namespace SampleGame.ModelViewer.Editor {
             private Dictionary<string, Vector2> _gimmickVector2Params = new();
             private Dictionary<string, Vector3> _gimmickVector3Params = new();
             private Dictionary<string, Vector4> _gimmickVector4Params = new();
-            private Dictionary<string, BoosterInfo> _boosterInfos = new();
 
             /// <summary>
             /// 初期化処理
             /// </summary>
-            protected override void InitializeInternal(IScope scope) {
+            protected override void StartInternal(ModelViewerWindow window, IScope scope) {
                 _locatorFoldoutList = new FoldoutList<string>("Locator Controller");
                 _materialFoldoutList = new FoldoutList<string>("Material Controller");
                 _gimmickFoldoutList = new FoldoutList<string>("Gimmick Controller");
-                _boosterFoldout = new Foldout("Booster Controller");
-                _finalIKFoldout = new Foldout("Final IK Controller");
             }
 
             /// <summary>
             /// GUI描画
             /// </summary>
-            protected override void OnGUIInternal() {
-                var appService = Services.Resolve<ModelViewerAppService>();
-                var entityManager = Services.Resolve<ActorEntityManager>();
+            protected override void DrawGuiInternal(ModelViewerWindow window) {
+                var appService = window.Resolver.Resolve<ModelViewerAppService>();
+                var entityManager = window.Resolver.Resolve<ActorEntityManager>();
                 var actorModel = appService.DomainService.PreviewActorModel;
                 if (!entityManager.Entities.TryGetValue(actorModel.Id, out var entity)) {
                     return;

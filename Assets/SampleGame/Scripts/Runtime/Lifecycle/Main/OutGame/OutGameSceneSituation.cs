@@ -50,7 +50,7 @@ namespace SampleGame.Lifecycle {
             SetupFactories(scope);
 
             // 初期化処理
-            //yield return Services.Resolve<OutGameAppService>().SetupAsync(_battleId, _playerId, scope.Token).ToCoroutine();
+            //yield return ServiceResolver.Resolve<OutGameAppService>().SetupAsync(_battleId, _playerId, scope.Token).ToCoroutine();
             
             SetupPresentations(scope);
         }
@@ -59,7 +59,7 @@ namespace SampleGame.Lifecycle {
         /// クリーンアップ
         /// </summary>
         protected override void CleanupInternal(TransitionHandle<Situation> handle) {
-            //Services.Resolve<OutGameAppService>()?.Cleanup();
+            //ServiceResolver.Resolve<OutGameAppService>()?.Cleanup();
 
             base.CleanupInternal(handle);
         }
@@ -70,7 +70,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
-            // var uiManager = Services.Resolve<UIManager>();
+            // var uiManager = ServiceResolver.Resolve<UIManager>();
             // var battleHudUIService = uiManager.GetService<OutGameHudUIService>();
             // yield return battleHudUIService.OutGameHudUIScreen.OpenAsync();
         }
@@ -81,7 +81,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
 
-            // var uiManager = Services.Resolve<UIManager>();
+            // var uiManager = ServiceResolver.Resolve<UIManager>();
             // var battleHudUIService = uiManager.GetService<OutGameHudUIService>();
             // battleHudUIService.OutGameHudUIScreen.OpenAsync(immediate: true);
         }
@@ -92,7 +92,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
 
-            // var uiManager = Services.Resolve<UIManager>();
+            // var uiManager = ServiceResolver.Resolve<UIManager>();
             // var battleHudUIService = uiManager.GetService<OutGameHudUIService>();
             // yield return battleHudUIService.OutGameHudUIScreen.CloseAsync();
         }
@@ -103,7 +103,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostCloseInternal(TransitionHandle<Situation> handle) {
             base.PostCloseInternal(handle);
 
-            // var uiManager = Services.Resolve<UIManager>();
+            // var uiManager = ServiceResolver.Resolve<UIManager>();
             // var battleHudUIService = uiManager.GetService<OutGameHudUIService>();
             // battleHudUIService.OutGameHudUIScreen.CloseAsync(immediate: true);
         }
@@ -126,7 +126,7 @@ namespace SampleGame.Lifecycle {
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
 
             UniTask LoadAsync(string assetKey) {
                 return uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
@@ -151,7 +151,7 @@ namespace SampleGame.Lifecycle {
             var actorManager = new ActorEntityManager();
             ServiceContainer.RegisterInstance(actorManager).RegisterTo(scope);
 
-            var cameraManager = Services.Resolve<CameraManager>();
+            var cameraManager = ServiceResolver.Resolve<CameraManager>();
             cameraManager.RegisterTask(TaskOrder.Camera);
         }
 
@@ -193,7 +193,7 @@ namespace SampleGame.Lifecycle {
                 return logic;
             }
 
-            // var uiManager = Services.Resolve<UIManager>();
+            // var uiManager = ServiceResolver.Resolve<UIManager>();
             // var overlayUIService = uiManager.GetService<OutGameOverlayUIService>();
             // overlayUIService.OverlayScreenContainer.RegisterHandler(AddLogic(new OverlayUIScreenPresenter(), false, scope));
             //

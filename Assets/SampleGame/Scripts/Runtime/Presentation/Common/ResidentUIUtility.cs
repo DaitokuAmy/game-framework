@@ -9,13 +9,22 @@ namespace SampleGame.Presentation {
     /// 常駐UI用のユーティリティ
     /// </summary>
     public static class ResidentUIUtility {
+        /// <summary>Service取得用</summary>
+        private static IServiceResolver ServiceResolver { get; set; }
         /// <summary>UIManager</summary>
-        private static UIManager Manager => Services.Resolve<UIManager>();
+        private static UIManager Manager => ServiceResolver?.Resolve<UIManager>();
         /// <summary>ResidentUI用のService</summary>
         private static ResidentUIService UIService => Manager?.GetService<ResidentUIService>();
 
         /// <summary>ブロックスクリーンのタップ検知</summary>
-        public static Observable<Unit> OnClickedBlockingSubject => UIService.BlockScreen.OnClickedSubject;
+        public static Observable<Unit> ClickedBlockingSubject => UIService.BlockScreen.ClickedSubject;
+
+        /// <summary>
+        /// 初期化処理
+        /// </summary>
+        public static void Initialize(IServiceResolver resolver) {
+            ServiceResolver = resolver;
+        }
 
         /// <summary>
         /// ローディングの表示

@@ -13,7 +13,7 @@ namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// フィールド生成クラス
     /// </summary>
-    public class FieldActorFactory : IFieldActorFactory {
+    public class FieldActorFactory : IFieldActorFactory, IServiceUser {
         /// <summary>
         /// Body生成用のBuilder
         /// </summary>
@@ -22,15 +22,19 @@ namespace SampleGame.Presentation.Battle {
             }
         }
         
-        private readonly EnvironmentSceneRepository _environmentSceneRepository;
-        private readonly ActorEntityManager _actorEntityManager;
+        private EnvironmentSceneRepository _environmentSceneRepository;
+        private ActorEntityManager _actorEntityManager;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public FieldActorFactory() {
-            _environmentSceneRepository = Services.Resolve<EnvironmentSceneRepository>();
-            _actorEntityManager = Services.Resolve<ActorEntityManager>();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _environmentSceneRepository = resolver.Resolve<EnvironmentSceneRepository>();
+            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
         }
 
         /// <summary>

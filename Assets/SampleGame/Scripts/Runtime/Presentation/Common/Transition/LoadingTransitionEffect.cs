@@ -2,8 +2,6 @@ using System.Collections;
 using System.Linq;
 using GameFramework;
 using GameFramework.Core;
-using GameFramework.SituationSystems;
-using UnityEngine;
 
 namespace SampleGame.Presentation {
     /// <summary>
@@ -41,7 +39,6 @@ namespace SampleGame.Presentation {
         IEnumerator ITransitionEffect.EnterEffectRoutine() {
             var loadKey = _loadKeys.OrderBy(key => RandomUtil.Range(0.0f, 1.0f)).FirstOrDefault();
             yield return ResidentUIUtility.ShowLoading(loadKey);
-            yield return new WaitForSeconds(1f);
         }
 
         /// <summary>
@@ -54,7 +51,6 @@ namespace SampleGame.Presentation {
         /// 終了ルーチン
         /// </summary>
         IEnumerator ITransitionEffect.ExitEffectRoutine() {
-            // ローディング画面を閉じる処理は同期しない
             yield return ResidentUIUtility.HideLoading();
         }
         

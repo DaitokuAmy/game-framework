@@ -1,6 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using GameFramework;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using UnityEngine;
@@ -10,22 +12,31 @@ namespace SampleGame.Infrastructure {
     /// <summary>
     /// 背景シーンアセット用のリポジトリ
     /// </summary>
-    public class EnvironmentSceneRepository : IDisposable {
-        private readonly SimpleSceneAssetStorage _environmentSceneAssetStorage;
+    public class EnvironmentSceneRepository : IDisposable, IServiceUser {
+        private readonly DisposableScope _scope;
+
+        private IServiceResolver _serviceResolver;
+        private SimpleSceneAssetStorage _environmentSceneAssetStorage;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public EnvironmentSceneRepository() {
-            var assetManager = Services.Resolve<AssetManager>();
-            _environmentSceneAssetStorage = new SimpleSceneAssetStorage(assetManager);
+            _scope = new DisposableScope();
         }
 
         /// <summary>
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            _environmentSceneAssetStorage.Dispose();
+            _scope.Dispose();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _serviceResolver = resolver;
+            var assetManager = resolver.Resolve<AssetManager>();
+            _environmentSceneAssetStorage = new SimpleSceneAssetStorage(assetManager).RegisterTo(_scope);
         }
 
         /// <summary>
@@ -57,6 +68,14 @@ namespace SampleGame.Infrastructure {
             }
             
             await handle.ActivateAsync().ToUniTask(cancellationToken: ct);
+
+            var serviceUsers = handle.Scene.GetRootGameObjects()
+                .SelectMany(x => x.GetComponentsInChildren<IServiceUser>())
+                .ToArray();
+            foreach (var user in serviceUsers) {
+                _serviceResolver.Import(user);
+            }
+            
             return handle.Scene;
         }
 

@@ -56,12 +56,21 @@ namespace GameFramework.SituationSystems {
                 Debug.LogError($"Failed load scene. [{SceneAssetPath}]");
             }
 
+            var rootObjects = Scene.GetRootGameObjects();
             // Serviceのインストール
-            var installers = Scene.GetRootGameObjects()
+            var installers = rootObjects
                 .SelectMany(x => x.GetComponentsInChildren<ServiceContainerInstaller>(true))
                 .ToArray();
             foreach (var installer in installers) {
                 installer.Install(ServiceContainer, scope);
+            }
+
+            // ServiceUserへのResolver提供
+            var users = rootObjects
+                .SelectMany(x => x.GetComponentsInChildren<IServiceUser>(true))
+                .ToArray();
+            foreach (var user in users) {
+                user.ImportService(ServiceResolver);
             }
         }
 

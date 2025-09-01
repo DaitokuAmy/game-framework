@@ -51,7 +51,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             yield return hudUIService.UITestHudUIScreen.OpenAsync();
         }
@@ -62,7 +62,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             hudUIService.UITestHudUIScreen.OpenAsync(immediate: true);
         }
@@ -73,7 +73,7 @@ namespace SampleGame.Lifecycle {
         protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             yield return hudUIService.UITestHudUIScreen.CloseAsync();
         }
@@ -84,7 +84,7 @@ namespace SampleGame.Lifecycle {
         protected override void PostCloseInternal(TransitionHandle<Situation> handle) {
             base.PostCloseInternal(handle);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             hudUIService.UITestHudUIScreen.CloseAsync(immediate: true);
         }
@@ -95,7 +95,7 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             var dialogUIService = uiManager.GetService<DialogUIService>();
             var uiTestDialogUIService = uiManager.GetService<UITestDialogUIService>();
@@ -107,10 +107,7 @@ namespace SampleGame.Lifecycle {
                     // ダイアログを開く
                     var result = await dialogUIService.OpenSelectionDialogAsync(
                         title: "メインメニュー",
-                        itemLabels: new[] {
-                            "購入ダイアログテスト",
-                            "タイトルに戻る"
-                        },
+                        itemLabels: new[] { "購入ダイアログテスト", "タイトルに戻る" },
                         ct: ct);
 
                     if (result == 0) {
@@ -118,7 +115,7 @@ namespace SampleGame.Lifecycle {
                         DebugLog.Info($"アイテムId{buyResult.ItemId}を{buyResult.Count}個購入した");
                     }
                     else if (result == 1) {
-                        var situationService = Services.Resolve<SituationService>();
+                        var situationService = ServiceResolver.Resolve<SituationService>();
                         situationService.Transition<TitleTopSituation>(transitionType: SituationService.TransitionType.SceneDefault);
                     }
                 });
@@ -128,7 +125,7 @@ namespace SampleGame.Lifecycle {
         /// UIの読み込み
         /// </summary>
         private UniTask LoadUIAsync(IScope unloadScope, CancellationToken ct) {
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
 
             UniTask LoadAsync(string assetKey) {
                 return uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
@@ -175,6 +172,11 @@ namespace SampleGame.Lifecycle {
                 where T : Logic {
                 logic.RegisterTask(TaskOrder.Logic);
                 logic.RegisterTo(scp);
+
+                if (logic is IServiceUser user) {
+                    ServiceResolver.Import(user);
+                }
+
                 if (activate) {
                     logic.Activate();
                 }
@@ -182,7 +184,7 @@ namespace SampleGame.Lifecycle {
                 return logic;
             }
 
-            var uiManager = Services.Resolve<UIManager>();
+            var uiManager = ServiceResolver.Resolve<UIManager>();
             var hudUIService = uiManager.GetService<UITestHudUIService>();
             var dialogUIService = uiManager.GetService<UITestDialogUIService>();
             hudUIService.UITestHudUIScreen.RegisterHandler(AddLogic(new HudUIScreenPresenter(), false, scope));

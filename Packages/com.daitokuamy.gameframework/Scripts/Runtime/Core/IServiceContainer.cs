@@ -4,7 +4,7 @@ namespace GameFramework.Core {
     /// <summary>
     /// インスタンス提供用のロケーター
     /// </summary>
-    public interface IServiceContainer : IDisposable {
+    public interface IServiceContainer : IServiceResolver, IDisposable {
         /// <summary>親のDisposeに合わせて消えるか</summary>
         bool WithParentDispose { get; }
         
@@ -40,19 +40,6 @@ namespace GameFramework.Core {
         /// <param name="service">インスタンス</param>
         /// <returns>登録解除用Disposable</returns>
         IDisposable RegisterInstance(object service);
-
-        /// <summary>
-        /// サービスの取得
-        /// </summary>
-        /// <param name="type">登録したインスタンスのタイプ</param>
-        /// <returns>サービスインスタンス</returns>
-        object Resolve(Type type);
-
-        /// <summary>
-        /// サービスの取得
-        /// </summary>
-        /// <returns>サービスインスタンス</returns>
-        T Resolve<T>();
 
         /// <summary>
         /// サービスの削除

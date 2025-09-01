@@ -21,12 +21,13 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// アセットの読み込み
         /// </summary>
+        /// <param name="assetManager">アセット管理クラス</param>
         /// <param name="unloadScope">解放スコープ</param>
         /// <param name="ct">読み込みキャンセル用</param>
-        public async UniTask<T> LoadAsync(IScope unloadScope, CancellationToken ct) {
+        public async UniTask<T> LoadAsync(AssetManager assetManager, IScope unloadScope, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
-            var handle = LoadAsync(Services.Resolve<AssetManager>(), unloadScope);
+            var handle = LoadAsync(assetManager, unloadScope);
             await handle.ToUniTask(cancellationToken: ct);
             if (!handle.IsValid) {
                 Debug.LogException(new KeyNotFoundException($"Load failed. {Address}"));
@@ -69,13 +70,14 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// アセットの読み込み
         /// </summary>
+        /// <param name="assetManager">アセット管理クラス</param>
         /// <param name="activate">アクティブ化するか</param>
         /// <param name="unloadScope">解放スコープ</param>
         /// <param name="ct">Taskキャンセル用Token</param>
-        public async UniTask<Scene> LoadAsync(bool activate, IScope unloadScope, CancellationToken ct) {
+        public async UniTask<Scene> LoadAsync(AssetManager assetManager, bool activate, IScope unloadScope, CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
 
-            var handle = LoadAsync(Services.Resolve<AssetManager>(), unloadScope);
+            var handle = LoadAsync(assetManager, unloadScope);
             if (!handle.IsValid) {
                 Debug.LogException(new KeyNotFoundException($"Load failed. {Address}"));
                 return default;

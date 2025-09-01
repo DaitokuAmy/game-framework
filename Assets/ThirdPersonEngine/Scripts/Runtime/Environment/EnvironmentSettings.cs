@@ -7,7 +7,7 @@ namespace ThirdPersonEngine {
     /// 環境設定
     /// </summary>
     [ExecuteAlways]
-    public class EnvironmentSettings : MonoBehaviour {
+    public class EnvironmentSettings : MonoBehaviour, IServiceUser {
         [SerializeField, Tooltip("反映対象のデータ")]
         private EnvironmentContextData _data;
         [SerializeField, Tooltip("平行光源")]
@@ -18,6 +18,14 @@ namespace ThirdPersonEngine {
         private float _blendDuration;
 
         private EnvironmentHandle _handle;
+        private EnvironmentManager _environmentManager;
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver serviceResolver) {
+            _environmentManager = serviceResolver.Resolve<EnvironmentManager>();
+            enabled = false;
+            enabled = true;
+        }
 
         /// <summary>
         /// 強制的に環境を上書きする(Debug用)
@@ -37,9 +45,8 @@ namespace ThirdPersonEngine {
                 }
             }
             else {
-                var manager = Services.Resolve<EnvironmentManager>();
-                if (manager != null) {
-                    manager.ForceApply();
+                if (_environmentManager != null) {
+                    _environmentManager.ForceApply();
                 }
                 else {
                     var resolver = (IEnvironmentResolver)new EnvironmentResolver();
@@ -69,16 +76,15 @@ namespace ThirdPersonEngine {
             }
 
             // 非再生中はActiveになった瞬間に反映
-            if (!UnityEngine.Application.isPlaying) {
+            if (!Application.isPlaying) {
                 ApplyEnvironment();
                 return;
             }
 
-            var manager = Services.Resolve<EnvironmentManager>();
-            if (manager != null) {
+            if (_environmentManager != null) {
                 var context = _data.CreateContext();
                 context.Sun = _sun;
-                _handle = manager.Push(context, _blendDuration);
+                _handle = _environmentManager.Push(context, _blendDuration);
             }
 
             if (_sun != null) {
@@ -95,9 +101,8 @@ namespace ThirdPersonEngine {
         /// </summary>
         private void OnDisable() {
             if (_handle.IsValid) {
-                var manager = Services.Resolve<EnvironmentManager>();
-                if (manager != null) {
-                    manager.Remove(_handle);
+                if (_environmentManager != null) {
+                    _environmentManager.Remove(_handle);
                 }
             }
 

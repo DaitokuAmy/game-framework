@@ -16,6 +16,8 @@ namespace SituationTreeSample {
         private TransitionMenuView _transitionMenuView;
 
         private DisposableScope _scope;
+        private DisposableScope _enabledScope;
+        private ServiceContainer _serviceContainer;
         private SituationContainer _situationContainer;
         private StateTreeRouter<Type, Situation, SituationContainer.TransitionOption> _situationTree;
         private List<ISampleSituation> _nodeSituations = new();
@@ -26,13 +28,21 @@ namespace SituationTreeSample {
         public StateTreeRouter<Type, Situation, SituationContainer.TransitionOption> Tree => _situationTree;
 
         /// <summary>
+        /// 生成時処理
+        /// </summary>
+        private void Awake() {
+            _scope = new DisposableScope();
+            
+            DontDestroyOnLoad(gameObject);
+            
+            _serviceContainer = new ServiceContainer(label: "Root").RegisterTo(_scope);
+            _serviceContainer.RegisterInstance(this).RegisterTo(_scope);
+        }
+
+        /// <summary>
         /// 初期化処理
         /// </summary>
         private void Start() {
-            DontDestroyOnLoad(gameObject);
-
-            Services.Instance.RegisterInstance(this);
-
             var situationRoot = new SampleSituationRoot();
 
             // シチュエーションAの依存的な階層構造構築
@@ -83,7 +93,7 @@ namespace SituationTreeSample {
             _situationContainer.Setup(situationRoot);
 
             // シチュエーションの遷移関係を構築
-            _situationTree = new SituationTreeRouter(_situationContainer);
+            _situationTree = new SituationTreeRouter(_situationContainer).RegisterTo(_scope);
             var aNode = _situationTree.ConnectRoot(typeof(SampleSituationA));
             var aA1Node = aNode.Connect(typeof(SampleSituationA1)); // A -> A1
             var a1A2Node = aA1Node.Connect(typeof(SampleSituationA2)); // A1 -> A2
@@ -116,11 +126,11 @@ namespace SituationTreeSample {
         /// アクティブ時処理
         /// </summary>
         private void OnEnable() {
-            _scope = new DisposableScope();
+            _enabledScope = new DisposableScope();
 
-            _situationContainer = new SituationContainer();
+            _situationContainer = new SituationContainer(_serviceContainer);
             _situationContainer.ChangedCurrentAsObservable()
-                .TakeUntil(_scope)
+                .TakeUntil(_enabledScope)
                 .Subscribe(situation => {
                     if (situation is ISampleSituation nodeSituation) {
                         var index = _nodeSituations.IndexOf(nodeSituation);
@@ -130,11 +140,11 @@ namespace SituationTreeSample {
                 });
 
             MenuView.BackSubject
-                .TakeUntil(_scope)
+                .TakeUntil(_enabledScope)
                 .Subscribe(_ => Tree.Back());
 
             MenuView.SelectedSubject
-                .TakeUntil(_scope)
+                .TakeUntil(_enabledScope)
                 .Subscribe(index => {
                     if (index >= 0 && index < _nodeSituations.Count) {
                         var nodeSituation = _nodeSituations[index];
@@ -147,17 +157,16 @@ namespace SituationTreeSample {
         /// 非アクティブ時処理
         /// </summary>
         private void OnDisable() {
-            _scope.Dispose();
-            _scope = null;
+            _enabledScope.Dispose();
+            _enabledScope = null;
         }
 
         /// <summary>
         /// 廃棄時処理
         /// </summary>
         private void OnDestroy() {
-            _situationTree.Dispose();
-            _situationContainer.Dispose();
-            Services.Instance.Remove(GetType());
+            _scope.Dispose();
+            _scope = null;
         }
 
         /// <summary>

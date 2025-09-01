@@ -19,9 +19,9 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationService() {
+        public SituationService(IServiceResolver globalServiceResolver) {
             _scope = new DisposableScope();
-            _situationContainer = new SituationContainer().RegisterTo(_scope);
+            _situationContainer = new SituationContainer(globalServiceResolver).RegisterTo(_scope);
             _situationTreeRouter = new SituationTreeRouter(_situationContainer).RegisterTo(_scope);
         }
 

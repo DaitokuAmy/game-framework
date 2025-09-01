@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using GameFramework.Core;
+using GameFramework.DebugSystems.Editor;
 using SampleGame.Application.ModelViewer;
 using UnityEditor;
 using UnityEngine;
@@ -14,7 +15,7 @@ namespace SampleGame.ModelViewer.Editor {
         /// ModelPanel
         /// </summary>
         private class ActorPanel : PanelBase {
-            public override string Title => "Actor";
+            public override string Label => "Actor";
 
             private SearchableList<string> _modelList;
             private SearchableList<AnimationClip> _motionList;
@@ -22,7 +23,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// <summary>
             /// 初期化処理
             /// </summary>
-            protected override void InitializeInternal(IScope scope) {
+            protected override void StartInternal(ModelViewerWindow window, IScope scope) {
                 _modelList = new SearchableList<string>();
                 _motionList = new SearchableList<AnimationClip>();
             }
@@ -30,8 +31,8 @@ namespace SampleGame.ModelViewer.Editor {
             /// <summary>
             /// GUI描画
             /// </summary>
-            protected override void OnGUIInternal() {
-                var appService = Services.Resolve<ModelViewerAppService>();
+            protected override void DrawGuiInternal(ModelViewerWindow window) {
+                var appService = window.Resolver.Resolve<ModelViewerAppService>();
                 var viewerModel = appService.DomainService.ModelViewerModel;
                 var actorModel = appService.DomainService.PreviewActorModel;
                 var settingsModel = appService.DomainService.SettingsModel;
@@ -59,7 +60,7 @@ namespace SampleGame.ModelViewer.Editor {
                         if (GUILayout.Button(key)) {
                             appService.ChangePreviewActor(index);
                         }
-                    }, GUILayout.Width(Window.position.width * 0.3f));
+                    }, GUILayout.Width(window.position.width * 0.3f));
 
                     GUI.color = prevColor;
 

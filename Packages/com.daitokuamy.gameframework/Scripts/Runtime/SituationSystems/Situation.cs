@@ -51,8 +51,10 @@ namespace GameFramework.SituationSystems {
         /// <summary>子Situationリスト</summary>
         IReadOnlyList<ISituation> ISituation.Children => _children;
 
-        /// <summary>インスタンス管理用</summary>
+        /// <summary>サービス管理用</summary>
         public ServiceContainer ServiceContainer { get; private set; }
+        /// <summary>サービス提供用</summary>
+        public IServiceResolver ServiceResolver => ServiceContainer;
         /// <summary>現在状態</summary>
         public State CurrentState { get; private set; } = State.Invalid;
         /// <summary>アクティブ状態か</summary>
@@ -75,7 +77,7 @@ namespace GameFramework.SituationSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        protected Situation() {
+        protected Situation(IServiceContainer parentServiceContainer = null) {
             _loadScope = new();
             _setupScope = new();
             _activeScope = new();
@@ -115,7 +117,7 @@ namespace GameFramework.SituationSystems {
                 yield break;
             }
 
-            ServiceContainer = new ServiceContainer(_parent?.ServiceContainer ?? Services.Instance, false, GetType().FullName);
+            ServiceContainer = new ServiceContainer(_parent?.ServiceContainer ?? _container.BaseServiceResolver, false, GetType().FullName);
             CurrentState = State.Loading;
             yield return LoadRoutineInternal(handle, _loadScope);
             CurrentState = State.Loaded;

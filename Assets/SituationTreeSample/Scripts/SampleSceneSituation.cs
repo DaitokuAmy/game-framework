@@ -45,7 +45,7 @@ namespace SituationTreeSample {
             Debug.Log($"Activate. [{GetType().Name}]");
             base.ActivateInternal(handle, scope);
             _sampleObject = new GameObject($"Active Node:{GetType().Name}");
-            _sampleObject.transform.SetParent(Services.Resolve<SituationTreeSample>().transform);
+            _sampleObject.transform.SetParent(ServiceResolver.Resolve<SituationTreeSample>().transform);
         }
 
         /// <summary>

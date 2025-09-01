@@ -12,7 +12,7 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// プレビュー用のActor生成クラス
     /// </summary>
-    public class PreviewActorFactory : IPreviewActorFactory {
+    public class PreviewActorFactory : IPreviewActorFactory, IServiceUser {
         /// <summary>
         /// Body生成用のBuilder
         /// </summary>
@@ -24,13 +24,17 @@ namespace SampleGame.Presentation.ModelViewer {
             }
         }
         
-        private readonly ActorEntityManager _actorEntityManager;
+        private ActorEntityManager _actorEntityManager;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public PreviewActorFactory() {
-            _actorEntityManager = Services.Resolve<ActorEntityManager>();
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
         }
         
         /// <summary>

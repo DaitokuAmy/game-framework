@@ -10,10 +10,11 @@ namespace SampleGame.Infrastructure.Battle {
     /// <summary>
     /// バトル用テーブルデータ管理クラス
     /// </summary>
-    public partial class BattleTableRepository : IDisposable, IBattleTableRepository {
-        private readonly AssetManager _assetManager;
-        
+    public partial class BattleTableRepository : IDisposable, IServiceUser, IBattleTableRepository {
         private DisposableScope _scope;
+        
+        private AssetManager _assetManager;
+        
         private BattleTableData _battleTableData;
         private BattleFieldTableData _battleFieldTableData;
         private BattlePlayerTableData _battlePlayerTableData;
@@ -22,7 +23,6 @@ namespace SampleGame.Infrastructure.Battle {
         /// コンストラクタ
         /// </summary>
         public BattleTableRepository() {
-            _assetManager = Services.Resolve<AssetManager>();
             _scope = new DisposableScope();
         }
 
@@ -32,6 +32,11 @@ namespace SampleGame.Infrastructure.Battle {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _assetManager = resolver.Resolve<AssetManager>();
         }
 
         /// <inheritdoc/>

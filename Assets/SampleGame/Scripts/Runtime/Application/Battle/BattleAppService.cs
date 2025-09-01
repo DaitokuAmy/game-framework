@@ -8,11 +8,11 @@ namespace SampleGame.Application.Battle {
     /// <summary>
     /// バトル用のアプリケーション層サービス
     /// </summary>
-    public class BattleAppService : IDisposable {
-        private readonly BattleDomainService _battleDomainService;
-        private readonly IBattleTableRepository _battleTableRepository;
-        
+    public class BattleAppService : IDisposable, IServiceUser {
         private DisposableScope _scope;
+        
+        private BattleDomainService _battleDomainService;
+        private IBattleTableRepository _battleTableRepository;
 
         /// <summary>バトルモデル</summary>
         public IReadOnlyBattleModel BattleModel => _battleDomainService.BattleModel;
@@ -21,8 +21,6 @@ namespace SampleGame.Application.Battle {
         /// コンストラクタ
         /// </summary>
         public BattleAppService() {
-            _battleDomainService = Services.Resolve<BattleDomainService>();
-            _battleTableRepository = Services.Resolve<IBattleTableRepository>();
             
             _scope = new DisposableScope();
         }
@@ -33,6 +31,12 @@ namespace SampleGame.Application.Battle {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
+        }
+
+        /// <inheritdoc/>
+        void IServiceUser.ImportService(IServiceResolver resolver) {
+            _battleDomainService = resolver.Resolve<BattleDomainService>();
+            _battleTableRepository = resolver.Resolve<IBattleTableRepository>();
         }
 
         /// <summary>
