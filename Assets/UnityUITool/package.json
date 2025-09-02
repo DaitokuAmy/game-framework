@@ -1,0 +1,14 @@
+{
+  "name": "com.daitokuamy.unityuitool",
+  "displayName": "UnityUITool",
+  "version": "0.9.0",
+  "unity": "6000.0",
+  "license": "MIT",
+  "dependencies": {},
+  "author": {
+    "name": "Hironori Ito",
+    "url": "https://github.com/DaitokuAmy"
+  },
+  "type": "tool",
+  "description": "This is a ui edit support tool.",
+}

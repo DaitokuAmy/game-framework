@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: fcc6342bc2fae5a4db1f0b8bf51723b3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 310114
+  packageName: GamePad and Keyboard Input Sprites for TextMesh Pro
+  packageVersion: 1.01
+  assetPath: Assets/Input Sprites for TextMesh Pro/all input icons larger size.asset
+  uploadId: 762846
