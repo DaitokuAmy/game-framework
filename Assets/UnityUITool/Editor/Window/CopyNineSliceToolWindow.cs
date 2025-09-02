@@ -6,7 +6,7 @@ namespace UnityUITool.Editor {
     /// <summary>
     /// 9Sliceをコピーするツール
     /// </summary>
-    public class CopySliceToolWindow : EditorWindow {
+    public class CopyNineSliceToolWindow : EditorWindow {
         [SerializeField]
         private Sprite _sourceSprite;
         [SerializeField]
@@ -17,7 +17,7 @@ namespace UnityUITool.Editor {
         /// </summary>
         [MenuItem("Window/Unity UI Tool/Copy Nine Slice Tool")]
         private static void Open() {
-            GetWindow<CopySliceToolWindow>("Copy Nine Slice Tool");
+            GetWindow<CopyNineSliceToolWindow>("Copy Nine Slice Tool");
         }
 
         /// <summary>
