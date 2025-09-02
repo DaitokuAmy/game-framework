@@ -17,11 +17,22 @@ namespace UnityUITool.Editor {
             PixelsToUnit = 1 << 2,
         }
         
-        [SerializeField]
+        /// <summary>
+        /// オプション
+        /// </summary>
+        [Serializable]
+        private class Option {
+            [Tooltip("Boarderコピー時に中央からの値に変換するか")]
+            public bool ReverseBoarder = false;
+        }
+        
+        [SerializeField, Tooltip("コピー要素のフィルター")]
         private Filters _filters = Filters.Boarder | Filters.Pivot;
-        [SerializeField]
+        [SerializeField, Tooltip("オプション")]
+        private Option _option = new();
+        [SerializeField, Tooltip("コピー元")]
         private Sprite _sourceSprite;
-        [SerializeField]
+        [SerializeField, Tooltip("コピー先")]
         private Sprite[] _destinationSprites = Array.Empty<Sprite>();
 
         /// <summary>
@@ -40,9 +51,11 @@ namespace UnityUITool.Editor {
             serializedObject.Update();
 
             var filtersProp = serializedObject.FindProperty("_filters");
+            var optionProp = serializedObject.FindProperty("_option");
             var sourceSpriteProp = serializedObject.FindProperty("_sourceSprite");
             var destinationSpritesProp = serializedObject.FindProperty("_destinationSprites");
             EditorGUILayout.PropertyField(filtersProp);
+            EditorGUILayout.PropertyField(optionProp, true);
             EditorGUILayout.PropertyField(sourceSpriteProp);
             EditorGUILayout.PropertyField(destinationSpritesProp, true);
 
@@ -52,7 +65,7 @@ namespace UnityUITool.Editor {
                 if (GUILayout.Button("Copy")) {
                     foreach (var destSprite in _destinationSprites) {
                         if (CheckTargetSprite(destSprite, out var destImporter)) {
-                            CopySpriteSettings(_filters, sourceImporter, destImporter);
+                            CopySpriteSettings(_filters, _option, sourceImporter, destImporter);
                             EditorUtility.SetDirty(destImporter);
                             destImporter.SaveAndReimport();
                         }
@@ -86,13 +99,31 @@ namespace UnityUITool.Editor {
         /// <summary>
         /// Sprite設定のコピー
         /// </summary>
-        private void CopySpriteSettings(Filters filters, TextureImporter sourceImporter, TextureImporter destinationImporter) {
+        private void CopySpriteSettings(Filters filters, Option option, TextureImporter sourceImporter, TextureImporter destinationImporter) {
             bool Check(Filters check) {
                 return (filters & check) != 0;
             }
             
             if (Check(Filters.Boarder)) {
-                destinationImporter.spriteBorder = sourceImporter.spriteBorder;
+                if (option.ReverseBoarder) {
+                    sourceImporter.GetSourceTextureWidthAndHeight(out var width, out var height);
+                    var reverseBorder = sourceImporter.spriteBorder;
+                    reverseBorder.x = width * 0.5f - reverseBorder.x;
+                    reverseBorder.z = width * 0.5f - reverseBorder.z;
+                    reverseBorder.y = height * 0.5f - reverseBorder.y;
+                    reverseBorder.w = height * 0.5f - reverseBorder.w;
+
+                    destinationImporter.GetSourceTextureWidthAndHeight(out var destWidth, out var destHeight);
+                    var border = reverseBorder;
+                    border.x = destWidth * 0.5f - border.x;
+                    border.z = destWidth * 0.5f - border.z;
+                    border.y = destHeight * 0.5f - border.y;
+                    border.w = destHeight * 0.5f - border.w;
+                    destinationImporter.spriteBorder = border;
+                }
+                else {
+                    destinationImporter.spriteBorder = sourceImporter.spriteBorder;
+                }
             }
             
             if (Check(Filters.Pivot)) {
