@@ -42,9 +42,13 @@ namespace UnityUITool.Editor {
                 x.Path = string.Empty;
                 x.Children.Clear();
             });
+            
             ObjectChangeEvents.changesPublished += OnChangesPublished;
             PrefabStage.prefabStageOpened += OnPrefabStageOpened;
             PrefabStage.prefabStageClosing += OnPrefabStageClosing;
+            EditorSceneManager.sceneOpened += OnSceneOpened;
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            
             RebuildCanvasInfos();
         }
 
@@ -55,6 +59,9 @@ namespace UnityUITool.Editor {
             ObjectChangeEvents.changesPublished -= OnChangesPublished;
             PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
             PrefabStage.prefabStageClosing -= OnPrefabStageClosing;
+            EditorSceneManager.sceneOpened -= OnSceneOpened;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            
             _canvasInfoPool.Dispose();
         }
 
@@ -135,6 +142,20 @@ namespace UnityUITool.Editor {
         /// PrefabModeを抜けた時
         /// </summary>
         private void OnPrefabStageClosing(PrefabStage stage) {
+            RebuildCanvasInfos();
+        }
+
+        /// <summary>
+        /// Sceneオープン時
+        /// </summary>
+        private void OnSceneOpened(Scene scene, OpenSceneMode mode) {
+            RebuildCanvasInfos();
+        }
+
+        /// <summary>
+        /// Scene読み込み時
+        /// </summary>
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode) {
             RebuildCanvasInfos();
         }
 
