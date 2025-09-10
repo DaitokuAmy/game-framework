@@ -337,7 +337,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8708353823729116496, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
       propertyPath: m_Name
-      value: prfb_ui_canvas_default
+      value: pfb_ui_canvas_default
       objectReference: {fileID: 0}
     - target: {fileID: 8708353823729116499, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
       propertyPath: m_Pivot.x
