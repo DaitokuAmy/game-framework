@@ -166,6 +166,9 @@ namespace UnityUITool.Editor {
         /// 非アクティブ時処理
         /// </summary>
         private void OnDisable() {
+            ReleaseObjectInfo(_rootSortableObjectInfo);
+            _rootSortableObjectInfo = null;
+            
             ObjectChangeEvents.changesPublished -= OnChangesPublished;
             PrefabStage.prefabStageOpened -= OnPrefabStageOpened;
             PrefabStage.prefabStageClosing -= OnPrefabStageClosing;
