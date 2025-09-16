@@ -2,13 +2,14 @@ using System;
 using GameFramework;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
+using SampleGame.Application;
 using UnityEngine;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationService
     /// </summary>
-    public partial class SituationService : DisposableFixedUpdatableTask {
+    public partial class SituationService : DisposableFixedUpdatableTask, ISituationService {
         private readonly DisposableScope _scope;
         private readonly SituationContainer _situationContainer;
         private readonly SituationTreeRouter _situationTreeRouter;
@@ -117,6 +118,26 @@ namespace SampleGame.Lifecycle {
             }
 
             return parentNode.Connect(typeof(T));
+        }
+
+        /// <summary>
+        /// 現在のSituationが特定のSituation以下にぶら下がっているかチェック
+        /// </summary>
+        private bool CheckParentSituation<TSituation>()
+            where TSituation : Situation {
+            var current = _situationTreeRouter.Current;
+            if (current == null) {
+                return false;
+            }
+
+            var s = current;
+            while (s.Parent != null) {
+                if (s.Parent is TSituation) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

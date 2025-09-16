@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using GameFramework;
@@ -71,5 +72,13 @@ namespace SampleGame.Lifecycle {
         /// 制御対象のScreenを取得
         /// </summary>
         protected abstract void GetScreens(TUIService service, List<UIScreen> screens);
+
+        /// <summary>
+        /// Situationの切り替え
+        /// </summary>
+        protected void ChangeSituation<TSituation>(Action<TSituation> setupAction = null, bool toScene = false)
+            where TSituation : Situation {
+            ServiceResolver.Resolve<SituationService>().Transition(setupAction, toScene ? SituationService.TransitionType.SceneDefault : SituationService.TransitionType.ScreenDefault);
+        }
     }
 }

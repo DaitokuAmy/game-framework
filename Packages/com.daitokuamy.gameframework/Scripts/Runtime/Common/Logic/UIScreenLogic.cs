@@ -5,18 +5,18 @@ namespace GameFramework
     /// <summary>
     /// UIScreenに紐づけるロジック
     /// </summary>
-    public class UIScreenLogic<T> : Logic, IUIScreenHandler
-        where T : UIScreen
+    public class UIScreenLogic<TScreen> : Logic, IUIScreenHandler
+        where TScreen : UIScreen
     {        
         /// <summary>制御対象のスクリーン</summary>
-        protected T Screen { get; private set; }
+        protected TScreen Screen { get; private set; }
 
         /// <summary>
         /// 登録時処理
         /// </summary>
         void IUIScreenHandler.OnRegistered(UIScreen screen)
         {
-            Screen = screen as T;
+            Screen = screen as TScreen;
         }
 
         /// <summary>

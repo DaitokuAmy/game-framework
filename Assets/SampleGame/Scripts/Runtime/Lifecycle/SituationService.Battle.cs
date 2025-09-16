@@ -1,12 +1,24 @@
 using System;
 using GameFramework;
+using GameFramework.Core;
 using GameFramework.SituationSystems;
+using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// Battle関連のSituationService処理
     /// </summary>
     partial class SituationService {
+        /// <inheritdoc/>
+        IProcess ISituationService.TransitionBattle() {
+            var transitionType = TransitionType.ScreenCross;
+            if (!CheckParentSituation<OutGameSceneSituation>()) {
+                transitionType = TransitionType.SceneDefault;
+            }
+
+            return Transition<SortieTopSituation>(transitionType: transitionType);
+        }
+
         /// <summary>
         /// Battle関連のSituationの初期化
         /// </summary>

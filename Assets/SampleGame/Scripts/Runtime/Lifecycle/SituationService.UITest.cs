@@ -1,12 +1,19 @@
 using System;
 using GameFramework;
+using GameFramework.Core;
 using GameFramework.SituationSystems;
+using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// UITest関連のSituationService処理
     /// </summary>
     partial class SituationService {
+        /// <inheritdoc/>
+        IProcess ISituationService.TransitionUITest() {
+            return Transition<UITestSceneSituation>(transitionType: TransitionType.SceneDefault);
+        }
+        
         /// <summary>
         /// UITest関連のSituationの初期化
         /// </summary>
