@@ -1,10 +1,9 @@
 using GameFramework.UISystems;
-using UnityEngine;
 
 namespace SampleGame.Presentation.Battle {
     /// <summary>
-    /// OutGameScreen用のUIService
+    /// 出撃画面のTop部分
     /// </summary>
-    public class OutGameScreenUIService : UIService {
+    public class SortieTopUIScreen : AnimatableUIScreen {
     }
 }
