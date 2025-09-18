@@ -1,8 +1,11 @@
 using System;
 using System.Linq;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.DebugSystems.Editor;
 using SampleGame.Application.ModelViewer;
+using SampleGame.Domain.ModelViewer;
+using ThirdPersonEngine.ModelViewer;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,15 +20,15 @@ namespace SampleGame.ModelViewer.Editor {
         private class ActorPanel : PanelBase {
             public override string Label => "Actor";
 
-            private SearchableList<string> _modelList;
-            private SearchableList<AnimationClip> _motionList;
+            private SearchableList<IModelViewerActorMaster> _actorList;
+            private SearchableList<AnimationClip> _motionClipList;
 
             /// <summary>
             /// 初期化処理
             /// </summary>
             protected override void StartInternal(ModelViewerWindow window, IScope scope) {
-                _modelList = new SearchableList<string>();
-                _motionList = new SearchableList<AnimationClip>();
+                _actorList = new SearchableList<IModelViewerActorMaster>();
+                _motionClipList = new SearchableList<AnimationClip>();
             }
 
             /// <summary>
@@ -33,10 +36,16 @@ namespace SampleGame.ModelViewer.Editor {
             /// </summary>
             protected override void DrawGuiInternal(ModelViewerWindow window) {
                 var appService = window.Resolver.Resolve<ModelViewerAppService>();
+                var tableRepository = window.Resolver.Resolve<IModelViewerTableRepository>();
+                var entityManager = window.Resolver.Resolve<ActorEntityManager>();
                 var viewerModel = appService.DomainService.ModelViewerModel;
                 var actorModel = appService.DomainService.PreviewActorModel;
                 var settingsModel = appService.DomainService.SettingsModel;
-
+                var actor = actorModel != null ? entityManager.FindEntity(actorModel.Id)?.GetActor<PreviewActor>() : null;
+                if (actor == null) {
+                    return;
+                }
+                
                 var prevColor = GUI.color;
 
                 if (GUILayout.Button("状態リセット", GUILayout.Width(300.0f))) {
@@ -53,42 +62,40 @@ namespace SampleGame.ModelViewer.Editor {
 
                 using (new EditorGUILayout.HorizontalScope("Box")) {
                     // Actorの変更
-                    var actorAssetKeys = viewerModel.Master.ActorAssetKeys.ToArray();
-                    _modelList.OnGUI(actorAssetKeys, x => x, (key, index) => {
-                        var current = actorModel != null && actorModel.Master.DisplayName == key;
+                    var actorMasters = viewerModel.Master.ActorIds.Select(tableRepository.FindModelViewerActorById).ToArray();
+                    _actorList.OnGUI(actorMasters, x => x.Name, (master, index) => {
+                        var current = actorModel.Master == master;
                         GUI.color = current ? Color.green : Color.gray;
-                        if (GUILayout.Button(key)) {
-                            appService.ChangePreviewActor(index);
+                        if (GUILayout.Button(master.Name)) {
+                            appService.ChangeActor(index);
                         }
                     }, GUILayout.Width(window.position.width * 0.3f));
 
                     GUI.color = prevColor;
 
-                    if (actorModel != null) {
-                        // ActorMotionの変更
-                        var animationClips = actorModel.Master != null ? actorModel.Master.AnimationClips.ToArray() : Array.Empty<AnimationClip>();
-                        _motionList.OnGUI(animationClips, x => x.name, (clip, index) => {
-                            if (clip == null) {
-                                return;
+                    // ActorMotionの変更
+                    var motionClips = actor.GetMotionClips();
+                    _motionClipList.OnGUI(motionClips, x => x.name, (clip, index) => {
+                        if (clip == null) {
+                            return;
+                        }
+
+                        var clipName = clip.name;
+                        var current = actorModel.CurrentAnimationClipIndex == index;
+                        var currentAdditive = actorModel.CurrentAdditiveAnimationClipIndex == index;
+
+                        using (new EditorGUILayout.HorizontalScope()) {
+                            GUI.color = current ? Color.green : Color.gray;
+                            if (GUILayout.Button(clipName)) {
+                                appService.ChangeAnimationClip(index);
                             }
 
-                            var clipName = clip.name;
-                            var current = actorModel.CurrentAnimationClip == clip;
-                            var currentAdditive = actorModel.CurrentAdditiveAnimationClip == clip;
-
-                            using (new EditorGUILayout.HorizontalScope()) {
-                                GUI.color = current ? Color.green : Color.gray;
-                                if (GUILayout.Button(clipName)) {
-                                    appService.ChangeAnimationClip(index);
-                                }
-
-                                GUI.color = currentAdditive ? Color.green : Color.gray;
-                                if (GUILayout.Button("Add", GUILayout.Width(100))) {
-                                    appService.ToggleAdditiveAnimationClip(index);
-                                }
+                            GUI.color = currentAdditive ? Color.green : Color.gray;
+                            if (GUILayout.Button("Add", GUILayout.Width(100))) {
+                                appService.ToggleAdditiveAnimationClip(index);
                             }
-                        });
-                    }
+                        }
+                    });
 
                     GUI.color = prevColor;
                 }

@@ -5,13 +5,13 @@ namespace SampleGame.Domain.ModelViewer {
     /// モデルビューア用マスター用のインタフェース
     /// </summary>
     public interface IModelViewerMaster {
-        /// <summary>初期状態で読み込むActorAssetKey</summary>
-        int DefaultActorAssetKeyIndex { get; }
-        /// <summary>ActorAssetKeyリスト</summary>
-        IReadOnlyList<string> ActorAssetKeys { get; }
-        /// <summary>初期状態で読み込むEnvironmentAssetKey</summary>
-        int DefaultEnvironmentAssetKeyIndex { get; }
-        /// <summary>EnvironmentAssetKeyリスト</summary>
-        IReadOnlyList<string> EnvironmentAssetKeys { get; }
+        /// <summary>初期状態で読み込むActorのId</summary>
+        int DefaultActorId { get; }
+        /// <summary>初期状態で読み込むEnvironmentのId</summary>
+        int DefaultEnvironmentId { get; }
+        /// <summary>ActorIdの一覧</summary>
+        IReadOnlyList<int> ActorIds { get; }
+        /// <summary>EnvironmentIdの一覧</summary>
+        IReadOnlyList<int> EnvironmentIds { get; }
     }
 }

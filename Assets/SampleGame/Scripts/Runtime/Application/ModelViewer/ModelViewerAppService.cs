@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
@@ -10,10 +11,24 @@ namespace SampleGame.Application.ModelViewer {
     /// モデルビューア用のアプリケーション層サービス
     /// </summary>
     public class ModelViewerAppService : IDisposable, IServiceUser {
+        /// <summary>
+        /// マスター
+        /// </summary>
+        private class ModelViewerMaster : IModelViewerMaster {
+            /// <inheritdoc/>
+            public int DefaultActorId { get; set; }
+            /// <inheritdoc/>
+            public int DefaultEnvironmentId { get; set; }
+            /// <inheritdoc/>
+            public IReadOnlyList<int> ActorIds { get; set; }
+            /// <inheritdoc/>
+            public IReadOnlyList<int> EnvironmentIds { get; set; }
+        }
+
         private DisposableScope _scope;
-        
+
         private ModelViewerDomainService _domainService;
-        private IModelViewerRepository _repository;
+        private IModelViewerTableRepository _tableRepository;
 
         public IReadOnlyModelViewerDomainService DomainService => _domainService;
 
@@ -35,7 +50,7 @@ namespace SampleGame.Application.ModelViewer {
         /// <inheritdoc/>
         void IServiceUser.ImportService(IServiceResolver resolver) {
             _domainService = resolver.Resolve<ModelViewerDomainService>();
-            _repository = resolver.Resolve<IModelViewerRepository>();
+            _tableRepository = resolver.Resolve<IModelViewerTableRepository>();
         }
 
         /// <summary>
@@ -43,9 +58,12 @@ namespace SampleGame.Application.ModelViewer {
         /// </summary>
         public async UniTask SetupAsync(CancellationToken ct) {
             ct.ThrowIfCancellationRequested();
-            
+
             // マスター読み込み
-            var master = await _repository.LoadMasterAsync(ct);
+            await _tableRepository.LoadTablesAsync(ct);
+
+            // マスター情報構築
+            var master = CreateMaster(1, 1);
 
             // 基本機能の初期化
             _domainService.Setup(master);
@@ -54,16 +72,15 @@ namespace SampleGame.Application.ModelViewer {
         /// <summary>
         /// 表示モデルの変更
         /// </summary>
-        public void ChangePreviewActor(int index) {
-            var assetKeys = _domainService.ModelViewerModel.Master.ActorAssetKeys;
-            if (index < 0 || index >= assetKeys.Count) {
+        public void ChangeActor(int index) {
+            var actorIds = _domainService.ModelViewerModel.Master.ActorIds;
+            if (index < 0 || index >= actorIds.Count) {
                 return;
             }
 
             // マスターを読み込んで、初期化
-            _repository.LoadActorMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => { _domainService.ChangePreviewActorAsync(result, _scope.Token).Forget(); })
-                .Forget();
+            var master = _tableRepository.FindModelViewerActorById(actorIds[index]);
+            _domainService.ChangePreviewActorAsync(master, _scope.Token).Forget();
         }
 
         /// <summary>
@@ -88,7 +105,7 @@ namespace SampleGame.Application.ModelViewer {
             if (model == null) {
                 return;
             }
-            
+
             _domainService.ChangeAnimationClip(model.CurrentAnimationClipIndex);
         }
 
@@ -139,15 +156,14 @@ namespace SampleGame.Application.ModelViewer {
         /// 環境の変更
         /// </summary>
         public void ChangeEnvironment(int index) {
-            var assetKeys = _domainService.ModelViewerModel.Master.EnvironmentAssetKeys;
-            if (index < 0 || index >= assetKeys.Count) {
+            var environmentIds = _domainService.ModelViewerModel.Master.EnvironmentIds;
+            if (index < 0 || index >= environmentIds.Count) {
                 return;
             }
 
-            // マスターを読み込んで初期化
-            _repository.LoadEnvironmentMasterAsync(assetKeys[index], _scope.Token)
-                .ContinueWith(result => { _domainService.ChangeEnvironmentAsync(result, _scope.Token).Forget(); })
-                .Forget();
+            // マスターを取得して初期化
+            var master = _tableRepository.FindModelViewerEnvironmentById(environmentIds[index]);
+            _domainService.ChangeEnvironmentAsync(master, _scope.Token).Forget();
         }
 
         /// <summary>
@@ -170,12 +186,13 @@ namespace SampleGame.Application.ModelViewer {
         public void SetResetOnPlay(bool reset) {
             _domainService.SetResetOnPlay(reset);
         }
-        
+
         /// <summary>
         /// 録画オプションの変更
         /// </summary>
         public void SetRecordingOptions(ModelRecorder.Options recordingOptions) {
-            _domainService.SetRecordingOptions(recordingOptions);
+            // todo:
+            //_domainService.SetRecordingOptions(recordingOptions);
         }
 
         /// <summary>
@@ -183,6 +200,18 @@ namespace SampleGame.Application.ModelViewer {
         /// </summary>
         public void SetRecordingRotationDuration(float duration) {
             _domainService.SetRecordingRotationDuration(duration);
+        }
+
+        /// <summary>
+        /// マスターの構築
+        /// </summary>
+        private IModelViewerMaster CreateMaster(int defaultActorId, int defaultEnvironmentId) {
+            var master = new ModelViewerMaster();
+            master.DefaultActorId = 1;
+            master.DefaultEnvironmentId = 1;
+            master.ActorIds = _tableRepository.GetModelViewerActorIds();
+            master.EnvironmentIds = _tableRepository.GetModelViewerEnvironmentIds();
+            return master;
         }
     }
 }

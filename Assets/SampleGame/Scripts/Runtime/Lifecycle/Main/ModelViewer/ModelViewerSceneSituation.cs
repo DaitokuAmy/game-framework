@@ -12,18 +12,14 @@ using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
-using SampleGame.Presentation;
 using SampleGame.Presentation.ModelViewer;
 using ThirdPersonEngine;
-using UnityDebugSheet.Runtime.Core.Scripts;
-using UnityEngine;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// モデルビューアシーン
     /// </summary>
     public class ModelViewerSceneSituation : SceneSituation {
-        private int _debugPageId;
         private ModelViewerConfigData _configData;
         private ModelViewerAppService _appService;
         private ModelViewerDomainService _domainService;
@@ -72,10 +68,6 @@ namespace SampleGame.Lifecycle {
             // Recorderのセットアップ
             var recorder = ServiceResolver.Resolve<ModelRecorder>();
             recorder.ActorSlot = ServiceResolver.Resolve<ActorEntityManager>().RootTransform;
-
-            // 初期値反映
-            _appService.ChangePreviewActor(_domainService.ModelViewerModel.Master.DefaultActorAssetKeyIndex);
-            _appService.ChangeEnvironment(_domainService.ModelViewerModel.Master.DefaultEnvironmentAssetKeyIndex);
             
             // プレゼンテーション初期化
             SetupPresentations(scope);
@@ -85,94 +77,12 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <summary>
-        /// アクティブ時処理
-        /// </summary>
-        protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
-            base.ActivateInternal(handle, scope);
-
-            var appService = ServiceResolver.Resolve<ModelViewerAppService>();
-            var viewerModel = appService.DomainService.ModelViewerModel;
-
-            // DebugPage初期化
-            var debugSheet = ServiceResolver.Resolve<DebugSheet>();
-            var rootPage = debugSheet.GetOrCreateInitialPage();
-            var motionsPageId = -1;
-            _debugPageId = rootPage.AddPageLinkButton("Model Viewer", onLoad: pageTuple => {
-                // モーションページの初期化
-                void SetupMotionPage(IPreviewActorMaster setupData) {
-                    if (motionsPageId >= 0) {
-                        pageTuple.page.RemoveItem(motionsPageId);
-                        motionsPageId = -1;
-                    }
-
-                    if (setupData == null) {
-                        return;
-                    }
-
-                    motionsPageId = pageTuple.page.AddPageLinkButton("Motions", onLoad: motionsPageTuple => {
-                        var clips = setupData.AnimationClips;
-                        for (var i = 0; i < clips.Count; i++) {
-                            var index = i;
-                            var clip = clips[i];
-                            motionsPageTuple.page.AddButton(clip.name, clicked: () => { appService.ChangeAnimationClip(index); });
-                        }
-                    });
-                }
-
-                // Environment
-                pageTuple.page.AddPageLinkButton("Environments", onLoad: fieldsPageTuple => {
-                    var environmentAssetKeys = viewerModel.Master.EnvironmentAssetKeys;
-                    for (var i = 0; i < environmentAssetKeys.Count; i++) {
-                        var index = i;
-                        fieldsPageTuple.page.AddButton(environmentAssetKeys[i],
-                            clicked: () => appService.ChangeEnvironment(index));
-                    }
-                });
-
-                // PreviewActor
-                pageTuple.page.AddPageLinkButton("Models", onLoad: modelsPageTuple => {
-                    var actorAssetKeys = viewerModel.Master.ActorAssetKeys;
-                    for (var i = 0; i < actorAssetKeys.Count; i++) {
-                        var index = i;
-                        modelsPageTuple.page.AddButton(actorAssetKeys[i], clicked: () => { appService.ChangePreviewActor(index); });
-                    }
-                });
-
-                // Actor生成監視
-                viewerModel.ChangedPreviewActorSubject
-                    .TakeUntil(scope)
-                    .Prepend(() => new ChangedPreviewActorDto { Model = viewerModel.PreviewActorModel })
-                    .Subscribe(dto => {
-                        if (dto.Model != null) {
-                            SetupMotionPage(dto.Model.Master);
-                        }
-                    });
-
-                // 初期状態反映
-                SetupMotionPage(_domainService.PreviewActorModel.Master);
-            });
-        }
-
-        /// <summary>
-        /// 非アクティブ時処理
-        /// </summary>
-        protected override void DeactivateInternal(TransitionHandle<Situation> handle) {
-            // Debugページ削除
-            var debugSheet = ServiceResolver.Resolve<DebugSheet>();
-            if (debugSheet != null) {
-                var rootPage = debugSheet.GetOrCreateInitialPage();
-                rootPage.RemoveItem(_debugPageId);
-            }
-
-            base.DeactivateInternal(handle);
-        }
-
-        /// <summary>
         /// Infrastructure層の初期化
         /// </summary>
         private void SetupInfrastructures(IScope scope) {
             ServiceContainer.Register<IModelRepository, ModelRepository>().RegisterTo(scope);
-            ServiceContainer.Register<IModelViewerRepository, ModelViewerRepository>().RegisterTo(scope);
+            ServiceContainer.Register<IModelViewerTableRepository, ModelViewerTableRepository>().RegisterTo(scope);
+            ServiceContainer.Register<ModelViewerAssetRepository>().RegisterTo(scope);
             ServiceContainer.Register<EnvironmentSceneRepository>().RegisterTo(scope);
         }
 

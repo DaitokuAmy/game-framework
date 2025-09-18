@@ -1,5 +1,5 @@
 using GameFramework.Core;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -9,9 +9,11 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>識別子</summary>
         int Id { get; }
         /// <summary>マスター</summary>
-        IEnvironmentActorMaster ActorMaster { get; }
-        /// <summary>ライトTransform</summary>
-        Transform LightSlot { get; }
+        IModelViewerEnvironmentMaster Master { get; }
+        /// <summary>ルート位置</summary>
+        float3 RootPosition { get; }
+        /// <summary>ルート向き</summary>
+        quaternion RootRotation { get; }
     }
 
     /// <summary>
@@ -20,10 +22,12 @@ namespace SampleGame.Domain.ModelViewer {
     public class EnvironmentActorModel : AutoIdModel<EnvironmentActorModel>, IReadOnlyEnvironmentModel {
         private IEnvironmentActorPort _environmentActorPort;
 
-        /// <summary>マスター</summary>
-        public IEnvironmentActorMaster ActorMaster { get; private set; }
         /// <inheritdoc/>
-        public Transform LightSlot => _environmentActorPort?.LightSlot;
+        public IModelViewerEnvironmentMaster Master { get; private set; }
+        /// <inheritdoc/>
+        public float3 RootPosition => _environmentActorPort.RootPosition;
+        /// <inheritdoc/>
+        public quaternion RootRotation => _environmentActorPort.RootRotation;
 
         /// <summary>有効か</summary>
         private bool IsActive => _environmentActorPort != null;
@@ -31,9 +35,9 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// データの設定
         /// </summary>
-        public void Setup(IEnvironmentActorMaster actorMaster) {
+        public void Setup(IModelViewerEnvironmentMaster master) {
             // マスター設定
-            ActorMaster = actorMaster;
+            Master = master;
         }
 
         /// <summary>

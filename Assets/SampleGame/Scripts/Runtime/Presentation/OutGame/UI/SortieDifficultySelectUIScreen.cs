@@ -1,6 +1,6 @@
 using GameFramework.UISystems;
 
-namespace SampleGame.Presentation.Battle {
+namespace SampleGame.Presentation.OutGame {
     /// <summary>
     /// 出撃画面の難易度選択選択部分
     /// </summary>

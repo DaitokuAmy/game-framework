@@ -27,6 +27,22 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
+        IProcess ISituationService.Back(int depth, bool cross) {
+            // 戻り先がSceneを跨ぐ場合、強制でTransitionTypeをScene用に差し替える
+            var currentNode = _situationTreeRouter.CurrentNode;
+            var backNode = default(StateTreeNode<Type>);
+            for (var i = 0; i < depth; i++) {
+                backNode = currentNode.GetPrevious();
+            }
+
+            var differentScene = CheckDifferentSceneSituation(currentNode, backNode);
+            var transitionType = differentScene ? TransitionType.SceneDefault : (cross ? TransitionType.ScreenCross : TransitionType.ScreenDefault);
+            
+            // 戻り遷移
+            return Back(depth, null, transitionType);
+        }
+
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             _scope.Dispose();
         }
@@ -90,7 +106,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         public TransitionHandle<Situation> Back(int depth, Action<Situation> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault) {
             var (transition, effects) = GetTransitionInfo(transitionType);
-            return _situationTreeRouter.Back(depth, null,  setupAction, transition, effects);
+            return _situationTreeRouter.Back(depth, null, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -118,6 +134,30 @@ namespace SampleGame.Lifecycle {
             }
 
             return parentNode.Connect(typeof(T));
+        }
+
+        /// <summary>
+        /// Nodeに含まれているSituationが違うSceneSituationに含まれているかチェック
+        /// </summary>
+        private bool CheckDifferentSceneSituation(StateTreeNode<Type> nodeA, StateTreeNode<Type> nodeB) {
+            // SceneSituationを再起的に探す
+            Situation FindSceneSituation(Situation s) {
+                if (s == null) {
+                    return null;
+                }
+
+                if (s is SceneSituation) {
+                    return s;
+                }
+
+                return FindSceneSituation(s.Parent);
+            }
+
+            var situationA = _situationContainer.FindSituation(nodeA.Key);
+            var situationB = _situationContainer.FindSituation(nodeB.Key);
+            var sceneSituationA = FindSceneSituation(situationA);
+            var sceneSituationB = FindSceneSituation(situationB);
+            return sceneSituationA != sceneSituationB;
         }
 
         /// <summary>

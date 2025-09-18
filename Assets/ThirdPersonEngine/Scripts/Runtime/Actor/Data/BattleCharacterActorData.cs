@@ -6,7 +6,7 @@ namespace ThirdPersonEngine {
     /// <summary>
     /// 戦闘用キャラアクター初期化データ
     /// </summary>
-    [CreateAssetMenu(menuName = "Third Person Engine/Actor Data/Battle Character", fileName = "dat_battle_character_actor_setup_ch000_00.asset")]
+    [CreateAssetMenu(menuName = "Third Person Engine/Actor Data/Battle Character", fileName = "dat_battle_character_actor_ch000_00.asset")]
     public class BattleCharacterActorData : CharacterActorData {
         /// <summary>
         /// ジャンプアクション情報

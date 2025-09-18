@@ -13,6 +13,7 @@ using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.Battle;
 using SampleGame.Presentation.Battle;
 using R3;
+using SampleGame.Application;
 using SampleGame.Application.Battle;
 using SampleGame.Domain.Battle;
 using SampleGame.Presentation.UITest;
@@ -118,14 +119,14 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = ServiceResolver.Resolve<SituationService>();
+            var situationService = ServiceResolver.Resolve<ISituationService>();
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var battleHudUIService = uiManager.GetService<BattleHudUIService>();
 
             // メニューボタン
             battleHudUIService.BattleHudUIScreen.ClickedMenuButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<BattlePauseSituation>(); });
+                .Subscribe(_ => { situationService.TransitionBattle(); });
         }
 
         /// <summary>

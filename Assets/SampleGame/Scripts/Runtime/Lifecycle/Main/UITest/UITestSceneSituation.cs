@@ -8,6 +8,7 @@ using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Presentation.UITest;
 using R3;
+using SampleGame.Application;
 using SampleGame.Presentation;
 using ThirdPersonEngine;
 
@@ -115,8 +116,8 @@ namespace SampleGame.Lifecycle {
                         DebugLog.Info($"アイテムId{buyResult.ItemId}を{buyResult.Count}個購入した");
                     }
                     else if (result == 1) {
-                        var situationService = ServiceResolver.Resolve<SituationService>();
-                        situationService.Transition<TitleTopSituation>(transitionType: SituationService.TransitionType.SceneDefault);
+                        var situationService = ServiceResolver.Resolve<ISituationService>();
+                        situationService.TransitionTitleTop();
                     }
                 });
         }

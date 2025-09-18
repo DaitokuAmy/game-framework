@@ -6,6 +6,7 @@ using GameFramework.Core;
 using GameFramework.EnvironmentSystems;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
+using SampleGame.Application;
 using SampleGame.Infrastructure;
 using SampleGame.Presentation;
 using ThirdPersonEngine;
@@ -34,7 +35,7 @@ namespace SampleGame.Lifecycle {
             _situationService = new SituationService(_globalServiceContainer);
             _situationService.Initialize();
             _situationService.RegisterTask(TaskOrder.Logic);
-            _globalServiceContainer.RegisterInstance(_situationService);
+            _globalServiceContainer.RegisterInstance<ISituationService>(_situationService);
 
             // 開始Situationへの遷移
             yield return TransitionStartSituation(args);
@@ -81,7 +82,7 @@ namespace SampleGame.Lifecycle {
             _situationService = new SituationService(_globalServiceContainer);
             _situationService.Initialize();
             _situationService.RegisterTask(TaskOrder.Logic);
-            _globalServiceContainer.RegisterInstance(_situationService);
+            _globalServiceContainer.RegisterInstance<ISituationService>(_situationService);
 
             // Debug初期化
             SetupDebug();

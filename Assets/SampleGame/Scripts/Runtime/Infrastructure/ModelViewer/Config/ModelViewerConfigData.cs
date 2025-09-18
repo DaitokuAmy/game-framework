@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using SampleGame.Domain.ModelViewer;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace SampleGame.Infrastructure.ModelViewer {
@@ -33,8 +33,8 @@ namespace SampleGame.Infrastructure.ModelViewer {
             float IPreviewCameraMaster.LookAtOffsetControlSpeed => lookAtOffsetControlSpeed;
             float IPreviewCameraMaster.DistanceControlSpeed => distanceControlSpeed;
             float IPreviewCameraMaster.ScrollDistanceControlDistanceControlSpeed => scrollDistanceControlSpeed;
-            Vector3 IPreviewCameraMaster.StartLookAtOffset => startLookAtOffset;
-            Vector3 IPreviewCameraMaster.StartAngles => startAngles;
+            float3 IPreviewCameraMaster.StartLookAtOffset => startLookAtOffset;
+            float3 IPreviewCameraMaster.StartAngles => startAngles;
             float IPreviewCameraMaster.StartDistance => startDistance;
         }
         

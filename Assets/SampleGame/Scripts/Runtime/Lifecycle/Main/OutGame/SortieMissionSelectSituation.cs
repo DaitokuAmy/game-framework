@@ -1,9 +1,6 @@
 using System.Collections.Generic;
-using GameFramework;
-using GameFramework.Core;
-using GameFramework.SituationSystems;
 using GameFramework.UISystems;
-using SampleGame.Presentation.Battle;
+using SampleGame.Presentation.OutGame;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -13,10 +10,6 @@ namespace SampleGame.Lifecycle {
         /// <inheritdoc/>
         protected override void GetScreens(SortieUIService service, List<UIScreen> screens) {
             screens.Add(service.MissionSelectScreen);
-        }
-
-        /// <inheritdoc/>
-        protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
         }
     }
 }

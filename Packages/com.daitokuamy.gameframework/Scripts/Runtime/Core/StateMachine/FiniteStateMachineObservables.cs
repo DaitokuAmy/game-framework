@@ -6,7 +6,7 @@ using System;
 using UniRx;
 #endif
 
-namespace GameFramework
+namespace GameFramework.Core
 {
     /// <summary>
     /// FiniteStateMachine用のRx拡張メソッド

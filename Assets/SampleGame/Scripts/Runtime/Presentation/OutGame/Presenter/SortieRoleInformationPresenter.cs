@@ -1,6 +1,7 @@
 using GameFramework;
 using GameFramework.Core;
-namespace SampleGame.Presentation.Battle {
+
+namespace SampleGame.Presentation.OutGame {
     /// <summary>
     /// 出撃画面兵科情報用のPresenter
     /// </summary>

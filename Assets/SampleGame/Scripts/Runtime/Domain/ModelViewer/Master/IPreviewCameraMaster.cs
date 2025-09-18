@@ -1,4 +1,4 @@
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -14,9 +14,9 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>スクロールによる移動速度制御</summary>
         float ScrollDistanceControlDistanceControlSpeed { get; }
         /// <summary>初期注視オフセット</summary>
-        Vector3 StartLookAtOffset { get; }
+        float3 StartLookAtOffset { get; }
         /// <summary>初期角度</summary>
-        Vector3 StartAngles { get; }
+        float3 StartAngles { get; }
         /// <summary>初期距離</summary>
         float StartDistance { get; }
     }

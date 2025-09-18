@@ -1,6 +1,7 @@
 using GameFramework.ActorSystems;
 using SampleGame.Domain.ModelViewer;
 using ThirdPersonEngine.ModelViewer;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace SampleGame.Presentation.ModelViewer {
@@ -12,9 +13,11 @@ namespace SampleGame.Presentation.ModelViewer {
         private readonly PreviewActor _actor;
         
         /// <summary>位置</summary>
-        Vector3 IPreviewActorPort.Position => _actor.Body.Position;
+        float3 IPreviewActorPort.Position => _actor.Body.Position;
         /// <summary>向き</summary>
-        Quaternion IPreviewActorPort.Rotation => _actor.Body.Rotation;
+        quaternion IPreviewActorPort.Rotation => _actor.Body.Rotation;
+        /// <summary>存在するAnimationClip数</summary>
+        int IPreviewActorPort.AnimationClipCount => _actor.GetMotionClips().Length;
 
         /// <summary>
         /// コンストラクタ
@@ -24,30 +27,42 @@ namespace SampleGame.Presentation.ModelViewer {
             _actor = actor;
         }
 
-        /// <summary>
-        /// アニメーションクリップ設定
-        /// </summary>
-        void IPreviewActorPort.ChangeAnimationClip(AnimationClip clip) {
-            _actor.ChangeMotion(clip);
+        /// <inheritdoc/>
+        int IPreviewActorPort.GetDefaultAnimationClipIndex() {
+            return _actor.GetDefaultMotionIndex();
         }
 
-        /// <summary>
-        /// 加算アニメーションクリップ設定
-        /// </summary>
-        void IPreviewActorPort.ChangeAdditiveAnimationClip(AnimationClip clip) {
-            _actor.ChangeAdditiveMotion(clip);
+        /// <inheritdoc/>
+        int IPreviewActorPort.GetDefaultMeshAvatarIndex(string key) {
+            return _actor.GetDefaultMeshAvatarIndex(key);
         }
 
-        /// <summary>
-        /// アバターの変更
-        /// </summary>
-        void IPreviewActorPort.ChangeMeshAvatar(string key, GameObject prefab, string locatorName) {
-            _actor.ChangeMeshAvatar(key, prefab, locatorName);
+        /// <inheritdoc/>
+        string[] IPreviewActorPort.GetMeshAvatarKeys() {
+            return _actor.GetMeshAvatarKeys();
         }
 
-        /// <summary>
-        /// アクターのリセット
-        /// </summary>
+        /// <inheritdoc/>
+        int IPreviewActorPort.GetMeshAvatarCount(string key) {
+            return _actor.GetMeshAvatarCount(key);
+        }
+
+        /// <inheritdoc/>
+        void IPreviewActorPort.ChangeAnimationClip(int index) {
+            _actor.ChangeMotion(index);
+        }
+
+        /// <inheritdoc/>
+        void IPreviewActorPort.ChangeAdditiveAnimationClip(int index) {
+            _actor.ChangeAdditiveMotion(index);
+        }
+
+        /// <inheritdoc/>
+        void IPreviewActorPort.ChangeMeshAvatar(string key, int index) {
+            _actor.ChangeMeshAvatar(key, index);
+        }
+
+        /// <inheritdoc/>
         void IPreviewActorPort.ResetActor() {
             _actor.ResetTransform();
         }

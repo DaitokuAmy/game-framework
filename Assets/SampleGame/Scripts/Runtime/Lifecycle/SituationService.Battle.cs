@@ -16,7 +16,17 @@ namespace SampleGame.Lifecycle {
                 transitionType = TransitionType.SceneDefault;
             }
 
-            return Transition<SortieTopSituation>(transitionType: transitionType);
+            return Transition<BattleSceneSituation>(transitionType: transitionType);
+        }
+
+        /// <inheritdoc/>
+        IProcess ISituationService.TransitionBattlePause() {
+            var transitionType = TransitionType.ScreenCross;
+            if (!CheckParentSituation<OutGameSceneSituation>()) {
+                transitionType = TransitionType.SceneDefault;
+            }
+
+            return Transition<BattlePauseSituation>(transitionType: transitionType);
         }
 
         /// <summary>

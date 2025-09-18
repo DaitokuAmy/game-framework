@@ -3,6 +3,7 @@ using GameFramework;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
+using SampleGame.Application;
 using SampleGame.Presentation;
 
 namespace SampleGame.Lifecycle {
@@ -16,7 +17,7 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = ServiceResolver.Resolve<SituationService>();
+            var situationService = ServiceResolver.Resolve<ISituationService>();
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var dialogUIService = uiManager.GetService<DialogUIService>();
 
@@ -25,7 +26,7 @@ namespace SampleGame.Lifecycle {
                 .ContinueWith(result => {
                     switch (result) {
                         case 0:
-                            situationService.Transition<TitleTopSituation>(transitionType: SituationService.TransitionType.SceneDefault);
+                            situationService.TransitionTitleTop();
                             break;
                         case 1:
                             dialogUIService.OpenMessageDialogAsync("テスト", "メッセージサブ", "メッセージ内容", useBackgroundCancel: true, ct: scope.Token)

@@ -1,10 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework;
 using GameFramework.Core;
 using SampleGame.Infrastructure;
-using ThirdPersonEngine;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -88,7 +86,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// プレビューアクターの変更
         /// </summary>
-        public async UniTask ChangePreviewActorAsync(IPreviewActorMaster master, CancellationToken ct) {
+        public async UniTask ChangePreviewActorAsync(IModelViewerActorMaster master, CancellationToken ct) {
             // 既存モデルの削除
             var model = ModelViewerModelInternal.PreviewActorModelInternal;
             if (model != null) {
@@ -161,7 +159,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// <summary>
         /// 環境の変更
         /// </summary>
-        public async UniTask ChangeEnvironmentAsync(IEnvironmentActorMaster actorMaster, CancellationToken ct) {
+        public async UniTask ChangeEnvironmentAsync(IModelViewerEnvironmentMaster master, CancellationToken ct) {
             // 既存モデルの削除
             var model = ModelViewerModelInternal.EnvironmentActorModelInternal;
             if (model != null) {
@@ -170,13 +168,13 @@ namespace SampleGame.Domain.ModelViewer {
                 _modelRepository.DeleteAutoIdModel(model);
             }
 
-            if (actorMaster == null) {
+            if (master == null) {
                 return;
             }
             
             // モデルの生成
             model = _modelRepository.CreateAutoIdModel<EnvironmentActorModel>(1000);
-            model.Setup(actorMaster);
+            model.Setup(master);
             
             // 初期化
             var port = await _environmentActorFactory.CreateAsync(model, ct);
@@ -207,12 +205,12 @@ namespace SampleGame.Domain.ModelViewer {
             SettingsModelInternal.SetResetOnPlay(reset);
         }
         
-        /// <summary>
-        /// 録画オプションの変更
-        /// </summary>
-        public void SetRecordingOptions(ModelRecorder.Options recordingOptions) {
-            RecordingModelInternal.SetOptions(recordingOptions);
-        }
+        // /// <summary>
+        // /// 録画オプションの変更
+        // /// </summary>
+        // public void SetRecordingOptions(ModelRecorder.Options recordingOptions) {
+        //     RecordingModelInternal.SetOptions(recordingOptions);
+        // }
 
         /// <summary>
         /// 回転時間の設定

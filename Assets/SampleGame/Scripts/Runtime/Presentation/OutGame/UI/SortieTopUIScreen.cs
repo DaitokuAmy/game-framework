@@ -4,7 +4,7 @@ using R3;
 using ThirdPersonEngine;
 using UnityEngine;
 
-namespace SampleGame.Presentation.Battle {
+namespace SampleGame.Presentation.OutGame {
     /// <summary>
     /// 出撃画面のTop部分
     /// </summary>

@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using GameFramework.Core;
 
-namespace GameFramework {
+namespace GameFramework.Core {
     /// <summary>
     /// 列挙型ベースの状態制御クラス
     /// </summary>

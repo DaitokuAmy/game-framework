@@ -1,9 +1,9 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework;
 using GameFramework.ActorSystems;
 using GameFramework.Core;
 using SampleGame.Domain.ModelViewer;
+using SampleGame.Infrastructure.ModelViewer;
 using ThirdPersonEngine;
 using ThirdPersonEngine.ModelViewer;
 using UnityEngine;
@@ -25,6 +25,7 @@ namespace SampleGame.Presentation.ModelViewer {
         }
         
         private ActorEntityManager _actorEntityManager;
+        private ModelViewerAssetRepository _assetRepository;
         
         /// <summary>
         /// コンストラクタ
@@ -35,6 +36,7 @@ namespace SampleGame.Presentation.ModelViewer {
         /// <inheritdoc/>
         void IServiceUser.ImportService(IServiceResolver resolver) {
             _actorEntityManager = resolver.Resolve<ActorEntityManager>();
+            _assetRepository = resolver.Resolve<ModelViewerAssetRepository>();
         }
         
         /// <summary>
@@ -44,15 +46,18 @@ namespace SampleGame.Presentation.ModelViewer {
             if (model == null) {
                 return null;
             }
+            
+            // actorData読み込み
+            var actorData = await _assetRepository.LoadPreviewActorDataAsync(model.Master.AssetKey, ct);
 
             // body生成
-            var prefab = model.Master.Prefab;
+            var prefab = actorData.prefab;
             var body = new Body(Object.Instantiate(prefab, _actorEntityManager.RootTransform), new BodyBuilder());
             body.LayeredTime.SetParent(layeredTime);
             body.RegisterTask(TaskOrder.Body);
             
             // actor生成
-            var actor = new PreviewActor(body);
+            var actor = new PreviewActor(body, actorData);
             actor.RegisterTask(TaskOrder.Actor);
             
             // adapter生成

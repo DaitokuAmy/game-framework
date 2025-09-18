@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using GameFramework.UISystems;
-using SampleGame.Presentation.Battle;
+using SampleGame.Presentation.OutGame;
 
 namespace SampleGame.Lifecycle {
     /// <summary>

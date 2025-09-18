@@ -1,5 +1,5 @@
 using GameFramework.Core;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -12,17 +12,17 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// ルート座標の取得
         /// </summary>
-        Vector3 GetRootPosition();
+        float3 GetRootPosition();
 
         /// <summary>
         /// ルート向きの取得
         /// </summary>
-        Quaternion GetRootRotation();
+        quaternion GetRootRotation();
 
         /// <summary>
         /// 注視向きの取得
         /// </summary>
-        Quaternion GetLookAtRotation();
+        quaternion GetLookAtRotation();
     }
 
     /// <summary>
@@ -39,17 +39,17 @@ namespace SampleGame.Domain.Battle {
         }
 
         /// <inheritdoc/>
-        public Vector3 GetRootPosition() {
+        public float3 GetRootPosition() {
             return Port.Position;
         }
 
         /// <inheritdoc/>
-        public Quaternion GetRootRotation() {
+        public quaternion GetRootRotation() {
             return Port.Rotation;
         }
 
         /// <inheritdoc/>
-        public Quaternion GetLookAtRotation() {
+        public quaternion GetLookAtRotation() {
             return Port.LookAtRotation;
         }
 

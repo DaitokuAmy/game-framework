@@ -5,6 +5,7 @@ using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Presentation.Introduction;
 using R3;
+using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -61,29 +62,29 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = ServiceResolver.Resolve<SituationService>();
+            var situationService = ServiceResolver.Resolve<ISituationService>();
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
 
             // スタートボタン
             introductionUIService.TitleTopUIScreen.ClickedStartButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<SortieTopSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
+                .Subscribe(_ => { situationService.TransitionSortieTop(); });
 
             // オプションボタン
             introductionUIService.TitleTopUIScreen.ClickedOptionButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<TitleOptionSituation>(transitionType: SituationService.TransitionType.ScreenCross); });
+                .Subscribe(_ => { situationService.TransitionTitleOption(); });
 
             // モデルビューアーボタン
             introductionUIService.TitleTopUIScreen.ClickedModelViewerButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<ModelViewerSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
+                .Subscribe(_ => { situationService.TransitionModelViewer(); });
 
             // UITestボタン
             introductionUIService.TitleTopUIScreen.ClickedUITestButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { situationService.Transition<UITestSceneSituation>(transitionType: SituationService.TransitionType.SceneDefault); });
+                .Subscribe(_ => { situationService.TransitionUITest(); });
         }
     }
 }

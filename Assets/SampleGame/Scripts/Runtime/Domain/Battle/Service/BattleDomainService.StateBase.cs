@@ -28,7 +28,6 @@ namespace SampleGame.Domain.Battle {
 
             /// <inheritdoc/>
             void IState<BattleSequenceType>.OnEnter(BattleSequenceType prevKey, IScope scope) {
-                DebugLog.Info($"Enter BattleSequence:{GetType().Name}");
                 OnEnterInternal(scope);
             }
 
@@ -40,7 +39,6 @@ namespace SampleGame.Domain.Battle {
             /// <inheritdoc/>
             void IState<BattleSequenceType>.OnExit(BattleSequenceType nextKey) {
                 OnExitInternal();
-                DebugLog.Info($"Exit BattleSequence:{GetType().Name}");
             }
 
             /// <summary>

@@ -1,7 +1,7 @@
 using System;
 using GameFramework.Core;
 using SampleGame.Infrastructure;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -36,7 +36,7 @@ namespace SampleGame.Domain.Battle {
         /// </summary>
         /// <param name="modelId">CharacterModelのId</param>
         /// <param name="input">入力量</param>
-        public void InputMove(int modelId, Vector2 input) {
+        public void InputMove(int modelId, float2 input) {
             var model = _modelRepository.GetAutoIdModel<CharacterModel>(modelId);
             if (model == null) {
                 return;
@@ -57,7 +57,7 @@ namespace SampleGame.Domain.Battle {
         /// </summary>
         /// <param name="modelId">CharacterModelのId</param>
         /// <param name="input">入力量</param>
-        public void InputLookAt(int modelId, Vector2 input) {
+        public void InputLookAt(int modelId, float2 input) {
             var model = _modelRepository.GetAutoIdModel<CharacterModel>(modelId);
             if (model == null) {
                 return;

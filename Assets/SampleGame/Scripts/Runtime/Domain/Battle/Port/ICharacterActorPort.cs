@@ -1,4 +1,4 @@
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -6,21 +6,21 @@ namespace SampleGame.Domain.Battle {
     /// </summary>
     public interface ICharacterActorPort {
         /// <summary>位置</summary>
-        Vector3 Position { get; }
+        float3 Position { get; }
         /// <summary>向き</summary>
-        Quaternion Rotation { get; }
+        quaternion Rotation { get; }
         /// <summary>注視向き</summary>
-        Quaternion LookAtRotation { get; }
+        quaternion LookAtRotation { get; }
 
         /// <summary>
         /// 移動入力
         /// </summary>
-        void InputMove(Vector2 input);
+        void InputMove(float2 input);
 
         /// <summary>
         /// 注視移動入力
         /// </summary>
-        void InputLookAt(Vector2 input);
+        void InputLookAt(float2 input);
 
         /// <summary>
         /// スプリント入力

@@ -51,8 +51,8 @@ namespace SampleGame.Editor.ModelViewer {
                 serializedObject.ApplyModifiedProperties();
             }
             
-            UpdateSetupData<ModelViewerPreviewActorMasterData>("dat_model_viewer_actor_master_", "actorAssetKeys");
-            UpdateSetupData<ModelViewerEnvironmentActorMasterData>("dat_model_viewer_environment_master_", "environmentAssetKeys");
+            UpdateSetupData<ModelViewerActorTableData>("dat_model_viewer_actor_master_", "actorAssetKeys");
+            UpdateSetupData<ModelViewerEnvironmentTableData>("dat_model_viewer_environment_master_", "environmentAssetKeys");
         }
     }
 }

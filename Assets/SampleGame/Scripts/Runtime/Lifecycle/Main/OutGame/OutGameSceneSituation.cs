@@ -9,12 +9,8 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Infrastructure;
-// using SampleGame.Infrastructure.OutGame;
-// using SampleGame.Presentation.OutGame;
-// using R3;
-// using SampleGame.Application.OutGame;
-// using SampleGame.Domain.OutGame;
-using SampleGame.Presentation.UITest;
+using SampleGame.Presentation.Battle;
+using SampleGame.Presentation.OutGame;
 using ThirdPersonEngine;
 
 namespace SampleGame.Lifecycle {
@@ -53,48 +49,6 @@ namespace SampleGame.Lifecycle {
             //yield return ServiceResolver.Resolve<OutGameAppService>().SetupAsync(_battleId, _playerId, scope.Token).ToCoroutine();
             
             SetupPresentations(scope);
-        }
-
-        /// <summary>
-        /// クリーンアップ
-        /// </summary>
-        protected override void CleanupInternal(TransitionHandle<Situation> handle) {
-            //ServiceResolver.Resolve<OutGameAppService>()?.Cleanup();
-
-            base.CleanupInternal(handle);
-        }
-
-        /// <summary>
-        /// 開く処理
-        /// </summary>
-        protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
-            yield return base.OpenRoutineInternal(handle, animationScope);
-
-            // var uiManager = ServiceResolver.Resolve<UIManager>();
-            // var battleHudUIService = uiManager.GetService<OutGameHudUIService>();
-            // yield return battleHudUIService.OutGameHudUIScreen.OpenAsync();
-        }
-
-        /// <summary>
-        /// 開いた後の処理
-        /// </summary>
-        protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
-            base.PostOpenInternal(handle, scope);
-
-            // var uiManager = ServiceResolver.Resolve<UIManager>();
-            // var battleHudUIService = uiManager.GetService<OutGameHudUIService>();
-            // battleHudUIService.OutGameHudUIScreen.OpenAsync(immediate: true);
-        }
-
-        /// <summary>
-        /// 閉く処理
-        /// </summary>
-        protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
-            yield return base.CloseRoutineInternal(handle, animationScope);
-
-            // var uiManager = ServiceResolver.Resolve<UIManager>();
-            // var battleHudUIService = uiManager.GetService<OutGameHudUIService>();
-            // yield return battleHudUIService.OutGameHudUIScreen.CloseAsync();
         }
 
         /// <summary>
@@ -193,11 +147,9 @@ namespace SampleGame.Lifecycle {
                 return logic;
             }
 
-            // var uiManager = ServiceResolver.Resolve<UIManager>();
-            // var overlayUIService = uiManager.GetService<OutGameOverlayUIService>();
-            // overlayUIService.OverlayScreenContainer.RegisterHandler(AddLogic(new OverlayUIScreenPresenter(), false, scope));
-            //
-            // AddLogic(new CameraPresenter(), true, scope);
+            var uiManager = ServiceResolver.Resolve<UIManager>();
+            var sortieUIService = uiManager.GetService<SortieUIService>();
+            sortieUIService.TopScreen.RegisterHandler(AddLogic(new SortieTopPresenter(), false, scope));
         }
     }
 }

@@ -1,7 +1,6 @@
 using System;
-using GameFramework.Core;
 
-namespace GameFramework {
+namespace GameFramework.Core {
     /// <summary>
     /// 状態定義用インターフェース
     /// </summary>

@@ -1,6 +1,4 @@
-using GameFramework;
 using GameFramework.Core;
-using Time = UnityEngine.Time;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -35,7 +33,7 @@ namespace SampleGame.Domain.Battle {
 
         /// <inheritdoc/>
         public float GetDeltaTime(BattleTimeType type) {
-            return GetLayeredTime(type)?.DeltaTime ?? Time.deltaTime;
+            return GetLayeredTime(type)?.DeltaTime ?? LayeredTime.DefaultProvider.DeltaTime;
         }
 
         /// <inheritdoc/>

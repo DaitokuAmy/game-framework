@@ -5,6 +5,7 @@ using GameFramework.SituationSystems;
 using GameFramework.UISystems;
 using SampleGame.Presentation.Introduction;
 using R3;
+using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -16,7 +17,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.OpenRoutineInternal(handle, animationScope);
-            
+
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             yield return introductionUIService.TitleOptionUIScreen.OpenAsync();
@@ -27,18 +28,18 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.PostOpenInternal(handle, scope);
-            
+
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             introductionUIService.TitleOptionUIScreen.OpenAsync(immediate: true);
         }
-        
+
         /// <summary>
         /// 閉じる処理
         /// </summary>
         protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
             yield return base.CloseRoutineInternal(handle, animationScope);
-            
+
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             yield return introductionUIService.TitleOptionUIScreen.CloseAsync();
@@ -49,7 +50,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         protected override void PostCloseInternal(TransitionHandle<Situation> handle) {
             base.PostCloseInternal(handle);
-            
+
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
             introductionUIService.TitleOptionUIScreen.CloseAsync(immediate: true);
@@ -61,15 +62,15 @@ namespace SampleGame.Lifecycle {
         protected override void ActivateInternal(TransitionHandle<Situation> handle, IScope scope) {
             base.ActivateInternal(handle, scope);
 
-            var situationService = ServiceResolver.Resolve<SituationService>();
+            var situationService = ServiceResolver.Resolve<ISituationService>();
             var uiManager = ServiceResolver.Resolve<UIManager>();
             var introductionUIService = uiManager.GetService<IntroductionUIService>();
-            
+
             // 戻るボタン
             introductionUIService.TitleOptionUIScreen.ClickedBackButtonSubject
                 .TakeUntil(scope)
                 .Subscribe(_ => {
-                    situationService.Back(transitionType: SituationService.TransitionType.ScreenCross);
+                    situationService.Back(cross: true);
                 });
         }
     }

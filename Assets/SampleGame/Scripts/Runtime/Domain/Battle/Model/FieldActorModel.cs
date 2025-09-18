@@ -1,5 +1,4 @@
 using GameFramework.Core;
-using SampleGame.Domain.ModelViewer;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>

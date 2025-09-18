@@ -1,3 +1,5 @@
+using ThirdPersonEngine;
+
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// ModelViewerConfigData用のAssetRequest
@@ -11,35 +13,13 @@ namespace SampleGame.Infrastructure.ModelViewer {
     }
     
     /// <summary>
-    /// ModelViewerMasterData用のAssetRequest
+    /// PreviewActorの初期化データ読み込みリクエスト
     /// </summary>
-    public class ModelViewerMasterDataRequest : SystemAssetRequest<ModelViewerMasterData> {
+    public class PreviewActorDataRequest : ActorAssetRequest<PreviewActorData> {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public ModelViewerMasterDataRequest() : base("ModelViewer/Master/dat_model_viewer_master.asset") {
-        }
-    }
-    
-    /// <summary>
-    /// ModelViewer用のActorSetupData読み込みリクエスト
-    /// </summary>
-    public class ModelViewerActorMasterDataRequest : SystemAssetRequest<ModelViewerPreviewActorMasterData> {
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public ModelViewerActorMasterDataRequest(string assetKey) : base($"ModelViewer/Master/dat_model_viewer_actor_master_{assetKey}.asset") {
-        }
-    }
-    
-    /// <summary>
-    /// ModelViewer用のEnvironmentSetupData読み込みリクエスト
-    /// </summary>
-    public class ModelViewerEnvironmentMasterDataRequest : SystemAssetRequest<ModelViewerEnvironmentActorMasterData> {
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public ModelViewerEnvironmentMasterDataRequest(string assetKey) : base($"ModelViewer/Master/dat_model_viewer_environment_master_{assetKey}.asset") {
+        public PreviewActorDataRequest(string assetKey) : base($"PreviewActor/dat_act_preview_{assetKey}.asset") {
         }
     }
 }

@@ -1,9 +1,8 @@
 using System.Linq;
-using GameFramework;
 using GameFramework.ActorSystems;
 using SampleGame.Domain.ModelViewer;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+using ThirdPersonEngine.ModelViewer;
+using Unity.Mathematics;
 
 namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
@@ -11,40 +10,19 @@ namespace SampleGame.Presentation.ModelViewer {
     /// </summary>
     public class EnvironmentActorAdapter : ActorEntityLogic, IEnvironmentActorPort {
         private readonly IReadOnlyEnvironmentModel _model;
-        private readonly Scene _scene;
-        private Light _directionalLight;
+        private readonly EnvironmentActor _actor;
 
         /// <inheritdoc/>
-        Transform IEnvironmentActorPort.LightSlot => _directionalLight.transform;
+        float3 IEnvironmentActorPort.RootPosition => _actor.RootSlot.position;
+        /// <inheritdoc/>
+        quaternion IEnvironmentActorPort.RootRotation => _actor.RootSlot.rotation;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public EnvironmentActorAdapter(IReadOnlyEnvironmentModel model, Scene scene) {
+        public EnvironmentActorAdapter(IReadOnlyEnvironmentModel model, EnvironmentActor actor) {
             _model = model;
-            _scene = scene;
-            _directionalLight = FindDirectionalLight(scene);
-        }
-
-        /// <summary>
-        /// 平行光源の検索
-        /// </summary>
-        private Light FindDirectionalLight(Scene scene) {
-            if (!scene.IsValid()) {
-                return null;
-            }
-            
-            foreach (var rootObj in scene.GetRootGameObjects()) {
-                var light = rootObj.GetComponentsInChildren<Light>()
-                    .FirstOrDefault(x => x.type == LightType.Directional && x.bakingOutput.lightmapBakeType != LightmapBakeType.Baked);
-                if (light == null) {
-                    continue;
-                }
-
-                return light;
-            }
-
-            return null;
+            _actor = actor;
         }
     }
 }

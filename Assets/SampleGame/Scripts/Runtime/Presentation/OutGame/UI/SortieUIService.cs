@@ -1,7 +1,7 @@
 using GameFramework.UISystems;
 using UnityEngine;
 
-namespace SampleGame.Presentation.Battle {
+namespace SampleGame.Presentation.OutGame {
     /// <summary>
     /// 出撃画面用のUIService
     /// </summary>

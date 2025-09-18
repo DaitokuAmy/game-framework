@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using GameFramework.Editor;
 using SampleGame.Infrastructure.ModelViewer;
+using ThirdPersonEngine;
 
 namespace SampleGame.Editor {
     /// <summary>
@@ -36,18 +37,18 @@ namespace SampleGame.Editor {
 
             var assetKey = assetName.Substring("pfb_act_".Length);
 
-            // Viewer用のSetupDataを作成
-            var setupDataPath = new ModelViewerActorMasterDataRequest(assetKey).Address;
+            // Viewer用のActorDataを作成
+            var actorDataPath = new PreviewActorDataRequest(assetKey).Address;
 
             // 既にある場合は何もしない
-            var destAsset = AssetDatabase.LoadAssetAtPath<ModelViewerPreviewActorMasterData>(setupDataPath);
+            var destAsset = AssetDatabase.LoadAssetAtPath<PreviewActorData>(actorDataPath);
             if (!reset && destAsset != null) {
                 return;
             }
 
-            var setupData = ScriptableObject.CreateInstance<ModelViewerPreviewActorMasterData>();
-            setupData.name = $"dat_model_viewer_actor_master_{assetKey}";
-            setupData.prefab = asset;
+            var actorData = ScriptableObject.CreateInstance<PreviewActorData>();
+            actorData.name = $"dat_act_preview_{assetKey}";
+            actorData.prefab = asset;
 
             // モーションを探す
             var boneKey = assetKey.Substring(0, "xx000".Length);
@@ -76,11 +77,11 @@ namespace SampleGame.Editor {
                 }
             }
 
-            setupData.animationClips = animationClips.ToArray();
+            actorData.animationClips = animationClips.ToArray();
 
             // Idleっぽいものを探す
             var idleIndex = animationClips.FindIndex(x => x.name.Contains("_idle") && x.isLooping);
-            setupData.defaultAnimationClipIndex = idleIndex;
+            actorData.defaultAnimationClipIndex = idleIndex;
 
             // アバターパーツを探す
             var partsPath = Path.Combine(directoryPath, "Parts");
@@ -102,23 +103,19 @@ namespace SampleGame.Editor {
                         list.Add(prefab);
                     }
                 }
-                
+
                 // 設定に追加
-                setupData.meshAvatarInfos = avatarDict
-                    .Select(x => new ModelViewerPreviewActorMasterData.MeshAvatarInfo {
-                        key = x.Key,
-                        prefabs = x.Value.ToArray(),
-                        defaultIndex = 0
-                    }).ToArray();
+                actorData.meshAvatarInfos = avatarDict
+                    .Select(x => new PreviewActorData.MeshAvatarInfo { key = x.Key, prefabs = x.Value.ToArray(), defaultIndex = 0 }).ToArray();
             }
 
             // 元ファイルがある場合は、上書きコピー
             if (destAsset != null) {
-                EditorUtility.CopySerialized(setupData, destAsset);
+                EditorUtility.CopySerialized(actorData, destAsset);
             }
             // 新規作成
             else {
-                AssetDatabase.CreateAsset(setupData, setupDataPath);
+                AssetDatabase.CreateAsset(actorData, actorDataPath);
             }
         }
     }

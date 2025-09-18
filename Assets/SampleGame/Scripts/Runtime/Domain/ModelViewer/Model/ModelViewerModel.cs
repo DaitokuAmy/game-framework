@@ -27,7 +27,7 @@ namespace SampleGame.Domain.ModelViewer {
     /// <summary>
     /// 表示用アクターモデル
     /// </summary>
-    public class ModelViewerModel : GameFramework.Core.SingleModel<ModelViewerModel>, IReadOnlyModelViewerModel {
+    public class ModelViewerModel : SingleModel<ModelViewerModel>, IReadOnlyModelViewerModel {
         private IPreviewActorFactory _previewActorFactory;
         private IEnvironmentActorFactory _environmentActorFactory;
 

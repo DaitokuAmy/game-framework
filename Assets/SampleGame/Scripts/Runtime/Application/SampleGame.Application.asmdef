@@ -2,6 +2,7 @@
     "name": "SampleGame.Application",
     "rootNamespace": "",
     "references": [
+        "GUID:d8b63aba1907145bea998dd612889d6b",
         "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
         "GUID:a8aee891689d13c4eba2c7d06bd50ee8",
         "GUID:44e494fa473b758449a167c0d02e277e",

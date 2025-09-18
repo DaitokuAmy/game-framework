@@ -23,19 +23,18 @@ namespace SampleGame.Lifecycle {
     public class SituationSetup<T> : ISituationSetup where T : Situation {
         Type ISituationSetup.SituationType => typeof(T);
         
-        /// <summary>初期化時通知イベント</summary>
-        public event Action<T> OnSetupEvent;
+        private readonly Action<T> _setupAction;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationSetup(Action<T> onSetup = null) {
-            OnSetupEvent = onSetup;
+        public SituationSetup(Action<T> setupAction = null) {
+            _setupAction = setupAction;
         }
 
         void ISituationSetup.OnSetup(Situation situation) {
             if (situation is T startSituation) {
-                OnSetupEvent?.Invoke(startSituation);
+                _setupAction?.Invoke(startSituation);
             }
         }
     }

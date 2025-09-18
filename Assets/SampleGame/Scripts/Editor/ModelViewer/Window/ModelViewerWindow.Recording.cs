@@ -26,28 +26,28 @@ namespace SampleGame.ModelViewer.Editor {
                 var recordingModel = appService.DomainService.RecordingModel;
 
                 // オプション
-                using (var scope = new EditorGUI.ChangeCheckScope()) {
-                    var options = recordingModel.Options;
-                    options = (ModelRecorder.Options)EditorGUILayout.EnumFlagsField("Options", options);
-                    if (scope.changed) {
-                        appService.SetRecordingOptions(options);
-                    }
-                }
+                // using (var scope = new EditorGUI.ChangeCheckScope()) {
+                //     var options = recordingModel.Options;
+                //     options = (ModelRecorder.Options)EditorGUILayout.EnumFlagsField("Options", options);
+                //     if (scope.changed) {
+                //         appService.SetRecordingOptions(options);
+                //     }
+                // }
 
                 // ターン時間
-                using (var scope = new EditorGUI.ChangeCheckScope()) {
-                    var duration = recordingModel.RotationDuration;
-                    duration = EditorGUILayout.FloatField("Rotation Duration", duration);
-                    if (scope.changed) {
-                        appService.SetRecordingRotationDuration(duration);
-                    }
-                }
+                // using (var scope = new EditorGUI.ChangeCheckScope()) {
+                //     var duration = recordingModel.RotationDuration;
+                //     duration = EditorGUILayout.FloatField("Rotation Duration", duration);
+                //     if (scope.changed) {
+                //         appService.SetRecordingRotationDuration(duration);
+                //     }
+                // }
 
                 // 録画開始
                 var recorder = window.Resolver.Resolve<ModelRecorder>();
                 using (new EditorGUI.DisabledScope(recorder.IsRecording)) {
                     if (GUILayout.Button("Record")) {
-                        var displayName = appService.DomainService.PreviewActorModel.Master.DisplayName;
+                        var displayName = appService.DomainService.PreviewActorModel.Master.Name;
                         var settings = appService.DomainService.RecordingModel;
 
                         // カメラの情報を複製
@@ -73,11 +73,11 @@ namespace SampleGame.ModelViewer.Editor {
                         // カメラをOnにして録画
                         cameraManager.ForceActivate("Capture");
 
-                        recorder.Record(displayName, settings).ToUniTask()
-                            .ContinueWith(() => {
-                                // カメラを戻す
-                                cameraManager.ForceDeactivate("Capture");
-                            });
+                        // recorder.Record(displayName, settings).ToUniTask()
+                        //     .ContinueWith(() => {
+                        //         // カメラを戻す
+                        //         cameraManager.ForceDeactivate("Capture");
+                        //     });
                     }
                 }
             }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using GameFramework.Core;
-using UnityEngine;
+using Unity.Mathematics;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -10,57 +9,49 @@ namespace SampleGame.Domain.ModelViewer {
     public interface IReadOnlyPreviewActorModel {
         /// <summary>識別子</summary>
         int Id { get; }
-        
+
         /// <summary>現在再生中のAnimationClipIndex</summary>
         int CurrentAnimationClipIndex { get; }
         /// <summary>現在再生中の加算AnimationClipIndex</summary>
         int CurrentAdditiveAnimationClipIndex { get; }
+        /// <summary>現在設定されているMeshAvatarのパーツのIndex</summary>
+        IReadOnlyDictionary<string, int> CurrentMeshAvatarIndices { get; }
         /// <summary>AnimationClipの総数</summary>
         int AnimationClipCount { get; }
 
         /// <summary>マスター</summary>
-        IPreviewActorMaster Master { get; }
+        IModelViewerActorMaster Master { get; }
         /// <summary>位置</summary>
-        Vector3 Position { get; }
+        float3 Position { get; }
         /// <summary>向き</summary>
-        Quaternion Rotation { get; }
-        /// <summary>現在再生中のClip</summary>
-        AnimationClip CurrentAnimationClip { get; }
-        /// <summary>現在再生中の加算Clip</summary>
-        AnimationClip CurrentAdditiveAnimationClip { get; }
-        /// <summary>現在設定されているMeshAvatarのパーツ</summary>
-        IReadOnlyDictionary<string, GameObject> CurrentMeshAvatars { get; }
+        quaternion Rotation { get; }
     }
 
     /// <summary>
     /// アクターモデル
     /// </summary>
     public class PreviewActorModel : AutoIdModel<PreviewActorModel>, IReadOnlyPreviewActorModel {
-        private Dictionary<string, GameObject> _currentMeshAvatars;
+        private Dictionary<string, int> _currentMeshAvatarIndices;
         private IPreviewActorPort _previewActorPort;
 
         /// <summary>有効か</summary>
         public bool IsActive => _previewActorPort != null;
 
-        /// <summary>現在再生中のAnimationClipIndex</summary>
+        /// <inheritdoc/>
         public int CurrentAnimationClipIndex { get; private set; }
-        /// <summary>現在再生中の加算AnimationClipIndex</summary>
+        /// <inheritdoc/>
         public int CurrentAdditiveAnimationClipIndex { get; private set; }
-        /// <summary>AnimationClipの総数</summary>
-        public int AnimationClipCount => Master?.AnimationClips.Count ?? 0;
+        /// <inheritdoc/>
+        public int AnimationClipCount => _previewActorPort?.AnimationClipCount ?? 0;
+        /// <inheritdoc/>
+        public IReadOnlyDictionary<string, int> CurrentMeshAvatarIndices => _currentMeshAvatarIndices;
 
-        /// <summary>マスター</summary>
-        public IPreviewActorMaster Master { get; private set; }
-        /// <summary>位置</summary>
-        public Vector3 Position => _previewActorPort?.Position ?? Vector3.zero;
-        /// <summary>向き</summary>
-        public Quaternion Rotation => _previewActorPort?.Rotation ?? Quaternion.identity;
-        /// <summary>現在再生中のClip</summary>
-        public AnimationClip CurrentAnimationClip { get; private set; }
-        /// <summary>現在再生中の加算Clip</summary>
-        public AnimationClip CurrentAdditiveAnimationClip { get; private set; }
-        /// <summary>現在設定されているMeshAvatarのパーツ</summary>
-        public IReadOnlyDictionary<string, GameObject> CurrentMeshAvatars => _currentMeshAvatars;
+        /// <inheritdoc/>
+        public IModelViewerActorMaster Master { get; private set; }
+        /// <inheritdoc/>
+        public float3 Position => _previewActorPort?.Position ?? float3.zero;
+        /// <inheritdoc/>
+        public quaternion Rotation => _previewActorPort?.Rotation ?? quaternion.identity;
 
         /// <summary>
         /// 生成時処理
@@ -68,44 +59,34 @@ namespace SampleGame.Domain.ModelViewer {
         protected override void OnCreatedInternal(IScope scope) {
             base.OnCreatedInternal(scope);
 
-            _currentMeshAvatars = new Dictionary<string, GameObject>();
+            _currentMeshAvatarIndices = new Dictionary<string, int>();
         }
 
         /// <summary>
         /// データの設定
         /// </summary>
-        public void Setup(IPreviewActorMaster master) {
+        public void Setup(IModelViewerActorMaster master) {
             // マスター設定
             Master = master;
 
-            // 現在のアバター情報をクリアする
-            _currentMeshAvatars.Clear();
-
-            // Avatar情報更新
-            foreach (var info in master.MeshAvatarInfos) {
-                ChangeMeshAvatar(info.Key, info.DefaultIndex);
-            }
-
-            // 初期状態のクリップを設定
-            ChangeAnimationClip(master.DefaultAnimationClipIndex, true);
-            ToggleAdditiveAnimationClip(-1);
+            // 情報初期化
+            _currentMeshAvatarIndices.Clear();
+            CurrentAnimationClipIndex = -1;
+            CurrentAdditiveAnimationClipIndex = -1;
         }
 
         /// <summary>
-        /// コントローラーの設定
+        /// Portの設定
         /// </summary>
         public void SetPort(IPreviewActorPort port) {
             _previewActorPort = port;
 
             // 初期化
-            if (IsActive) {
-                _previewActorPort.ChangeAnimationClip(CurrentAnimationClip);
-                _previewActorPort.ChangeAdditiveAnimationClip(CurrentAdditiveAnimationClip);
-                foreach (var pair in _currentMeshAvatars) {
-                    var avatarInfo = Master.MeshAvatarInfos.FirstOrDefault(x => x.Key == pair.Key);
-                    var locatorName = avatarInfo?.LocatorName ?? "";
-                    _previewActorPort.ChangeMeshAvatar(pair.Key, pair.Value, locatorName);
-                }
+            ChangeAnimationClip(_previewActorPort.GetDefaultAnimationClipIndex(), true);
+
+            var meshAvatarKeys = _previewActorPort.GetMeshAvatarKeys();
+            foreach (var key in meshAvatarKeys) {
+                ChangeMeshAvatar(key, _previewActorPort.GetDefaultMeshAvatarIndex(key));
             }
         }
 
@@ -114,21 +95,19 @@ namespace SampleGame.Domain.ModelViewer {
         /// ※同じClipを設定したら再度再生
         /// </summary>
         public void ChangeAnimationClip(int clipIndex, bool reset) {
-            CurrentAnimationClipIndex = -1;
-            CurrentAnimationClip = null;
-            var clip = GetAnimationClip(clipIndex);
-            if (clip != null) {
-                CurrentAnimationClipIndex = clipIndex;
-                CurrentAnimationClip = clip;
+            if (!IsActive) {
+                return;
             }
 
-            if (IsActive) {
-                if (reset) {
-                    _previewActorPort.ResetActor();
-                }
+            var count = _previewActorPort.AnimationClipCount;
+            clipIndex = IntMath.Clamp(clipIndex, -1, count - 1);
 
-                _previewActorPort.ChangeAnimationClip(CurrentAnimationClip);
+            if (reset) {
+                _previewActorPort.ResetActor();
             }
+
+            CurrentAnimationClipIndex = clipIndex;
+            _previewActorPort.ChangeAnimationClip(CurrentAnimationClipIndex);
         }
 
         /// <summary>
@@ -136,36 +115,40 @@ namespace SampleGame.Domain.ModelViewer {
         /// ※同じClipを設定したらトグル
         /// </summary>
         public void ToggleAdditiveAnimationClip(int clipIndex) {
-            var currentClip = CurrentAdditiveAnimationClip;
-            var nextClip = GetAnimationClip(clipIndex);
-            CurrentAdditiveAnimationClipIndex = -1;
-            CurrentAdditiveAnimationClip = null;
-            if (currentClip != nextClip && nextClip != null) {
-                CurrentAdditiveAnimationClipIndex = clipIndex;
-                CurrentAdditiveAnimationClip = nextClip;
+            if (!IsActive) {
+                return;
             }
 
-            if (IsActive) {
-                _previewActorPort.ChangeAdditiveAnimationClip(CurrentAnimationClip);
+            var count = _previewActorPort.AnimationClipCount;
+            clipIndex = IntMath.Clamp(clipIndex, -1, count - 1);
+
+            var currentIndex = CurrentAdditiveAnimationClipIndex;
+            var nextIndex = clipIndex;
+            CurrentAdditiveAnimationClipIndex = -1;
+            if (currentIndex != nextIndex) {
+                CurrentAdditiveAnimationClipIndex = nextIndex;
             }
+
+            _previewActorPort.ChangeAdditiveAnimationClip(CurrentAdditiveAnimationClipIndex);
         }
 
         /// <summary>
         /// MeshAvatarの変更
         /// </summary>
         public void ChangeMeshAvatar(string key, int index) {
-            var avatarInfo = Master.MeshAvatarInfos.FirstOrDefault(x => x.Key == key);
-            var prefab = default(GameObject);
-            var locatorName = "";
-            if (avatarInfo != null) {
-                prefab = index >= 0 && index < avatarInfo.Prefabs.Count ? avatarInfo.Prefabs[index] : null;
-                locatorName = avatarInfo.LocatorName;
-                _currentMeshAvatars[key] = prefab;
+            if (IsActive) {
+                return;
             }
 
-            if (IsActive) {
-                _previewActorPort.ChangeMeshAvatar(key, prefab, locatorName);
+            var count = _previewActorPort.GetMeshAvatarCount(key);
+            if (count <= 0) {
+                return;
             }
+
+            index = IntMath.Clamp(index, -1, count - 1);
+
+            _currentMeshAvatarIndices[key] = index;
+            _previewActorPort.ChangeMeshAvatar(key, index);
         }
 
         /// <summary>
@@ -173,23 +156,6 @@ namespace SampleGame.Domain.ModelViewer {
         /// </summary>
         public void ResetActor() {
             _previewActorPort.ResetActor();
-        }
-
-        /// <summary>
-        /// AnimationClipの取得
-        /// </summary>
-        private AnimationClip GetAnimationClip(int index) {
-            if (Master == null) {
-                return null;
-            }
-
-            var clips = Master.AnimationClips;
-
-            if (index < 0 || index >= clips.Count) {
-                return null;
-            }
-
-            return clips[index];
         }
     }
 }

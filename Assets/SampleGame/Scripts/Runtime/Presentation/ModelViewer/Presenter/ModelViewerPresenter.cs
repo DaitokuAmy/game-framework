@@ -6,6 +6,7 @@ using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using R3;
 using ThirdPersonEngine;
+using ThirdPersonEngine.ModelViewer;
 using UnityEngine.InputSystem;
 
 namespace SampleGame.Presentation.ModelViewer {
@@ -49,16 +50,18 @@ namespace SampleGame.Presentation.ModelViewer {
                 .TakeUntil(scope)
                 .Subscribe(dto => {
                     // モデルビューアのSlot位置を変更
-                    _actorEntityManager.RootTransform.position = dto.Model.ActorMaster.RootPosition;
-                    _actorEntityManager.RootTransform.eulerAngles = dto.Model.ActorMaster.RootAngles;
+                    _actorEntityManager.RootTransform.position = dto.Model.RootPosition;
+                    _actorEntityManager.RootTransform.rotation = dto.Model.RootRotation;
                     
                     // AngleRootを変更
                     var angleRoot = _cameraManager.GetTargetPoint("AngleRoot");
-                    angleRoot.position = dto.Model.ActorMaster.RootPosition;
-                    angleRoot.eulerAngles = dto.Model.ActorMaster.RootAngles;
+                    angleRoot.position = dto.Model.RootPosition;
+                    angleRoot.rotation = dto.Model.RootRotation;
                     
                     // Recorderの同期
-                    _modelRecorder.LightSlot = dto.Model.LightSlot;
+                    var environmentEntity = _actorEntityManager.FindEntity(dto.Model.Id);
+                    var environmentActor = environmentEntity.GetActor<EnvironmentActor>();
+                    _modelRecorder.LightSlot = environmentActor.LightSlot;
                 });
 
             // カメラの切り替え

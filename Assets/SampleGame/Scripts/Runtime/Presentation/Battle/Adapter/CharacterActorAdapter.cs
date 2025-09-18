@@ -3,6 +3,7 @@ using GameFramework.ActorSystems;
 using GameFramework.Core;
 using SampleGame.Domain.Battle;
 using ThirdPersonEngine;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace SampleGame.Presentation.Battle {
@@ -14,11 +15,11 @@ namespace SampleGame.Presentation.Battle {
         private readonly IReadOnlyCharacterModel _model;
 
         /// <inheritdoc/>
-        Vector3 ICharacterActorPort.Position => _actor.Position;
+        float3 ICharacterActorPort.Position => _actor.Position;
         /// <inheritdoc/>
-        Quaternion ICharacterActorPort.Rotation => _actor.Rotation;
+        quaternion ICharacterActorPort.Rotation => _actor.Rotation;
         /// <inheritdoc/>
-        Quaternion ICharacterActorPort.LookAtRotation => _actor.LookAtRotation;
+        quaternion ICharacterActorPort.LookAtRotation => _actor.LookAtRotation;
 
         /// <summary>
         /// コンストラクタ
@@ -29,12 +30,12 @@ namespace SampleGame.Presentation.Battle {
         }
 
         /// <inheritdoc/>
-        void ICharacterActorPort.InputMove(Vector2 input) {
+        void ICharacterActorPort.InputMove(float2 input) {
             _actor.InputMove(input);
         }
 
         /// <inheritdoc/>
-        void ICharacterActorPort.InputLookAt(Vector2 input) {
+        void ICharacterActorPort.InputLookAt(float2 input) {
             _actor.InputLookAt(input);
         }
 

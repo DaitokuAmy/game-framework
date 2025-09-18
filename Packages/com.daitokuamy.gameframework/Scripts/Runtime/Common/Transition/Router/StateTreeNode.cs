@@ -142,14 +142,14 @@ namespace GameFramework {
         /// <summary>
         /// 前のNodeを取得
         /// </summary>
-        internal StateTreeNode<TKey> GetPrevious() {
+        public StateTreeNode<TKey> GetPrevious() {
             return _previous;
         }
 
         /// <summary>
         /// 型をもとに接続先のNodeを取得
         /// </summary>
-        internal StateTreeNode<TKey> TryGetNext(TKey key) {
+        public StateTreeNode<TKey> TryGetNext(TKey key) {
             if (!_connectInfos.TryGetValue(key, out var connectInfo)) {
                 return null;
             }

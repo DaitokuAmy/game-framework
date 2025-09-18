@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.DebugSystems.Editor;
 using R3;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
+using ThirdPersonEngine.ModelViewer;
 using UnityEngine;
 
 namespace SampleGame.ModelViewer.Editor {
@@ -19,14 +21,15 @@ namespace SampleGame.ModelViewer.Editor {
         private class AvatarPanel : PanelBase {
             public override string Label => "Avatar";
 
-            private Dictionary<string, FoldoutList<GameObject>> _meshAvatarFoldoutLists = new();
-            private Dictionary<string, GameObject[]> _meshAvatarPrefabLists = new();
+            private readonly Dictionary<string, FoldoutList<GameObject>> _meshAvatarFoldoutLists = new();
+            private readonly Dictionary<string, GameObject[]> _meshAvatarPrefabLists = new();
 
             /// <summary>
             /// 初期化処理
             /// </summary>
             protected override void StartInternal(ModelViewerWindow window, IScope scope) {
                 var viewerModel = window.Resolver.Resolve<ModelViewerAppService>().DomainService.ModelViewerModel;
+                var actorEntityManager = window.Resolver.Resolve<ActorEntityManager>();
 
                 // Actor生成監視
                 viewerModel.ChangedPreviewActorSubject
@@ -40,11 +43,11 @@ namespace SampleGame.ModelViewer.Editor {
                             return;
                         }
 
-                        foreach (var pair in actorModel.CurrentMeshAvatars) {
+                        var actor = actorEntityManager.FindEntity(actorModel.Id).GetActor<PreviewActor>();
+                        foreach (var pair in actorModel.CurrentMeshAvatarIndices) {
                             var list = new FoldoutList<GameObject>(pair.Key);
                             _meshAvatarFoldoutLists[pair.Key] = list;
-                            _meshAvatarPrefabLists[pair.Key] = actorModel.Master.MeshAvatarInfos
-                                .First(y => y.Key == pair.Key).Prefabs
+                            _meshAvatarPrefabLists[pair.Key] = actor.GetMeshAvatarPrefabs(pair.Key)
                                 .Concat(new GameObject[] { null })
                                 .ToArray();
                         }
@@ -77,8 +80,8 @@ namespace SampleGame.ModelViewer.Editor {
 
                     var prefabs = _meshAvatarPrefabLists[key];
                     list.OnGUI(prefabs, (prefab, index) => {
-                        actorModel.CurrentMeshAvatars.TryGetValue(key, out var currentPrefab);
-                        var current = currentPrefab == prefab;
+                        actorModel.CurrentMeshAvatarIndices.TryGetValue(key, out var currentIndex);
+                        var current = currentIndex == index;
                         GUI.color = current ? Color.green : Color.gray;
 
                         if (prefab != null) {

@@ -1,6 +1,5 @@
 using GameFramework.Core;
 using R3;
-using UnityEngine;
 using GameFramework;
 
 namespace SampleGame.Domain.ModelViewer {
@@ -74,7 +73,7 @@ namespace SampleGame.Domain.ModelViewer {
         /// TimeScaleの設定
         /// </summary>
         public void SetTimeScale(float timeScale) {
-            LayeredTime.LocalTimeScale = Mathf.Clamp(timeScale, 0.0f, TimeScaleMax);
+            LayeredTime.LocalTimeScale = FloatMath.Clamp(timeScale, 0.0f, TimeScaleMax);
         }
 
         /// <summary>

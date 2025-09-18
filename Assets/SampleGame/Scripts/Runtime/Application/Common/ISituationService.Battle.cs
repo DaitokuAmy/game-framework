@@ -9,5 +9,10 @@ namespace SampleGame.Application {
         /// バトルへの遷移
         /// </summary>
         IProcess TransitionBattle();
+        
+        /// <summary>
+        /// バトル中ポーズへの遷移
+        /// </summary>
+        IProcess TransitionBattlePause();
     }
 }
