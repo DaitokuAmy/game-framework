@@ -175,6 +175,8 @@ namespace SampleGame.Lifecycle {
                 if (s.Parent is TSituation) {
                     return true;
                 }
+
+                s = s.Parent;
             }
 
             return false;
