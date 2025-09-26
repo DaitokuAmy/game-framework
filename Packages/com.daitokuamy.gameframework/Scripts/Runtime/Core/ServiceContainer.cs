@@ -316,7 +316,7 @@ namespace GameFramework.Core {
             info = new RegisteredServiceInfo { Type = type, CreateFunc = null, Instance = instance, };
 
             _registeredServiceInfos[type] = info;
-            
+
             Inject(instance);
 
             if (instance is IDisposable disposable) {
@@ -461,7 +461,7 @@ namespace GameFramework.Core {
             var markedConstructor = constructors.FirstOrDefault(c => c.GetCustomAttribute<ServiceInjectAttribute>() != null);
             var constructor = default(ConstructorInfo);
             var constructorArgs = default(object[]);
-            
+
             if (markedConstructor != null) {
                 constructor = markedConstructor;
                 constructorArgs = GetServiceParameters(markedConstructor);
@@ -470,10 +470,35 @@ namespace GameFramework.Core {
                 constructor = constructors.FirstOrDefault(x => x.GetParameters().Length == 0);
 
                 if (constructor == null) {
-                    throw new InvalidOperationException($"Not found default constructor: {type.FullName}");
-                }
+                    // デフォルト引数のみのコンストラクタがあった場合はそれを呼ぶ
+                    var argumentList = new List<object>();
+                    foreach (var c in constructors) {
+                        argumentList.Clear();
+                        var parameters = c.GetParameters();
+                        foreach (var p in parameters) {
+                            if (!p.HasDefaultValue) {
+                                constructor = null;
+                                break;
+                            }
 
-                constructorArgs = Array.Empty<object>();
+                            constructor = c;
+                            argumentList.Add(p.DefaultValue);
+                        }
+
+                        if (constructor != null) {
+                            break;
+                        }
+                    }
+
+                    if (constructor == null) {
+                        throw new InvalidOperationException($"Not found default constructor: {type.FullName}");
+                    }
+
+                    constructorArgs = argumentList.ToArray();
+                }
+                else {
+                    constructorArgs = Array.Empty<object>();
+                }
             }
 
             // コンストラクタ呼び出し
@@ -499,7 +524,7 @@ namespace GameFramework.Core {
             else {
                 info.Instance = CreateInstance(info.Type);
             }
-            
+
             // サービスのInject
             Inject(info.Instance);
 
