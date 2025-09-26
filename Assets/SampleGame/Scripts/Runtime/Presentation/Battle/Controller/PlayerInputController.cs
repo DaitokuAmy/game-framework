@@ -9,7 +9,7 @@ namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// Player制御用コントローラー
     /// </summary>
-    public class PlayerInputController : ActorEntityLogic, IServiceUser {
+    public class PlayerInputController : ActorEntityLogic {
         private readonly IReadOnlyCharacterModel _model;
         
         private PlayerAppService _playerAppService;
@@ -26,11 +26,13 @@ namespace SampleGame.Presentation.Battle {
             _model = model;
         }
 
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _playerAppService = resolver.Resolve<PlayerAppService>();
+        /// <summary>
+        /// サービスのDI
+        /// </summary>
+        [ServiceInject]
+        private void Inject(PlayerAppService playerAppService, PlayerInput playerInput) {
+            _playerAppService = playerAppService;
             
-            var playerInput = resolver.Resolve<PlayerInput>();
             _moveAction = playerInput.actions["Move"];
             _lookAtAction = playerInput.actions["LookAt"];
             _jumpAction = playerInput.actions["Jump"];

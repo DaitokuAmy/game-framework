@@ -4,12 +4,25 @@ namespace GameFramework.Core {
     /// <summary>
     /// Service提供用のインターフェース
     /// </summary>
-    public abstract class DebugServiceResolver<TResolver> : IDisposable, IServiceUser, IServiceResolver
+    public abstract class DebugServiceResolver<TResolver> : IDisposable, IServiceResolver
         where TResolver : DebugServiceResolver<TResolver> {
         private IServiceResolver _resolver;
         
         /// <summary>SingletonInstance</summary>
         public static TResolver Instance { get; set; }
+
+        /// <summary>
+        /// サービスのDI
+        /// </summary>
+        [ServiceInject]
+        private void Inject(IServiceResolver resolver) {
+            if (Instance != null) {
+                throw new InvalidOperationException($"The service resolver has already been imported. [{nameof(TResolver)}]");
+            }
+            
+            _resolver = resolver;
+            Instance = (TResolver)this;
+        }
 
         /// <summary>
         /// 廃棄処理
@@ -18,16 +31,6 @@ namespace GameFramework.Core {
             if (Instance == this) {
                 Instance = null;
             }
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            if (Instance != null) {
-                throw new InvalidOperationException($"The service resolver has already been imported. [{nameof(TResolver)}]");
-            }
-            
-            _resolver = resolver;
-            Instance = (TResolver)this;
         }
 
         /// <summary>
@@ -45,12 +48,8 @@ namespace GameFramework.Core {
         }
 
         /// <inheritdoc/>
-        public void Import(IServiceUser user) {
-            if (user == null) {
-                return;
-            }
-            
-            user.ImportService(this);
+        public void Inject(object instance) {
+            _resolver.Inject(instance);
         }
     }
 }

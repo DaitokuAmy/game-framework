@@ -12,7 +12,7 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// プレビュー用のActor生成クラス
     /// </summary>
-    public class PreviewActorFactory : IPreviewActorFactory, IServiceUser {
+    public class PreviewActorFactory : IPreviewActorFactory {
         /// <summary>
         /// Body生成用のBuilder
         /// </summary>
@@ -24,19 +24,17 @@ namespace SampleGame.Presentation.ModelViewer {
             }
         }
         
+        [ServiceInject]
+        private IServiceResolver _serviceResolver;
+        [ServiceInject]
         private ActorEntityManager _actorEntityManager;
+        [ServiceInject]
         private ModelViewerAssetRepository _assetRepository;
         
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public PreviewActorFactory() {
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
-            _assetRepository = resolver.Resolve<ModelViewerAssetRepository>();
         }
         
         /// <summary>
@@ -62,6 +60,7 @@ namespace SampleGame.Presentation.ModelViewer {
             
             // adapter生成
             var adapter = new PreviewActorAdapter(model, actor);
+            _serviceResolver.Inject(adapter);
             adapter.RegisterTask(TaskOrder.Logic);
 
             // entity構築

@@ -10,7 +10,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// モデルビューア用のアセットリポジトリ
     /// </summary>
-    public class ModelViewerAssetRepository : IDisposable, IServiceUser {
+    public class ModelViewerAssetRepository : IDisposable {
         private readonly DisposableScope _scope;
         
         private SimpleAssetStorage<PreviewActorData> _previewActorDataStorage;
@@ -29,9 +29,11 @@ namespace SampleGame.Infrastructure.ModelViewer {
             _scope.Dispose();
         }
 
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            var assetManager = resolver.Resolve<AssetManager>();
+        /// <summary>
+        /// サービスのDI
+        /// </summary>
+        [ServiceInject]
+        private void Inject(AssetManager assetManager) {
             _previewActorDataStorage = new SimpleAssetStorage<PreviewActorData>(assetManager).RegisterTo(_scope);
         }
 

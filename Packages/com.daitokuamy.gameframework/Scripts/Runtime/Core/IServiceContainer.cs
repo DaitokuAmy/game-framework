@@ -12,6 +12,27 @@ namespace GameFramework.Core {
         /// コンテナのクリア
         /// </summary>
         void Clear();
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        IDisposable Register<TInterface1, TInterface2, TInterface3, TInterface4, T>(Func<T> createFunc = null);
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        IDisposable Register<TInterface1, TInterface2, TInterface3, T>(Func<T> createFunc = null);
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        IDisposable Register<TInterface1, TInterface2, T>(Func<T> createFunc = null);
         
         /// <summary>
         /// サービスの登録

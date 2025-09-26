@@ -12,7 +12,7 @@ namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// CharacterActor生成クラス
     /// </summary>
-    public class CharacterActorFactory : ICharacterActorFactory, IServiceUser {
+    public class CharacterActorFactory : ICharacterActorFactory {
         /// <summary>
         /// Body生成用のBuilder
         /// </summary>
@@ -21,23 +21,19 @@ namespace SampleGame.Presentation.Battle {
             }
         }
 
+        [ServiceInject]
         private IServiceResolver _serviceResolver;
+        [ServiceInject]
         private BodyPrefabRepository _bodyPrefabRepository;
+        [ServiceInject]
         private BattleCharacterAssetRepository _characterAssetRepository;
+        [ServiceInject]
         private ActorEntityManager _actorEntityManager;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public CharacterActorFactory() {
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _serviceResolver = resolver;
-            _bodyPrefabRepository = resolver.Resolve<BodyPrefabRepository>();
-            _characterAssetRepository = resolver.Resolve<BattleCharacterAssetRepository>();
-            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
         }
 
         /// <inheritdoc/>
@@ -59,11 +55,12 @@ namespace SampleGame.Presentation.Battle {
 
             // adapter生成
             var adapter = new CharacterActorAdapter(actor, model);
+            _serviceResolver.Inject(adapter);
             adapter.RegisterTask(TaskOrder.Logic);
             
             // controller生成
             var controller = new PlayerInputController(model);
-            _serviceResolver.Import(controller);
+            _serviceResolver.Inject(controller);
             controller.RegisterTask(TaskOrder.Input);
 
             // entity構築

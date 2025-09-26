@@ -11,9 +11,10 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// モデルビューアー用テーブルデータ管理クラス
     /// </summary>
-    public partial class ModelViewerTableRepository : IDisposable, IServiceUser, IModelViewerTableRepository {
+    public partial class ModelViewerTableRepository : IDisposable, IModelViewerTableRepository {
         private DisposableScope _scope;
 
+        [ServiceInject]
         private AssetManager _assetManager;
 
         private ModelViewerActorTableData _modelViewerActorTableData;
@@ -32,11 +33,6 @@ namespace SampleGame.Infrastructure.ModelViewer {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _assetManager = resolver.Resolve<AssetManager>();
         }
 
         /// <inheritdoc/>

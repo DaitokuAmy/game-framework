@@ -140,6 +140,9 @@ namespace SampleGame.Lifecycle {
                 where T : Logic {
                 logic.RegisterTask(TaskOrder.Logic);
                 logic.RegisterTo(scp);
+                
+                ServiceResolver.Inject(logic);
+                
                 if (activate) {
                     logic.Activate();
                 }

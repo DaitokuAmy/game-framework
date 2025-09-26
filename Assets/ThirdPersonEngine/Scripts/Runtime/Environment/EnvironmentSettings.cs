@@ -7,7 +7,7 @@ namespace ThirdPersonEngine {
     /// 環境設定
     /// </summary>
     [ExecuteAlways]
-    public class EnvironmentSettings : MonoBehaviour, IServiceUser {
+    public class EnvironmentSettings : MonoBehaviour {
         [SerializeField, Tooltip("反映対象のデータ")]
         private EnvironmentContextData _data;
         [SerializeField, Tooltip("平行光源")]
@@ -20,8 +20,11 @@ namespace ThirdPersonEngine {
         private EnvironmentHandle _handle;
         private EnvironmentManager _environmentManager;
 
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver serviceResolver) {
+        /// <summary>
+        /// サービスのDI
+        /// </summary>
+        [ServiceInject]
+        private void Inject(IServiceResolver serviceResolver) {
             _environmentManager = serviceResolver.Resolve<EnvironmentManager>();
             enabled = false;
             enabled = true;

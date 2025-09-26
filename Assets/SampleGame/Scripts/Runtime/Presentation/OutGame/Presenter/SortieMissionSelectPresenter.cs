@@ -5,11 +5,7 @@ namespace SampleGame.Presentation.OutGame {
     /// <summary>
     /// 出撃画面ミッション選択用のPresenter
     /// </summary>
-    public class SortieMissionSelectPresenter : UIScreenLogic<SortieMissionSelectUIScreen>, IServiceUser {
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver serviceResolver) {
-        }
-        
+    public class SortieMissionSelectPresenter : UIScreenLogic<SortieMissionSelectUIScreen> {
         /// <inheritdoc/>
         protected override void ActivateInternal(IScope scope) {
         }

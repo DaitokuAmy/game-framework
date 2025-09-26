@@ -7,10 +7,12 @@ namespace SampleGame.Application.Battle {
     /// <summary>
     /// プレイヤー関連のアプリケーション層サービス
     /// </summary>
-    public class PlayerAppService : IDisposable, IServiceUser {
+    public class PlayerAppService : IDisposable {
         private DisposableScope _scope;
         
+        [ServiceInject]
         private BattleDomainService _battleDomainService;
+        [ServiceInject]
         private CharacterDomainService _characterDomainService;
 
         /// <summary>プレイヤーモデル</summary>
@@ -30,12 +32,6 @@ namespace SampleGame.Application.Battle {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _battleDomainService = resolver.Resolve<BattleDomainService>();
-            _characterDomainService = resolver.Resolve<CharacterDomainService>();
         }
 
         /// <summary>

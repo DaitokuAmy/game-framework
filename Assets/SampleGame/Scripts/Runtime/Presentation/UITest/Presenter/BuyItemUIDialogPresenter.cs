@@ -7,11 +7,7 @@ namespace SampleGame.Presentation.UITest {
     /// <summary>
     /// BuyItemUIDialogのPresenter
     /// </summary>
-    public class BuyItemUIDialogPresenter : UIScreenLogic<UITestBuyItemUIDialog>, IServiceUser {
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-        }
-        
+    public class BuyItemUIDialogPresenter : UIScreenLogic<UITestBuyItemUIDialog> {
         /// <inheritdoc/>
         protected override void PreOpenInternal() {
             base.PreOpenInternal();

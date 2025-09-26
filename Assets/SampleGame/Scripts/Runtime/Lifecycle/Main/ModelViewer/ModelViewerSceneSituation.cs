@@ -68,12 +68,12 @@ namespace SampleGame.Lifecycle {
             // Recorderのセットアップ
             var recorder = ServiceResolver.Resolve<ModelRecorder>();
             recorder.ActorSlot = ServiceResolver.Resolve<ActorEntityManager>().RootTransform;
-            
+
             // プレゼンテーション初期化
             SetupPresentations(scope);
 
             // Debug用
-            ServiceResolver.Import(new ModelViewerDebugServiceResolver().RegisterTo(scope));
+            ServiceResolver.Inject(new ModelViewerDebugServiceResolver().RegisterTo(scope));
         }
 
         /// <summary>
@@ -130,10 +130,8 @@ namespace SampleGame.Lifecycle {
                 logic.RegisterTask(TaskOrder.Logic);
                 logic.RegisterTo(scp);
 
-                if (logic is IServiceUser user) {
-                    ServiceResolver.Import(user);
-                }
-                
+                ServiceResolver.Inject(logic);
+
                 if (activate) {
                     logic.Activate();
                 }

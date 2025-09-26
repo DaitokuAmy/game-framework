@@ -10,16 +10,16 @@ namespace SampleGame.Domain.Battle {
     /// バトル用のドメインサービス
     /// </summary>
     // ReSharper disable once ClassNeverInstantiated.Global
-    public partial class BattleDomainService : IDisposable, IServiceUser {
+    public partial class BattleDomainService : IDisposable {
         private DisposableScope _scope;
-        
+
         private IModelRepository _modelRepository;
         private ICharacterActorFactory _characterActorFactory;
         private IFieldActorFactory _fieldActorFactory;
 
         /// <summary>バトルモデル</summary>
         public IReadOnlyBattleModel BattleModel => BattleModelInternal;
-        
+
         /// <summary>バトルモデル</summary>
         internal BattleModel BattleModelInternal { get; private set; }
 
@@ -31,18 +31,21 @@ namespace SampleGame.Domain.Battle {
         }
 
         /// <summary>
+        /// サービスのDI
+        /// </summary>
+        [ServiceInject]
+        private void Inject(IModelRepository modelRepository, ICharacterActorFactory characterActorFactory, IFieldActorFactory fieldActorFactory) {
+            _modelRepository = modelRepository;
+            _characterActorFactory = characterActorFactory;
+            _fieldActorFactory = fieldActorFactory;
+        }
+
+        /// <summary>
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _modelRepository = resolver.Resolve<IModelRepository>();
-            _characterActorFactory = resolver.Resolve<ICharacterActorFactory>();
-            _fieldActorFactory = resolver.Resolve<IFieldActorFactory>();
         }
 
         /// <summary>
@@ -51,20 +54,16 @@ namespace SampleGame.Domain.Battle {
         public async UniTask SetupAsync(IBattleMaster master, IPlayerMaster playerMaster, CancellationToken ct) {
             // モデル生成
             BattleModelInternal = _modelRepository.CreateSingleModel<BattleModel>();
-            
+
             // バトル初期化
-            BattleModelInternal.Setup(master, new IState<BattleSequenceType>[] {
-                new EnterState(this),
-                new PlayingState(this),
-                new FinishState(this)
-            });
+            BattleModelInternal.Setup(master, new IState<BattleSequenceType>[] { new EnterState(this), new PlayingState(this), new FinishState(this) });
 
             // フィールドの生成
             await CreateFieldAsync(master.FieldMaster, ct);
 
             // プレイヤーの生成
             await CreatePlayerAsync(playerMaster, ct);
-            
+
             // 入り演出に遷移
             BattleModelInternal.ChangeState(BattleSequenceType.Enter);
         }

@@ -174,9 +174,7 @@ namespace SampleGame.Lifecycle {
                 logic.RegisterTask(TaskOrder.Logic);
                 logic.RegisterTo(scp);
 
-                if (logic is IServiceUser user) {
-                    ServiceResolver.Import(user);
-                }
+                ServiceResolver.Inject(logic);
 
                 if (activate) {
                     logic.Activate();

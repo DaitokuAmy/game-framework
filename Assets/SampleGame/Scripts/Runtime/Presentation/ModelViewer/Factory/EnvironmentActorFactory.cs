@@ -11,20 +11,16 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// 環境生成クラス
     /// </summary>
-    public class EnvironmentActorFactory : IEnvironmentActorFactory, IServiceUser {
+    public class EnvironmentActorFactory : IEnvironmentActorFactory {
+        [ServiceInject]
         private EnvironmentSceneRepository _environmentSceneRepository;
+        [ServiceInject]
         private ActorEntityManager _actorEntityManager;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public EnvironmentActorFactory() {
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _environmentSceneRepository = resolver.Resolve<EnvironmentSceneRepository>();
-            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
         }
 
         /// <summary>

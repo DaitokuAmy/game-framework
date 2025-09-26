@@ -10,7 +10,7 @@ namespace SampleGame.Infrastructure {
     /// <summary>
     /// ボディプレファブアセット用のリポジトリ
     /// </summary>
-    public class BodyPrefabRepository : IDisposable, IServiceUser {
+    public class BodyPrefabRepository : IDisposable {
         private readonly DisposableScope _scope;
         
         private SimpleAssetStorage<GameObject> _bodyPrefabAssetStorage;
@@ -29,9 +29,11 @@ namespace SampleGame.Infrastructure {
             _scope.Dispose();
         }
 
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            var assetManager = resolver.Resolve<AssetManager>();
+        /// <summary>
+        /// サービスのDI
+        /// </summary>
+        [ServiceInject]
+        private void Inject(AssetManager assetManager) {
             _bodyPrefabAssetStorage = new SimpleAssetStorage<GameObject>(assetManager).RegisterTo(_scope);
         }
 

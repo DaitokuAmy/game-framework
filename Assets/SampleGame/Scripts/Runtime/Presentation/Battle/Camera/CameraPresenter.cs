@@ -8,8 +8,10 @@ namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// カメラ用のPresenter
     /// </summary>
-    public class CameraPresenter : Logic, IServiceUser {
+    public class CameraPresenter : Logic {
+        [ServiceInject]
         private CameraManager _cameraManager;
+        [ServiceInject]
         private BattleAppService _battleAppService;
 
         private Transform _center;
@@ -19,12 +21,6 @@ namespace SampleGame.Presentation.Battle {
         /// コンストラクタ
         /// </summary>
         public CameraPresenter() {
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _cameraManager = resolver.Resolve<CameraManager>();
-            _battleAppService = resolver.Resolve<BattleAppService>();
         }
 
         /// <inheritdoc/>

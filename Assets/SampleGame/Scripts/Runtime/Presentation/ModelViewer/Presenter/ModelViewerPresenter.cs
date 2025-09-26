@@ -13,24 +13,20 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// ModelViewer全体のPresenter
     /// </summary>
-    public class ModelViewerPresenter : Logic, IServiceUser {
+    public class ModelViewerPresenter : Logic {
+        [ServiceInject]
         private ModelViewerAppService _appService;
+        [ServiceInject]
         private ActorEntityManager _actorEntityManager;
+        [ServiceInject]
         private CameraManager _cameraManager;
+        [ServiceInject]
         private ModelRecorder _modelRecorder;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public ModelViewerPresenter() {
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _appService = resolver.Resolve<ModelViewerAppService>();
-            _actorEntityManager = resolver.Resolve<ActorEntityManager>();
-            _cameraManager = resolver.Resolve<CameraManager>();
-            _modelRecorder = resolver.Resolve<ModelRecorder>();
         }
 
         /// <summary>

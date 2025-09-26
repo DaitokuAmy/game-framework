@@ -8,10 +8,12 @@ namespace SampleGame.Application.Battle {
     /// <summary>
     /// バトル用のアプリケーション層サービス
     /// </summary>
-    public class BattleAppService : IDisposable, IServiceUser {
+    public class BattleAppService : IDisposable {
         private DisposableScope _scope;
         
+        [ServiceInject]
         private BattleDomainService _battleDomainService;
+        [ServiceInject]
         private IBattleTableRepository _battleTableRepository;
 
         /// <summary>バトルモデル</summary>
@@ -31,12 +33,6 @@ namespace SampleGame.Application.Battle {
         public void Dispose() {
             _scope?.Dispose();
             _scope = null;
-        }
-
-        /// <inheritdoc/>
-        void IServiceUser.ImportService(IServiceResolver resolver) {
-            _battleDomainService = resolver.Resolve<BattleDomainService>();
-            _battleTableRepository = resolver.Resolve<IBattleTableRepository>();
         }
 
         /// <summary>

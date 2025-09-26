@@ -19,9 +19,8 @@ namespace GameFramework.Core {
         T Resolve<T>();
 
         /// <summary>
-        /// サービスのインポート
+        /// インスタンスにServiceを注入
         /// </summary>
-        /// <param name="user"></param>
-        void Import(IServiceUser user);
+        void Inject(object instance);
     }
 }

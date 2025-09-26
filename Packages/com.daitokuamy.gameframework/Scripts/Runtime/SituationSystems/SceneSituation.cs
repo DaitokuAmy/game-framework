@@ -65,12 +65,12 @@ namespace GameFramework.SituationSystems {
                 installer.Install(ServiceContainer, scope);
             }
 
-            // ServiceUserへのResolver提供
-            var users = rootObjects
-                .SelectMany(x => x.GetComponentsInChildren<IServiceUser>(true))
+            // ServiceのDI
+            var injectors = rootObjects
+                .SelectMany(x => x.GetComponentsInChildren<ServiceInjector>())
                 .ToArray();
-            foreach (var user in users) {
-                user.ImportService(ServiceResolver);
+            foreach (var injector in injectors) {
+                injector.Inject(ServiceContainer);
             }
         }
 

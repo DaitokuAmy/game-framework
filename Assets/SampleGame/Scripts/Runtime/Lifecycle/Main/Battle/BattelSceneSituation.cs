@@ -26,7 +26,7 @@ namespace SampleGame.Lifecycle {
     public class BattleSceneSituation : SceneSituation {
         private int _battleId = 1;
         private int _playerId = 1;
-        
+
         protected override string SceneAssetPath => "Assets/SampleGame/Scenes/battle.unity";
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace SampleGame.Lifecycle {
 
             // 初期化処理
             yield return ServiceResolver.Resolve<BattleAppService>().SetupAsync(_battleId, _playerId, scope.Token).ToCoroutine();
-            
+
             SetupPresentations(scope);
         }
 
@@ -215,10 +215,8 @@ namespace SampleGame.Lifecycle {
                 logic.RegisterTask(TaskOrder.Logic);
                 logic.RegisterTo(scp);
 
-                if (logic is IServiceUser user) {
-                    ServiceResolver.Import(user);
-                }
-                
+                ServiceResolver.Inject(logic);
+
                 if (activate) {
                     logic.Activate();
                 }

@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace GameFramework.Core {
     /// <summary>
@@ -33,6 +36,40 @@ namespace GameFramework.Core {
 
                 _container.Remove(_type);
                 _type = null;
+                _container = null;
+            }
+        }
+
+        /// <summary>
+        /// 登録解除用Disposable(複数Interface用)
+        /// </summary>
+        private class ListDisposable : IDisposable {
+            public static readonly Disposable Empty = new(null, null);
+
+            private IServiceContainer _container;
+            private Type[] _types;
+
+            /// <summary>
+            /// コンストラクタ
+            /// </summary>
+            public ListDisposable(IServiceContainer container, Type[] types) {
+                _container = container;
+                _types = types;
+            }
+
+            /// <summary>
+            /// 廃棄時処理
+            /// </summary>
+            public void Dispose() {
+                if (_container == null || _types == null || _types.Length <= 0) {
+                    return;
+                }
+
+                foreach (var type in _types) {
+                    _container.Remove(type);
+                }
+
+                _types = null;
                 _container = null;
             }
         }
@@ -116,22 +153,15 @@ namespace GameFramework.Core {
         }
 
         /// <inheritdoc/>
-        void IServiceResolver.Import(IServiceUser user) {
-            if (user == null) {
-                return;
-            }
-            
-            user.ImportService(this);
-        }
-
-        /// <inheritdoc/>
         void IServiceContainer.Remove(Type type) {
             if (!_registeredServiceInfos.Remove(type, out var info)) {
                 return;
             }
 
             if (info.Instance is IDisposable disposable) {
-                disposable.Dispose();
+                if (_disposableServices.Remove(disposable)) {
+                    disposable.Dispose();
+                }
             }
 
             info.Instance = null;
@@ -142,6 +172,33 @@ namespace GameFramework.Core {
         /// </summary>
         void IServiceContainer.Remove<T>() {
             ((IServiceContainer)this).Remove(typeof(T));
+        }
+
+        /// <summary>
+        /// タイプ登録(複数Interface対応バージョン)
+        /// </summary>
+        /// <param name="interfaceTypes">取得に使う型のリスト</param>
+        /// <param name="classType">生成するクラス型</param>
+        /// <param name="createFunc">生成用関数</param>
+        /// <returns>登録解除用のDisposable</returns>
+        public IDisposable Register(Type[] interfaceTypes, Type classType, Func<object> createFunc = null) {
+            foreach (var interfaceType in interfaceTypes) {
+                if (_registeredServiceInfos.TryGetValue(interfaceType, out _)) {
+                    throw new Exception($"Already registered type. Type:{interfaceType}");
+                }
+
+                if (!interfaceType.IsAssignableFrom(classType)) {
+                    throw new Exception($"Not assignable. Type:{interfaceType}, InstanceType:{classType}");
+                }
+            }
+
+            var info = new RegisteredServiceInfo { Type = classType, CreateFunc = createFunc, };
+
+            foreach (var interfaceType in interfaceTypes) {
+                _registeredServiceInfos[interfaceType] = info;
+            }
+
+            return new ListDisposable(this, interfaceTypes);
         }
 
         /// <summary>
@@ -188,6 +245,42 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="createFunc">生成処理</param>
         /// <returns>登録解除用Disposable</returns>
+        public IDisposable Register<TInterface1, TInterface2, TInterface3, TInterface4, TInterface5, T>(Func<T> createFunc = null) {
+            return Register(new[] { typeof(TInterface1), typeof(TInterface2), typeof(TInterface3), typeof(TInterface4), typeof(TInterface5) }, typeof(T), createFunc != null ? () => createFunc.Invoke() : null);
+        }
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        public IDisposable Register<TInterface1, TInterface2, TInterface3, TInterface4, T>(Func<T> createFunc = null) {
+            return Register(new[] { typeof(TInterface1), typeof(TInterface2), typeof(TInterface3), typeof(TInterface4) }, typeof(T), createFunc != null ? () => createFunc.Invoke() : null);
+        }
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        public IDisposable Register<TInterface1, TInterface2, TInterface3, T>(Func<T> createFunc = null) {
+            return Register(new[] { typeof(TInterface1), typeof(TInterface2), typeof(TInterface3) }, typeof(T), createFunc != null ? () => createFunc.Invoke() : null);
+        }
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
+        public IDisposable Register<TInterface1, TInterface2, T>(Func<T> createFunc = null) {
+            return Register(new[] { typeof(TInterface1), typeof(TInterface2) }, typeof(T), createFunc != null ? () => createFunc.Invoke() : null);
+        }
+
+        /// <summary>
+        /// サービスの登録
+        /// </summary>
+        /// <param name="createFunc">生成処理</param>
+        /// <returns>登録解除用Disposable</returns>
         public IDisposable Register<TInterface, T>(Func<T> createFunc = null) {
             return Register(typeof(TInterface), typeof(T), createFunc != null ? () => createFunc.Invoke() : null);
         }
@@ -223,13 +316,11 @@ namespace GameFramework.Core {
             info = new RegisteredServiceInfo { Type = type, CreateFunc = null, Instance = instance, };
 
             _registeredServiceInfos[type] = info;
+            
+            Inject(instance);
 
             if (instance is IDisposable disposable) {
                 _disposableServices.Add(disposable);
-            }
-
-            if (instance is IServiceUser user) {
-                user.ImportService(this);
             }
 
             return new Disposable(this, type);
@@ -263,8 +354,49 @@ namespace GameFramework.Core {
             }
 
             if (info.Instance is IDisposable disposable) {
-                disposable.Dispose();
-                _disposableServices.Remove(disposable);
+                if (_disposableServices.Remove(disposable)) {
+                    disposable.Dispose();
+                }
+            }
+        }
+
+        /// <summary>
+        /// インスタンスにServiceを注入
+        /// </summary>
+        public void Inject(object instance) {
+            var type = instance.GetType();
+
+            // [ServiceInject]が付いたインスタンスフィールドを収集
+            var flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var fieldInfos = type.GetFields(flags)
+                .Where(f => f.GetCustomAttribute<ServiceInjectAttribute>() != null);
+
+            // フィールドを初期化
+            foreach (var fieldInfo in fieldInfos) {
+                if (fieldInfo.IsInitOnly) {
+                    throw new InvalidOperationException($"{type.FullName}.{fieldInfo.Name} is readonly.");
+                }
+
+                if (fieldInfo.FieldType == typeof(IServiceResolver)) {
+                    fieldInfo.SetValue(instance, this);
+                    continue;
+                }
+
+                var service = GetService(fieldInfo.FieldType);
+                if (service == null) {
+                    throw new InvalidOperationException($"{type.FullName}.{fieldInfo.Name}({fieldInfo.FieldType.Name}) is not found service.");
+                }
+
+                fieldInfo.SetValue(instance, service);
+            }
+
+            // メソッドを初期化
+            var methodInfos = type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                .Where(m => m.GetCustomAttribute<ServiceInjectAttribute>() != null);
+
+            foreach (var methodInfo in methodInfos) {
+                var args = GetServiceParameters(methodInfo);
+                methodInfo.Invoke(instance, args);
             }
         }
 
@@ -288,6 +420,67 @@ namespace GameFramework.Core {
         }
 
         /// <summary>
+        /// Serviceの取得
+        /// </summary>
+        private object GetService(Type serviceType) {
+            if (serviceType == typeof(IServiceResolver)) {
+                return this;
+            }
+
+            if (!_registeredServiceInfos.TryGetValue(serviceType, out var serviceInfo)) {
+                if (_parentResolver is ServiceContainer container) {
+                    return container.GetService(serviceType);
+                }
+
+                return null;
+            }
+
+            return GetInstance(serviceInfo);
+        }
+
+        /// <summary>
+        /// Method引数用のServiceリストを取得
+        /// </summary>
+        private object[] GetServiceParameters(MethodBase methodBase) {
+            var parameterInfos = methodBase.GetParameters();
+            var parameters = new object[parameterInfos.Length];
+            for (var i = 0; i < parameterInfos.Length; i++) {
+                var s = GetService(parameterInfos[i].ParameterType);
+                parameters[i] = s ?? throw new InvalidOperationException($"{methodBase.Name}({parameterInfos[i].ParameterType.Name}) is not found service.");
+            }
+
+            return parameters;
+        }
+
+        /// <summary>
+        /// Inject対応のインスタンス生成
+        /// </summary>
+        private object CreateInstance(Type type) {
+            // コンストラクタ解決
+            var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+            var markedConstructor = constructors.FirstOrDefault(c => c.GetCustomAttribute<ServiceInjectAttribute>() != null);
+            var constructor = default(ConstructorInfo);
+            var constructorArgs = default(object[]);
+            
+            if (markedConstructor != null) {
+                constructor = markedConstructor;
+                constructorArgs = GetServiceParameters(markedConstructor);
+            }
+            else {
+                constructor = constructors.FirstOrDefault(x => x.GetParameters().Length == 0);
+
+                if (constructor == null) {
+                    throw new InvalidOperationException($"Not found default constructor: {type.FullName}");
+                }
+
+                constructorArgs = Array.Empty<object>();
+            }
+
+            // コンストラクタ呼び出し
+            return constructor.Invoke(constructorArgs);
+        }
+
+        /// <summary>
         /// 登録したサービス情報からインスタンスを取得
         /// </summary>
         private object GetInstance(RegisteredServiceInfo info) {
@@ -299,19 +492,20 @@ namespace GameFramework.Core {
                 return info.Instance;
             }
 
+            // インスタンス生成
             if (info.CreateFunc != null) {
                 info.Instance = info.CreateFunc();
             }
             else {
-                info.Instance = Activator.CreateInstance(info.Type);
+                info.Instance = CreateInstance(info.Type);
             }
+            
+            // サービスのInject
+            Inject(info.Instance);
 
+            // Disposables登録
             if (info.Instance is IDisposable disposable) {
                 _disposableServices.Add(disposable);
-            }
-
-            if (info.Instance is IServiceUser user) {
-                user.ImportService(this);
             }
 
             return info.Instance;
