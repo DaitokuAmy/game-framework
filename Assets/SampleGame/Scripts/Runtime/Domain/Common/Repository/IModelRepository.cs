@@ -1,6 +1,6 @@
 using GameFramework.Core;
 
-namespace SampleGame.Infrastructure {
+namespace SampleGame.Domain {
     /// <summary>
     /// モデル管理用リポジトリ
     /// </summary>

@@ -8,8 +8,8 @@ using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.SituationSystems;
 using GameFramework.UISystems;
+using SampleGame.Domain;
 using SampleGame.Infrastructure;
-using SampleGame.Presentation.Battle;
 using SampleGame.Presentation.OutGame;
 using ThirdPersonEngine;
 

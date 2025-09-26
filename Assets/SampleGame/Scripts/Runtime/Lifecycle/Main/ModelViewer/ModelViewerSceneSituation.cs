@@ -9,6 +9,7 @@ using GameFramework.Core;
 using GameFramework.SituationSystems;
 using R3;
 using SampleGame.Application.ModelViewer;
+using SampleGame.Domain;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;

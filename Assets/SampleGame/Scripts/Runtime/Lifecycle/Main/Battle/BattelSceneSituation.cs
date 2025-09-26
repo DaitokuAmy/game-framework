@@ -15,6 +15,7 @@ using SampleGame.Presentation.Battle;
 using R3;
 using SampleGame.Application;
 using SampleGame.Application.Battle;
+using SampleGame.Domain;
 using SampleGame.Domain.Battle;
 using SampleGame.Presentation.UITest;
 using ThirdPersonEngine;

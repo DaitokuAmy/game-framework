@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using GameFramework.Core;
+using SampleGame.Domain;
 
 namespace SampleGame.Infrastructure {
     /// <summary>

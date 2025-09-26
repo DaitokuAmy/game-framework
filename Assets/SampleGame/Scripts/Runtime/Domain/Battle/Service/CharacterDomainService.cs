@@ -1,6 +1,5 @@
 using System;
 using GameFramework.Core;
-using SampleGame.Infrastructure;
 using Unity.Mathematics;
 
 namespace SampleGame.Domain.Battle {
