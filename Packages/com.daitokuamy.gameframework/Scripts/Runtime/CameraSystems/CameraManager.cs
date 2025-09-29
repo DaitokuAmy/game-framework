@@ -11,6 +11,9 @@ namespace GameFramework.CameraSystems {
     /// </summary>
     public class CameraManager : LateUpdatableTaskBehaviour, IDisposable {
         public const string MainCameraGroupKey = "Main";
+        
+        /// <inheritdoc/>
+        public override bool IsActive => base.IsActive && !_disposed;
 
         /// <summary>
         /// カメラブレンド情報

@@ -38,6 +38,10 @@ namespace GameFramework.ActorSystems {
 
             _isDisposed = true;
 
+            foreach (var entity in _entities.Values) {
+                entity.Dispose();
+            }
+
             _entities.Clear();
 
             if (RootTransform != null) {
