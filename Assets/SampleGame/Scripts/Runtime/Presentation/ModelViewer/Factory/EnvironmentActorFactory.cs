@@ -40,7 +40,7 @@ namespace SampleGame.Presentation.ModelViewer {
                 }
             }
 
-            if (body == null || rootObjects.Length > 0) {
+            if (body == null && rootObjects.Length > 0) {
                 body = new Body(rootObjects[0]);
             }
 
