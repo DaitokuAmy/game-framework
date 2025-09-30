@@ -191,7 +191,7 @@ namespace GameFramework.ActorSystems {
         /// アクティブ状態の設定
         /// </summary>
         public void SetActive(bool active) {
-            GameObject.SetActive(IsActive);
+            GameObject.SetActive(active);
         }
 
         /// <summary>
