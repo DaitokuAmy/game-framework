@@ -9,13 +9,13 @@ namespace GameFramework.Core {
         private IServiceResolver _resolver;
         
         /// <summary>SingletonInstance</summary>
-        public static TResolver Instance { get; set; }
+        public static TResolver Instance { get; private set; }
 
         /// <summary>
         /// サービスのDI
         /// </summary>
         [ServiceInject]
-        private void Inject(IServiceResolver resolver) {
+        protected void Inject(IServiceResolver resolver) {
             if (Instance != null) {
                 throw new InvalidOperationException($"The service resolver has already been imported. [{nameof(TResolver)}]");
             }
