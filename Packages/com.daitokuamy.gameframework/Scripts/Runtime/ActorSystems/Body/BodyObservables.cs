@@ -17,86 +17,100 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// TriggerEnter監視
         /// </summary>
-        public static Observable<Collider> OnTriggerEnterAsObservable(this ColliderComponent source, CancellationToken ct = default) {
-            return Observable.FromEvent<Collider>(h => source.OnTriggerEnterEvent += h, h => source.OnTriggerEnterEvent -= h, ct);
+        public static Observable<Collider> TriggerEnterAsObservable(this ColliderComponent source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collider>(h => source.TriggerEnterEvent += h, h => source.TriggerEnterEvent -= h, ct);
         }
 
         /// <summary>
         /// TriggerStay監視
         /// </summary>
-        public static Observable<Collider> OnTriggerStayAsObservable(this ColliderComponent source, CancellationToken ct = default) {
-            return Observable.FromEvent<Collider>(h => source.OnTriggerStayEvent += h, h => source.OnTriggerStayEvent -= h, ct);
+        public static Observable<Collider> TriggerStayAsObservable(this ColliderComponent source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collider>(h => source.TriggerStayEvent += h, h => source.TriggerStayEvent -= h, ct);
         }
 
         /// <summary>
         /// TriggerExit監視
         /// </summary>
-        public static Observable<Collider> OnTriggerExitAsObservable(this ColliderComponent source, CancellationToken ct = default) {
-            return Observable.FromEvent<Collider>(h => source.OnTriggerExitEvent += h, h => source.OnTriggerExitEvent -= h, ct);
+        public static Observable<Collider> TriggerExitAsObservable(this ColliderComponent source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collider>(h => source.TriggerExitEvent += h, h => source.TriggerExitEvent -= h, ct);
         }
 
         /// <summary>
         /// CollisionEnter監視
         /// </summary>
-        public static Observable<Collision> OnCollisionEnterAsObservable(this ColliderComponent source, CancellationToken ct = default) {
-            return Observable.FromEvent<Collision>(h => source.OnCollisionEnterEvent += h, h => source.OnCollisionEnterEvent -= h, ct);
+        public static Observable<Collision> CollisionEnterAsObservable(this ColliderComponent source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collision>(h => source.CollisionEnterEvent += h, h => source.CollisionEnterEvent -= h, ct);
         }
 
         /// <summary>
         /// CollisionStay監視
         /// </summary>
-        public static Observable<Collision> OnCollisionStayAsObservable(this ColliderComponent source, CancellationToken ct = default) {
-            return Observable.FromEvent<Collision>(h => source.OnCollisionStayEvent += h, h => source.OnCollisionStayEvent -= h, ct);
+        public static Observable<Collision> CollisionStayAsObservable(this ColliderComponent source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collision>(h => source.CollisionStayEvent += h, h => source.CollisionStayEvent -= h, ct);
         }
 
         /// <summary>
         /// CollisionExit監視
         /// </summary>
-        public static Observable<Collision> OnCollisionExitAsObservable(this ColliderComponent source, CancellationToken ct = default) {
-            return Observable.FromEvent<Collision>(h => source.OnCollisionExitEvent += h, h => source.OnCollisionExitEvent -= h, ct);
+        public static Observable<Collision> CollisionExitAsObservable(this ColliderComponent source, CancellationToken ct = default) {
+            return Observable.FromEvent<Collision>(h => source.CollisionExitEvent += h, h => source.CollisionExitEvent -= h, ct);
+        }
+
+        /// <summary>
+        /// ControllerColliderHit監視
+        /// </summary>
+        public static Observable<ControllerColliderHit> ControllerColliderHitAsObservable(this ColliderComponent source, CancellationToken ct = default) {
+            return Observable.FromEvent<ControllerColliderHit>(h => source.ControllerColliderHitEvent += h, h => source.ControllerColliderHitEvent -= h, ct);
         }
 
 #elif USE_UNI_RX
         /// <summary>
         /// TriggerEnter監視
         /// </summary>
-        public static IObservable<Collider> OnTriggerEnterAsObservable(this ColliderController source) {
-            return Observable.FromEvent<Collider>(h => source.OnTriggerEnterEvent += h, h => source.OnTriggerEnterEvent -= h);
+        public static IObservable<Collider> TriggerEnterAsObservable(this ColliderController source) {
+            return Observable.FromEvent<Collider>(h => source.TriggerEnterEvent += h, h => source.TriggerEnterEvent -= h);
         }
 
         /// <summary>
         /// TriggerStay監視
         /// </summary>
-        public static IObservable<Collider> OnTriggerStayAsObservable(this ColliderController source) {
-            return Observable.FromEvent<Collider>(h => source.OnTriggerStayEvent += h, h => source.OnTriggerStayEvent -= h);
+        public static IObservable<Collider> TriggerStayAsObservable(this ColliderController source) {
+            return Observable.FromEvent<Collider>(h => source.TriggerStayEvent += h, h => source.TriggerStayEvent -= h);
         }
 
         /// <summary>
         /// TriggerExit監視
         /// </summary>
-        public static IObservable<Collider> OnTriggerExitAsObservable(this ColliderController source) {
-            return Observable.FromEvent<Collider>(h => source.OnTriggerExitEvent += h, h => source.OnTriggerExitEvent -= h);
+        public static IObservable<Collider> TriggerExitAsObservable(this ColliderController source) {
+            return Observable.FromEvent<Collider>(h => source.TriggerExitEvent += h, h => source.TriggerExitEvent -= h);
         }
 
         /// <summary>
         /// CollisionEnter監視
         /// </summary>
-        public static IObservable<Collision> OnCollisionEnterAsObservable(this ColliderController source) {
-            return Observable.FromEvent<Collision>(h => source.OnCollisionEnterEvent += h, h => source.OnCollisionEnterEvent -= h);
+        public static IObservable<Collision> CollisionEnterAsObservable(this ColliderController source) {
+            return Observable.FromEvent<Collision>(h => source.CollisionEnterEvent += h, h => source.CollisionEnterEvent -= h);
         }
 
         /// <summary>
         /// CollisionStay監視
         /// </summary>
-        public static IObservable<Collision> OnCollisionStayAsObservable(this ColliderController source) {
-            return Observable.FromEvent<Collision>(h => source.OnCollisionStayEvent += h, h => source.OnCollisionStayEvent -= h);
+        public static IObservable<Collision> CollisionStayAsObservable(this ColliderController source) {
+            return Observable.FromEvent<Collision>(h => source.CollisionStayEvent += h, h => source.CollisionStayEvent -= h);
         }
 
         /// <summary>
         /// CollisionExit監視
         /// </summary>
-        public static IObservable<Collision> OnCollisionExitAsObservable(this ColliderController source) {
-            return Observable.FromEvent<Collision>(h => source.OnCollisionExitEvent += h, h => source.OnCollisionExitEvent -= h);
+        public static IObservable<Collision> CollisionExitAsObservable(this ColliderController source) {
+            return Observable.FromEvent<Collision>(h => source.CollisionExitEvent += h, h => source.CollisionExitEvent -= h);
+        }
+
+        /// <summary>
+        /// ControllerColliderHit監視
+        /// </summary>
+        public static IObservable<ControllerColliderHit> ControllerColliderHitAsObservable(this ColliderComponent source) {
+            return Observable.FromEvent<ControllerColliderHit>(h => source.ControllerColliderHitEvent += h, h => source.ControllerColliderHitEvent -= h, ct);
         }
 #endif
     }

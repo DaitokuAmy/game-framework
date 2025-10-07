@@ -330,8 +330,8 @@ namespace GameFramework.ActorSystems {
             }
 #endif
 
-            // Rigidbody or ColliderPartsがついている場合、ColliderController追加
-            if (GameObject.GetComponentInChildren<ColliderParts>() != null || GameObject.GetComponent<Rigidbody>() != null) {
+            // CharacterController or Rigidbody or ColliderPartsがついている場合、ColliderController追加
+            if (GameObject.GetComponentInChildren<ColliderParts>() != null || GameObject.GetComponent<Rigidbody>() != null || GameObject.GetComponent<CharacterController>() != null) {
                 TryAddComponent<ColliderComponent>();
             }
 

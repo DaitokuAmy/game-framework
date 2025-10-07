@@ -17,18 +17,21 @@ namespace GameFramework.ActorSystems {
         public event Action RefreshedEvent;
 
         /// <summary>TriggerEnterイベント通知</summary>
-        public event Action<Collider> OnTriggerEnterEvent;
+        public event Action<Collider> TriggerEnterEvent;
         /// <summary>TriggerStayイベント通知</summary>
-        public event Action<Collider> OnTriggerStayEvent;
+        public event Action<Collider> TriggerStayEvent;
         /// <summary>TriggerExitイベント通知</summary>
-        public event Action<Collider> OnTriggerExitEvent;
+        public event Action<Collider> TriggerExitEvent;
 
         /// <summary>CollisionEnterイベント通知</summary>
-        public event Action<Collision> OnCollisionEnterEvent;
+        public event Action<Collision> CollisionEnterEvent;
         /// <summary>CollisionStayイベント通知</summary>
-        public event Action<Collision> OnCollisionStayEvent;
+        public event Action<Collision> CollisionStayEvent;
         /// <summary>CollisionExitイベント通知</summary>
-        public event Action<Collision> OnCollisionExitEvent;
+        public event Action<Collision> CollisionExitEvent;
+        
+        /// <summary>ControllerColliderHitイベント通知</summary>
+        public event Action<ControllerColliderHit> ControllerColliderHitEvent;
 
         /// <summary>
         /// 制御キーの一覧を取得
@@ -114,30 +117,34 @@ namespace GameFramework.ActorSystems {
         /// Trigger判定時通知
         /// </summary>
         private void OnTriggerEnter(Collider other) {
-            OnTriggerEnterEvent?.Invoke(other);
+            TriggerEnterEvent?.Invoke(other);
         }
 
         private void OnTriggerStay(Collider other) {
-            OnTriggerStayEvent?.Invoke(other);
+            TriggerStayEvent?.Invoke(other);
         }
 
         private void OnTriggerExit(Collider other) {
-            OnTriggerExitEvent?.Invoke(other);
+            TriggerExitEvent?.Invoke(other);
         }
 
         /// <summary>
         /// Collision判定時通知
         /// </summary>
         private void OnCollisionEnter(Collision collision) {
-            OnCollisionEnterEvent?.Invoke(collision);
+            CollisionEnterEvent?.Invoke(collision);
         }
 
         private void OnCollisionStay(Collision collision) {
-            OnCollisionStayEvent?.Invoke(collision);
+            CollisionStayEvent?.Invoke(collision);
         }
 
         private void OnCollisionExit(Collision collision) {
-            OnCollisionExitEvent?.Invoke(collision);
+            CollisionExitEvent?.Invoke(collision);
+        }
+
+        private void OnControllerColliderHit(ControllerColliderHit hit) {
+            ControllerColliderHitEvent?.Invoke(hit);
         }
     }
 }
