@@ -12,12 +12,12 @@ namespace ThirdPersonEngine {
         [SerializeField, Tooltip("後で動くアニメーション時間")]
         private float _nextChangeDuration = 1.0f;
         [SerializeField, Tooltip("変化遅延時間")]
-        private float _ChangeDelay = 0.5f;
+        private float _changeDelay = 0.5f;
 
         private float _fastTimer;
         private float _nextTimer;
         private bool _negative;
-        
+
         /// <summary>ゲージ最大値</summary>
         public float MaxValue { get; private set; }
         /// <summary>現在のゲージ値</summary>
@@ -28,7 +28,7 @@ namespace ThirdPersonEngine {
         /// </summary>
         protected override void LateUpdateInternal(float deltaTime) {
             base.LateUpdateInternal(deltaTime);
-            
+
             // アニメーション
             if (_fastTimer >= 0.0f) {
                 var rate = _fastTimer > float.Epsilon ? Mathf.Min(1.0f, deltaTime / _fastTimer) : 1.0f;
@@ -39,12 +39,12 @@ namespace ThirdPersonEngine {
                 else {
                     SetBackGaugeValue(Value, rate);
                 }
-                
+
                 _fastTimer -= deltaTime;
             }
 
             if (_nextTimer >= 0.0f) {
-                var rate = _nextTimer > _nextChangeDuration ? 0.0f : _nextTimer > float.Epsilon ? Mathf.Min(1.0f, deltaTime / _nextTimer) : 1.0f;
+                var rate = _nextTimer > _nextChangeDuration ? 1.0f : _nextTimer > float.Epsilon ? Mathf.Min(1.0f, deltaTime / _nextTimer) : 1.0f;
                 // 値が増えた場合、Frontが後に動く
                 if (_negative) {
                     SetBackGaugeValue(Value, rate);
@@ -52,6 +52,7 @@ namespace ThirdPersonEngine {
                 else {
                     SetFrontGaugeValue(Value, rate);
                 }
+
                 _nextTimer -= deltaTime;
             }
         }
@@ -69,17 +70,17 @@ namespace ThirdPersonEngine {
         /// <param name="targetValue">目的値</param>
         /// <param name="rate">補間割合</param>
         protected abstract void SetBackGaugeValue(float targetValue, float rate);
-        
+
         /// <summary>
         /// 最大値の更新通知
         /// </summary>
-        protected virtual void OnChangedMaxValue(float maxValue) {}
-        
+        protected virtual void OnChangedMaxValue(float maxValue) { }
+
         /// <summary>
         /// アニメーション開始通知
         /// </summary>
         /// <param name="negative">値が減る方向に変化したか</param>
-        protected virtual void OnStartAnimation(bool negative) {}
+        protected virtual void OnStartAnimation(bool negative) { }
 
         /// <summary>
         /// 初期化処理
@@ -90,7 +91,7 @@ namespace ThirdPersonEngine {
             Value = Mathf.Clamp(initValue, 0.0f, maxValue);
             MaxValue = maxValue;
             OnChangedMaxValue(MaxValue);
-            
+
             // 値の初期化
             SetFrontGaugeValue(Value, 1.0f);
             SetBackGaugeValue(Value, 1.0f);
@@ -107,7 +108,7 @@ namespace ThirdPersonEngine {
             SetBackGaugeValue(Value, 1.0f);
 
             _negative = value < Value;
-            
+
             // 次の目的値を指定
             Value = Mathf.Clamp(value, 0.0f, MaxValue);
 
@@ -118,7 +119,7 @@ namespace ThirdPersonEngine {
             }
             else {
                 _fastTimer = _fastChangeDuration;
-                _nextTimer = _nextChangeDuration + _ChangeDelay;
+                _nextTimer = _nextChangeDuration + _changeDelay;
                 // 通知
                 OnStartAnimation(_negative);
             }

@@ -50,7 +50,7 @@ namespace ThirdPersonEngine {
                 return;
             }
 
-            var targetRate = targetValue / MaxValue;
+            var targetRate = MaxValue <= float.Epsilon ? 1.0f : Mathf.Clamp01(targetValue / MaxValue);
             image.fillAmount = Mathf.Lerp(image.fillAmount, targetRate, rate);
         }
     }
