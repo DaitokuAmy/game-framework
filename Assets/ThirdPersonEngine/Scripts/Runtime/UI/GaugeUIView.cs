@@ -44,7 +44,7 @@ namespace ThirdPersonEngine {
             }
 
             if (_nextTimer >= 0.0f) {
-                var rate = _nextTimer > _nextChangeDuration ? 1.0f : _nextTimer > float.Epsilon ? Mathf.Min(1.0f, deltaTime / _nextTimer) : 1.0f;
+                var rate = _nextTimer > _nextChangeDuration ? 0.0f : _nextTimer > float.Epsilon ? Mathf.Min(1.0f, deltaTime / _nextTimer) : 1.0f;
                 // 値が増えた場合、Frontが後に動く
                 if (_negative) {
                     SetBackGaugeValue(Value, rate);
