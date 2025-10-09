@@ -13,6 +13,13 @@ namespace ThirdPersonEngine {
         private Image _backPositiveImage;
         [SerializeField, Tooltip("後面のImage(減少)")]
         private Image _backNegativeImage;
+        [SerializeField, Tooltip("最小値"), Range(0.0f, 1.0f)]
+        private float _minValue = 0.0f;
+        [SerializeField, Tooltip("最大値"), Range(0.0f, 1.0f)]
+        private float _maxValue = 1.0f;
+        
+        /// <inheritdoc/>
+        protected override bool IsFrontAnimationOnly => _backPositiveImage == null && _backNegativeImage == null;
 
         /// <summary>
         /// 全面ゲージの値設定
@@ -51,7 +58,8 @@ namespace ThirdPersonEngine {
             }
 
             var targetRate = MaxValue <= float.Epsilon ? 1.0f : Mathf.Clamp01(targetValue / MaxValue);
-            image.fillAmount = Mathf.Lerp(image.fillAmount, targetRate, rate);
+            var targetFillAmount = Mathf.Lerp(_minValue, _maxValue, targetRate);
+            image.fillAmount = Mathf.Lerp(image.fillAmount, targetFillAmount, rate);
         }
     }
 }

@@ -14,6 +14,9 @@ namespace ThirdPersonEngine {
         private Slider _backPositiveSlider;
         [SerializeField, Tooltip("後面のSlider(減少)")]
         private Slider _backNegativeSlider;
+        
+        /// <inheritdoc/>
+        protected override bool IsFrontAnimationOnly => _backPositiveSlider == null && _backNegativeSlider == null;
 
         /// <summary>
         /// 全面ゲージの値設定

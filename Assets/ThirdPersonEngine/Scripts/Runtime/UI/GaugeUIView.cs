@@ -18,6 +18,9 @@ namespace ThirdPersonEngine {
         private float _nextTimer;
         private bool _negative;
 
+        /// <summary>Frontアニメーションのみか</summary>
+        protected virtual bool IsFrontAnimationOnly => false;
+
         /// <summary>ゲージ最大値</summary>
         public float MaxValue { get; private set; }
         /// <summary>現在のゲージ値</summary>
@@ -30,7 +33,7 @@ namespace ThirdPersonEngine {
             base.LateUpdateInternal(deltaTime);
 
             // アニメーション
-            if (_fastTimer >= 0.0f) {
+            if (!IsFrontAnimationOnly && _fastTimer >= 0.0f) {
                 var rate = _fastTimer > float.Epsilon ? Mathf.Min(1.0f, deltaTime / _fastTimer) : 1.0f;
                 // 値が減った場合、frontが先に動く
                 if (_negative) {
@@ -46,7 +49,7 @@ namespace ThirdPersonEngine {
             if (_nextTimer >= 0.0f) {
                 var rate = _nextTimer > _nextChangeDuration ? 0.0f : _nextTimer > float.Epsilon ? Mathf.Min(1.0f, deltaTime / _nextTimer) : 1.0f;
                 // 値が増えた場合、Frontが後に動く
-                if (_negative) {
+                if (!IsFrontAnimationOnly && _negative) {
                     SetBackGaugeValue(Value, rate);
                 }
                 else {
