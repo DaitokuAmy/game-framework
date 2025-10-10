@@ -65,6 +65,17 @@ namespace GameFramework.UISystems {
         }
 
         /// <summary>
+        /// アクティブビューの取得
+        /// </summary>
+        public TView GetActiveView(int index) {
+            if (index < 0 || index >= _activeInfos.Count) {
+                return null;
+            }
+
+            return _activeInfos[index].View;
+        }
+
+        /// <summary>
         /// プールへのから取得
         /// </summary>
         public TView Get(Action<TView, int, IScope> addedAction = null) {
