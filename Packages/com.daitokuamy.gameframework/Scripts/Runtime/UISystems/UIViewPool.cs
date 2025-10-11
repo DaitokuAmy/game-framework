@@ -28,10 +28,7 @@ namespace GameFramework.UISystems {
         /// コンストラクタ
         /// </summary>
         public UIViewPool(TView template, Func<TView, TView> instantiateFunc) {
-            _activeInfoPool = new ObjectPool<ActiveInfo>(() => new ActiveInfo {
-                View = null,
-                Scope = new DisposableScope()
-            });
+            _activeInfoPool = new ObjectPool<ActiveInfo>(() => new ActiveInfo { View = null, Scope = new DisposableScope() });
             _viewPool = new ObjectPool<TView>(
                 createFunc: () => {
                     template.gameObject.SetActive(true);
@@ -65,6 +62,17 @@ namespace GameFramework.UISystems {
         public void GetActiveViews(List<(TView, int)> activeVies) {
             activeVies.Clear();
             activeVies.AddRange(_activeInfos.Select((x, idx) => (x.View, idx)));
+        }
+
+        /// <summary>
+        /// アクティブビューの取得
+        /// </summary>
+        public TView GetActiveView(int index) {
+            if (index < 0 || index >= _activeInfos.Count) {
+                return null;
+            }
+
+            return _activeInfos[index].View;
         }
 
         /// <summary>
