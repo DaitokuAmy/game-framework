@@ -21,6 +21,9 @@ namespace GameFramework.UISystems {
         private readonly ObjectPool<TView> _viewPool;
         private readonly ObjectPool<ActiveInfo> _activeInfoPool;
 
+        /// <summary>ActiveViewの総数</summary>
+        public int ActiveViewCount => _activeInfos.Count;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -62,17 +65,6 @@ namespace GameFramework.UISystems {
         public void GetActiveViews(List<(TView, int)> activeVies) {
             activeVies.Clear();
             activeVies.AddRange(_activeInfos.Select((x, idx) => (x.View, idx)));
-        }
-
-        /// <summary>
-        /// アクティブビューの取得
-        /// </summary>
-        public TView GetActiveView(int index) {
-            if (index < 0 || index >= _activeInfos.Count) {
-                return null;
-            }
-
-            return _activeInfos[index].View;
         }
 
         /// <summary>
