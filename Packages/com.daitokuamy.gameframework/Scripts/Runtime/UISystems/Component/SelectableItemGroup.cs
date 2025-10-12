@@ -63,6 +63,9 @@ namespace GameFramework.UISystems {
                 item.OnSelectedItem();
                 _handler?.OnChangedCurrentItem(_currentIndex, item);
             }
+            else {
+                item.OnDeselectedItem();
+            }
         }
 
         /// <summary>
@@ -81,9 +84,7 @@ namespace GameFramework.UISystems {
 
             if (success) {
                 if (CurrentItem == null) {
-                    _currentIndex--;
-                    CurrentItem?.OnSelectedItem();
-                    _handler?.OnChangedCurrentItem(_currentIndex, CurrentItem);
+                    SelectEnabledItem(_currentIndex);
                 }
             }
 
@@ -144,7 +145,7 @@ namespace GameFramework.UISystems {
             if (CurrentItem == null) {
                 return;
             }
-            
+
             var index = _currentIndex;
             if (repeat) {
                 do {
@@ -179,7 +180,7 @@ namespace GameFramework.UISystems {
             if (CurrentItem == null) {
                 return;
             }
-            
+
             var index = _currentIndex;
             if (repeat) {
                 do {
@@ -222,31 +223,8 @@ namespace GameFramework.UISystems {
             if (disabled) {
                 // 選択対象だった場合、選択対象をずらす
                 if (index == _currentIndex) {
-                    // 選択をずらす(後優先)
-                    var found = false;
-                    for (var i = index + 1; i < _itemInfos.Count; i++) {
-                        var itemInfo = _itemInfos[i];
-                        if (!itemInfo.Disabled) {
-                            Select(i);
-                            found = true;
-                            break;
-                        }
-                    }
-
-                    // 選択対象を前にずらす
-                    if (!found) {
-                        for (var i = index - 1; i >= 0; i--) {
-                            var itemInfo = _itemInfos[i];
-                            if (!itemInfo.Disabled) {
-                                Select(i);
-                                found = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    // それでも見つからないなら未選択
-                    if (!found) {
+                    if (!SelectEnabledItem(index)) {
+                        // それでも見つからないなら未選択
                         _itemInfos[index].Item.OnDeselectedItem();
                         _currentIndex = -1;
                         _handler?.OnChangedCurrentItem(_currentIndex, CurrentItem);
@@ -260,6 +238,37 @@ namespace GameFramework.UISystems {
                     Select(index);
                 }
             }
+        }
+        
+        /// <summary>
+        /// 有効な項目を選択する
+        /// </summary>
+        /// <param name="startIndex">検索開始位置</param>
+        private bool SelectEnabledItem(int startIndex) {
+            // 対象を探す(後方向)
+            var found = false;
+            for (var i = startIndex; i < _itemInfos.Count; i++) {
+                var itemInfo = _itemInfos[i];
+                if (!itemInfo.Disabled) {
+                    Select(i);
+                    found = true;
+                    break;
+                }
+            }
+
+            // 対象を探す(前方向)
+            if (!found) {
+                for (var i = startIndex - 1; i >= 0; i--) {
+                    var itemInfo = _itemInfos[i];
+                    if (!itemInfo.Disabled) {
+                        Select(i);
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            return found;
         }
     }
 }
