@@ -57,6 +57,7 @@ namespace GameFramework.UISystems {
             itemInfo.Item = item;
             itemInfo.Disabled = disabled;
             _itemInfos.Add(itemInfo);
+            item.SetDisabled(disabled);
             if (CurrentItem == null && !disabled) {
                 _currentIndex = _itemInfos.Count - 1;
                 item.OnSelectedItem();
