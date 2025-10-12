@@ -12,5 +12,10 @@ namespace GameFramework.UISystems {
         /// 選択解除された時の通知
         /// </summary>
         void OnDeselectedItem();
+
+        /// <summary>
+        /// 無効状態の設定
+        /// </summary>
+        void SetDisabled(bool disabled);
     }
 }
