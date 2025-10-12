@@ -35,6 +35,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         public SelectableItemGroup(ISelectableItemGroupHandler handler = null) {
             _handler = handler;
+            _currentIndex = -1;
             _itemInfoPool = new ObjectPool<ItemInfo>(() => new ItemInfo(), actionOnRelease: info => {
                 info.Item = null;
                 info.Disabled = false;
