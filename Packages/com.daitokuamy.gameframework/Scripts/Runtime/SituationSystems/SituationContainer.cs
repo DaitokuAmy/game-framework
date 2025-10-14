@@ -200,7 +200,8 @@ namespace GameFramework.SituationSystems {
         }
 
         /// <inheritdoc/>
-        public TransitionHandle<Situation> Transition(Type key, TransitionOption option, bool back, TransitionStep endStep, Action<Situation> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        public TransitionHandle<Situation> Transition(Type key, TransitionOption option, bool back, TransitionStep endStep, Action<Situation> setupAction, ITransition transition,
+            params ITransitionEffect[] effects) {
             // Dynamic遷移可能な場合は専用処理に移動
             if (CheckDynamicType(Current, key)) {
                 return DynamicTransitionInternal(key, option, endStep, setupAction, transition, effects);
@@ -288,7 +289,19 @@ namespace GameFramework.SituationSystems {
             };
 
             // コルーチンの登録
-            _coroutineRunner.StartCoroutine(TransitionRoutine(next, setupAction, transition), () => _transitionInfo = null);
+            void FinishTransition() {
+                var transitionInfo = _transitionInfo;
+                _transitionInfo = null;
+                transitionInfo.SendFinish();
+            }
+
+            _coroutineRunner.StartCoroutine(TransitionRoutine(next, setupAction, transition),
+                FinishTransition,
+                FinishTransition,
+                ex => {
+                    DebugLog.Exception(ex);
+                    FinishTransition();
+                });
 
             // ハンドルの返却
             return new TransitionHandle<Situation>(_transitionInfo);
@@ -337,7 +350,19 @@ namespace GameFramework.SituationSystems {
             setupAction?.Invoke(Current);
 
             // コルーチンの登録
-            _coroutineRunner.StartCoroutine(transition.TransitionRoutine(this), () => { _transitionInfo = null; });
+            void FinishTransition() {
+                var transitionInfo = _transitionInfo;
+                _transitionInfo = null;
+                transitionInfo.SendFinish();
+            }
+
+            _coroutineRunner.StartCoroutine(transition.TransitionRoutine(this),
+                FinishTransition,
+                FinishTransition,
+                ex => {
+                    DebugLog.Exception(ex);
+                    FinishTransition();
+                });
 
             // ハンドルの返却
             return new TransitionHandle<Situation>(_transitionInfo);
@@ -360,7 +385,8 @@ namespace GameFramework.SituationSystems {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<Situation> Transition<TSituation>(TransitionOption option, bool back, TransitionStep endStep, Action<TSituation> setupAction, ITransition transition = null, params ITransitionEffect[] effects)
+        public TransitionHandle<Situation> Transition<TSituation>(TransitionOption option, bool back, TransitionStep endStep, Action<TSituation> setupAction, ITransition transition = null,
+            params ITransitionEffect[] effects)
             where TSituation : Situation {
             return Transition(typeof(TSituation), option, back, endStep, s => setupAction?.Invoke((TSituation)s), transition, effects);
         }
@@ -373,7 +399,8 @@ namespace GameFramework.SituationSystems {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<Situation> Transition<TSituation>(TransitionOption option, TransitionStep endStep, Action<TSituation> setupAction, ITransition transition = null, params ITransitionEffect[] effects)
+        public TransitionHandle<Situation> Transition<TSituation>(TransitionOption option, TransitionStep endStep, Action<TSituation> setupAction, ITransition transition = null,
+            params ITransitionEffect[] effects)
             where TSituation : Situation {
             return Transition(option, true, endStep, setupAction, transition, effects);
         }
@@ -659,7 +686,8 @@ namespace GameFramework.SituationSystems {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        private TransitionHandle<Situation> DynamicTransitionInternal(Type key, TransitionOption option, TransitionStep endStep, Action<Situation> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        private TransitionHandle<Situation> DynamicTransitionInternal(Type key, TransitionOption option, TransitionStep endStep, Action<Situation> setupAction, ITransition transition,
+            params ITransitionEffect[] effects) {
             var nextName = key.Name;
 
             if (IsTransitioning) {
@@ -713,7 +741,19 @@ namespace GameFramework.SituationSystems {
             };
 
             // コルーチンの登録
-            _coroutineRunner.StartCoroutine(TransitionRoutine(next, setupAction, transition), () => _transitionInfo = null);
+            void FinishTransition() {
+                var transitionInfo = _transitionInfo;
+                _transitionInfo = null;
+                transitionInfo.SendFinish();
+            }
+
+            _coroutineRunner.StartCoroutine(TransitionRoutine(next, setupAction, transition),
+                FinishTransition,
+                FinishTransition,
+                ex => {
+                    DebugLog.Exception(ex);
+                    FinishTransition();
+                });
 
             // ハンドルの返却
             return new TransitionHandle<Situation>(_transitionInfo);
@@ -956,10 +996,7 @@ namespace GameFramework.SituationSystems {
                 _runningSituations[^1].SetFocus(true);
             }
 
-            var transitionInfo = _transitionInfo;
-            _transitionInfo = null;
-            transitionInfo.State = TransitionState.Completed;
-            transitionInfo.SendFinish();
+            _transitionInfo.State = TransitionState.Completed;
         }
     }
 }

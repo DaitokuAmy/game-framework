@@ -85,7 +85,8 @@ namespace GameFramework.UISystems {
         }
 
         /// <inheritdoc/>
-        TransitionHandle<UIScreen> IStateContainer<string, UIScreen, Option>.Transition(string key, Option option, bool back, TransitionStep endStep, Action<UIScreen> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        TransitionHandle<UIScreen> IStateContainer<string, UIScreen, Option>.Transition(string key, Option option, bool back, TransitionStep endStep, Action<UIScreen> setupAction,
+            ITransition transition, params ITransitionEffect[] effects) {
             return TransitionInternal(key, option, back, setupAction, transition, effects);
         }
 
@@ -154,10 +155,8 @@ namespace GameFramework.UISystems {
                 effect.EndTransition();
             }
 
-            var transitionInfo = _transitionInfo;
-            _transitionInfo = null;
-            transitionInfo.State = TransitionState.Completed;
-            transitionInfo.SendFinish();
+            _transitionInfo.State = TransitionState.Completed;
+            _transitionInfo.SendFinish();
         }
 
         /// <summary>
@@ -287,10 +286,7 @@ namespace GameFramework.UISystems {
 
             // 要素を子として登録
             uIScreen.transform.SetParent(transform, false);
-            var childView = new ChildScreen {
-                key = childKey,
-                uiScreen = uIScreen
-            };
+            var childView = new ChildScreen { key = childKey, uiScreen = uIScreen };
             _cachedChildScreens[childKey] = childView;
             _childScreens.Add(childView);
         }
@@ -339,9 +335,9 @@ namespace GameFramework.UISystems {
             if (!IsTransitioning) {
                 return;
             }
-            
+
             var transitionInfo = _transitionInfo;
-            
+
             // ステートが完了していたら何もしない
             if (transitionInfo.State == TransitionState.Canceled || transitionInfo.State == TransitionState.Completed) {
                 return;
@@ -357,7 +353,7 @@ namespace GameFramework.UISystems {
             if (transitionInfo.Next != null) {
                 transitionInfo.Next.OpenAsync(transitionInfo.Direction, true);
             }
-            
+
             // 終了処理の呼び出し
             resolver.Finish();
 
@@ -367,6 +363,7 @@ namespace GameFramework.UISystems {
             }
 
             _transitionInfo = null;
+            transitionInfo?.SendFinish();
         }
 
         /// <summary>
@@ -407,12 +404,18 @@ namespace GameFramework.UISystems {
             transition ??= CrossTransition;
 
             // 遷移
+            void FinishTransition() {
+                var transitionInfo = _transitionInfo;
+                _transitionInfo = null;
+                transitionInfo.SendFinish();
+            }
+
             _transitionInfo.Coroutine = StartCoroutine(transition.TransitionRoutine(this, option?.Immediate ?? false),
-                () => { _transitionInfo = null; },
-                () => { _transitionInfo = null; },
+                FinishTransition,
+                FinishTransition,
                 ex => {
                     DebugLog.Exception(ex);
-                    _transitionInfo = null;
+                    FinishTransition();
                 });
 
             // ハンドルの返却
@@ -452,12 +455,18 @@ namespace GameFramework.UISystems {
             }
 
             // 遷移
+            void FinishTransition() {
+                var transitionInfo = _transitionInfo;
+                _transitionInfo = null;
+                transitionInfo.SendFinish();
+            }
+
             _transitionInfo.Coroutine = StartCoroutine(OutInTransition.TransitionRoutine(this),
-                () => { _transitionInfo = null; },
-                () => { _transitionInfo = null; },
+                FinishTransition,
+                FinishTransition,
                 ex => {
                     DebugLog.Exception(ex);
-                    _transitionInfo = null;
+                    FinishTransition();
                 });
 
             // ハンドルの返却
