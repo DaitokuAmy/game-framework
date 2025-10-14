@@ -154,8 +154,10 @@ namespace GameFramework.UISystems {
                 effect.EndTransition();
             }
 
-            _transitionInfo.State = TransitionState.Completed;
-            _transitionInfo.SendFinish();
+            var transitionInfo = _transitionInfo;
+            _transitionInfo = null;
+            transitionInfo.State = TransitionState.Completed;
+            transitionInfo.SendFinish();
         }
 
         /// <summary>

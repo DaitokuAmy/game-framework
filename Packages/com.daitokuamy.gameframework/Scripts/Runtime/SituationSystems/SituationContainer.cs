@@ -956,8 +956,10 @@ namespace GameFramework.SituationSystems {
                 _runningSituations[^1].SetFocus(true);
             }
 
-            _transitionInfo.State = TransitionState.Completed;
-            _transitionInfo.SendFinish();
+            var transitionInfo = _transitionInfo;
+            _transitionInfo = null;
+            transitionInfo.State = TransitionState.Completed;
+            transitionInfo.SendFinish();
         }
     }
 }
