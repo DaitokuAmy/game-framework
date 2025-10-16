@@ -1,4 +1,4 @@
-using GameFramework.ActorSystems;
+using System;
 using GameFramework.Core;
 using UnityEngine.SceneManagement;
 
@@ -53,6 +53,22 @@ namespace GameFramework.ActorSystems {
         public static ActorEntity RemoveScene(this ActorEntity source, bool dispose = true) {
             var component = source.AddOrGetComponent<SceneActorEntityComponent>();
             return component.RemoveScene(dispose);
+        }
+
+        /// <summary>
+        /// Disposableの追加
+        /// </summary>
+        public static ActorEntity AddDisposable(this ActorEntity source, IDisposable disposable) {
+            var component = source.AddOrGetComponent<DisposableActorEntityComponent>();
+            return component.Add(disposable);
+        }
+
+        /// <summary>
+        /// Disposableの除外
+        /// </summary>
+        public static ActorEntity RemoveDisposable(this ActorEntity source, IDisposable disposable, bool dispose = true) {
+            var component = source.AddOrGetComponent<DisposableActorEntityComponent>();
+            return component.Remove(disposable, dispose);
         }
 
         /// <summary>
