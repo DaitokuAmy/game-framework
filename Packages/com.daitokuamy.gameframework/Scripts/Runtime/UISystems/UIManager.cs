@@ -18,7 +18,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         public struct AssetHandle : IProcess, IDisposable {
             private readonly Exception _exception;
-            
+
             private UIManager _uIManager;
             private AssetInfo _assetInfo;
 
@@ -80,8 +80,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         internal abstract class AssetInfo {
             public readonly List<Type> ServiceTypes = new();
-            
-            public string Key;
+
             public bool Initialized;
             public Coroutine Coroutine;
             public Canvas[] RootCanvases;
@@ -97,7 +96,8 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// シーン情報
         /// </summary>
-        internal class SceneInfo : AssetInfo {
+        private class SceneInfo : AssetInfo {
+            public string Key;
             public SceneAssetHandle AssetHandle;
 
             public override bool IsDone => Initialized && AssetHandle.IsDone;
@@ -112,7 +112,8 @@ namespace GameFramework.UISystems {
         /// <summary>
         /// プレファブ情報
         /// </summary>
-        internal class PrefabInfo : AssetInfo {
+        private class PrefabInfo : AssetInfo {
+            public string Key;
             public AssetHandle<GameObject> AssetHandle;
 
             public override bool IsDone => Initialized && AssetHandle.IsDone;
@@ -123,12 +124,27 @@ namespace GameFramework.UISystems {
             }
         }
 
+        /// <summary>
+        /// ゲームオブジェクト情報
+        /// </summary>
+        private class GameObjectInfo : AssetInfo {
+            public GameObject Key;
+            
+            public override bool IsDone => true;
+            public override Exception Exception => null;
+
+            public override void Release() {
+            }
+        }
+
         // UIService管理用
         private readonly Dictionary<Type, IUIService> _services = new();
         // シーン管理用
         private readonly Dictionary<string, SceneInfo> _sceneInfos = new();
         // プレファブ管理用
         private readonly Dictionary<string, PrefabInfo> _prefabInfos = new();
+        // ゲームオブジェクト管理用
+        private readonly Dictionary<GameObject, GameObjectInfo> _gameobjectInfos = new();
 
         // コルーチン制御
         private CoroutineRunner _coroutineRunner;
@@ -148,6 +164,10 @@ namespace GameFramework.UISystems {
             }
 
             foreach (var info in _prefabInfos.Values.ToArray()) {
+                RemoveAssetInfo(info);
+            }
+
+            foreach (var info in _gameobjectInfos.Values.ToArray()) {
                 RemoveAssetInfo(info);
             }
 
@@ -203,16 +223,16 @@ namespace GameFramework.UISystems {
             }
 
             // 既に読み込みしている
-            if (_sceneInfos.TryGetValue(assetKey, out var sceneInfo)) {
-                return new AssetHandle(this, sceneInfo);
+            if (_sceneInfos.TryGetValue(assetKey, out var assetInfo)) {
+                return new AssetHandle(this, assetInfo);
             }
 
             // 読み込み処理
             var handle = _loader.GetSceneAssetHandle(assetKey);
-            sceneInfo = new SceneInfo();
-            sceneInfo.Key = assetKey;
-            sceneInfo.AssetHandle = handle;
-            _sceneInfos.Add(assetKey, sceneInfo);
+            assetInfo = new SceneInfo();
+            assetInfo.Key = assetKey;
+            assetInfo.AssetHandle = handle;
+            _sceneInfos.Add(assetKey, assetInfo);
 
             IEnumerator Routine() {
                 while (!handle.IsDone) {
@@ -241,21 +261,21 @@ namespace GameFramework.UISystems {
                             continue;
                         }
 
-                        sceneInfo.ServiceTypes.Add(serviceType);
+                        assetInfo.ServiceTypes.Add(serviceType);
                         _services[serviceType] = service;
                         service.Initialize();
                     }
                 }
 
-                sceneInfo.RootCanvases = rootCanvases.ToArray();
-                sceneInfo.Initialized = true;
+                assetInfo.RootCanvases = rootCanvases.ToArray();
+                assetInfo.Initialized = true;
             }
 
             // コルーチンの開始
             var coroutine = _coroutineRunner.StartCoroutine(Routine());
-            sceneInfo.Coroutine = coroutine;
+            assetInfo.Coroutine = coroutine;
 
-            return new AssetHandle(this, sceneInfo);
+            return new AssetHandle(this, assetInfo);
         }
 
         /// <summary>
@@ -268,16 +288,16 @@ namespace GameFramework.UISystems {
             }
 
             // 既に読み込みしている
-            if (_prefabInfos.TryGetValue(assetKey, out var prefabInfo)) {
-                return new AssetHandle(this, prefabInfo);
+            if (_prefabInfos.TryGetValue(assetKey, out var assetInfo)) {
+                return new AssetHandle(this, assetInfo);
             }
 
             // 読み込み処理
             var handle = _loader.GetPrefabAssetHandle(assetKey);
-            prefabInfo = new PrefabInfo();
-            prefabInfo.Key = assetKey;
-            prefabInfo.AssetHandle = handle;
-            _prefabInfos.Add(assetKey, prefabInfo);
+            assetInfo = new PrefabInfo();
+            assetInfo.Key = assetKey;
+            assetInfo.AssetHandle = handle;
+            _prefabInfos.Add(assetKey, assetInfo);
 
             IEnumerator Routine() {
                 while (!handle.IsDone) {
@@ -298,29 +318,57 @@ namespace GameFramework.UISystems {
                         continue;
                     }
 
-                    prefabInfo.ServiceTypes.Add(serviceType);
+                    assetInfo.ServiceTypes.Add(serviceType);
                     _services[serviceType] = service;
                     service.Initialize();
                 }
 
-                prefabInfo.RootCanvases = instance.GetComponentsInChildren<Canvas>()
+                assetInfo.RootCanvases = instance.GetComponentsInChildren<Canvas>()
                     .Where(x => x.transform.parent is not RectTransform)
                     .ToArray();
-                prefabInfo.Initialized = true;
+                assetInfo.Initialized = true;
             }
 
             // コルーチンの開始
             var coroutine = _coroutineRunner.StartCoroutine(Routine());
-            prefabInfo.Coroutine = coroutine;
+            assetInfo.Coroutine = coroutine;
 
-            return new AssetHandle(this, prefabInfo);
+            return new AssetHandle(this, assetInfo);
         }
 
         /// <summary>
-        /// 読み込んだアセットのアンロード
+        /// ゲームオブジェクト単位でのUIServiceの追加
         /// </summary>
-        public void Unload(AssetHandle handle) {
-            handle.Dispose();
+        public AssetHandle AddGameObject(GameObject gameObject) {
+            // 既に登録済み
+            if (_gameobjectInfos.TryGetValue(gameObject, out var assetInfo)) {
+                return new AssetHandle(this, assetInfo);
+            }
+            
+            // 登録処理
+            assetInfo = new GameObjectInfo();
+            assetInfo.Key = gameObject;
+            _gameobjectInfos.Add(gameObject, assetInfo);
+            
+            // サービスの初期化
+            var services = gameObject.GetComponentsInChildren<IUIService>();
+            foreach (var service in services) {
+                var serviceType = service.GetType();
+                if (_services.ContainsKey(serviceType)) {
+                    Debug.LogWarning($"Already exists service type. [{serviceType}]");
+                    continue;
+                }
+
+                _services[serviceType] = service;
+                service.Initialize();
+
+                assetInfo.RootCanvases = gameObject.GetComponentsInChildren<Canvas>()
+                    .Where(x => x.transform.parent is not RectTransform)
+                    .ToArray();
+                assetInfo.Initialized = true;
+            }
+
+            return new AssetHandle(this, assetInfo);
         }
 
         /// <summary>
@@ -341,6 +389,7 @@ namespace GameFramework.UISystems {
         public Canvas[] GetCanvases() {
             return _prefabInfos.SelectMany(x => x.Value.RootCanvases)
                 .Concat(_sceneInfos.SelectMany(x => x.Value.RootCanvases))
+                .Concat(_gameobjectInfos.SelectMany(x => x.Value.RootCanvases))
                 .ToArray();
         }
 
@@ -348,13 +397,18 @@ namespace GameFramework.UISystems {
         /// AssetInfoの削除
         /// </summary>
         private void RemoveAssetInfo(AssetInfo assetInfo) {
-            if (assetInfo is SceneInfo) {
-                if (!_sceneInfos.Remove(assetInfo.Key)) {
+            if (assetInfo is SceneInfo sceneInfo) {
+                if (!_sceneInfos.Remove(sceneInfo.Key)) {
                     return;
                 }
             }
-            else if (assetInfo is PrefabInfo) {
-                if (!_prefabInfos.Remove(assetInfo.Key)) {
+            else if (assetInfo is PrefabInfo prefabInfo) {
+                if (!_prefabInfos.Remove(prefabInfo.Key)) {
+                    return;
+                }
+            }
+            else if (assetInfo is GameObjectInfo gameObjectInfo) {
+                if (!_gameobjectInfos.Remove(gameObjectInfo.Key)) {
                     return;
                 }
             }
