@@ -7,6 +7,8 @@ namespace GameFramework.ActorSystems {
     /// </summary>
     [Preserve]
     public sealed class SceneActorEntityComponent : ActorEntityComponent {
+        private bool _autoDispose;
+        
         /// <summary>シーン</summary>
         public Scene Scene { get; private set; } = default;
 
@@ -14,24 +16,24 @@ namespace GameFramework.ActorSystems {
         /// Sceneの設定
         /// </summary>
         /// <param name="scene">設定するScene</param>
-        /// <param name="prevDispose">既に設定されているSceneをRemoveするか</param>
-        public ActorEntity SetScene(Scene scene, bool prevDispose = true) {
+        /// <param name="autoDispose">Dispose時に自動削除するか</param>
+        public ActorEntity SetScene(Scene scene, bool autoDispose = true) {
             if (Scene.IsValid()) {
-                if (prevDispose) {
+                if (_autoDispose) {
                     SceneManager.UnloadSceneAsync(Scene);
                 }
             }
 
             Scene = scene;
+            _autoDispose = autoDispose;
             return Entity;
         }
 
         /// <summary>
         /// Sceneの削除
         /// </summary>
-        /// <param name="dispose">SceneをDisposeするか</param>
-        public ActorEntity RemoveScene(bool dispose = true) {
-            return SetScene(default, dispose);
+        public ActorEntity RemoveScene() {
+            return SetScene(default, false);
         }
 
         /// <summary>

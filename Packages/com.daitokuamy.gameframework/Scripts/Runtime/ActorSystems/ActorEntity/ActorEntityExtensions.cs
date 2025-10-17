@@ -42,17 +42,17 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// Sceneの設定
         /// </summary>
-        public static ActorEntity SetScene(this ActorEntity source, Scene scene, bool prevDispose = true) {
+        public static ActorEntity SetScene(this ActorEntity source, Scene scene, bool autoDispose = true) {
             var component = source.AddOrGetComponent<SceneActorEntityComponent>();
-            return component.SetScene(scene, prevDispose);
+            return component.SetScene(scene, autoDispose);
         }
 
         /// <summary>
-        /// Sceneの設定
+        /// Sceneの削除
         /// </summary>
-        public static ActorEntity RemoveScene(this ActorEntity source, bool dispose = true) {
+        public static ActorEntity RemoveScene(this ActorEntity source) {
             var component = source.AddOrGetComponent<SceneActorEntityComponent>();
-            return component.RemoveScene(dispose);
+            return component.RemoveScene();
         }
 
         /// <summary>
