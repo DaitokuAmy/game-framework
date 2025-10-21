@@ -18,11 +18,17 @@ namespace ThirdPersonEngine.Editor {
             EditorSceneManager.sceneSaved += OnSceneSaved;
         }
 
+        [MenuItem("Tools/Dynamic Font Cleaner/Clear Dynamic Font Caches")]
+        private static void ClearDynamicFontCaches() {
+            RefreshFontAssets();
+            AssetDatabase.SaveAssets();
+        }
+
         /// <summary>
         /// プレイモードが変更された際の通知
         /// </summary>
         private static void OnPlayModeStateChanged(PlayModeStateChange state) {
-            if (state == PlayModeStateChange.ExitingPlayMode) {
+            if (state == PlayModeStateChange.EnteredEditMode) {
                 RefreshFontAssets();
             }
         }
