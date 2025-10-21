@@ -359,6 +359,7 @@ namespace GameFramework.UISystems {
                     continue;
                 }
 
+                assetInfo.ServiceTypes.Add(serviceType);
                 _services[serviceType] = service;
                 service.Initialize();
 
