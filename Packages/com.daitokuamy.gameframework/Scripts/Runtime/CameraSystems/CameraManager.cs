@@ -610,6 +610,15 @@ namespace GameFramework.CameraSystems {
         }
 
         /// <summary>
+        /// カメラの状態をリフレッシュ
+        /// </summary>
+        public void Refresh() {
+            _brain.ManualUpdate();
+            _brain.enabled = false;
+            _brain.enabled = true;
+        }
+
+        /// <summary>
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
