@@ -9,14 +9,19 @@ namespace SampleGame.Lifecycle {
     /// ランタイムの動作の基盤となるSituation
     /// </summary>
     public class MainSituation : Situation {
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
+        protected override IEnumerator LoadRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
+            yield return base.LoadRoutineInternal(handle, scope);
+        }
+
+        /// <inheritdoc/>
         protected override IEnumerator SetupRoutineInternal(TransitionHandle<Situation> handle, IScope scope) {
             yield return base.SetupRoutineInternal(handle, scope);
 
             // スリープ禁止
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
+            // FPS初期化
+            UnityEngine.Application.targetFrameRate = 60;
         }
     }
 }

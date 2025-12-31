@@ -1,5 +1,3 @@
-using GameFramework.Core;
-
 #if USE_R3
 using R3;
 #endif
@@ -9,7 +7,7 @@ using System;
 using UniRx;
 #endif
 
-namespace GameFramework {
+namespace GameFramework.Core {
     /// <summary>
     /// IScope用のRx拡張メソッド
     /// </summary>
@@ -19,7 +17,7 @@ namespace GameFramework {
         /// IDisposableのScope登録
         /// </summary>
         public static Observable<T> TakeUntil<T>(this Observable<T> self, IScope scope) {
-            return self.TakeUntil(R3.Observable.FromEvent(h => scope.ExpiredEvent += h, h => scope.ExpiredEvent -= h));
+            return self.TakeUntil(Observable.FromEvent(h => scope.ExpiredEvent += h, h => scope.ExpiredEvent -= h));
         }
 #endif
 #if USE_UNI_RX

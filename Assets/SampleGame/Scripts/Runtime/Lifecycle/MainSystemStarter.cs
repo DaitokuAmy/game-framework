@@ -1,26 +1,34 @@
 using System;
 using GameFramework;
+using GameFramework.SituationSystems;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// メインシステム起動用のStarter基底
     /// </summary>
-    public abstract class MainSystemStarter : GameFramework.MainSystemStarter {
-        /// <summary>
-        /// MainSystem開始引数の取得
-        /// </summary>
-        public sealed override object[] GetArguments() => new object[] { GetSituationSetup(), GetStartTransitionEffects() };
+    public abstract class MainSystemStarter : GameFramework.BootSystems.MainSystemStarter {
+        /// <summary>MainSystem開始引数の取得</summary>
+        public sealed override object[] GetArguments() => new object[] { CreateStartArgs() };
+        
+        /// <summary>開始時に再生するSituationType</summary>
+        protected abstract Type SituationType { get; }
+        /// <summary>開始時の遷移タイプ</summary>
+        protected virtual SituationService.TransitionType TransitionType => SituationService.TransitionType.SceneDefault;
 
         /// <summary>
-        /// 開始Situationのセットアップ処理の取得
+        /// Situationセットアップ処理
         /// </summary>
-        protected abstract ISituationSetup GetSituationSetup();
+        protected virtual void OnSituationSetup(Situation situation) {}
 
         /// <summary>
-        /// 開始遷移エフェクトの取得
+        /// 開始引数の生成
         /// </summary>
-        protected virtual ITransitionEffect[] GetStartTransitionEffects() {
-            return Array.Empty<ITransitionEffect>();
+        private MainSystem.StartArgs CreateStartArgs() {
+            return new MainSystem.StartArgs {
+                SituationType = SituationType,
+                SetupAction = OnSituationSetup,
+                TransitionType = TransitionType
+            };
         }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+using GameFramework.SituationSystems;
 using UnityEngine;
 
 namespace SampleGame.Lifecycle {
@@ -9,11 +11,15 @@ namespace SampleGame.Lifecycle {
         private int _battleId = 1;
         [SerializeField, Tooltip("開始プレイヤーId")]
         private int _playerId = 1;
-        
-        protected override ISituationSetup GetSituationSetup() {
-            return new SituationSetup<BattleSceneSituation>(situation => {
-                situation.Setup(_battleId, _playerId);
-            });
+
+        /// <inheritdoc/>
+        protected override Type SituationType => typeof(BattleSceneSituation);
+
+        /// <inheritdoc/>
+        protected override void OnSituationSetup(Situation situation) {
+            if (situation is BattleSceneSituation battleSceneSituation) {
+                battleSceneSituation.Setup(_battleId, _playerId);
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ namespace GameFramework.Core {
             ExpiredEvent?.InvokeDescending();
             ExpiredEvent = null;
             _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
             _cancellationTokenSource = new CancellationTokenSource();
         }
 

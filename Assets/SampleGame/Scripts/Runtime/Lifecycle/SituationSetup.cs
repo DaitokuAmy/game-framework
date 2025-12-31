@@ -6,23 +6,20 @@ namespace SampleGame.Lifecycle {
     /// Situationの初期化処理のインタフェース
     /// </summary>
     public interface ISituationSetup {
-        /// <summary>
-        /// Situationのタイプ
-        /// </summary>
+        /// <summary>Situationのタイプ</summary>
         Type SituationType { get; }
 
-        /// <summary>
-        /// Situationのセットアップ処理
-        /// </summary>
+        /// <summary>Situationのセットアップ処理</summary>
         void OnSetup(Situation situation);
     }
 
     /// <summary>
     /// Situationの初期化処理
     /// </summary>
-    public class SituationSetup<T> : ISituationSetup where T : Situation {
+    public class SituationSetup<T> : ISituationSetup
+        where T : Situation {
         Type ISituationSetup.SituationType => typeof(T);
-        
+
         private readonly Action<T> _setupAction;
 
         /// <summary>

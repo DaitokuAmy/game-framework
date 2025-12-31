@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.AssetSystems;
+using GameFramework.BootSystems;
 using GameFramework.Core;
 using GameFramework.EnvironmentSystems;
 using GameFramework.SituationSystems;
@@ -18,7 +20,25 @@ namespace SampleGame.Lifecycle {
     /// アプリケーションのメインシステム
     /// </summary>
     [DefaultExecutionOrder(-1)]
-    public partial class MainSystem : MainSystem<MainSystem> {
+    public partial class MainSystem : MainSystemBase {
+        /// <summary>
+        /// スタート時の引数
+        /// </summary>
+        public struct StartArgs {
+            public Type SituationType;
+            public Action<Situation> SetupAction;
+            public SituationService.TransitionType TransitionType;
+        }
+
+        /// <summary>
+        /// リブート時の引数
+        /// </summary>
+        public struct RebootArgs {
+            public Type SituationType;
+            public Action<Situation> SetupAction;
+            public SituationService.TransitionType TransitionType;
+        }
+
         [SerializeField]
         private ServiceContainerInstaller _globalObject;
 
@@ -26,30 +46,10 @@ namespace SampleGame.Lifecycle {
         private SituationService _situationService;
         private IServiceContainer _globalServiceContainer;
 
-        /// <summary>
-        /// Reboot処理
-        /// </summary>
-        protected override IEnumerator RebootRoutineInternal(object[] args) {
-            // Scene用のContainerの作成しなおし
-            _globalServiceContainer.Remove<SituationService>();
-            _situationService = new SituationService(_globalServiceContainer);
-            _situationService.Initialize();
-            _situationService.RegisterTask(TaskOrder.Logic);
-            _globalServiceContainer.RegisterInstance<ISituationService>(_situationService);
-
-            // 開始Situationへの遷移
-            yield return TransitionStartSituation(args);
-        }
-
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
-        protected override IEnumerator StartRoutineInternal(object[] args) {
+        /// <inheritdoc/>
+        protected override void PreStartInternal(object[] args) {
             _globalServiceContainer = new ServiceContainer(label: "Global");
-            
-            // FPS初期化
-            UnityEngine.Application.targetFrameRate = 60;
-            
+
             // DeltaTimeProvider初期化
             LayeredTime.DefaultProvider = new UnityDeltaTimeProvider();
 
@@ -65,6 +65,11 @@ namespace SampleGame.Lifecycle {
             var environmentManager = new EnvironmentManager(new EnvironmentResolver());
             environmentManager.RegisterTask(TaskOrder.PostSystem);
             _globalServiceContainer.RegisterInstance(environmentManager);
+        }
+
+        /// <inheritdoc/>
+        protected override IEnumerator StartRoutineInternal(object[] args) {
+            var startArgs = ParseStartArgs(args);
 
             // Addressables初期化
             yield return Addressables.InitializeAsync();
@@ -77,6 +82,9 @@ namespace SampleGame.Lifecycle {
             uiManager.Initialize(new UIAssetLoader(assetManager));
             uiManager.RegisterTask(TaskOrder.UI);
             _globalServiceContainer.RegisterInstance(uiManager);
+            
+            // 常駐UI読み込み
+            yield return uiManager.LoadPrefabAsync("resident");
 
             // SituationServiceの初期化
             _situationService = new SituationService(_globalServiceContainer);
@@ -87,42 +95,90 @@ namespace SampleGame.Lifecycle {
             // Debug初期化
             SetupDebug();
 
-            // 常駐UIの読み込み
-            yield return uiManager.LoadPrefabAsync("resident");
-            
             // Utility初期化
             ResidentUIUtility.Initialize(_globalServiceContainer);
             DialogUIUtility.Initialize(_globalServiceContainer);
 
             // 開始Situationへの遷移
-            yield return TransitionStartSituation(args);
+            _situationService.Transition(startArgs.SituationType, startArgs.SetupAction, startArgs.TransitionType);
+        }
+
+        /// <inheritdoc/>
+        protected override IEnumerator RebootRoutineInternal(object[] args) {
+            var rebootArgs = ParseRebootArgs(args);
+            
+            // Scene用のContainerの作成しなおし
+            _globalServiceContainer.Remove<SituationService>();
+            _situationService = new SituationService(_globalServiceContainer);
+            _situationService.Initialize();
+            _situationService.RegisterTask(TaskOrder.Logic);
+            _globalServiceContainer.RegisterInstance<ISituationService>(_situationService);
+
+            // 開始Situationへの遷移
+            _situationService.Transition(rebootArgs.SituationType, rebootArgs.SetupAction, rebootArgs.TransitionType);
+            
+            yield break;
+        }
+
+        /// <summary>
+        /// Start時引数の解析
+        /// </summary>
+        private StartArgs ParseStartArgs(object[] args) {
+            var startArgs = new StartArgs();
+            if (args.Length > 0) {
+                startArgs = (StartArgs)args[0];
+            }
+            else {
+                startArgs.SituationType = typeof(TitleTopSituation);
+                startArgs.SetupAction = null;
+                startArgs.TransitionType = SituationService.TransitionType.SceneDefault;
+            }
+
+            return startArgs;
+        }
+
+        /// <summary>
+        /// Reboot時引数の解析
+        /// </summary>
+        private RebootArgs ParseRebootArgs(object[] args) {
+            var rebootArgs = new RebootArgs();
+            if (args.Length > 0) {
+                rebootArgs = (RebootArgs)args[0];
+            }
+            else {
+                rebootArgs.SituationType = typeof(TitleTopSituation);
+                rebootArgs.SetupAction = null;
+                rebootArgs.TransitionType = SituationService.TransitionType.SceneDefault;
+            }
+
+            return rebootArgs;
         }
 
         /// <summary>
         /// Update処理
         /// </summary>
-        protected override void UpdateInternal() {
+        private void Update() {
             _taskRunner.Update();
         }
 
         /// <summary>
         /// LateUpdate処理
         /// </summary>
-        protected override void LateUpdateInternal() {
+        private void LateUpdate() {
             _taskRunner.LateUpdate();
         }
 
         /// <summary>
         /// FixedUpdate処理
         /// </summary>
-        protected override void FixedUpdateInternal() {
+        private void FixedUpdate() {
             _taskRunner.FixedUpdate();
         }
 
         /// <summary>
         /// 破棄処理
         /// </summary>
-        protected override void OnDestroyInternal() {
+        private void OnDestroy() {
             OnApplicationQuit();
         }
 
@@ -132,33 +188,6 @@ namespace SampleGame.Lifecycle {
         private void OnApplicationQuit() {
             CleanupDebug();
             _globalServiceContainer.Dispose();
-        }
-
-        /// <summary>
-        /// 開始Situationへ遷移する
-        /// </summary>
-        private TransitionHandle<Situation> TransitionStartSituation(object[] args) {
-            ParseArguments(args, out var situationType, out var onSetup);
-            return _situationService.Transition(situationType, onSetup, SituationService.TransitionType.SceneDefault);
-        }
-
-        /// <summary>
-        /// 引数をパースする
-        /// </summary>
-        private void ParseArguments(object[] args, out Type situationType, out Action<Situation> onSetup) {
-            situationType = typeof(TitleTopSituation);
-            onSetup = null;
-
-            // Entry経由
-            if (args.Length <= 0) {
-                return;
-            }
-
-            // StarterのSituation指定あり
-            if (args[0] is ISituationSetup situationSetup) {
-                situationType = situationSetup.SituationType;
-                onSetup = situationSetup.OnSetup;
-            }
         }
     }
 }
