@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
+using VContainer;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -31,8 +32,8 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(IModelRepository modelRepository, ICharacterActorFactory characterActorFactory, IFieldActorFactory fieldActorFactory) {
+        [Inject]
+        private void Construct(IModelRepository modelRepository, ICharacterActorFactory characterActorFactory, IFieldActorFactory fieldActorFactory) {
             _modelRepository = modelRepository;
             _characterActorFactory = characterActorFactory;
             _fieldActorFactory = fieldActorFactory;

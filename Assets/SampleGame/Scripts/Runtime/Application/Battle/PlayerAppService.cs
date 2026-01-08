@@ -2,6 +2,7 @@ using System;
 using GameFramework.Core;
 using SampleGame.Domain.Battle;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.Application.Battle {
     /// <summary>
@@ -10,9 +11,9 @@ namespace SampleGame.Application.Battle {
     public class PlayerAppService : IDisposable {
         private DisposableScope _scope;
         
-        [ServiceInject]
+        [Inject]
         private BattleDomainService _battleDomainService;
-        [ServiceInject]
+        [Inject]
         private CharacterDomainService _characterDomainService;
 
         /// <summary>プレイヤーモデル</summary>

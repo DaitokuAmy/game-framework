@@ -13,8 +13,6 @@ namespace GameFramework {
             public TransitionDirection Direction;
             /// <summary>遷移状態</summary>
             public TransitionState State;
-            /// <summary>遷移終了ステップ</summary>
-            public TransitionStep EndStep;
             /// <summary>遷移前のState情報</summary>
             public string PrevStateInfo;
             /// <summary>遷移後のState情報</summary>

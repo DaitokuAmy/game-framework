@@ -6,15 +6,16 @@ using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure;
 using ThirdPersonEngine;
 using ThirdPersonEngine.ModelViewer;
+using VContainer;
 
 namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// 環境生成クラス
     /// </summary>
     public class EnvironmentActorFactory : IEnvironmentActorFactory {
-        [ServiceInject]
+        [Inject]
         private EnvironmentSceneRepository _environmentSceneRepository;
-        [ServiceInject]
+        [Inject]
         private ActorEntityManager _actorEntityManager;
 
         /// <summary>

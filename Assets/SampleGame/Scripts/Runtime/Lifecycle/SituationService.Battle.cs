@@ -8,21 +8,21 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// Battle関連のSituationService処理
     /// </summary>
-    partial class SituationService {
+    partial class AppNavigator {
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionBattle() {
+        IProcess IAppNavigator.TransitionBattle() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<OutGameSceneSituation>()) {
+            if (!CheckParentSituation<OutGameSceneSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
-            return Transition<BattleSceneSituation>(transitionType: transitionType);
+            return Transition<BattleSceneSessionNode>(transitionType: transitionType);
         }
 
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionBattlePause() {
+        IProcess IAppNavigator.TransitionBattlePause() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<OutGameSceneSituation>()) {
+            if (!CheckParentSituation<OutGameSceneSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
@@ -33,7 +33,7 @@ namespace SampleGame.Lifecycle {
         /// Battle関連のSituationの初期化
         /// </summary>
         private void SetupBattleSituations(Situation parentSituation) {
-            var battleSceneSituation = new BattleSceneSituation();
+            var battleSceneSituation = new BattleSceneSessionNode();
             battleSceneSituation.SetParent(parentSituation);
             var battlePauseSituation = new BattlePauseSituation();
             battlePauseSituation.SetParent(battleSceneSituation);
@@ -43,7 +43,7 @@ namespace SampleGame.Lifecycle {
         /// Battle関連のTreeNode初期化
         /// </summary>
         private StateTreeNode<Type> SetupBattleTreeNodes(StateTreeNode<Type> parentNode) {
-            var battleNode = ConnectNode<BattleSceneSituation>(parentNode);
+            var battleNode = ConnectNode<BattleSceneSessionNode>(parentNode);
             var battlePauseNode = ConnectNode<BattlePauseSituation>(battleNode);
             var optionNode = ConnectNode<OptionSituation>(battlePauseNode);
             return battleNode;

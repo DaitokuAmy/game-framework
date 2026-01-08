@@ -6,19 +6,7 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationServiceのstaticメソッド機能置き場
     /// </summary>
-    public partial class SituationService {
-        /// <summary>
-        /// Transitionの種類
-        /// </summary>
-        public enum TransitionType {
-            /// <summary>通常画面遷移</summary>
-            ScreenDefault,
-            /// <summary>クロス画面遷移</summary>
-            ScreenCross,
-            /// <summary>通常シーン遷移</summary>
-            SceneDefault,
-        }
-
+    public partial class AppNavigator {
         private static ITransition OutInTransition => new OutInTransition();
         private static ITransition CrossTransition => new CrossTransition();
         private static ITransitionEffect[] BlockOnlyEffects => new ITransitionEffect[] { new BlockTransitionEffect() };

@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using SampleGame.Domain.ModelViewer;
 using ThirdPersonEngine;
+using VContainer;
 
 namespace SampleGame.Application.ModelViewer {
     /// <summary>
@@ -27,9 +28,9 @@ namespace SampleGame.Application.ModelViewer {
 
         private DisposableScope _scope;
 
-        [ServiceInject]
+        [Inject]
         private ModelViewerDomainService _domainService;
-        [ServiceInject]
+        [Inject]
         private IModelViewerTableRepository _tableRepository;
 
         public IReadOnlyModelViewerDomainService DomainService => _domainService;

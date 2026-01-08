@@ -4,7 +4,7 @@ namespace SampleGame.Application {
     /// <summary>
     /// IntroductionのSituation遷移に関するサービスインターフェース
     /// </summary>
-    partial interface ISituationService {
+    partial interface IAppNavigator {
         /// <summary>
         /// タイトルトップへの遷移
         /// </summary>

@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
+using VContainer;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>
@@ -24,11 +25,11 @@ namespace SampleGame.Domain.ModelViewer {
     public class ModelViewerDomainService : IDisposable, IReadOnlyModelViewerDomainService {
         private DisposableScope _scope;
         
-        [ServiceInject]
+        [Inject]
         private IModelRepository _modelRepository;
-        [ServiceInject]
+        [Inject]
         private IEnvironmentActorFactory _environmentActorFactory;
-        [ServiceInject]
+        [Inject]
         private IPreviewActorFactory _previewActorFactory;
 
         /// <summary>モデルビューア全体管理用モデル</summary>

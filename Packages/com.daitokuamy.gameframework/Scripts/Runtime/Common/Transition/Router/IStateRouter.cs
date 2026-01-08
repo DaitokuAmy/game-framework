@@ -19,15 +19,20 @@ namespace GameFramework {
         TKey[] GetStateKeys();
         
         /// <summary>
+        /// 戻り先のステートキー
+        /// </summary>
+        /// <param name="depth">戻る深さ</param>
+        TKey GetBackStateKey(int depth = 1);
+        
+        /// <summary>
         /// 遷移処理
         /// </summary>
         /// <param name="key">遷移ターゲットを決めるキー</param>
         /// <param name="option">遷移時に渡すオプション</param>
-        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        TransitionHandle<TState> Transition(TKey key, TOption option = default, TransitionStep step = TransitionStep.Complete, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects);
+        TransitionHandle<TState> TransitionTo(TKey key, TOption option = default, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects);
         
         /// <summary>
         /// 戻り遷移処理

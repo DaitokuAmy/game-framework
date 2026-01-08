@@ -1,12 +1,11 @@
 using System;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VContainer;
 
 namespace SampleGame.Infrastructure {
     /// <summary>
@@ -15,7 +14,7 @@ namespace SampleGame.Infrastructure {
     public class EnvironmentSceneRepository : IDisposable {
         private readonly DisposableScope _scope;
 
-        private IServiceResolver _serviceResolver;
+        private IObjectResolver _objectResolver;
         private SimpleSceneAssetStorage _environmentSceneAssetStorage;
 
         /// <summary>
@@ -35,9 +34,9 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(IServiceResolver serviceResolver, AssetManager assetManager) {
-            _serviceResolver = serviceResolver;
+        [Inject]
+        private void Construct(IObjectResolver objectResolver, AssetManager assetManager) {
+            _objectResolver = objectResolver;
             _environmentSceneAssetStorage = new SimpleSceneAssetStorage(assetManager).RegisterTo(_scope);
         }
 
@@ -70,13 +69,6 @@ namespace SampleGame.Infrastructure {
             }
 
             await handle.ActivateAsync().ToUniTask(cancellationToken: ct);
-
-            var injectors = handle.Scene.GetRootGameObjects()
-                .SelectMany(x => x.GetComponentsInChildren<ServiceInjector>())
-                .ToArray();
-            foreach (var injector in injectors) {
-                injector.Inject(_serviceResolver);
-            }
 
             return handle.Scene;
         }

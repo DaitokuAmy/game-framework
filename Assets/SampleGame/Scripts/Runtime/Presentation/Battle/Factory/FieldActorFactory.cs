@@ -8,6 +8,7 @@ using SampleGame.Domain.Battle;
 using SampleGame.Infrastructure;
 using ThirdPersonEngine;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.Presentation.Battle {
     /// <summary>
@@ -22,11 +23,11 @@ namespace SampleGame.Presentation.Battle {
             }
         }
         
-        [ServiceInject]
-        private IServiceResolver _serviceResolver;
-        [ServiceInject]
+        [Inject]
+        private IObjectResolver _objectResolver;
+        [Inject]
         private EnvironmentSceneRepository _environmentSceneRepository;
-        [ServiceInject]
+        [Inject]
         private ActorEntityManager _actorEntityManager;
 
         /// <summary>
@@ -53,7 +54,7 @@ namespace SampleGame.Presentation.Battle {
 
             // adapter
             var adapter = new FieldActorAdapter(scene, model);
-            _serviceResolver.Inject(adapter);
+            _objectResolver.Inject(adapter);
             adapter.RegisterTask(TaskOrder.Logic);
 
             // entity

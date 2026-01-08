@@ -1,25 +1,33 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using GameFramework;
 using GameFramework.Core;
-using GameFramework.SituationSystems;
+using GameFramework.NavigationSystems;
 using GameFramework.UISystems;
+using SampleGame.Application;
+using VContainer;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
-    /// UIScreenを制御する前提のSituation基底
+    /// UIScreenを制御する前提のScreenNode基底
     /// </summary>
-    public abstract class ScreenSituation<TUIService> : Situation
+    public abstract class ScreenNode<TUIService> : ScreenNode
         where TUIService : UIService {
         private readonly List<AnimationHandle> _animationHandles = new();
         private readonly List<UIScreen> _screens = new();
+        
+        /// <summary>UI管理クラス</summary>
+        [Inject]
+        protected UIManager UIManager { get; private set; }
+        /// <summary>アプリ遷移制御クラス</summary>
+        [Inject]
+        protected IAppNavigator AppNavigator { get; private set; }
 
         /// <summary>利用するサービスへの参照</summary>
-        protected TUIService UIService => ServiceResolver.Resolve<UIManager>().GetService<TUIService>();
+        protected TUIService UIService => UIManager.GetService<TUIService>();
 
         /// <inheritdoc/>
-        protected override IEnumerator OpenRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
+        protected override IEnumerator OpenRoutine(TransitionHandle<INavNode> handle, IScope animationScope) {
             _screens.Clear();
             GetScreens(UIService, _screens);
 
@@ -34,7 +42,7 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        protected override void PostOpenInternal(TransitionHandle<Situation> handle, IScope scope) {
+        protected override void PostOpen(TransitionHandle<INavNode> handle) {
             _screens.Clear();
             GetScreens(UIService, _screens);
 
@@ -44,7 +52,7 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        protected override IEnumerator CloseRoutineInternal(TransitionHandle<Situation> handle, IScope animationScope) {
+        protected override IEnumerator CloseRoutine(TransitionHandle<INavNode> handle, IScope animationScope) {
             _screens.Clear();
             GetScreens(UIService, _screens);
 
@@ -59,7 +67,7 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        protected override void PostCloseInternal(TransitionHandle<Situation> handle) {
+        protected override void PostClose(TransitionHandle<INavNode> handle) {
             _screens.Clear();
             GetScreens(UIService, _screens);
 

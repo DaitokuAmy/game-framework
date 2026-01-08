@@ -25,16 +25,4 @@ namespace GameFramework {
         /// <summary>遷移キャンセル</summary>
         Canceled,
     }
-    
-    /// <summary>
-    /// 遷移ステップ
-    /// </summary>
-    public enum TransitionStep {
-        /// <summary>読み込みまで</summary>
-        Load,
-        /// <summary>初期化まで</summary>
-        Setup,
-        /// <summary>完了まで</summary>
-        Complete,
-    }
 }

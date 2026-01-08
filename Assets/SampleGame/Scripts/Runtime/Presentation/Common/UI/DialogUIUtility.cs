@@ -8,18 +8,16 @@ namespace SampleGame.Presentation {
     /// 常駐ダイアログUI用のユーティリティ
     /// </summary>
     public static class DialogUIUtility {
-        /// <summary>Service取得用</summary>
-        private static IServiceResolver ServiceResolver { get; set; }
         /// <summary>UIManager</summary>
-        private static UIManager Manager  => ServiceResolver?.Resolve<UIManager>();
+        private static UIManager Manager { get; set; }
         /// <summary>ResidentUI用のService</summary>
         private static DialogUIService UIService => Manager?.GetService<DialogUIService>();
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public static void Initialize(IServiceResolver resolver) {
-            ServiceResolver = resolver;
+        public static void Initialize(UIManager uiManager) {
+            Manager = uiManager;
         }
 
         /// <summary>

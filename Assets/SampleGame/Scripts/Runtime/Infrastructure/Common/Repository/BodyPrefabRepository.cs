@@ -5,6 +5,7 @@ using GameFramework;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.Infrastructure {
     /// <summary>
@@ -32,8 +33,8 @@ namespace SampleGame.Infrastructure {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(AssetManager assetManager) {
+        [Inject]
+        private void Construct(AssetManager assetManager) {
             _bodyPrefabAssetStorage = new SimpleAssetStorage<GameObject>(assetManager).RegisterTo(_scope);
         }
 

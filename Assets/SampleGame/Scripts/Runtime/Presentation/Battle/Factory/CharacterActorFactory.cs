@@ -7,6 +7,7 @@ using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.Battle;
 using ThirdPersonEngine;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.Presentation.Battle {
     /// <summary>
@@ -21,13 +22,13 @@ namespace SampleGame.Presentation.Battle {
             }
         }
 
-        [ServiceInject]
-        private IServiceResolver _serviceResolver;
-        [ServiceInject]
+        [Inject]
+        private IObjectResolver _objectResolver;
+        [Inject]
         private BodyPrefabRepository _bodyPrefabRepository;
-        [ServiceInject]
+        [Inject]
         private BattleCharacterAssetRepository _characterAssetRepository;
-        [ServiceInject]
+        [Inject]
         private ActorEntityManager _actorEntityManager;
 
         /// <summary>
@@ -55,12 +56,12 @@ namespace SampleGame.Presentation.Battle {
 
             // adapter生成
             var adapter = new CharacterActorAdapter(actor, model);
-            _serviceResolver.Inject(adapter);
+            _objectResolver.Inject(adapter);
             adapter.RegisterTask(TaskOrder.Logic);
             
             // controller生成
             var controller = new PlayerInputController(model);
-            _serviceResolver.Inject(controller);
+            _objectResolver.Inject(controller);
             controller.RegisterTask(TaskOrder.Input);
 
             // entity構築

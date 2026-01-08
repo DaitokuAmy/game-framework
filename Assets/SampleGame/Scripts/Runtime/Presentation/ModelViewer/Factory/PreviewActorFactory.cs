@@ -7,6 +7,7 @@ using SampleGame.Infrastructure.ModelViewer;
 using ThirdPersonEngine;
 using ThirdPersonEngine.ModelViewer;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
@@ -24,11 +25,11 @@ namespace SampleGame.Presentation.ModelViewer {
             }
         }
         
-        [ServiceInject]
-        private IServiceResolver _serviceResolver;
-        [ServiceInject]
+        [Inject]
+        private IObjectResolver _objectResolver;
+        [Inject]
         private ActorEntityManager _actorEntityManager;
-        [ServiceInject]
+        [Inject]
         private ModelViewerAssetRepository _assetRepository;
         
         /// <summary>
@@ -60,7 +61,7 @@ namespace SampleGame.Presentation.ModelViewer {
             
             // adapter生成
             var adapter = new PreviewActorAdapter(model, actor);
-            _serviceResolver.Inject(adapter);
+            _objectResolver.Inject(adapter);
             adapter.RegisterTask(TaskOrder.Logic);
 
             // entity構築

@@ -1,6 +1,6 @@
 using System;
-using GameFramework;
-using GameFramework.SituationSystems;
+using GameFramework.NavigationSystems;
+using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -10,23 +10,23 @@ namespace SampleGame.Lifecycle {
         /// <summary>MainSystem開始引数の取得</summary>
         public sealed override object[] GetArguments() => new object[] { CreateStartArgs() };
         
-        /// <summary>開始時に再生するSituationType</summary>
-        protected abstract Type SituationType { get; }
+        /// <summary>開始時に再生するNavNodeType</summary>
+        protected abstract Type NavNodeType { get; }
         /// <summary>開始時の遷移タイプ</summary>
-        protected virtual SituationService.TransitionType TransitionType => SituationService.TransitionType.SceneDefault;
+        protected virtual TransitionType TransitionType => TransitionType.SceneDefault;
 
         /// <summary>
-        /// Situationセットアップ処理
+        /// NavNodeセットアップ処理
         /// </summary>
-        protected virtual void OnSituationSetup(Situation situation) {}
+        protected virtual void OnNodeSetup(INavNode navNode) {}
 
         /// <summary>
         /// 開始引数の生成
         /// </summary>
         private MainSystem.StartArgs CreateStartArgs() {
             return new MainSystem.StartArgs {
-                SituationType = SituationType,
-                SetupAction = OnSituationSetup,
+                NavNodeType = NavNodeType,
+                SetupAction = OnNodeSetup,
                 TransitionType = TransitionType
             };
         }

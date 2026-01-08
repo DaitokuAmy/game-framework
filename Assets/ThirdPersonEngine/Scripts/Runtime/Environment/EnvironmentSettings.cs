@@ -1,13 +1,14 @@
-using GameFramework.Core;
 using GameFramework.EnvironmentSystems;
 using UnityEngine;
+using VContainer;
+using VContainer.Unity;
 
 namespace ThirdPersonEngine {
     /// <summary>
     /// 環境設定
     /// </summary>
     [ExecuteAlways]
-    public class EnvironmentSettings : MonoBehaviour {
+    public class EnvironmentSettings : LifetimeScope {
         [SerializeField, Tooltip("反映対象のデータ")]
         private EnvironmentContextData _data;
         [SerializeField, Tooltip("平行光源")]
@@ -23,9 +24,9 @@ namespace ThirdPersonEngine {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(IServiceResolver serviceResolver) {
-            _environmentManager = serviceResolver.Resolve<EnvironmentManager>();
+        [Inject]
+        private void Construct(EnvironmentManager environmentManager) {
+            _environmentManager = environmentManager;
             enabled = false;
             enabled = true;
         }

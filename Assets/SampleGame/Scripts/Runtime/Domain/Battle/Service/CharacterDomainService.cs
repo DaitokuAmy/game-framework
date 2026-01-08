@@ -1,6 +1,7 @@
 using System;
 using GameFramework.Core;
 using Unity.Mathematics;
+using VContainer;
 
 namespace SampleGame.Domain.Battle {
     /// <summary>
@@ -20,8 +21,8 @@ namespace SampleGame.Domain.Battle {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(IModelRepository modelRepository) {
+        [Inject]
+        private void Construct(IModelRepository modelRepository) {
             _modelRepository = modelRepository;
         }
 

@@ -48,9 +48,9 @@ namespace GameFramework {
         void DeactivatePrev();
 
         /// <summary>
-        /// 遷移元の解放コルーチン
+        /// 遷移元の解放
         /// </summary>
-        IEnumerator UnloadPrevRoutine();
+        void UnloadPrev();
 
         /// <summary>
         /// 完了処理

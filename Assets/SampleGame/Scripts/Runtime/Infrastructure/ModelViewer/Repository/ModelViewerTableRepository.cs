@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using SampleGame.Domain.ModelViewer;
+using VContainer;
 using Object = UnityEngine.Object;
 
 namespace SampleGame.Infrastructure.ModelViewer {
@@ -14,7 +15,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     public partial class ModelViewerTableRepository : IDisposable, IModelViewerTableRepository {
         private DisposableScope _scope;
 
-        [ServiceInject]
+        [Inject]
         private AssetManager _assetManager;
 
         private ModelViewerActorTableData _modelViewerActorTableData;

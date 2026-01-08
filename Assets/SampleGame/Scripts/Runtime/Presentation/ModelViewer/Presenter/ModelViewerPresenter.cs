@@ -8,19 +8,20 @@ using R3;
 using ThirdPersonEngine;
 using ThirdPersonEngine.ModelViewer;
 using UnityEngine.InputSystem;
+using VContainer;
 
 namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// ModelViewer全体のPresenter
     /// </summary>
     public class ModelViewerPresenter : Logic {
-        [ServiceInject]
+        [Inject]
         private ModelViewerAppService _appService;
-        [ServiceInject]
+        [Inject]
         private ActorEntityManager _actorEntityManager;
-        [ServiceInject]
+        [Inject]
         private CameraManager _cameraManager;
-        [ServiceInject]
+        [Inject]
         private ModelRecorder _modelRecorder;
 
         /// <summary>

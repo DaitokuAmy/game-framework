@@ -2,14 +2,15 @@ using GameFramework;
 using GameFramework.Core;
 using SampleGame.Application;
 using R3;
+using VContainer;
 
 namespace SampleGame.Presentation.OutGame {
     /// <summary>
     /// 出撃画面トップ用のPresenter
     /// </summary>
     public class SortieTopPresenter : UIScreenLogic<SortieTopUIScreen> {
-        [ServiceInject]
-        private ISituationService _situationService;
+        [Inject]
+        private IAppNavigator _appNavigator;
 
         /// <inheritdoc/>
         protected override void ActivateInternal(IScope scope) {
@@ -18,13 +19,13 @@ namespace SampleGame.Presentation.OutGame {
                 .Subscribe(idx => {
                     switch (idx) {
                         case 0:
-                            _situationService.TransitionSortieMissionSelect();
+                            _appNavigator.TransitionSortieMissionSelect();
                             break;
                         case 1:
-                            _situationService.TransitionSortieRoleSelect();
+                            _appNavigator.TransitionSortieRoleSelect();
                             break;
                         case 2:
-                            _situationService.Back();
+                            _appNavigator.Back();
                             break;
                     }
                 });

@@ -71,7 +71,6 @@ namespace GameFramework.Editor {
                         DrawContent("Transition", transitionInfo, info => {
                             EditorGUILayout.LabelField("Direction", info.Direction.ToString());
                             EditorGUILayout.LabelField("State", info.State.ToString());
-                            EditorGUILayout.LabelField("End Step", info.EndStep.ToString());
                             DrawMultiLines("Prev State Info", info.PrevStateInfo);
                             DrawMultiLines("Next State Info", info.NextStateInfo);
                         });

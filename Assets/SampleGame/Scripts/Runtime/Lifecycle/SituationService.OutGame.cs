@@ -8,11 +8,11 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// OutGame関連のSituationService処理
     /// </summary>
-    partial class SituationService {
+    partial class AppNavigator {
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionSortieTop() {
+        IProcess IAppNavigator.TransitionSortieTop() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<OutGameSceneSituation>()) {
+            if (!CheckParentSituation<OutGameSceneSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
@@ -20,9 +20,9 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionSortieRoleSelect() {
+        IProcess IAppNavigator.TransitionSortieRoleSelect() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<OutGameSceneSituation>()) {
+            if (!CheckParentSituation<OutGameSceneSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
@@ -30,9 +30,9 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionSortieRoleInformation() {
+        IProcess IAppNavigator.TransitionSortieRoleInformation() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<OutGameSceneSituation>()) {
+            if (!CheckParentSituation<OutGameSceneSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
@@ -40,9 +40,9 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionSortieMissionSelect() {
+        IProcess IAppNavigator.TransitionSortieMissionSelect() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<OutGameSceneSituation>()) {
+            if (!CheckParentSituation<OutGameSceneSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
             
@@ -50,9 +50,9 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionSortieDifficultySelect() {
+        IProcess IAppNavigator.TransitionSortieDifficultySelect() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<OutGameSceneSituation>()) {
+            if (!CheckParentSituation<OutGameSceneSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
@@ -63,7 +63,7 @@ namespace SampleGame.Lifecycle {
         /// OutGame関連のSituationの初期化
         /// </summary>
         private void SetupOutGameSituations(Situation parentSituation) {
-            var outGameSceneSituation = new OutGameSceneSituation();
+            var outGameSceneSituation = new OutGameSceneSessionNode();
             outGameSceneSituation.SetParent(parentSituation);
 
             // 出撃画面

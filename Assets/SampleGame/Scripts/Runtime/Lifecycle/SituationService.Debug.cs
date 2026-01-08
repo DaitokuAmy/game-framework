@@ -8,7 +8,7 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationService
     /// </summary>
-    partial class SituationService {
+    partial class AppNavigator {
         /// <summary>
         /// Situationのデバッグ登録
         /// </summary>

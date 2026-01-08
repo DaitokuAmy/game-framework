@@ -40,6 +40,7 @@
     "com.unity.timeline": "1.8.7",
     "com.unity.ugui": "2.0.0",
     "com.unity.visualscripting": "1.9.5",
+    "jp.hadashikick.vcontainer": "1.17.0",
     "org.nuget.observablecollections.r3": "3.3.4",
     "org.nuget.r3": "1.3.0",
     "com.unity.modules.accessibility": "1.0.0",
@@ -87,7 +88,8 @@
       "scopes": [
         "com.needle.compilation-visualizer",
         "com.cysharp",
-        "org.nuget"
+        "org.nuget",
+        "jp.hadashikick.vcontainer"
       ]
     }
   ]

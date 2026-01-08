@@ -12,8 +12,6 @@ namespace GameFramework {
         TransitionDirection Direction { get; }
         /// <summary>遷移状態</summary>
         TransitionState State { get; }
-        /// <summary>遷移終了ステップ</summary>
-        TransitionStep EndStep { get; }
         /// <summary>遷移前のState</summary>
         TState Prev { get; }
         /// <summary>遷移後のState</summary>
@@ -21,11 +19,6 @@ namespace GameFramework {
 
         /// <summary>終了通知</summary>
         event Action<TState> FinishedEvent;
-
-        /// <summary>
-        /// 終了ステップの変更
-        /// </summary>
-        bool ChangeEndStep(TransitionStep step);
     }
 
     /// <summary>
@@ -104,21 +97,6 @@ namespace GameFramework {
         /// <inheritdoc/>
         public EventProcessAwaiter<TState> GetAwaiter() {
             return new EventProcessAwaiter<TState>(this);
-        }
-
-        /// <summary>
-        /// 遷移ステップを進める
-        /// </summary>
-        public bool NextStep(TransitionStep step) {
-            if (!IsValid) {
-                return false;
-            }
-
-            if (step <= _transitionInfo.EndStep) {
-                return false;
-            }
-
-            return _transitionInfo.ChangeEndStep(step);
         }
     }
 }

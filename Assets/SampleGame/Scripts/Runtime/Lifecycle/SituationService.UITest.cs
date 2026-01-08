@@ -8,17 +8,17 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// UITest関連のSituationService処理
     /// </summary>
-    partial class SituationService {
+    partial class AppNavigator {
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionUITest() {
-            return Transition<UITestSceneSituation>(transitionType: TransitionType.SceneDefault);
+        IProcess IAppNavigator.TransitionUITest() {
+            return Transition<UITestSceneSessionNode>(transitionType: TransitionType.SceneDefault);
         }
         
         /// <summary>
         /// UITest関連のSituationの初期化
         /// </summary>
         private void SetupUITestSituations(Situation parentSituation) {
-            var uiTestSceneSituation = new UITestSceneSituation();
+            var uiTestSceneSituation = new UITestSceneSessionNode();
             uiTestSceneSituation.SetParent(parentSituation);
         }
 
@@ -26,7 +26,7 @@ namespace SampleGame.Lifecycle {
         /// UITest関連のTreeNode初期化
         /// </summary>
         private StateTreeNode<Type> SetupUITestTreeNodes(StateTreeNode<Type> parentNode) {
-            var uiTestNode = ConnectNode<UITestSceneSituation>(parentNode);
+            var uiTestNode = ConnectNode<UITestSceneSessionNode>(parentNode);
             return uiTestNode;
         }
     }

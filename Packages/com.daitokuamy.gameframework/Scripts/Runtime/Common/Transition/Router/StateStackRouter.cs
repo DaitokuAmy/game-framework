@@ -73,6 +73,22 @@ namespace GameFramework {
             return _stateContainer.GetStateKeys();
         }
 
+        /// <inheritdoc/>
+        public TKey GetBackStateKey(int depth = 1) {
+            // 深さのクランプ
+            if (depth > _stack.Count - 1) {
+                depth = _stack.Count - 1;
+            }
+
+            if (_stack.Count <= 1 || depth <= 0) {
+                return default;
+            }
+
+            // 戻り先を見つける
+            var backKey = _stack[_stack.Count - 1 - depth];
+            return backKey;
+        }
+
         /// <summary>
         /// スタックのクリア
         /// </summary>
@@ -103,12 +119,11 @@ namespace GameFramework {
         /// </summary>
         /// <param name="key">遷移ターゲットを決めるキー</param>
         /// <param name="option">遷移時に渡すオプション</param>
-        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<TState> Transition(TKey key, TOption option = default, TransitionStep step = TransitionStep.Complete, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
-            return TransitionInternal(key, option, false, step, setupAction, transition, effects);
+        public TransitionHandle<TState> TransitionTo(TKey key, TOption option = default, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
+            return TransitionInternal(key, option, false, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -133,7 +148,7 @@ namespace GameFramework {
             var backKey = _stack[_stack.Count - 1 - depth];
 
             // 戻り遷移
-            return TransitionInternal(backKey, option, true, TransitionStep.Complete, setupAction, transition, effects);
+            return TransitionInternal(backKey, option, true, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -151,11 +166,10 @@ namespace GameFramework {
         /// <param name="key">遷移ターゲットを決めるキー</param>
         /// <param name="option">遷移時に渡すオプション</param>
         /// <param name="back">戻りか</param>
-        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        private TransitionHandle<TState> TransitionInternal(TKey key, TOption option, bool back, TransitionStep step, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        private TransitionHandle<TState> TransitionInternal(TKey key, TOption option, bool back, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
             // 既に遷移中なら失敗
             if (IsTransitioning) {
                 return new TransitionHandle<TState>(new Exception("In transitioning"));
@@ -181,7 +195,7 @@ namespace GameFramework {
             _stack.Add(key);
 
             // 遷移実行
-            return _stateContainer.Transition(key, option, back, step, setupAction, transition, effects);
+            return _stateContainer.TransitionTo(key, option, back, setupAction, transition, effects);
         }
 
         /// <summary>

@@ -24,7 +24,7 @@ namespace GameFramework {
                 resolver.ExitEffectRoutine());
 
             // 解放
-            yield return resolver.UnloadPrevRoutine();
+            resolver.UnloadPrev();
 
             // アクティブ化
             resolver.ActivateNext();

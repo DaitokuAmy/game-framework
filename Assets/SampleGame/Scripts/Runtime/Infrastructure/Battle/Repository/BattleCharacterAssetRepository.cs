@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using GameFramework.AssetSystems;
 using ThirdPersonEngine;
+using VContainer;
 
 namespace SampleGame.Infrastructure.Battle {
     /// <summary>
@@ -28,8 +29,8 @@ namespace SampleGame.Infrastructure.Battle {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(AssetManager assetManager) {
+        [Inject]
+        private void Construct(AssetManager assetManager) {
             _battleCharacterActorDataStorage = new SimpleAssetStorage<BattleCharacterActorData>(assetManager);
         }
         

@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using SampleGame.Domain.Battle;
+using VContainer;
 using Object = UnityEngine.Object;
 
 namespace SampleGame.Infrastructure.Battle {
@@ -13,7 +14,7 @@ namespace SampleGame.Infrastructure.Battle {
     public partial class BattleTableRepository : IDisposable, IBattleTableRepository {
         private DisposableScope _scope;
         
-        [ServiceInject]
+        [Inject]
         private AssetManager _assetManager;
         
         private BattleTableData _battleTableData;

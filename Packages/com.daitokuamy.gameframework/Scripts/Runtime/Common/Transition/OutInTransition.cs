@@ -47,7 +47,7 @@ namespace GameFramework {
             Application.backgroundLoadingPriority = _backgroundThreadPriority;
 
             // 解放
-            yield return resolver.UnloadPrevRoutine();
+            resolver.UnloadPrev();
 
             // 読み込み
             yield return resolver.LoadNextRoutine();

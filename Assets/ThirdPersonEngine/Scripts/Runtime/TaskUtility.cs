@@ -6,16 +6,14 @@ namespace ThirdPersonEngine {
     /// Task関連のUtility
     /// </summary>
     public static class TaskUtility {
-        /// <summary>Service取得用</summary>
-        private static IServiceResolver ServiceResolver { get; set; }
         /// <summary>利用するTaskRunner</summary>
-        private static TaskRunner TaskRunner => ServiceResolver?.Resolve<TaskRunner>();
+        private static TaskRunner TaskRunner { get; set; }
 
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public static void Initialize(IServiceResolver resolver) {
-            ServiceResolver = resolver;
+        public static void Initialize(TaskRunner taskRunner) {
+            TaskRunner = taskRunner;
         }
         
         /// <summary>

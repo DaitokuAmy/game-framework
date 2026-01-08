@@ -4,6 +4,7 @@ using SampleGame.Application.Battle;
 using SampleGame.Domain.Battle;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using VContainer;
 
 namespace SampleGame.Presentation.Battle {
     /// <summary>
@@ -29,8 +30,8 @@ namespace SampleGame.Presentation.Battle {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(PlayerAppService playerAppService, PlayerInput playerInput) {
+        [Inject]
+        private void Construct(PlayerAppService playerAppService, PlayerInput playerInput) {
             _playerAppService = playerAppService;
             
             _moveAction = playerInput.actions["Move"];

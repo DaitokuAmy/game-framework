@@ -9,10 +9,8 @@ namespace SampleGame.Presentation {
     /// 常駐UI用のユーティリティ
     /// </summary>
     public static class ResidentUIUtility {
-        /// <summary>Service取得用</summary>
-        private static IServiceResolver ServiceResolver { get; set; }
         /// <summary>UIManager</summary>
-        private static UIManager Manager => ServiceResolver?.Resolve<UIManager>();
+        private static UIManager Manager { get; set; }
         /// <summary>ResidentUI用のService</summary>
         private static ResidentUIService UIService => Manager?.GetService<ResidentUIService>();
 
@@ -22,8 +20,8 @@ namespace SampleGame.Presentation {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public static void Initialize(IServiceResolver resolver) {
-            ServiceResolver = resolver;
+        public static void Initialize(UIManager uiManager) {
+            Manager = uiManager;
         }
 
         /// <summary>

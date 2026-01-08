@@ -5,6 +5,7 @@ using GameFramework;
 using GameFramework.AssetSystems;
 using GameFramework.Core;
 using ThirdPersonEngine;
+using VContainer;
 
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
@@ -32,8 +33,8 @@ namespace SampleGame.Infrastructure.ModelViewer {
         /// <summary>
         /// サービスのDI
         /// </summary>
-        [ServiceInject]
-        private void Inject(AssetManager assetManager) {
+        [Inject]
+        private void Construct(AssetManager assetManager) {
             _previewActorDataStorage = new SimpleAssetStorage<PreviewActorData>(assetManager).RegisterTo(_scope);
         }
 

@@ -34,6 +34,7 @@ MonoBehaviour:
     - com.needle.compilation-visualizer
     - com.cysharp
     - org.nuget
+    - jp.hadashikick.vcontainer
     m_IsDefault: 0
     m_Capabilities: 0
     m_ConfigSource: 4
@@ -42,6 +43,6 @@ MonoBehaviour:
   m_RegistryInfoDraft:
     m_Modified: 0
     m_ErrorMessage: 
-    m_UserModificationsInstanceId: -862
+    m_UserModificationsInstanceId: -864
     m_OriginalInstanceId: -866
   m_LoadAssets: 0

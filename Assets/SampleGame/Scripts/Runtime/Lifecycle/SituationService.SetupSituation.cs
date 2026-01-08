@@ -5,12 +5,12 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// SituationService
     /// </summary>
-    partial class SituationService {
+    partial class AppNavigator {
         /// <summary>
         /// Situationコンテナの初期化
         /// </summary>
         private void SetupContainer(SituationContainer container, IScope scope) {
-            var mainSituation = new MainSituation();
+            var mainSituation = new RootNode();
             mainSituation.AddDynamicSituationType<OptionSituation>();
             
             SetupIntroductionSituations(mainSituation);

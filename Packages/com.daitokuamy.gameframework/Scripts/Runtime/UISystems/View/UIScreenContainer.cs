@@ -31,18 +31,12 @@ namespace GameFramework.UISystems {
 
             public TransitionDirection Direction { get; set; }
             public TransitionState State { get; set; }
-            public TransitionStep EndStep => TransitionStep.Complete;
             public UIScreen Prev { get; set; }
             public UIScreen Next { get; set; }
             public Coroutine Coroutine { get; set; }
 
             /// <inheritdoc/>
             public event Action<UIScreen> FinishedEvent;
-
-            /// <inheritdoc/>
-            public bool ChangeEndStep(TransitionStep step) {
-                return false;
-            }
 
             public void SendFinish() {
                 FinishedEvent?.Invoke(Next);
@@ -85,7 +79,7 @@ namespace GameFramework.UISystems {
         }
 
         /// <inheritdoc/>
-        TransitionHandle<UIScreen> IStateContainer<string, UIScreen, Option>.Transition(string key, Option option, bool back, TransitionStep endStep, Action<UIScreen> setupAction,
+        TransitionHandle<UIScreen> IStateContainer<string, UIScreen, Option>.TransitionTo(string key, Option option, bool back, Action<UIScreen> setupAction,
             ITransition transition, params ITransitionEffect[] effects) {
             return TransitionInternal(key, option, back, setupAction, transition, effects);
         }
@@ -145,8 +139,7 @@ namespace GameFramework.UISystems {
         }
 
         /// <inheritdoc/>
-        IEnumerator ITransitionResolver.UnloadPrevRoutine() {
-            yield break;
+        void ITransitionResolver.UnloadPrev() {
         }
 
         /// <inheritdoc/>

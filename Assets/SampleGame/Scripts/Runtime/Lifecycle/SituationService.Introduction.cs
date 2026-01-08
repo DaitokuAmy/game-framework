@@ -8,36 +8,36 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// Introduction関連のSituationService処理
     /// </summary>
-    partial class SituationService {
+    partial class AppNavigator {
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionTitleTop() {
+        IProcess IAppNavigator.TransitionTitleTop() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<IntroductionSceneSituation>()) {
+            if (!CheckParentSituation<IntroductionSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
-            return Transition<TitleTopSituation>(transitionType: transitionType);
+            return Transition<TitleTopScreenNode>(transitionType: transitionType);
         }
         
         /// <inheritdoc/>
-        IProcess ISituationService.TransitionTitleOption() {
+        IProcess IAppNavigator.TransitionTitleOption() {
             var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<IntroductionSceneSituation>()) {
+            if (!CheckParentSituation<IntroductionSessionNode>()) {
                 transitionType = TransitionType.SceneDefault;
             }
 
-            return Transition<TitleOptionSituation>(transitionType: transitionType);
+            return Transition<TitleOptionScreenNode>(transitionType: transitionType);
         }
         
         /// <summary>
         /// Introduction関連のSituationの初期化
         /// </summary>
         private void SetupIntroductionSituations(Situation parentSituation) {
-            var introductionSceneSituation = new IntroductionSceneSituation();
+            var introductionSceneSituation = new IntroductionSessionNode();
             introductionSceneSituation.SetParent(parentSituation);
-            var titleTopSituation = new TitleTopSituation();
+            var titleTopSituation = new TitleTopScreenNode();
             titleTopSituation.SetParent(introductionSceneSituation);
-            var titleOptionSituation = new TitleOptionSituation();
+            var titleOptionSituation = new TitleOptionScreenNode();
             titleOptionSituation.SetParent(introductionSceneSituation);
         }
 
@@ -45,8 +45,8 @@ namespace SampleGame.Lifecycle {
         /// Introduction関連のTreeNode初期化
         /// </summary>
         private StateTreeNode<Type> SetupIntroductionTreeNodes(StateTreeNode<Type> parentNode) {
-            var titleTopNode = ConnectNode<TitleTopSituation>(parentNode);
-            var titleOptionNode = ConnectNode<TitleOptionSituation>(titleTopNode);
+            var titleTopNode = ConnectNode<TitleTopScreenNode>(parentNode);
+            var titleOptionNode = ConnectNode<TitleOptionScreenNode>(titleTopNode);
             return titleTopNode;
         }
     }

@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 using SampleGame.Domain.Battle;
+using VContainer;
 
 namespace SampleGame.Application.Battle {
     /// <summary>
@@ -11,9 +12,9 @@ namespace SampleGame.Application.Battle {
     public class BattleAppService : IDisposable {
         private DisposableScope _scope;
         
-        [ServiceInject]
+        [Inject]
         private BattleDomainService _battleDomainService;
-        [ServiceInject]
+        [Inject]
         private IBattleTableRepository _battleTableRepository;
 
         /// <summary>バトルモデル</summary>

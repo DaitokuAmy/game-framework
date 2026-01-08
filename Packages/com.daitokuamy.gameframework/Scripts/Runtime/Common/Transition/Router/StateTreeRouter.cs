@@ -12,8 +12,8 @@ namespace GameFramework {
         where TKey : class
         where TState : class {
         private readonly IStateContainer<TKey, TState, TOption> _stateContainer;
-        private readonly Dictionary<TKey, StateTreeNode<TKey>> _globalFallbackNodes = new();
-        private readonly Dictionary<StateTreeNode<TKey>, Dictionary<TKey, StateTreeNode<TKey>>> _fallbackNodes = new();
+        private readonly Dictionary<TKey, StateTreeNode<TKey>> _globalShortcutNodes = new();
+        private readonly Dictionary<StateTreeNode<TKey>, Dictionary<TKey, StateTreeNode<TKey>>> _shortcutNodes = new();
         private readonly string _label;
 
         private bool _disposed;
@@ -71,8 +71,8 @@ namespace GameFramework {
                 _rootNode = null;
             }
 
-            _fallbackNodes.Clear();
-            _globalFallbackNodes.Clear();
+            _shortcutNodes.Clear();
+            _globalShortcutNodes.Clear();
         }
 
         /// <summary>
@@ -97,14 +97,14 @@ namespace GameFramework {
 
             lines.Add(("", ""));
 
-            // Fallback情報
-            var globalFallbackKeys = _globalFallbackNodes.Keys.ToArray();
+            // Shortcut情報
+            var globalShortcutKeys = _globalShortcutNodes.Keys.ToArray();
             lines.Add(("[Base]", "Root"));
-            for (var i = 0; i < globalFallbackKeys.Length; i++) {
-                lines.Add((i == 0 ? "    <Fallbacks>" : "", globalFallbackKeys[i].ToString()));
+            for (var i = 0; i < globalShortcutKeys.Length; i++) {
+                lines.Add((i == 0 ? "    <Shortcuts>" : "", globalShortcutKeys[i].ToString()));
             }
 
-            foreach (var pair in _fallbackNodes) {
+            foreach (var pair in _shortcutNodes) {
                 void GetPath(StateTreeNode<TKey> node, StringBuilder path) {
                     if (node == null || !node.IsValid || node.IsRoot) {
                         return;
@@ -121,9 +121,9 @@ namespace GameFramework {
                 GetPath(pair.Key, builder);
                 lines.Add(("[Base]", builder.ToString()));
 
-                var fallbackKeys = pair.Value.Keys.ToArray();
-                for (var i = 0; i < fallbackKeys.Length; i++) {
-                    lines.Add((i == 0 ? "    <Fallbacks>" : "", fallbackKeys[i].ToString()));
+                var shortcutKeys = pair.Value.Keys.ToArray();
+                for (var i = 0; i < shortcutKeys.Length; i++) {
+                    lines.Add((i == 0 ? "    <Shortcuts>" : "", shortcutKeys[i].ToString()));
                 }
             }
         }
@@ -131,6 +131,26 @@ namespace GameFramework {
         /// <inheritdoc/>
         public TKey[] GetStateKeys() {
             return GetNodes().Select(x => x.Key).Distinct().ToArray();
+        }
+
+        /// <inheritdoc/>
+        public TKey GetBackStateKey(int depth = 1) {
+            if (CurrentNode == null) {
+                return default;
+            }
+            
+            // 戻り先のノードを取得
+            var backNode = CurrentNode;
+            for (var i = 0; i < depth; i++) {
+                var b = backNode.GetPrevious();
+                if (b == null || !b.IsValid) {
+                    break;
+                }
+
+                backNode = b;
+            }
+
+            return backNode.Key;
         }
 
         /// <summary>
@@ -170,7 +190,7 @@ namespace GameFramework {
         /// <returns>接続したKeyを保持するNode</returns>
         public StateTreeNode<TKey> ConnectRoot(TKey key) {
             var node = _rootNode.Connect(key);
-            SetFallbackNode(node);
+            SetShortcutNode(node);
             return node;
         }
 
@@ -183,22 +203,22 @@ namespace GameFramework {
         }
 
         /// <summary>
-        /// FallbackNodeの設定
+        /// ShortcutNodeの設定
         /// </summary>
-        /// <param name="node">Fallback指定するノード</param>
-        /// <param name="baseNode">Fallback対象とするNodeの基点(nullだとグローバル)</param>
-        public void SetFallbackNode(StateTreeNode<TKey> node, StateTreeNode<TKey> baseNode = null) {
+        /// <param name="node">Shortcut指定するノード</param>
+        /// <param name="baseNode">Shortcut対象とするNodeの基点(nullだとグローバル)</param>
+        public void SetShortcutNode(StateTreeNode<TKey> node, StateTreeNode<TKey> baseNode = null) {
             if (node == null || !node.IsValid || node.IsRoot) {
                 return;
             }
 
             if (baseNode == null) {
-                _globalFallbackNodes[node.Key] = node;
+                _globalShortcutNodes[node.Key] = node;
             }
             else {
-                if (!_fallbackNodes.TryGetValue(baseNode, out var dict)) {
+                if (!_shortcutNodes.TryGetValue(baseNode, out var dict)) {
                     dict = new Dictionary<TKey, StateTreeNode<TKey>>();
-                    _fallbackNodes[baseNode] = dict;
+                    _shortcutNodes[baseNode] = dict;
                 }
 
                 dict[node.Key] = node;
@@ -206,38 +226,38 @@ namespace GameFramework {
         }
 
         /// <summary>
-        /// FallbackNodeのリセット
+        /// ShortcutNodeのリセット
         /// </summary>
-        public void ResetFallbackNode(TKey key) {
-            _globalFallbackNodes.Remove(key);
-            foreach (var dict in _fallbackNodes.Values) {
+        public void ResetShortcutNode(TKey key) {
+            _globalShortcutNodes.Remove(key);
+            foreach (var dict in _shortcutNodes.Values) {
                 dict.Remove(key);
             }
         }
 
         /// <summary>
-        /// FallbackNodeの設定全解除
+        /// ShortcutNodeの設定全解除
         /// </summary>
-        public void ResetFallbackNodes() {
-            _globalFallbackNodes.Clear();
-            _fallbackNodes.Clear();
+        public void ResetShortcutNodes() {
+            _globalShortcutNodes.Clear();
+            _shortcutNodes.Clear();
         }
 
         /// <summary>
         /// 次の接続先に存在するタイプかチェック
         /// </summary>
         /// <param name="key">接続先を表すキー</param>
-        /// <param name="includeFallback">fallbackに設定された物をチェックするか</param>
-        public bool CheckTransition(TKey key, bool includeFallback = true) {
+        /// <param name="includeShortcut">shortcutに設定された物をチェックするか</param>
+        public bool CheckTransition(TKey key, bool includeShortcut = true) {
             var nextNode = CurrentNode.TryGetNext(key);
             if (nextNode != null) {
                 return true;
             }
 
-            if (includeFallback) {
+            if (includeShortcut) {
                 var findRootNode = CurrentNode;
                 while (findRootNode != null) {
-                    if (_fallbackNodes.TryGetValue(findRootNode, out var dict)) {
+                    if (_shortcutNodes.TryGetValue(findRootNode, out var dict)) {
                         if (dict.TryGetValue(key, out _)) {
                             return true;
                         }
@@ -246,7 +266,7 @@ namespace GameFramework {
                     findRootNode = findRootNode.GetPrevious();
                 }
 
-                if (_globalFallbackNodes.TryGetValue(key, out _)) {
+                if (_globalShortcutNodes.TryGetValue(key, out _)) {
                     return true;
                 }
             }
@@ -259,14 +279,13 @@ namespace GameFramework {
         /// </summary>
         /// <param name="key">遷移ターゲットを決めるキー</param>
         /// <param name="option">遷移時に渡すオプション</param>
-        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<TState> Transition(TKey key, TOption option = default, TransitionStep step = TransitionStep.Complete, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
+        public TransitionHandle<TState> TransitionTo(TKey key, TOption option = default, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
             // 遷移先Nodeの取得
             var nextNode = GetNextNode(key);
-            return TransitionInternal(nextNode, option, false, step, setupAction, transition, effects);
+            return TransitionInternal(nextNode, option, false, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -274,12 +293,11 @@ namespace GameFramework {
         /// </summary>
         /// <param name="nextNode">遷移先のNode</param>
         /// <param name="option">遷移時に渡すオプション</param>
-        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<TState> Transition(StateTreeNode<TKey> nextNode, TOption option = default, TransitionStep step = TransitionStep.Complete, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
-            return TransitionInternal(nextNode, option, false, step, setupAction, transition, effects);
+        public TransitionHandle<TState> TransitionTo(StateTreeNode<TKey> nextNode, TOption option = default, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
+            return TransitionInternal(nextNode, option, false, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -312,7 +330,7 @@ namespace GameFramework {
                 backNode = b;
             }
 
-            return TransitionInternal(backNode, option, true, TransitionStep.Complete, setupAction, transition, effects);
+            return TransitionInternal(backNode, option, true, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -330,11 +348,10 @@ namespace GameFramework {
         /// <param name="nextNode">遷移先のNode</param>
         /// <param name="option">遷移時に渡すオプション</param>
         /// <param name="back">戻りか</param>
-        /// <param name="step">終了ステップ</param>
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        private TransitionHandle<TState> TransitionInternal(StateTreeNode<TKey> nextNode, TOption option, bool back, TransitionStep step, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        private TransitionHandle<TState> TransitionInternal(StateTreeNode<TKey> nextNode, TOption option, bool back, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
             // 既に遷移中なら失敗
             if (IsTransitioning) {
                 return new TransitionHandle<TState>(new Exception("In transitioning"));
@@ -354,7 +371,7 @@ namespace GameFramework {
             CurrentNode = nextNode;
 
             // 遷移実行
-            return _stateContainer.Transition(nextNode.Key, option, back, step, setupAction, transition, effects);
+            return _stateContainer.TransitionTo(nextNode.Key, option, back, setupAction, transition, effects);
         }
 
         /// <summary>
@@ -387,11 +404,11 @@ namespace GameFramework {
                 nextNode = CurrentNode.TryGetNext(key);
             }
 
-            // 接続先がなければ、Fallback用のNodeを探す
+            // 接続先がなければ、Shortcut用のNodeを探す
             if (nextNode == null) {
                 var findRootNode = CurrentNode;
                 while (findRootNode != null) {
-                    if (_fallbackNodes.TryGetValue(findRootNode, out var dict)) {
+                    if (_shortcutNodes.TryGetValue(findRootNode, out var dict)) {
                         if (dict.TryGetValue(key, out nextNode)) {
                             break;
                         }
@@ -401,7 +418,7 @@ namespace GameFramework {
                 }
 
                 if (nextNode == null) {
-                    _globalFallbackNodes.TryGetValue(key, out nextNode);
+                    _globalShortcutNodes.TryGetValue(key, out nextNode);
                 }
             }
 

@@ -3,15 +3,16 @@ using GameFramework.CameraSystems;
 using GameFramework.Core;
 using SampleGame.Application.Battle;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// カメラ用のPresenter
     /// </summary>
     public class CameraPresenter : Logic {
-        [ServiceInject]
+        [Inject]
         private CameraManager _cameraManager;
-        [ServiceInject]
+        [Inject]
         private BattleAppService _battleAppService;
 
         private Transform _center;
