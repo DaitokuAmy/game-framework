@@ -1,39 +1,33 @@
 using GameFramework.UISystems;
 
-namespace GameFramework
-{
+namespace GameFramework {
     /// <summary>
     /// UIScreenに紐づけるロジック
     /// </summary>
     public class UIScreenLogic<TScreen> : Logic, IUIScreenHandler
-        where TScreen : UIScreen
-    {        
+        where TScreen : UIScreen {
         /// <summary>制御対象のスクリーン</summary>
         protected TScreen Screen { get; private set; }
 
         /// <summary>
         /// 登録時処理
         /// </summary>
-        void IUIScreenHandler.OnRegistered(UIScreen screen)
-        {
+        void IUIScreenHandler.OnRegistered(UIScreen screen) {
             Screen = screen as TScreen;
         }
 
         /// <summary>
         /// 登録解除時処理
         /// </summary>
-        void IUIScreenHandler.OnUnregistered()
-        {
+        void IUIScreenHandler.OnUnregistered() {
             Screen = null;
         }
 
         /// <summary>
         /// 開く前
         /// </summary>
-        void IUIScreenHandler.PreOpen()
-        {
-            if (IsDisposed)
-            {
+        void IUIScreenHandler.PreOpen() {
+            if (IsDisposed) {
                 return;
             }
 
@@ -43,10 +37,8 @@ namespace GameFramework
         /// <summary>
         /// 開いた後
         /// </summary>
-        void IUIScreenHandler.PostOpen()
-        {
-            if (IsDisposed)
-            {
+        void IUIScreenHandler.PostOpen() {
+            if (IsDisposed) {
                 return;
             }
 
@@ -56,42 +48,36 @@ namespace GameFramework
         /// <summary>
         /// アクティブ時
         /// </summary>
-        void IUIScreenHandler.Activate()
-        {
+        void IUIScreenHandler.Activate() {
             Activate();
         }
 
         /// <summary>
         /// 更新処理
         /// </summary>
-        void IUIScreenHandler.Update(float deltaTime)
-        {
+        void IUIScreenHandler.Update(float deltaTime) {
             // 使わない
         }
 
         /// <summary>
         /// 後更新処理
         /// </summary>
-        void IUIScreenHandler.LateUpdate(float deltaTime)
-        {
+        void IUIScreenHandler.LateUpdate(float deltaTime) {
             // 使わない
         }
 
         /// <summary>
         /// 非アクティブ時
         /// </summary>
-        void IUIScreenHandler.Deactivate()
-        {
+        void IUIScreenHandler.Deactivate() {
             Deactivate();
         }
 
         /// <summary>
         /// 閉じる前
         /// </summary>
-        void IUIScreenHandler.PreClose()
-        {
-            if (IsDisposed)
-            {
+        void IUIScreenHandler.PreClose() {
+            if (IsDisposed) {
                 return;
             }
 
@@ -101,10 +87,8 @@ namespace GameFramework
         /// <summary>
         /// 閉じた後
         /// </summary>
-        void IUIScreenHandler.PostClose()
-        {
-            if (IsDisposed)
-            {
+        void IUIScreenHandler.PostClose() {
+            if (IsDisposed) {
                 return;
             }
 

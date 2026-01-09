@@ -11,11 +11,11 @@ namespace SampleGame.Application {
         /// <summary>
         /// 戻る処理
         /// </summary>
-        TransitionHandle<INavNode> Back(int depth = 1, bool cross = false);
+        TransitionHandle<INavNode> Back(int depth = 1);
 
         /// <summary>
         /// 汎用遷移処理
         /// </summary>
-        TransitionHandle<INavNode> TransitionTo(Type nodeType, bool reset = false, Action<INavNode> setupAction = null, TransitionType transitionType = TransitionType.SceneDefault);
+        TransitionHandle<INavNode> TransitionTo(Type nodeType, bool reset = false, Action<INavNode> setupAction = null);
     }
 }

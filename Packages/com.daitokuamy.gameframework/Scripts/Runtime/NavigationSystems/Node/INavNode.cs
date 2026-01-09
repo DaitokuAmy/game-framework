@@ -13,6 +13,8 @@ namespace GameFramework.NavigationSystems {
         bool IsParallelLoading { get; }
         /// <summary>接続されている親</summary>
         INavNode Parent { get; }
+        /// <summary>アクティブ状態</summary>
+        bool IsActive { get; }
 #if USE_VCONTAINER
         /// <summary>VContainer用のResolver</summary>
         IObjectResolver ObjectResolver { get; }
@@ -69,6 +71,11 @@ namespace GameFramework.NavigationSystems {
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         void Activate(TransitionHandle<INavNode> handle);
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        void Update();
 
         /// <summary>
         /// 非アクティブ時処理

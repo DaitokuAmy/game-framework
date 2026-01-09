@@ -27,7 +27,6 @@ namespace SampleGame.Lifecycle {
         public struct StartArgs {
             public Type NavNodeType;
             public Action<INavNode> SetupAction;
-            public TransitionType TransitionType;
         }
 
         /// <summary>
@@ -36,7 +35,6 @@ namespace SampleGame.Lifecycle {
         public struct RebootArgs {
             public Type NavNodeType;
             public Action<INavNode> SetupAction;
-            public TransitionType TransitionType;
         }
 
         private DisposableScope _globalScope;
@@ -90,7 +88,7 @@ namespace SampleGame.Lifecycle {
             SetupDebug();
 
             // 開始Nodeへの遷移
-            _globalResolver.Resolve<IAppNavigator>().TransitionTo(startArgs.NavNodeType, false, startArgs.SetupAction, startArgs.TransitionType);
+            _globalResolver.Resolve<IAppNavigator>().TransitionTo(startArgs.NavNodeType, false, startArgs.SetupAction);
         }
 
         /// <inheritdoc/>
@@ -98,7 +96,7 @@ namespace SampleGame.Lifecycle {
             var rebootArgs = ParseRebootArgs(args);
 
             // 開始Nodeにリセット遷移
-            _globalResolver.Resolve<IAppNavigator>().TransitionTo(rebootArgs.NavNodeType, true, rebootArgs.SetupAction, rebootArgs.TransitionType);
+            _globalResolver.Resolve<IAppNavigator>().TransitionTo(rebootArgs.NavNodeType, true, rebootArgs.SetupAction);
             
             yield break;
         }
@@ -114,7 +112,6 @@ namespace SampleGame.Lifecycle {
             else {
                 startArgs.NavNodeType = typeof(TitleTopScreenNode);
                 startArgs.SetupAction = null;
-                startArgs.TransitionType = TransitionType.SceneDefault;
             }
 
             return startArgs;
@@ -131,7 +128,6 @@ namespace SampleGame.Lifecycle {
             else {
                 rebootArgs.NavNodeType = typeof(TitleTopScreenNode);
                 rebootArgs.SetupAction = null;
-                rebootArgs.TransitionType = TransitionType.SceneDefault;
             }
 
             return rebootArgs;

@@ -12,8 +12,6 @@ namespace SampleGame.Lifecycle {
         
         /// <summary>開始時に再生するNavNodeType</summary>
         protected abstract Type NavNodeType { get; }
-        /// <summary>開始時の遷移タイプ</summary>
-        protected virtual TransitionType TransitionType => TransitionType.SceneDefault;
 
         /// <summary>
         /// NavNodeセットアップ処理
@@ -26,8 +24,7 @@ namespace SampleGame.Lifecycle {
         private MainSystem.StartArgs CreateStartArgs() {
             return new MainSystem.StartArgs {
                 NavNodeType = NavNodeType,
-                SetupAction = OnNodeSetup,
-                TransitionType = TransitionType
+                SetupAction = OnNodeSetup
             };
         }
     }

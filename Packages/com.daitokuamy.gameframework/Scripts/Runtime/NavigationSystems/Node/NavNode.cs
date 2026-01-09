@@ -1,5 +1,6 @@
 using System.Collections;
 using GameFramework.Core;
+using UnityEngine.PlayerLoop;
 
 #if USE_VCONTAINER
 using VContainer;
@@ -10,16 +11,19 @@ namespace GameFramework.NavigationSystems {
     /// NavNode基底
     /// </summary>
     public abstract class NavNode : INavNode {
-        private DisposableScope _standbyScope = new();
-        private DisposableScope _loadScope = new();
-        private DisposableScope _initializeScope = new();
-        private DisposableScope _activateScope = new();
+        private DisposableScope _standbyScope;
+        private DisposableScope _loadScope;
+        private DisposableScope _initializeScope;
+        private DisposableScope _activateScope;
         private INavNode _parent;
+        private bool _active;
 
         /// <inheritdoc/>
         bool INavNode.IsParallelLoading => IsParallelLoading;
         /// <inheritdoc/>
         INavNode INavNode.Parent => _parent;
+        /// <inheritdoc/>
+        bool INavNode.IsActive => _activateScope != null;
 
         /// <summary>Loadを並列で実行可能か</summary>
         protected virtual bool IsParallelLoading => true;
@@ -86,6 +90,11 @@ namespace GameFramework.NavigationSystems {
         void INavNode.Activate(TransitionHandle<INavNode> handle) {
             _activateScope = new DisposableScope();
             Activate(handle, _activateScope);
+        }
+
+        /// <inheritdoc/>
+        void INavNode.Update() {
+            Update();
         }
 
         /// <inheritdoc/>
@@ -191,6 +200,11 @@ namespace GameFramework.NavigationSystems {
         /// <param name="handle">遷移ハンドル</param>
         /// <param name="scope">生存スコープ</param>
         protected virtual void Activate(TransitionHandle<INavNode> handle, IScope scope) { }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        protected virtual void Update() { }
 
         /// <summary>
         /// 非アクティブ時処理

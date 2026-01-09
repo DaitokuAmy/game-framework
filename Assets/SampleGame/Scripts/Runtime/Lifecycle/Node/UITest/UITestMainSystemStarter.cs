@@ -6,6 +6,6 @@ namespace SampleGame.Lifecycle {
     /// </summary>
     public sealed class UITestMainSystemStarter : MainSystemStarter {
         /// <inheritdoc/>
-        protected override Type NavNodeType => typeof(UITestSceneSessionNode);
+        protected override Type NavNodeType => typeof(UITestSessionNode);
     }
 }

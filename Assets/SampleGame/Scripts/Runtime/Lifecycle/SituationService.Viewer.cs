@@ -1,7 +1,4 @@
-using System;
-using GameFramework;
-using GameFramework.Core;
-using GameFramework.SituationSystems;
+using Cysharp.Threading.Tasks;
 using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
@@ -10,25 +7,10 @@ namespace SampleGame.Lifecycle {
     /// </summary>
     partial class AppNavigator {
         /// <inheritdoc/>
-        IProcess IAppNavigator.TransitionModelViewer() {
-            return Transition<SortieTopSituation>(transitionType: TransitionType.SceneDefault);
-        }
-        
-        /// <summary>
-        /// Viewer関連のSituationの初期化
-        /// </summary>
-        private void SetupViewerSituations(Situation parentSituation) {
-            var modelViewerSituation = new ModelViewerSceneSessionNode();
-            
-            modelViewerSituation.SetParent(parentSituation);
-        }
-
-        /// <summary>
-        /// Viewer関連のTreeNode初期化
-        /// </summary>
-        private StateTreeNode<Type> SetupViewerTreeNodes(StateTreeNode<Type> parentNode) {
-            var modelViewerNode = ConnectNode<ModelViewerSceneSessionNode>(parentNode);
-            return modelViewerNode;
+        UniTask IAppNavigator.TransitionToModelViewer() {
+            // var (transition, effects) = GetDefaultTransitionInfo<ModelViewerSessionNode>();
+            // await _engine.TransitionTo<ModelViewerTopScreenNode>(transition, effects);
+            return UniTask.CompletedTask;
         }
     }
 }

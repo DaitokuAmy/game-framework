@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 
 namespace SampleGame.Application {
@@ -8,26 +9,26 @@ namespace SampleGame.Application {
         /// <summary>
         /// 出撃トップへの遷移
         /// </summary>
-        IProcess TransitionSortieTop();
+        UniTask TransitionToSortieTop();
         
         /// <summary>
         /// 出撃兵科選択への遷移
         /// </summary>
-        IProcess TransitionSortieRoleSelect();
+        UniTask TransitionToSortieRoleSelect();
         
         /// <summary>
         /// 出撃兵科情報への遷移
         /// </summary>
-        IProcess TransitionSortieRoleInformation();
+        UniTask TransitionToSortieRoleInformation();
         
         /// <summary>
         /// 出撃ミッション選択への遷移
         /// </summary>
-        IProcess TransitionSortieMissionSelect();
+        UniTask TransitionToSortieMissionSelect();
         
         /// <summary>
         /// 出撃難易度選択への遷移
         /// </summary>
-        IProcess TransitionSortieDifficultySelect();
+        UniTask TransitionToSortieDifficultySelect();
     }
 }

@@ -6,6 +6,6 @@ namespace SampleGame.Lifecycle {
     /// </summary>
     public sealed class OutGameMainSystemStarter : MainSystemStarter {
         /// <inheritdoc/>
-        protected override Type NavNodeType => typeof(SortieTopSituation);
+        protected override Type NavNodeType => typeof(SortieTopScreenNode);
     }
 }

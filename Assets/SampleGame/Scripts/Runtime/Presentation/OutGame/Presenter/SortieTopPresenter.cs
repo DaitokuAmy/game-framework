@@ -19,10 +19,10 @@ namespace SampleGame.Presentation.OutGame {
                 .Subscribe(idx => {
                     switch (idx) {
                         case 0:
-                            _appNavigator.TransitionSortieMissionSelect();
+                            _appNavigator.TransitionToSortieMissionSelect();
                             break;
                         case 1:
-                            _appNavigator.TransitionSortieRoleSelect();
+                            _appNavigator.TransitionToSortieRoleSelect();
                             break;
                         case 2:
                             _appNavigator.Back();

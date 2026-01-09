@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 
 namespace SampleGame.Application {
@@ -8,11 +9,11 @@ namespace SampleGame.Application {
         /// <summary>
         /// タイトルトップへの遷移
         /// </summary>
-        IProcess TransitionTitleTop();
+        UniTask TransitionToTitleTop();
         
         /// <summary>
         /// タイトルオプションへの遷移
         /// </summary>
-        IProcess TransitionTitleOption();
+        UniTask TransitionToTitleOption();
     }
 }

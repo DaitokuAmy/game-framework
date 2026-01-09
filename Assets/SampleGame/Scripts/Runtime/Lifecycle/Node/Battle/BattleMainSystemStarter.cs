@@ -1,4 +1,5 @@
 using System;
+using GameFramework.NavigationSystems;
 using UnityEngine;
 
 namespace SampleGame.Lifecycle {
@@ -12,11 +13,11 @@ namespace SampleGame.Lifecycle {
         private int _playerId = 1;
 
         /// <inheritdoc/>
-        protected override Type NavNodeType => typeof(BattleSceneSessionNode);
+        protected override Type NavNodeType => typeof(BattleSessionNode);
 
         /// <inheritdoc/>
-        protected override void OnNodeSetup(Situation navNode) {
-            if (navNode is BattleSceneSessionNode battleSceneSituation) {
+        protected override void OnNodeSetup(INavNode navNode) {
+            if (navNode is BattleSessionNode battleSceneSituation) {
                 battleSceneSituation.Setup(_battleId, _playerId);
             }
         }

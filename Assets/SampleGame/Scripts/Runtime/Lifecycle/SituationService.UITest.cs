@@ -1,7 +1,4 @@
-using System;
-using GameFramework;
-using GameFramework.Core;
-using GameFramework.SituationSystems;
+using Cysharp.Threading.Tasks;
 using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
@@ -10,24 +7,9 @@ namespace SampleGame.Lifecycle {
     /// </summary>
     partial class AppNavigator {
         /// <inheritdoc/>
-        IProcess IAppNavigator.TransitionUITest() {
-            return Transition<UITestSceneSessionNode>(transitionType: TransitionType.SceneDefault);
-        }
-        
-        /// <summary>
-        /// UITest関連のSituationの初期化
-        /// </summary>
-        private void SetupUITestSituations(Situation parentSituation) {
-            var uiTestSceneSituation = new UITestSceneSessionNode();
-            uiTestSceneSituation.SetParent(parentSituation);
-        }
-
-        /// <summary>
-        /// UITest関連のTreeNode初期化
-        /// </summary>
-        private StateTreeNode<Type> SetupUITestTreeNodes(StateTreeNode<Type> parentNode) {
-            var uiTestNode = ConnectNode<UITestSceneSessionNode>(parentNode);
-            return uiTestNode;
+        async UniTask IAppNavigator.TransitionToUITest() {
+            //var (transition, effects) = GetDefaultTransitionInfo<UITestSessionNode>();
+            //await _engine.TransitionTo<UITestTopScreenNode>(transition, effects);
         }
     }
 }

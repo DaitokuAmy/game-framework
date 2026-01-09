@@ -1,7 +1,4 @@
-using System;
-using GameFramework;
-using GameFramework.Core;
-using GameFramework.SituationSystems;
+using Cysharp.Threading.Tasks;
 using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
@@ -10,44 +7,15 @@ namespace SampleGame.Lifecycle {
     /// </summary>
     partial class AppNavigator {
         /// <inheritdoc/>
-        IProcess IAppNavigator.TransitionTitleTop() {
-            var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<IntroductionSessionNode>()) {
-                transitionType = TransitionType.SceneDefault;
-            }
-
-            return Transition<TitleTopScreenNode>(transitionType: transitionType);
+        async UniTask IAppNavigator.TransitionToTitleTop() {
+            var (transition, effects) = GetDefaultTransitionInfo<IntroductionSessionNode>();
+            await _engine.TransitionTo<TitleTopScreenNode>(transition, effects);
         }
         
         /// <inheritdoc/>
-        IProcess IAppNavigator.TransitionTitleOption() {
-            var transitionType = TransitionType.ScreenCross;
-            if (!CheckParentSituation<IntroductionSessionNode>()) {
-                transitionType = TransitionType.SceneDefault;
-            }
-
-            return Transition<TitleOptionScreenNode>(transitionType: transitionType);
-        }
-        
-        /// <summary>
-        /// Introduction関連のSituationの初期化
-        /// </summary>
-        private void SetupIntroductionSituations(Situation parentSituation) {
-            var introductionSceneSituation = new IntroductionSessionNode();
-            introductionSceneSituation.SetParent(parentSituation);
-            var titleTopSituation = new TitleTopScreenNode();
-            titleTopSituation.SetParent(introductionSceneSituation);
-            var titleOptionSituation = new TitleOptionScreenNode();
-            titleOptionSituation.SetParent(introductionSceneSituation);
-        }
-
-        /// <summary>
-        /// Introduction関連のTreeNode初期化
-        /// </summary>
-        private StateTreeNode<Type> SetupIntroductionTreeNodes(StateTreeNode<Type> parentNode) {
-            var titleTopNode = ConnectNode<TitleTopScreenNode>(parentNode);
-            var titleOptionNode = ConnectNode<TitleOptionScreenNode>(titleTopNode);
-            return titleTopNode;
+        async UniTask IAppNavigator.TransitionToTitleOption() {
+            var (transition, effects) = GetDefaultTransitionInfo<IntroductionSessionNode>();
+            await _engine.TransitionTo<TitleOptionScreenNode>(transition, effects);
         }
     }
 }

@@ -2,6 +2,7 @@ using System.Linq;
 using GameFramework.UISystems;
 using UnityDebugMenu;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
@@ -24,7 +25,7 @@ namespace SampleGame.Lifecycle {
 
             DebugMenu.AddWindowItem("Common/UI", _ => {
                 if (DebugMenuUtil.ButtonField("Canvas Toggle", "実行")) {
-                    var uiManager = _globalServiceContainer.Resolve<UIManager>();
+                    var uiManager = _globalResolver.Resolve<UIManager>();
                     var canvases = uiManager.GetCanvases();
                     if (canvases.Length > 0) {
                         var active = canvases[0].gameObject.activeSelf;

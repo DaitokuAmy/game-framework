@@ -6,6 +6,6 @@ namespace SampleGame.Lifecycle {
     /// </summary>
     public class ModelViewerMainSystemStarter : MainSystemStarter {
         /// <inheritdoc/>
-        protected override Type NavNodeType => typeof(ModelViewerSceneSessionNode);
+        protected override Type NavNodeType => typeof(ModelViewerSessionNode);
     }
 }

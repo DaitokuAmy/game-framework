@@ -20,22 +20,22 @@ namespace SampleGame.Lifecycle {
             // スタートボタン
             UIService.TitleTopUIScreen.ClickedStartButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { AppNavigator.TransitionSortieTop(); });
+                .Subscribe(_ => { AppNavigator.TransitionToSortieTop(); });
 
             // オプションボタン
             UIService.TitleTopUIScreen.ClickedOptionButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { AppNavigator.TransitionTitleOption(); });
+                .Subscribe(_ => { AppNavigator.TransitionToTitleOption(); });
 
             // モデルビューアーボタン
             UIService.TitleTopUIScreen.ClickedModelViewerButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { AppNavigator.TransitionModelViewer(); });
+                .Subscribe(_ => { AppNavigator.TransitionToModelViewer(); });
 
             // UITestボタン
             UIService.TitleTopUIScreen.ClickedUITestButtonSubject
                 .TakeUntil(scope)
-                .Subscribe(_ => { AppNavigator.TransitionUITest(); });
+                .Subscribe(_ => { AppNavigator.TransitionToUITest(); });
         }
 
         /// <inheritdoc/>

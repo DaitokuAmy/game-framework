@@ -9,9 +9,6 @@ namespace SampleGame.ModelViewer.Editor {
     /// モデルビューア用のWindow
     /// </summary>
     public partial class ModelViewerWindow : DebugWindowBase<ModelViewerWindow> {
-        /// <summary>Service取得用</summary>
-        private IServiceResolver Resolver => ModelViewerDebugServiceResolver.Instance;
-        
         /// <summary>
         /// 開く処理
         /// </summary>
@@ -32,10 +29,10 @@ namespace SampleGame.ModelViewer.Editor {
 
         /// <inheritdoc/>
         protected override string GetGuiErrorMessage() {
-            if (Resolver == null)
-            {
-                return $"Not found {nameof(ModelViewerDebugServiceResolver)}";
-            }
+            // if (Resolver == null)
+            // {
+            //     return $"Not found {nameof(ModelViewerDebugServiceResolver)}";
+            // }
 
             return base.GetGuiErrorMessage();
         }

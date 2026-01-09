@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using GameFramework.Core;
 
 namespace SampleGame.Application {
@@ -8,11 +9,11 @@ namespace SampleGame.Application {
         /// <summary>
         /// バトルへの遷移
         /// </summary>
-        IProcess TransitionBattle();
+        UniTask TransitionToBattle();
         
         /// <summary>
         /// バトル中ポーズへの遷移
         /// </summary>
-        IProcess TransitionBattlePause();
+        UniTask TransitionToBattlePause();
     }
 }

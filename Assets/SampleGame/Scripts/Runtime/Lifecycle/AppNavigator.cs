@@ -3,6 +3,7 @@ using GameFramework;
 using GameFramework.Core;
 using GameFramework.NavigationSystems;
 using SampleGame.Application;
+using SampleGame.Presentation;
 using UnityEngine;
 using VContainer;
 
@@ -11,38 +12,33 @@ namespace SampleGame.Lifecycle {
     /// アプリ内遷移制御クラス
     /// </summary>
     public partial class AppNavigator : DisposableTask, IAppNavigator {
-        private readonly DisposableScope _scope;
-        private readonly NavigationEngine _engine;
+        private static ITransition OutInTransition => new OutInTransition();
+        private static ITransition CrossTransition => new CrossTransition();
+        private static ITransitionEffect[] BlockOnlyEffects => new ITransitionEffect[] { new BlockTransitionEffect() };
+        private static ITransitionEffect[] LoadingEffects => new ITransitionEffect[] { new BlockTransitionEffect(), new LoadingTransitionEffect() };
+        private static ITransitionEffect[] FadeEffects => new ITransitionEffect[] { new BlockTransitionEffect(), new FaderTransitionEffect(Color.black) };
+
+        private DisposableScope _scope;
+        private NavigationEngine _engine;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public AppNavigator() {
-            _scope = new DisposableScope();
-        }
-
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
-        public void Initialize(IObjectResolver globalResolver) {
-            // NavigationEngineBuilder.Create()
-            //     .CreateLifecycle()
         }
 
         /// <inheritdoc/>
-        IProcess IAppNavigator.Back(int depth, bool cross) {
-            // 戻り先がSceneを跨ぐ場合、強制でTransitionTypeをScene用に差し替える
-            var currentNode = _situationTreeRouter.CurrentNode;
-            var backNode = default(StateTreeNode<Type>);
-            for (var i = 0; i < depth; i++) {
-                backNode = currentNode.GetPrevious();
-            }
+        TransitionHandle<INavNode> IAppNavigator.Back(int depth) {
+            var (transition, effects) = GetDefaultBackTransitionInfo();
+            return _engine.Back(depth, null, transition, effects);
+        }
 
-            var differentScene = CheckDifferentSceneSituation(currentNode, backNode);
-            var transitionType = differentScene ? TransitionType.SceneDefault : (cross ? TransitionType.ScreenCross : TransitionType.ScreenDefault);
-            
-            // 戻り遷移
-            return Back(depth, null, transitionType);
+        /// <inheritdoc/>
+        TransitionHandle<INavNode> IAppNavigator.TransitionTo(Type nodeType, bool refresh, Action<INavNode> setupAction) {
+            var (transition, effects) = GetDefaultTransitionInfo(nodeType);
+            return _engine.TransitionTo(nodeType, new NavNodeTree.TransitionOption {
+                Refresh = refresh,
+            }, setupAction, transition, effects);
         }
 
         /// <inheritdoc/>
@@ -58,121 +54,94 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// 初期化処理
         /// </summary>
-        public void Initialize() {
-            if (_scope.Disposed) {
+        public void Initialize(IObjectResolver globalResolver) {
+            if (_scope?.Disposed ?? false) {
                 Debug.LogError("SituationService is disposed");
                 return;
             }
 
-            if (_situationContainer == null || _situationTreeRouter == null) {
-                Debug.LogError("SituationContainer or SituationFlow is null");
-                return;
-            }
+            _scope = new DisposableScope();
+            _engine = NavigationEngineBuilder.Create()
+                .CreateLifecycle(new RootNode(), root => {
+                    root.AddSession(new IntroductionSessionNode(), introduction => {
+                            introduction.AddScreen(new TitleTopScreenNode());
+                            introduction.AddScreen(new TitleOptionScreenNode());
+                        })
+                        .AddSession(new OutGameSessionNode(), outGame => {
+                        })
+                        .AddSession(new BattleSessionNode(), battle => {
+                            battle.AddScreen(new BattlePauseScreenNode());
+                        });
+                })
+                .CreateRouter(container => {
+                    return NavNodeTreeRouterBuilder.Create()
+                        .AddRoot<TitleTopScreenNode>(titleTop => {
+                            titleTop.Connect<TitleOptionScreenNode>()
+                                .SetGlobalShortcut();
+                        })
+                        .Build(container);
+                })
+                .Build(globalResolver)
+                .RegisterTo(_scope);
 
-            SetupContainer(_situationContainer, _scope);
-            SetupTree(_situationTreeRouter, _scope);
             SetupDebug(_scope);
         }
 
         /// <summary>
-        /// 指定したSituationへ遷移する
+        /// デフォルトの遷移情報取得
         /// </summary>
-        public TransitionHandle<Situation> Transition(Type type, Action<Situation> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) {
-            var (transition, effects) = GetTransitionInfo(transitionType);
-            if (refresh) {
-                var option = new SituationContainer.TransitionOption { Refresh = true };
-                return _situationTreeRouter.Transition(type, option, TransitionStep.Complete, setupAction, transition, effects);
+        private (ITransition ITransition, ITransitionEffect[]) GetDefaultTransitionInfo(Type nodeType) {
+            var transition = CrossTransition;
+            var effects = Array.Empty<ITransitionEffect>();
+
+            // SessionNodeに差があるか
+            var currentSessionNode = _engine.GetNodeInParent<SessionNode>();
+            var nextSessionNode = _engine.GetNodeInParent<SessionNode>(nodeType);
+            if (currentSessionNode != nextSessionNode) {
+                // OutInTransition, LoadingEffectsにする
+                transition = OutInTransition;
+                effects = LoadingEffects;
             }
 
-            return _situationTreeRouter.Transition(type, null, TransitionStep.Complete, setupAction, transition, effects);
+            return (transition, effects);
         }
 
         /// <summary>
-        /// 指定したSituationへ遷移する
+        /// デフォルトの遷移情報取得
         /// </summary>
-        public TransitionHandle<Situation> Transition<T>(Action<T> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault, bool refresh = false) where T : Situation {
-            return Transition(typeof(T), s => setupAction?.Invoke((T)s), transitionType, refresh);
-        }
+        private (ITransition ITransition, ITransitionEffect[]) GetDefaultTransitionInfo<TSessionNodeType>()
+            where TSessionNodeType : SceneSessionNode {
+            var transition = CrossTransition;
+            var effects = Array.Empty<ITransitionEffect>();
 
-        /// <summary>
-        /// 戻り遷移
-        /// </summary>
-        public TransitionHandle<Situation> Back(int depth, Action<Situation> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault) {
-            var (transition, effects) = GetTransitionInfo(transitionType);
-            return _situationTreeRouter.Back(depth, null, setupAction, transition, effects);
-        }
-
-        /// <summary>
-        /// 戻り遷移
-        /// </summary>
-        public TransitionHandle<Situation> Back(Action<Situation> setupAction = null, TransitionType transitionType = TransitionType.ScreenDefault) {
-            return Back(1, setupAction, transitionType);
-        }
-
-        /// <summary>
-        /// 現在のSituationNodeをリセット
-        /// </summary>
-        public TransitionHandle<Situation> Reset(Action<Situation> setupAction = null) {
-            var (_, effects) = GetTransitionInfo(TransitionType.SceneDefault);
-            return _situationTreeRouter.Reset(setupAction, effects);
-        }
-
-        /// <summary>
-        /// ノードの接続
-        /// </summary>
-        private StateTreeNode<Type> ConnectNode<T>(StateTreeNode<Type> parentNode)
-            where T : Situation {
-            if (parentNode == null) {
-                return _situationTreeRouter.ConnectRoot(typeof(T));
+            // 行き先のSessionNodeを含んでいるか
+            var sessionNode = _engine.GetNodeInParent<TSessionNodeType>();
+            if (sessionNode == null) {
+                // OutInTransition, LoadingEffectsにする
+                transition = OutInTransition;
+                effects = LoadingEffects;
             }
 
-            return parentNode.Connect(typeof(T));
+            return (transition, effects);
         }
 
         /// <summary>
-        /// Nodeに含まれているSituationが違うSceneSituationに含まれているかチェック
+        /// デフォルトの戻り遷移情報取得
         /// </summary>
-        private bool CheckDifferentSceneSituation(StateTreeNode<Type> nodeA, StateTreeNode<Type> nodeB) {
-            // SceneSituationを再起的に探す
-            Situation FindSceneSituation(Situation s) {
-                if (s == null) {
-                    return null;
-                }
+        private (ITransition ITransition, ITransitionEffect[]) GetDefaultBackTransitionInfo() {
+            var transition = CrossTransition;
+            var effects = Array.Empty<ITransitionEffect>();
 
-                if (s is SceneSessionNode) {
-                    return s;
-                }
-
-                return FindSceneSituation(s.Parent);
+            // 現在のSessionNodeと戻り先のSessionNodeを比較
+            var currentSessionNode = _engine.GetNodeInParent<SceneSessionNode>();
+            var backSessionNode = _engine.GetBackNodeInParent<SceneSessionNode>();
+            if (currentSessionNode != backSessionNode) {
+                // OutInTransition, LoadingEffectsにする
+                transition = OutInTransition;
+                effects = LoadingEffects;
             }
 
-            var situationA = _situationContainer.FindSituation(nodeA.Key);
-            var situationB = _situationContainer.FindSituation(nodeB.Key);
-            var sceneSituationA = FindSceneSituation(situationA);
-            var sceneSituationB = FindSceneSituation(situationB);
-            return sceneSituationA != sceneSituationB;
-        }
-
-        /// <summary>
-        /// 現在のSituationが特定のSituation以下にぶら下がっているかチェック
-        /// </summary>
-        private bool CheckParentSituation<TSituation>()
-            where TSituation : Situation {
-            var current = _situationTreeRouter.Current;
-            if (current == null) {
-                return false;
-            }
-
-            var s = current;
-            while (s.Parent != null) {
-                if (s.Parent is TSituation) {
-                    return true;
-                }
-
-                s = s.Parent;
-            }
-
-            return false;
+            return (transition, effects);
         }
     }
 }

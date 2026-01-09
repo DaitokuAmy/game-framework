@@ -21,7 +21,7 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// モデルビューア用のSessionNode
     /// </summary>
-    public class ModelViewerSceneSessionNode : SceneSessionNode {
+    public class ModelViewerSessionNode : SceneSessionNode {
         private ModelViewerConfigData _configData;
         private ModelViewerAppService _appService;
         private ModelViewerDomainService _domainService;

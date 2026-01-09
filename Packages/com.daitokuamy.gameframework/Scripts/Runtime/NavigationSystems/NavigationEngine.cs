@@ -51,19 +51,30 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// 遷移実行
         /// </summary>
+        /// <param name="targetNodeType">遷移先のノードタイプ</param>
+        /// <param name="option">遷移オプション</param>
+        /// <param name="setupAction">遷移先Node</param>
+        /// <param name="transition">遷移方法</param>
+        /// <param name="effects">遷移時演出</param>
+        public TransitionHandle<INavNode> TransitionTo(Type targetNodeType, NavNodeTree.TransitionOption option, Action<INavNode> setupAction, ITransition transition,
+            params ITransitionEffect[] effects) {
+            if (_router != null) {
+                return _router.TransitionTo(targetNodeType, option, setupAction, transition, effects);
+            }
+
+            return _tree.TransitionTo(targetNodeType, option, false, setupAction, transition, effects);
+        }
+
+        /// <summary>
+        /// 遷移実行
+        /// </summary>
         /// <param name="option">遷移オプション</param>
         /// <param name="setupAction">遷移先Node</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
         public TransitionHandle<INavNode> TransitionTo<TNode>(NavNodeTree.TransitionOption option, Action<TNode> setupAction, ITransition transition, params ITransitionEffect[] effects)
             where TNode : IScreenNode {
-            if (_router != null) {
-                return _router.TransitionTo(typeof(TNode), option, node => {
-                    setupAction?.Invoke((TNode)node);
-                }, transition, effects);
-            }
-
-            return _tree.TransitionTo(typeof(TNode), option, false, node => {
+            return TransitionTo(typeof(TNode), option, node => {
                 setupAction?.Invoke((TNode)node);
             }, transition, effects);
         }
@@ -175,12 +186,30 @@ namespace GameFramework.NavigationSystems {
         }
 
         /// <summary>
+        /// 特定Nodeが存在する階層に特定のNavNode型が存在するかチェック
+        /// ※自身もチェック対象
+        /// </summary>
+        public bool CheckNodeTypeInParent<TNode>(Type targetNodeType)
+            where TNode : INavNode {
+            return _tree.CheckNodeTypeInParent<TNode>(targetNodeType);
+        }
+
+        /// <summary>
         /// カレントNodeの階層の中で特定の型のNodeを取得
         /// ※カレントもチェック対象
         /// </summary>
         public TNode GetNodeInParent<TNode>()
             where TNode : INavNode {
             return _tree.GetNodeInParent<TNode>();
+        }
+
+        /// <summary>
+        /// 特定Nodeが存在する階層の中で特定の型のNodeを取得
+        /// ※自身もチェック対象
+        /// </summary>
+        public TNode GetNodeInParent<TNode>(Type targetNodeType)
+            where TNode : INavNode {
+            return _tree.GetNodeInParent<TNode>(targetNodeType);
         }
 
         /// <summary>
@@ -198,7 +227,7 @@ namespace GameFramework.NavigationSystems {
             if (backKey == null) {
                 return default;
             }
-            
+
             return _tree.GetNodeInParent<TNode>(backKey);
         }
 
@@ -209,7 +238,7 @@ namespace GameFramework.NavigationSystems {
             where TNode : INavNode {
             return _tree.PreLoad(typeof(TNode));
         }
-        
+
         /// <summary>
         /// NodeのPreLoadをUnload
         /// </summary>

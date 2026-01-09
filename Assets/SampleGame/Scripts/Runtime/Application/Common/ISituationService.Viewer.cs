@@ -1,4 +1,4 @@
-using GameFramework.Core;
+using Cysharp.Threading.Tasks;
 
 namespace SampleGame.Application {
     /// <summary>
@@ -8,6 +8,6 @@ namespace SampleGame.Application {
         /// <summary>
         /// モデルビューアーへの遷移
         /// </summary>
-        IProcess TransitionModelViewer();
+        UniTask TransitionToModelViewer();
     }
 }

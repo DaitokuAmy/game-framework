@@ -1,37 +1,39 @@
 using System;
-using GameFramework.SituationSystems;
+using GameFramework.NavigationSystems;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
-    /// Situationの初期化処理のインタフェース
+    /// NavNodeの初期化処理のインタフェース
     /// </summary>
-    public interface ISituationSetup {
-        /// <summary>Situationのタイプ</summary>
-        Type SituationType { get; }
+    public interface INavNodeSetup {
+        /// <summary>Nodeのタイプ</summary>
+        Type NodeType { get; }
 
-        /// <summary>Situationのセットアップ処理</summary>
-        void OnSetup(Situation situation);
+        /// <summary>Nodeのセットアップ処理</summary>
+        void OnSetup(INavNode node);
     }
 
     /// <summary>
-    /// Situationの初期化処理
+    /// NavNodeの初期化処理
     /// </summary>
-    public class SituationSetup<T> : ISituationSetup
-        where T : Situation {
-        Type ISituationSetup.SituationType => typeof(T);
+    public class NavNodeSetup<T> : INavNodeSetup
+        where T : IScreenNode {
+        /// <inheritdoc/>
+        Type INavNodeSetup.NodeType => typeof(T);
 
         private readonly Action<T> _setupAction;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public SituationSetup(Action<T> setupAction = null) {
+        public NavNodeSetup(Action<T> setupAction = null) {
             _setupAction = setupAction;
         }
 
-        void ISituationSetup.OnSetup(Situation situation) {
-            if (situation is T startSituation) {
-                _setupAction?.Invoke(startSituation);
+        /// <inheritdoc/>
+        void INavNodeSetup.OnSetup(INavNode node) {
+            if (node is T startNode) {
+                _setupAction?.Invoke(startNode);
             }
         }
     }

@@ -326,6 +326,11 @@ namespace GameFramework.NavigationSystems {
         /// </summary>
         public void Update() {
             _coroutineRunner?.Update();
+            
+            // アクティブなNodeを更新する
+            foreach (var node in _runningNodes) {
+                node.Update();
+            }
         }
 
         /// <inheritdoc/>
@@ -481,6 +486,28 @@ namespace GameFramework.NavigationSystems {
             where T : INavNode {
             var searchType = typeof(T);
             var node = Current;
+            while (node != null) {
+                if (node.GetType().IsAssignableFrom(searchType)) {
+                    return true;
+                }
+
+                node = node.Parent;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 特定Nodeが存在する階層に特定のNavNode型が存在するかチェック
+        /// ※自身もチェック対象
+        /// </summary>
+        public bool CheckNodeTypeInParent<T>(Type targetNodeType)
+            where T : INavNode {
+            if (!_nodeMap.TryGetValue(targetNodeType, out var node)) {
+                return false;
+            }
+            
+            var searchType = typeof(T);
             while (node != null) {
                 if (node.GetType().IsAssignableFrom(searchType)) {
                     return true;

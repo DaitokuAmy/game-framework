@@ -152,7 +152,8 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// 構築処理
         /// </summary>
-        public NavNodeTreeRouter Build(NavNodeTreeRouter router) {
+        public NavNodeTreeRouter Build(NavNodeTree lifecycleTree) {
+            var router = new NavNodeTreeRouter(lifecycleTree);
             foreach (var rootBuilder in _rootBuilders) {
                 rootBuilder.Build(router);
             }
