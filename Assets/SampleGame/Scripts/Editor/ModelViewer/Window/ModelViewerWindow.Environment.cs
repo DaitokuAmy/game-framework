@@ -4,6 +4,7 @@ using GameFramework.DebugSystems.Editor;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.ModelViewer.Editor {
     /// <summary>

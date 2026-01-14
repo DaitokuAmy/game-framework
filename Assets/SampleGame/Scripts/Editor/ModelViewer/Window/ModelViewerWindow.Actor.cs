@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using GameFramework.ActorSystems;
 using GameFramework.Core;
@@ -8,6 +7,7 @@ using SampleGame.Domain.ModelViewer;
 using ThirdPersonEngine.ModelViewer;
 using UnityEditor;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.ModelViewer.Editor {
     /// <summary>

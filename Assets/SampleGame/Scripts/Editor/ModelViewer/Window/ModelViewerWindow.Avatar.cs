@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework;
 using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.DebugSystems.Editor;
@@ -9,6 +8,7 @@ using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using ThirdPersonEngine.ModelViewer;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.ModelViewer.Editor {
     /// <summary>

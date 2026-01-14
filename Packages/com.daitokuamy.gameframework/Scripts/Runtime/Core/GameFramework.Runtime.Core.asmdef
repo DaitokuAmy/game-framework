@@ -3,7 +3,7 @@
     "rootNamespace": "",
     "references": [
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
-        "GUID:560b04d1a97f54a4e82edc0cbbb69285"
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -26,9 +26,9 @@
             "define": "USE_UNI_TASK"
         },
         {
-            "name": "com.neuecc.unirx",
+            "name": "jp.hadashikick.vcontainer",
             "expression": "",
-            "define": "USE_UNI_RX"
+            "define": "USE_VCONTAINER"
         }
     ],
     "noEngineReferences": true

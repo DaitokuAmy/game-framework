@@ -1,7 +1,7 @@
-using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
 using UnityEditor;
+using VContainer;
 
 namespace SampleGame.ModelViewer.Editor {
     /// <summary>

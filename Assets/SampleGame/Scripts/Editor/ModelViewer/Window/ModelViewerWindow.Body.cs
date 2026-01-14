@@ -7,6 +7,7 @@ using GameFramework.GimmickSystems;
 using SampleGame.Application.ModelViewer;
 using UnityEditor;
 using UnityEngine;
+using VContainer;
 
 namespace SampleGame.ModelViewer.Editor {
     /// <summary>
