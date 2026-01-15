@@ -44,31 +44,43 @@ namespace SampleGame.Lifecycle {
         /// <inheritdoc/>
         protected override void PreStartInternal(object[] args) {
             _globalScope = new DisposableScope();
-            
+
             var builder = new ContainerBuilder();
-            
+
             _taskRunner = new TaskRunner().RegisterTo(_globalScope);
             builder.RegisterInstance(_taskRunner);
             TaskUtility.Initialize(_taskRunner);
-            
-            var environmentManager = new EnvironmentManager(new EnvironmentResolver()).RegisterTo(_globalScope);
-            builder.RegisterInstance(environmentManager);
-            environmentManager.RegisterTask(TaskOrder.PostSystem);
-            
-            var assetManager = new AssetManager();
-            builder.RegisterInstance(assetManager);
-            assetManager.Initialize(new AddressablesAssetProvider(), new ResourcesAssetProvider(), new AssetDatabaseAssetProvider());
-            
-            var uiManager = new UIManager();
-            builder.RegisterInstance(uiManager);
-            uiManager.Initialize(new UIAssetLoader(assetManager));
-            uiManager.RegisterTask(TaskOrder.UI);
-            ResidentUIUtility.Initialize(uiManager);
-            DialogUIUtility.Initialize(uiManager);
 
-            builder.Register<IAppNavigator, AppNavigator>(Lifetime.Singleton);
-            
+            builder.Register(_ => {
+                var environmentManager = new EnvironmentManager(new EnvironmentResolver());
+                environmentManager.RegisterTask(TaskOrder.PostSystem);
+                return environmentManager;
+            }, Lifetime.Singleton);
+
+            builder.Register(_ => {
+                var assetManager = new AssetManager();
+                assetManager.Initialize(new AddressablesAssetProvider(), new ResourcesAssetProvider(), new AssetDatabaseAssetProvider());
+                return assetManager;
+            }, Lifetime.Singleton);
+
+            builder.Register(resolver => {
+                var uiManager = new UIManager();
+                uiManager.Initialize(new UIAssetLoader(resolver.Resolve<AssetManager>()));
+                uiManager.RegisterTask(TaskOrder.UI);
+                ResidentUIUtility.Initialize(uiManager);
+                DialogUIUtility.Initialize(uiManager);
+                return uiManager;
+            }, Lifetime.Singleton);
+
+            var appNavigator = new AppNavigator();
+            builder.RegisterInstance<IAppNavigator>(appNavigator);
+            appNavigator.RegisterTo(_globalScope);
+            appNavigator.RegisterTask(TaskOrder.PreLogic);
+
             _globalResolver = builder.Build().RegisterTo(_globalScope);
+            
+            // AppNavigator初期化
+            appNavigator.Initialize(_globalResolver);
 
             // DeltaTimeProvider初期化
             LayeredTime.DefaultProvider = new UnityDeltaTimeProvider();
@@ -80,7 +92,7 @@ namespace SampleGame.Lifecycle {
 
             // Addressables初期化
             yield return Addressables.InitializeAsync();
-            
+
             // 常駐UI読み込み
             yield return _globalResolver.Resolve<UIManager>().LoadPrefabAsync("resident");
 
@@ -97,7 +109,7 @@ namespace SampleGame.Lifecycle {
 
             // 開始Nodeにリセット遷移
             _globalResolver.Resolve<IAppNavigator>().TransitionTo(rebootArgs.NavNodeType, true, rebootArgs.SetupAction);
-            
+
             yield break;
         }
 

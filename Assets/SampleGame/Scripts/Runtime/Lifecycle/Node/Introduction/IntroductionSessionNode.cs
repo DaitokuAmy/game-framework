@@ -6,6 +6,9 @@ using GameFramework;
 using GameFramework.Core;
 using GameFramework.NavigationSystems;
 using GameFramework.UISystems;
+using SampleGame.Presentation.Introduction;
+using SampleGame.Presentation.OutGame;
+using ThirdPersonEngine;
 using VContainer;
 
 namespace SampleGame.Lifecycle {
@@ -15,19 +18,41 @@ namespace SampleGame.Lifecycle {
     public class IntroductionSessionNode : SceneSessionNode {
         [Inject]
         private UIManager _uiManager;
-        
+
         /// <inheritdoc/>
         protected override string ScenePath => "Assets/SampleGame/Scenes/introduction.unity";
 
         /// <inheritdoc/>
         protected override IEnumerator LoadRoutine(TransitionHandle<INavNode> handle, IScope scope) {
             yield return base.LoadRoutine(handle, scope);
-            
+
             // UI読み込み
             var tasks = new List<UniTask>();
             tasks.Add(LoadUIAsync(scope, scope.Token));
 
             yield return UniTask.WhenAll(tasks).ToCoroutine();
+        }
+
+        /// <inheritdoc/>
+        protected override IEnumerator InitializeRoutine(TransitionHandle<INavNode> handle, IScope scope) {
+            yield return base.InitializeRoutine(handle, scope);
+
+            T CreateLogic<T>(IScope scp = null)
+                where T : Logic, new() {
+                var logic = new T();
+                logic.RegisterTask(TaskOrder.Logic);
+                if (scp != null) {
+                    logic.RegisterTo(scp);
+                }
+
+                ObjectResolver.Inject(logic);
+                return logic;
+            }
+
+            // Presenter初期化
+            var uiService = _uiManager.GetService<IntroductionUIService>();
+            uiService.TitleTopUIScreen.RegisterHandler(CreateLogic<TitleTopPresenter>());
+            uiService.TitleOptionUIScreen.RegisterHandler(CreateLogic<TitleOptionPresenter>());
         }
 
         /// <summary>
@@ -37,7 +62,7 @@ namespace SampleGame.Lifecycle {
             UniTask LoadAsync(string assetKey) {
                 return _uiManager.LoadSceneAsync(assetKey).RegisterTo(unloadScope).ToUniTask(cancellationToken: ct);
             }
-            
+
             return UniTask.WhenAll(LoadAsync("introduction"));
         }
     }

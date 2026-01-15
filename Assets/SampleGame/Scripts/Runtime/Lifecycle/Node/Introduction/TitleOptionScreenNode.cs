@@ -1,28 +1,12 @@
 using System.Collections.Generic;
-using GameFramework;
-using GameFramework.Core;
-using GameFramework.NavigationSystems;
 using GameFramework.UISystems;
 using SampleGame.Presentation.Introduction;
-using R3;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// TitleOption用のScreenNode
     /// </summary>
     public class TitleOptionScreenNode : ScreenNode<IntroductionUIService> {
-        /// <inheritdoc/>
-        protected override void Activate(TransitionHandle<INavNode> handle, IScope scope) {
-            base.Activate(handle, scope);
-            
-            // 戻るボタン
-            UIService.TitleOptionUIScreen.ClickedBackButtonSubject
-                .TakeUntil(scope)
-                .Subscribe(_ => {
-                    AppNavigator.Back();
-                });
-        }
-
         /// <inheritdoc/>
         protected override void GetScreens(IntroductionUIService service, List<UIScreen> screens) {
             screens.Add(service.TitleOptionUIScreen);

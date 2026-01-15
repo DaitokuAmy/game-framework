@@ -138,7 +138,7 @@ namespace GameFramework {
             if (CurrentNode == null) {
                 return default;
             }
-            
+
             // 戻り先のノードを取得
             var backNode = CurrentNode;
             for (var i = 0; i < depth; i++) {
@@ -296,7 +296,8 @@ namespace GameFramework {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<TState> TransitionTo(StateTreeNode<TKey> nextNode, TOption option = default, Action<TState> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
+        public TransitionHandle<TState> TransitionTo(StateTreeNode<TKey> nextNode, TOption option = default, Action<TState> setupAction = null, ITransition transition = null,
+            params ITransitionEffect[] effects) {
             return TransitionInternal(nextNode, option, false, setupAction, transition, effects);
         }
 
@@ -351,15 +352,20 @@ namespace GameFramework {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        private TransitionHandle<TState> TransitionInternal(StateTreeNode<TKey> nextNode, TOption option, bool back, Action<TState> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        private TransitionHandle<TState> TransitionInternal(StateTreeNode<TKey> nextNode, TOption option, bool back, Action<TState> setupAction, ITransition transition,
+            params ITransitionEffect[] effects) {
             // 既に遷移中なら失敗
             if (IsTransitioning) {
-                return new TransitionHandle<TState>(new Exception("In transitioning"));
+                var ex = new Exception("In transitioning");
+                DebugLog.Exception(ex);
+                return new TransitionHandle<TState>(ex);
             }
 
             // NextNodeがない
             if (nextNode == null) {
-                return new TransitionHandle<TState>(new Exception("Next node is null."));
+                var ex = new Exception("Next node is null.");
+                DebugLog.Exception(ex);
+                return new TransitionHandle<TState>(ex);
             }
 
             // 同じ場所なら何もしない

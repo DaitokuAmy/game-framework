@@ -24,9 +24,9 @@ namespace SampleGame.Lifecycle {
     public class BattleSessionNode : SceneSessionNode {
         [Inject]
         private UIManager _uiManager;
-        [Inject]
+
         private BattleAppService _battleAppService;
-        
+
         private int _battleId = 1;
         private int _playerId = 1;
 
@@ -75,7 +75,7 @@ namespace SampleGame.Lifecycle {
         /// <inheritdoc/>
         protected override void Update() {
             base.Update();
-            
+
             _battleAppService.UpdateFrame();
         }
 
@@ -130,7 +130,10 @@ namespace SampleGame.Lifecycle {
         /// Application初期化
         /// </summary>
         private void SetupApplications(IContainerBuilder builder) {
-            builder.Register<BattleAppService>(Lifetime.Singleton);
+            builder.Register(resolver => {
+                _battleAppService = resolver.Resolve<BattleAppService>();
+                return _battleAppService;
+            }, Lifetime.Singleton);
             builder.Register<PlayerAppService>(Lifetime.Singleton);
         }
 

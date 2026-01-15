@@ -1,5 +1,6 @@
 using System.Collections;
 using GameFramework.Core;
+using UnityEngine;
 using UnityEngine.PlayerLoop;
 
 #if USE_VCONTAINER
