@@ -112,22 +112,13 @@ namespace SampleGame.Lifecycle {
         /// Presentation初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
-            T AddLogic<T>(T logic, bool activate, IScope scp)
-                where T : Logic {
-                logic.RegisterTask(TaskOrder.Logic);
-                logic.RegisterTo(scp);
-                
-                ObjectResolver.Inject(logic);
-                
-                if (activate) {
-                    logic.Activate();
-                }
-
-                return logic;
-            }
-
             var sortieUIService = _uiManager.GetService<SortieUIService>();
-            sortieUIService.TopScreen.RegisterHandler(AddLogic(new SortieTopPresenter(), false, scope));
+            sortieUIService.BaseScreen.RegisterHandler(LogicUtility.CreateLogic<SortieBasePresenter>(ObjectResolver, false, scope));
+            sortieUIService.TopScreen.RegisterHandler(LogicUtility.CreateLogic<SortieTopPresenter>(ObjectResolver, false, scope));
+            sortieUIService.RoleSelectScreen.RegisterHandler(LogicUtility.CreateLogic<SortieRoleSelectPresenter>(ObjectResolver, false, scope));
+            sortieUIService.RoleInformationScreen.RegisterHandler(LogicUtility.CreateLogic<SortieRoleInformationPresenter>(ObjectResolver, false, scope));
+            sortieUIService.MissionSelectScreen.RegisterHandler(LogicUtility.CreateLogic<SortieMissionSelectPresenter>(ObjectResolver, false, scope));
+            sortieUIService.DifficultySelectScreen.RegisterHandler(LogicUtility.CreateLogic<SortieDifficultySelectPresenter>(ObjectResolver, false, scope));
         }
     }
 }

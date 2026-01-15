@@ -36,9 +36,7 @@ namespace SampleGame.Lifecycle {
         /// <inheritdoc/>
         TransitionHandle<INavNode> IAppNavigator.TransitionTo(Type nodeType, bool refresh, Action<INavNode> setupAction) {
             var (transition, effects) = GetDefaultTransitionInfo(nodeType);
-            return _engine.TransitionTo(nodeType, new NavNodeTree.TransitionOption {
-                Refresh = refresh,
-            }, setupAction, transition, effects);
+            return _engine.TransitionTo(nodeType, new NavNodeTree.TransitionOption { Refresh = refresh, }, setupAction, transition, effects);
         }
 
         /// <inheritdoc/>
@@ -63,20 +61,42 @@ namespace SampleGame.Lifecycle {
             _scope = new DisposableScope();
             _engine = NavigationEngineBuilder.Create()
                 .CreateLifecycle(new RootNode(), root => {
-                    root.AddSession(new IntroductionSessionNode(), introduction => {
-                            introduction.AddScreen(new TitleTopScreenNode());
-                            introduction.AddScreen(new TitleOptionScreenNode());
+                    root
+                        .AddSession(new IntroductionSessionNode(), introduction => {
+                            introduction.AddScreen(new TitleTopScreenNode())
+                                .AddScreen(new TitleOptionScreenNode());
                         })
                         .AddSession(new OutGameSessionNode(), outGame => {
+                            outGame.AddScreen(new SortieScreenNode(), sortie => {
+                                sortie.AddScreen(new SortieTopScreenNode())
+                                    .AddScreen(new SortieRoleSelectScreenNode(), sortieRoleSelect => {
+                                        sortieRoleSelect.AddScreen(new SortieRoleInformationScreenNode());
+                                    })
+                                    .AddScreen(new SortieMissionSelectScreenNode(), sortieMissionSelect => {
+                                        sortieMissionSelect.AddScreen(new SortieDifficultySelectScreenNode());
+                                    });
+                            });
                         })
                         .AddSession(new BattleSessionNode(), battle => {
-                            battle.AddScreen(new BattlePauseScreenNode());
+                            battle.AddScreen(new BattleHudScreenNode(), battleHud => {
+                                battleHud.AddScreen(new BattlePauseScreenNode());
+                            });
                         });
                 })
                 .CreateRouter(container => {
                     return NavNodeTreeRouterBuilder.Create()
                         .AddRoot<TitleTopScreenNode>(titleTop => {
                             titleTop.Connect<TitleOptionScreenNode>()
+                                .Connect<SortieTopScreenNode>(sortieTop => {
+                                    sortieTop.Connect<SortieRoleSelectScreenNode>(sortieRoleSelect => {
+                                            sortieRoleSelect.Connect<SortieRoleInformationScreenNode>();
+                                        })
+                                        .Connect<SortieMissionSelectScreenNode>(sortieMissionSelect => {
+                                            sortieMissionSelect.Connect<SortieDifficultySelectScreenNode>(sortieDifficultySelect => {
+                                                sortieDifficultySelect.Connect<BattleHudScreenNode>();
+                                            });
+                                        });
+                                })
                                 .SetGlobalShortcut();
                         })
                         .Build(container);

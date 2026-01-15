@@ -24,9 +24,6 @@ namespace SampleGame.Presentation.OutGame {
                         case 1:
                             _appNavigator.TransitionToSortieRoleSelect();
                             break;
-                        case 2:
-                            _appNavigator.Back();
-                            break;
                     }
                 });
         }

@@ -36,23 +36,9 @@ namespace SampleGame.Lifecycle {
         /// <inheritdoc/>
         protected override IEnumerator InitializeRoutine(TransitionHandle<INavNode> handle, IScope scope) {
             yield return base.InitializeRoutine(handle, scope);
-
-            T CreateLogic<T>(IScope scp = null)
-                where T : Logic, new() {
-                var logic = new T();
-                logic.RegisterTask(TaskOrder.Logic);
-                if (scp != null) {
-                    logic.RegisterTo(scp);
-                }
-
-                ObjectResolver.Inject(logic);
-                return logic;
-            }
-
+            
             // Presenter初期化
-            var uiService = _uiManager.GetService<IntroductionUIService>();
-            uiService.TitleTopUIScreen.RegisterHandler(CreateLogic<TitleTopPresenter>());
-            uiService.TitleOptionUIScreen.RegisterHandler(CreateLogic<TitleOptionPresenter>());
+            SetupPresentations(scope);
         }
 
         /// <summary>
@@ -64,6 +50,15 @@ namespace SampleGame.Lifecycle {
             }
 
             return UniTask.WhenAll(LoadAsync("introduction"));
+        }
+
+        /// <summary>
+        /// Presentation初期化
+        /// </summary>
+        private void SetupPresentations(IScope scope) {
+            var uiService = _uiManager.GetService<IntroductionUIService>();
+            uiService.TitleTopUIScreen.RegisterHandler(LogicUtility.CreateLogic<TitleTopPresenter>(ObjectResolver, false, scope));
+            uiService.TitleOptionUIScreen.RegisterHandler(LogicUtility.CreateLogic<TitleOptionPresenter>(ObjectResolver, false, scope));
         }
     }
 }
