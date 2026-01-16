@@ -39,7 +39,7 @@ namespace SampleGame.Lifecycle {
 
         private DisposableScope _globalScope;
         private IObjectResolver _globalResolver;
-        private TaskRunner _taskRunner;
+        private UpdateScheduler _updateScheduler;
 
         /// <inheritdoc/>
         protected override void PreStartInternal(object[] args) {
@@ -47,13 +47,13 @@ namespace SampleGame.Lifecycle {
 
             var builder = new ContainerBuilder();
 
-            _taskRunner = new TaskRunner().RegisterTo(_globalScope);
-            builder.RegisterInstance(_taskRunner);
-            TaskUtility.Initialize(_taskRunner);
+            _updateScheduler = new UpdateScheduler().RegisterTo(_globalScope);
+            builder.RegisterInstance(_updateScheduler);
+            UpdatableUtility.Initialize(_updateScheduler);
 
             builder.Register(_ => {
                 var environmentManager = new EnvironmentManager(new EnvironmentResolver());
-                environmentManager.RegisterTask(TaskOrder.PostSystem);
+                environmentManager.RegisterLateUpdatable(LateUpdateOrder.Vfx);
                 return environmentManager;
             }, Lifetime.Singleton);
 
@@ -66,7 +66,8 @@ namespace SampleGame.Lifecycle {
             builder.Register(resolver => {
                 var uiManager = new UIManager();
                 uiManager.Initialize(new UIAssetLoader(resolver.Resolve<AssetManager>()));
-                uiManager.RegisterTask(TaskOrder.UI);
+                uiManager.RegisterUpdatable(UpdateOrder.UI);
+                uiManager.RegisterLateUpdatable(LateUpdateOrder.UI);
                 ResidentUIUtility.Initialize(uiManager);
                 DialogUIUtility.Initialize(uiManager);
                 return uiManager;
@@ -74,12 +75,12 @@ namespace SampleGame.Lifecycle {
 
             var appNavigator = new AppNavigator();
             builder.RegisterInstance<IAppNavigator>(appNavigator);
-            appNavigator.RegisterTo(_globalScope);
-            appNavigator.RegisterTask(TaskOrder.PreLogic);
+            appNavigator.RegisterUpdatable(UpdateOrder.Controller);
 
             _globalResolver = builder.Build().RegisterTo(_globalScope);
             
             // AppNavigator初期化
+            appNavigator.RegisterTo(_globalScope);
             appNavigator.Initialize(_globalResolver);
 
             // DeltaTimeProvider初期化
@@ -149,21 +150,21 @@ namespace SampleGame.Lifecycle {
         /// Update処理
         /// </summary>
         private void Update() {
-            _taskRunner.Update();
+            _updateScheduler.Update();
         }
 
         /// <summary>
         /// LateUpdate処理
         /// </summary>
         private void LateUpdate() {
-            _taskRunner.LateUpdate();
+            _updateScheduler.LateUpdate();
         }
 
         /// <summary>
         /// FixedUpdate処理
         /// </summary>
         private void FixedUpdate() {
-            _taskRunner.FixedUpdate();
+            _updateScheduler.FixedUpdate();
         }
 
         /// <summary>

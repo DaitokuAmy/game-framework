@@ -7,17 +7,18 @@ namespace GameFramework.ActorSystems {
     /// <summary>
     /// アクター基底
     /// </summary>
-    public abstract class Actor : ILateUpdatableTask, ITaskEventHandler, IDisposable {
+    public abstract class Actor : IUpdatable, ILateUpdatable, IUpdatableEventHandler, ILateUpdatableEventHandler, IDisposable {
         private readonly Dictionary<Type, ActorComponent> _actorComponentDict = new(32);
         private readonly List<ActorComponent> _orderedActorComponents = new(32);
         private readonly GizmoDispatcher _gizmoDispatcher;
 
-        private TaskRunner _taskRunner;
+        private UpdateScheduler _updateScheduler;
+        private UpdateScheduler _lateUpdateScheduler;
         private bool _disposed;
         private DisposableScope _activeScope;
 
-        /// <summary>Taskが有効状態か</summary>
-        bool ITask.IsActive => IsActive;
+        /// <inheritdoc/>
+        bool IUpdatableBase.IsActive => IsActive;
 
         /// <summary>アクティブ状態</summary>
         public virtual bool IsActive => _activeScope != null;
@@ -64,9 +65,14 @@ namespace GameFramework.ActorSystems {
             DisposeInternal();
             DisposeComponents();
 
-            if (_taskRunner != null) {
-                _taskRunner.Unregister(this);
-                _taskRunner = null;
+            if (_updateScheduler != null) {
+                _updateScheduler.UnregisterUpdatable(this);
+                _updateScheduler = null;
+            }
+
+            if (_lateUpdateScheduler != null) {
+                _lateUpdateScheduler.UnregisterLateUpdatable(this);
+                _lateUpdateScheduler = null;
             }
 
             if (_gizmoDispatcher != null) {
@@ -75,10 +81,8 @@ namespace GameFramework.ActorSystems {
             }
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        void ITask.Update() {
+        /// <inheritdoc/>
+        void IUpdatable.Update() {
             if (_activeScope != null) {
                 var deltaTime = Body.LayeredTime.DeltaTime;
                 for (var i = 0; i < _orderedActorComponents.Count; i++) {
@@ -90,10 +94,8 @@ namespace GameFramework.ActorSystems {
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        void ILateUpdatableTask.LateUpdate() {
+        /// <inheritdoc/>
+        void ILateUpdatable.Update() {
             if (_activeScope != null) {
                 var deltaTime = Body.LayeredTime.DeltaTime;
                 for (var i = 0; i < _orderedActorComponents.Count; i++) {
@@ -105,19 +107,27 @@ namespace GameFramework.ActorSystems {
             }
         }
 
-        /// <summary>
-        /// Taskの登録通知
-        /// </summary>
-        void ITaskEventHandler.OnRegistered(TaskRunner taskRunner) {
-            _taskRunner = taskRunner;
+        /// <inheritdoc/>
+        void IUpdatableEventHandlerBase<IUpdatable>.OnRegistered(UpdateScheduler updateScheduler) {
+            _updateScheduler = updateScheduler;
         }
 
-        /// <summary>
-        /// Taskの登録解除通知
-        /// </summary>
-        void ITaskEventHandler.OnUnregistered(TaskRunner taskRunner) {
-            if (taskRunner == _taskRunner) {
-                _taskRunner = null;
+        /// <inheritdoc/>
+        void IUpdatableEventHandlerBase<IUpdatable>.OnUnregistered(UpdateScheduler updateScheduler) {
+            if (updateScheduler == _updateScheduler) {
+                _updateScheduler = null;
+            }
+        }
+
+        /// <inheritdoc/>
+        void IUpdatableEventHandlerBase<ILateUpdatable>.OnRegistered(UpdateScheduler updateScheduler) {
+            _lateUpdateScheduler = updateScheduler;
+        }
+
+        /// <inheritdoc/>
+        void IUpdatableEventHandlerBase<ILateUpdatable>.OnUnregistered(UpdateScheduler updateScheduler) {
+            if (updateScheduler == _lateUpdateScheduler) {
+                _lateUpdateScheduler = null;
             }
         }
 

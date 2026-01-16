@@ -6,7 +6,7 @@ namespace GameFramework.PerformanceSystems {
     /// <summary>
     /// メモリ管理
     /// </summary>
-    public class MemoryManager : DisposableTask {
+    public class MemoryManager : DisposableUpdatable {
         // コルーチン実行制御用
         private CoroutineRunner _coroutineRunner;
         // IncrementalGCを実行するns

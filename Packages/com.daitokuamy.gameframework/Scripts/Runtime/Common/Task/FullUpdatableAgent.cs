@@ -2,9 +2,11 @@ using System;
 
 namespace GameFramework {
     /// <summary>
-    /// タスク用インターフェース
+    /// FullUpdatable代替処理用Agent
     /// </summary>
-    public class TaskAgent : DisposableFixedUpdatableTask {
+    public sealed class FullUpdatableAgent : DisposableFullUpdatable {
+        private bool _active = true;
+        
         /// <summary>更新通知</summary>
         public event Action UpdateEvent;
         /// <summary>後更新通知</summary>
@@ -12,28 +14,29 @@ namespace GameFramework {
         /// <summary>固定更新通知</summary>
         public event Action FixedUpdateEvent;
 
-        /// <summary>Taskが有効か</summary>
-        public bool IsActive { get; set; } = true;
-
-        /// <summary>
-        /// タスク更新
-        /// </summary>
+        /// <inheritdoc/>
+        public override bool IsActive => _active;
+        
+        /// <inheritdoc/>
         protected override void UpdateInternal() {
             UpdateEvent?.Invoke();
         }
-
-        /// <summary>
-        /// タスク後更新
-        /// </summary>
+        
+        /// <inheritdoc/>
         protected override void LateUpdateInternal() {
             LateUpdateEvent?.Invoke();
         }
-
-        /// <summary>
-        /// 固定更新
-        /// </summary>
+        
+        /// <inheritdoc/>
         protected override void FixedUpdateInternal() {
             FixedUpdateEvent?.Invoke();
+        }
+        
+        /// <summary>
+        /// アクティブ状態の切り替え
+        /// </summary>
+        public void SetActive(bool active) {
+            _active = active;
         }
     }
 }

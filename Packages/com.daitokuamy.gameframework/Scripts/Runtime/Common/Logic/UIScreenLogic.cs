@@ -4,7 +4,7 @@ namespace GameFramework {
     /// <summary>
     /// UIScreenに紐づけるロジック
     /// </summary>
-    public class UIScreenLogic<TScreen> : Logic, IUIScreenHandler
+    public class UIScreenLogic<TScreen> : UpdatableLogic, IUIScreenHandler
         where TScreen : UIScreen {
         /// <summary>制御対象のスクリーン</summary>
         protected TScreen Screen { get; private set; }

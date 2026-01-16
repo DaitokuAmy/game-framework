@@ -11,7 +11,7 @@ namespace SampleGame.Lifecycle {
     /// <summary>
     /// アプリ内遷移制御クラス
     /// </summary>
-    public partial class AppNavigator : DisposableTask, IAppNavigator {
+    public partial class AppNavigator : DisposableUpdatable, IAppNavigator {
         private static ITransition OutInTransition => new OutInTransition();
         private static ITransition CrossTransition => new CrossTransition();
         private static ITransitionEffect[] BlockOnlyEffects => new ITransitionEffect[] { new BlockTransitionEffect() };

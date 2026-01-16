@@ -45,15 +45,16 @@ namespace SampleGame.Presentation.ModelViewer {
                 body = new Body(rootObjects[0]);
             }
 
-            body.RegisterTask(TaskOrder.Body);
+            body.RegisterUpdatable(UpdateOrder.Body);
+            body.RegisterLateUpdatable(LateUpdateOrder.Body);
 
             // actor
             var actor = new EnvironmentActor(body);
-            actor.RegisterTask(TaskOrder.Actor);
+            actor.RegisterUpdatable(UpdateOrder.View);
 
             // adapter
             var adapter = new EnvironmentActorAdapter(model, actor);
-            adapter.RegisterTask(TaskOrder.Logic);
+            LogicUtility.SetupLogic(adapter, UpdateOrder.Presenter);
 
             // entity
             var entity = _actorEntityManager.CreateEntity(model.Id);

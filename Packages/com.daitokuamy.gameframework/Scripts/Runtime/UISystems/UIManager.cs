@@ -12,7 +12,7 @@ namespace GameFramework.UISystems {
     /// <summary>
     /// Uiの管理クラス
     /// </summary>
-    public class UIManager : DisposableLateUpdatableTask {
+    public class UIManager : DisposableUpdateAndLateUpdatable {
         /// <summary>
         /// プレファブ管理用ハンドル(Disposeでアンロードされる)
         /// </summary>

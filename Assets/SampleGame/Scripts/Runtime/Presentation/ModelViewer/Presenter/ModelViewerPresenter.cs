@@ -14,7 +14,7 @@ namespace SampleGame.Presentation.ModelViewer {
     /// <summary>
     /// ModelViewer全体のPresenter
     /// </summary>
-    public class ModelViewerPresenter : Logic {
+    public class ModelViewerPresenter : UpdatableLogic {
         [Inject]
         private ModelViewerAppService _appService;
         [Inject]

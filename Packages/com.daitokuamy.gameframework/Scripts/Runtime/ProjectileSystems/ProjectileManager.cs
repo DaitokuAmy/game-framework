@@ -7,15 +7,7 @@ namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 飛翔体管理クラス
     /// </summary>
-    public class ProjectileManager : DisposableLateUpdatableTask {
-        /// <summary>
-        /// 更新モード
-        /// </summary>
-        public enum UpdateMode {
-            Update,
-            LateUpdate,
-        }
-
+    public class ProjectileManager : DisposableLateUpdatable {
         /// <summary>
         /// プール用Objectの情報
         /// </summary>
@@ -34,7 +26,6 @@ namespace GameFramework.ProjectileSystems {
 
         private readonly int _poolDefaultCapacity;
         private readonly int _poolMaxCapacity;
-        private readonly UpdateMode _updateMode;
         private readonly ProjectilePlayer _projectilePlayer;
         private readonly Dictionary<GameObject, ObjectPool<BulletProjectileInfo>> _bulletPools = new();
         private readonly Dictionary<GameObject, ObjectPool<BeamProjectileInfo>> _beamPools = new();
@@ -49,11 +40,9 @@ namespace GameFramework.ProjectileSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="updateMode">更新モード</param>
         /// <param name="poolDefaultCapacity">Poolのデフォルトキャパシティ</param>
         /// <param name="poolMaxCapacity">Poolの最大キャパシティ</param>
-        public ProjectileManager(UpdateMode updateMode = UpdateMode.Update, int poolDefaultCapacity = 10, int poolMaxCapacity = 10000) {
-            _updateMode = updateMode;
+        public ProjectileManager(int poolDefaultCapacity = 10, int poolMaxCapacity = 10000) {
             _poolDefaultCapacity = poolDefaultCapacity;
             _poolMaxCapacity = poolMaxCapacity;
             _projectilePlayer = new ProjectilePlayer();
@@ -192,21 +181,10 @@ namespace GameFramework.ProjectileSystems {
         }
 
         /// <summary>
-        /// 更新処理
-        /// </summary>tile
-        protected override void UpdateInternal() {
-            if (_updateMode == UpdateMode.Update) {
-                _projectilePlayer.Update();
-            }
-        }
-
-        /// <summary>
         /// 後更新処理
         /// </summary>
         protected override void LateUpdateInternal() {
-            if (_updateMode == UpdateMode.LateUpdate) {
-                _projectilePlayer.Update();
-            }
+            _projectilePlayer.Update();
         }
 
         /// <summary>

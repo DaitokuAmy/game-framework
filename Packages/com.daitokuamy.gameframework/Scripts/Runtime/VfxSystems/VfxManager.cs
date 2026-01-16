@@ -10,7 +10,7 @@ namespace GameFramework.VfxSystems {
     /// <summary>
     /// Vfx管理クラス
     /// </summary>
-    public class VfxManager : DisposableLateUpdatableTask {
+    public class VfxManager : DisposableLateUpdatable {
         /// <summary>
         /// 再生管理用ハンドル
         /// </summary>

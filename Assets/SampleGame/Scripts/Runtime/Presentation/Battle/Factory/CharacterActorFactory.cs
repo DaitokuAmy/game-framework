@@ -47,22 +47,23 @@ namespace SampleGame.Presentation.Battle {
             var prefab = await _bodyPrefabRepository.LoadCharacterPrefabAsync(model.Master.AssetKey, ct);
             var body = new Body(Object.Instantiate(prefab, _actorEntityManager.RootTransform), new BodyBuilder());
             body.LayeredTime.SetParent(parentLayeredTime);
-            body.RegisterTask(TaskOrder.Body);
+            body.RegisterUpdatable(UpdateOrder.Body);
+            body.RegisterLateUpdatable(LateUpdateOrder.Body);
 
             // actor生成
             var actorData = await _characterAssetRepository.LoadActorDataAsync(model.Master.ActorAssetKey, ct);
             var actor = new BattleCharacterActor(body, actorData);
-            actor.RegisterTask(TaskOrder.Actor);
+            actor.RegisterUpdatable(UpdateOrder.View);
 
             // adapter生成
             var adapter = new CharacterActorAdapter(actor, model);
             _objectResolver.Inject(adapter);
-            adapter.RegisterTask(TaskOrder.Logic);
+            adapter.RegisterUpdatable(UpdateOrder.Presenter);
             
             // controller生成
             var controller = new PlayerInputController(model);
             _objectResolver.Inject(controller);
-            controller.RegisterTask(TaskOrder.Input);
+            controller.RegisterUpdatable(UpdateOrder.Controller);
 
             // entity構築
             var entity = _actorEntityManager.CreateEntity(model.Id);

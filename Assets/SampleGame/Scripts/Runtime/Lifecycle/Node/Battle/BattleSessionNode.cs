@@ -149,24 +149,9 @@ namespace SampleGame.Lifecycle {
         /// Presentation初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
-            T AddLogic<T>(T logic, bool activate, IScope scp)
-                where T : Logic {
-                logic.RegisterTask(TaskOrder.Logic);
-                logic.RegisterTo(scp);
-
-                ObjectResolver.Inject(logic);
-
-                if (activate) {
-                    logic.Activate();
-                }
-
-                return logic;
-            }
-
             var overlayUIService = _uiManager.GetService<BattleOverlayUIService>();
-            overlayUIService.OverlayScreenContainer.RegisterHandler(AddLogic(new OverlayUIScreenPresenter(), false, scope));
-
-            AddLogic(new CameraPresenter(), true, scope);
+            overlayUIService.OverlayScreenContainer.RegisterHandler(LogicUtility.CreateLogic<OverlayUIScreenPresenter>(UpdateOrder.Presenter, ObjectResolver, false, scope));
+            LogicUtility.CreateLogic<CameraPresenter>(UpdateOrder.Presenter, ObjectResolver, true, scope);
         }
     }
 }

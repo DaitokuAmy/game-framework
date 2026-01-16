@@ -13,7 +13,7 @@ namespace GameFramework.CutsceneSystems {
     /// <summary>
     /// カットシーン管理クラス
     /// </summary>
-    public class CutsceneManager : DisposableLateUpdatableTask {
+    public class CutsceneManager : DisposableLateUpdatable {
         /// <summary>
         /// 再生管理用ハンドル
         /// </summary>

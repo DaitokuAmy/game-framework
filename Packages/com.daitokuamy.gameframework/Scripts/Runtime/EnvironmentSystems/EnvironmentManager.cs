@@ -6,7 +6,7 @@ namespace GameFramework.EnvironmentSystems {
     /// <summary>
     /// 環境管理クラス
     /// </summary>
-    public class EnvironmentManager : DisposableLateUpdatableTask {
+    public class EnvironmentManager : DisposableLateUpdatable {
         /// <summary>
         /// 環境設定情報
         /// </summary>
@@ -36,9 +36,7 @@ namespace GameFramework.EnvironmentSystems {
             _layeredTime = layeredTime;
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             if (_disposed) {
                 return;
@@ -48,6 +46,34 @@ namespace GameFramework.EnvironmentSystems {
             _stack.Clear();
             _environmentInfos.Clear();
             _resolver = null;
+        }
+
+        /// <inheritdoc/>
+        protected override void LateUpdateInternal() {
+            var deltaTime = _layeredTime?.DeltaTime ?? Time.deltaTime;
+
+            // スタックの状態を調べる
+            for (var i = 0; i < _stack.Count; i++) {
+                var info = _stack[i];
+                if (info.Timer < 0.0f) {
+                    continue;
+                }
+
+                // カレントではなければ、時間を-1にする
+                if (i != _stack.Count - 1) {
+                    info.Timer = -1.0f;
+                    continue;
+                }
+
+                // ブレンド処理を行う
+                info.Timer -= deltaTime;
+                var blendRate = info.Timer > float.Epsilon ? Mathf.Clamp01(deltaTime / info.Timer) : 1.0f;
+                var current = _resolver.GetCurrent();
+                var context = _resolver.Lerp(current, info.Context, blendRate);
+
+                // 設定反映
+                _resolver.Apply(context);
+            }
         }
 
         /// <summary>
@@ -115,36 +141,6 @@ namespace GameFramework.EnvironmentSystems {
 
             var currentInfo = _stack[^1];
             currentInfo.Timer = Mathf.Max(blendDuration, currentInfo.Timer);
-        }
-
-        /// <summary>
-        /// タスク後更新処理
-        /// </summary>
-        protected override void LateUpdateInternal() {
-            var deltaTime = _layeredTime?.DeltaTime ?? Time.deltaTime;
-
-            // スタックの状態を調べる
-            for (var i = 0; i < _stack.Count; i++) {
-                var info = _stack[i];
-                if (info.Timer < 0.0f) {
-                    continue;
-                }
-
-                // カレントではなければ、時間を-1にする
-                if (i != _stack.Count - 1) {
-                    info.Timer = -1.0f;
-                    continue;
-                }
-
-                // ブレンド処理を行う
-                info.Timer -= deltaTime;
-                var blendRate = info.Timer > float.Epsilon ? Mathf.Clamp01(deltaTime / info.Timer) : 1.0f;
-                var current = _resolver.GetCurrent();
-                var context = _resolver.Lerp(current, info.Context, blendRate);
-
-                // 設定反映
-                _resolver.Apply(context);
-            }
         }
 
         /// <summary>

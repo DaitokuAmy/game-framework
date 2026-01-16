@@ -9,7 +9,7 @@ namespace GameFramework.CameraSystems {
     /// <summary>
     /// カメラ管理クラス
     /// </summary>
-    public class CameraManager : LateUpdatableTaskBehaviour, IDisposable {
+    public class CameraManager : LateUpdatableMonoBehaviour, IDisposable {
         public const string MainCameraGroupKey = "Main";
         
         /// <inheritdoc/>

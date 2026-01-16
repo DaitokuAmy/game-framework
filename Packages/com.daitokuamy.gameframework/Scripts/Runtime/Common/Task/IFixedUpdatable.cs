@@ -1,11 +1,8 @@
 namespace GameFramework {
     /// <summary>
-    /// タスク用インターフェース
+    /// FixedUpdateで呼び出されるUpdatableインターフェース
     /// </summary>
-    public interface ITask {
-        // タスクの有効状態
-        bool IsActive { get; }
-
+    public interface IFixedUpdatable : IUpdatableBase {
         /// <summary>
         /// 更新処理
         /// </summary>

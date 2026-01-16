@@ -49,13 +49,14 @@ namespace SampleGame.Presentation.Battle {
             if (bodyRoot != null) {
                 body = new Body(bodyRoot, new BodyBuilder());
                 body.LayeredTime.SetParent(parentLayeredTime);
-                body.RegisterTask(TaskOrder.Body);
+                body.RegisterUpdatable(UpdateOrder.Body);
+                body.RegisterLateUpdatable(LateUpdateOrder.Body);
             }
 
             // adapter
             var adapter = new FieldActorAdapter(scene, model);
             _objectResolver.Inject(adapter);
-            adapter.RegisterTask(TaskOrder.Logic);
+            adapter.RegisterUpdatable(UpdateOrder.Presenter);
 
             // entity
             var entity = _actorEntityManager.CreateEntity(model.Id);

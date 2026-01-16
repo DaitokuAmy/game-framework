@@ -4,7 +4,7 @@ namespace GameFramework.ActorSystems {
     /// <summary>
     /// ActorEntity用ロジック処理
     /// </summary>
-    public abstract class ActorEntityLogic : Logic {
+    public abstract class ActorEntityLogic : UpdatableLogic {
         private DisposableScope _attachScope;
 
         /// <summary>持ち主のEntity</summary>

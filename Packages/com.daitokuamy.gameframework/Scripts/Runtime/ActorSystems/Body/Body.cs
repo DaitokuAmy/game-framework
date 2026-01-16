@@ -11,7 +11,7 @@ namespace GameFramework.ActorSystems {
     /// <summary>
     /// GameObjectを制御するためのクラス
     /// </summary>
-    public sealed class Body : DisposableLateUpdatableTask {
+    public sealed class Body : DisposableUpdateAndLateUpdatable {
         private readonly Dictionary<Type, IBodyComponent> _componentDict = new(32);
         private readonly List<IBodyComponent> _components = new(32);
         private readonly List<IBodyComponent> _standbyComponents = new(32);
@@ -23,11 +23,11 @@ namespace GameFramework.ActorSystems {
         private MeshComponent _meshComponent;
         private LocatorComponent _locatorComponent;
 
-        /// <summary>Taskが有効状態か</summary>
-        protected override bool IsTaskActive => IsActive && GameObject.activeInHierarchy;
+        /// <inheritdoc/>
+        public override bool IsActive => GameObject.activeInHierarchy;
 
-        /// <summary>アクティブ状態</summary>
-        public bool IsActive => GameObject.activeSelf;
+        /// <summary>自身のアクティブ状態</summary>
+        public bool IsActiveSelf => GameObject.activeSelf;
         /// <summary>表示状態</summary>
         public bool IsVisible {
             get => _meshComponent.IsVisible;

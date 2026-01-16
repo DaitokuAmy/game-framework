@@ -126,21 +126,7 @@ namespace SampleGame.Lifecycle {
         /// Presentation層の初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
-            T AddLogic<T>(T logic, bool activate, IScope scp)
-                where T : Logic {
-                logic.RegisterTask(TaskOrder.Logic);
-                logic.RegisterTo(scp);
-
-                ObjectResolver.Inject(logic);
-
-                if (activate) {
-                    logic.Activate();
-                }
-
-                return logic;
-            }
-
-            AddLogic(new ModelViewerPresenter(), true, scope);
+            LogicUtility.CreateLogic<ModelViewerPresenter>(UpdateOrder.Presenter, ObjectResolver, true, scope);
         }
     }
 }

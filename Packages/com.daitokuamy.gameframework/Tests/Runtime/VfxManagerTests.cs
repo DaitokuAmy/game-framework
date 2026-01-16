@@ -31,7 +31,7 @@ namespace GameFramework.Tests {
 
         private GameObject _prefab;
         private VfxManager _manager;
-        private TaskRunner _taskRunner;
+        private UpdateScheduler _updateScheduler;
 
         /// <summary>
         /// テスト前にモックプレハブとVfxManagerを初期化
@@ -42,8 +42,8 @@ namespace GameFramework.Tests {
             _prefab = new GameObject("VfxPrefab");
             _prefab.AddComponent<MockVfxComponent>();
             
-            _taskRunner = new TaskRunner();
-            _taskRunner.Register(_manager);
+            _updateScheduler = new UpdateScheduler();
+            _updateScheduler.RegisterLateUpdatable(_manager, 0);
         }
 
         /// <summary>
@@ -53,7 +53,7 @@ namespace GameFramework.Tests {
         public void Teardown() {
             Object.DestroyImmediate(_prefab);
             _manager.Dispose();
-            _taskRunner.Dispose();
+            _updateScheduler.Dispose();
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace GameFramework.Tests {
             };
 
             var handle = _manager.Play(context);
-            TaskUpdate();
+            ManualUpdate();
             yield return null;
 
             Assert.That(handle.IsValid, Is.True, "Handle should be valid after Play.");
@@ -85,11 +85,11 @@ namespace GameFramework.Tests {
             };
 
             var handle = _manager.Play(context);
-            TaskUpdate();
+            ManualUpdate();
             yield return null;
 
             handle.Stop(immediate: true);
-            TaskUpdate();
+            ManualUpdate();
             yield return null;
 
             Assert.That(handle.IsPlaying, Is.False, "Handle should not report playing after Stop.");
@@ -106,11 +106,11 @@ namespace GameFramework.Tests {
             };
 
             var handle = _manager.Play(context);
-            TaskUpdate();
+            ManualUpdate();
             yield return null;
 
             handle.Dispose();
-            TaskUpdate();
+            ManualUpdate();
             yield return null;
 
             Assert.That(handle.IsValid, Is.False, "Handle should become invalid after Dispose.");
@@ -127,23 +127,23 @@ namespace GameFramework.Tests {
             };
 
             var handle = _manager.Play(context);
-            TaskUpdate();
+            ManualUpdate();
             yield return null;
 
             handle.Stop(immediate: true, autoDispose: true);
-            TaskUpdate();
+            ManualUpdate();
             yield return null;
 
             Assert.That(handle.IsValid, Is.False, "Handle should auto-dispose after playback ends.");
         }
 
         /// <summary>
-        /// タスクランナーの更新
+        /// 手動更新更新
         /// </summary>
-        private void TaskUpdate() {
-            _taskRunner.Update();
-            _taskRunner.LateUpdate();
-            _taskRunner.FixedUpdate();
+        private void ManualUpdate() {
+            _updateScheduler.Update();
+            _updateScheduler.LateUpdate();
+            _updateScheduler.FixedUpdate();
         }
     }
 }

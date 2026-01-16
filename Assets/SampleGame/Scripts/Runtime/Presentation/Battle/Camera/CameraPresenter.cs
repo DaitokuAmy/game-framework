@@ -9,7 +9,7 @@ namespace SampleGame.Presentation.Battle {
     /// <summary>
     /// カメラ用のPresenter
     /// </summary>
-    public class CameraPresenter : Logic {
+    public class CameraPresenter : UpdatableLogic {
         [Inject]
         private CameraManager _cameraManager;
         [Inject]
@@ -34,7 +34,7 @@ namespace SampleGame.Presentation.Battle {
         }
 
         /// <inheritdoc/>
-        protected override void LateUpdateInternal() {
+        protected override void UpdateInternal() {
             base.UpdateInternal();
             
             // TargetPointの更新

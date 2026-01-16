@@ -7,7 +7,7 @@ namespace GameFramework.CollisionSystems {
     /// <summary>
     /// コリジョン管理クラス
     /// </summary>
-    public class CollisionManager : DisposableLateUpdatableTask {
+    public class CollisionManager : DisposableLateUpdatable {
         /// <summary>
         /// 更新モード
         /// </summary>
@@ -27,38 +27,36 @@ namespace GameFramework.CollisionSystems {
         /// コリジョン情報
         /// </summary>
         private class CollisionInfo : ICollisionInfo {
-            public bool destroy;
-            public ICollisionListener listener;
-            public ICollision collision;
-            public int layerMask;
-            public object customData;
-            public float timer;
+            public bool Destroy;
+            public ICollisionListener Listener;
+            public ICollision Collision;
+            public int LayerMask;
+            public object CustomData;
+            public float Timer;
 
-            bool ICollisionInfo.IsValid => !destroy && collision != null;
+            bool ICollisionInfo.IsValid => !Destroy && Collision != null;
         }
 
         /// <summary>
         /// レイキャストコリジョン情報
         /// </summary>
         private class RaycastCollisionInfo : ICollisionInfo {
-            public bool destroy;
-            public IRaycastCollisionListener listener;
-            public IRaycastCollision collision;
-            public int layerMask;
-            public int hitCount;
-            public object customData;
-            public float timer;
+            public bool Destroy;
+            public IRaycastCollisionListener Listener;
+            public IRaycastCollision Collision;
+            public int LayerMask;
+            public int HitCount;
+            public object CustomData;
+            public float Timer;
 
-            bool ICollisionInfo.IsValid => !destroy && collision != null;
+            bool ICollisionInfo.IsValid => !Destroy && Collision != null;
         }
-        
+
         // Collision判定時のワーク領域
         private int _collisionResultBufferSize = 0;
         private Collider[] _workCollisionBuffer = Array.Empty<Collider>();
         private RaycastHit[] _workRaycastBuffer = Array.Empty<RaycastHit>();
 
-        // 更新モード
-        private UpdateMode _updateMode;
         // 時間軸
         private LayeredTime _layeredTime;
 
@@ -69,7 +67,7 @@ namespace GameFramework.CollisionSystems {
         // 結果格納用ワーク
         private List<Collider> _workCollisionResults = new List<Collider>();
         private List<RaycastHit> _workRaycastResults = new List<RaycastHit>();
-        
+
         /// <summary>当たり判定時の結果格納用バッファサイズ</summary>
         public int CollisionResultBufferSize {
             get => _collisionResultBufferSize;
@@ -88,11 +86,9 @@ namespace GameFramework.CollisionSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="updateMode">更新モード</param>
         /// <param name="layeredTime">時間軸用</param>
         /// <param name="collisionResultBufferSize">当たり判定検出時の固定バッファーサイズ</param>
-        public CollisionManager(UpdateMode updateMode = UpdateMode.LateUpdate, LayeredTime layeredTime = null, int collisionResultBufferSize = 32) {
-            _updateMode = updateMode;
+        public CollisionManager(LayeredTime layeredTime = null, int collisionResultBufferSize = 32) {
             _layeredTime = layeredTime;
             CollisionResultBufferSize = collisionResultBufferSize;
         }
@@ -108,11 +104,11 @@ namespace GameFramework.CollisionSystems {
         /// <param name="clearHistory">衝突履歴をクリアするか</param>
         public CollisionHandle Register(ICollisionListener listener, ICollision collision, int layerMask, object customData, float autoDisposeTimer = -1, bool clearHistory = true) {
             var collisionInfo = new CollisionInfo {
-                listener = listener,
-                collision = collision,
-                layerMask = layerMask,
-                customData = customData,
-                timer = autoDisposeTimer
+                Listener = listener,
+                Collision = collision,
+                LayerMask = layerMask,
+                CustomData = customData,
+                Timer = autoDisposeTimer
             };
 
             if (clearHistory) {
@@ -157,11 +153,11 @@ namespace GameFramework.CollisionSystems {
         /// <param name="clearHistory">衝突履歴をクリアするか</param>
         public CollisionHandle Register(IRaycastCollisionListener listener, IRaycastCollision collision, int layerMask, object customData, float autoDisposeTimer = -1, bool clearHistory = true) {
             var collisionInfo = new RaycastCollisionInfo {
-                listener = listener,
-                collision = collision,
-                layerMask = layerMask,
-                customData = customData,
-                timer = autoDisposeTimer
+                Listener = listener,
+                Collision = collision,
+                LayerMask = layerMask,
+                CustomData = customData,
+                Timer = autoDisposeTimer
             };
 
             if (clearHistory) {
@@ -205,12 +201,12 @@ namespace GameFramework.CollisionSystems {
             }
 
             // 登録されていたら削除フラグを立てる
-            if (handle.CollisionInfo is CollisionInfo collisionInfo && !collisionInfo.destroy) {
-                collisionInfo.destroy = true;
+            if (handle.CollisionInfo is CollisionInfo collisionInfo && !collisionInfo.Destroy) {
+                collisionInfo.Destroy = true;
             }
 
-            if (handle.CollisionInfo is RaycastCollisionInfo raycastCollisionInfo && !raycastCollisionInfo.destroy) {
-                raycastCollisionInfo.destroy = true;
+            if (handle.CollisionInfo is RaycastCollisionInfo raycastCollisionInfo && !raycastCollisionInfo.Destroy) {
+                raycastCollisionInfo.Destroy = true;
             }
         }
 
@@ -221,12 +217,12 @@ namespace GameFramework.CollisionSystems {
             // 削除済みの物をクリア
             for (var i = 0; i < _collisionInfos.Count; i++) {
                 // Debug用の登録解除
-                CollisionVisualizer.Unregister(_collisionInfos[i].collision);
+                CollisionVisualizer.Unregister(_collisionInfos[i].Collision);
             }
 
             for (var i = 0; i < _raycastCollisionInfos.Count; i++) {
                 // Debug用の登録解除
-                CollisionVisualizer.Unregister(_raycastCollisionInfos[i].collision);
+                CollisionVisualizer.Unregister(_raycastCollisionInfos[i].Collision);
             }
 
             _collisionInfos.Clear();
@@ -234,27 +230,13 @@ namespace GameFramework.CollisionSystems {
         }
 
         /// <summary>
-        /// 更新処理
-        /// </summary>
-        protected override void UpdateInternal() {
-            if (_updateMode == UpdateMode.Update) {
-                var deltaTime = _layeredTime != null ? _layeredTime.DeltaTime : Time.deltaTime;
-                
-                UpdateCollisionInfos(deltaTime);
-                UpdateRaycastCollisionInfos(deltaTime);
-            }
-        }
-
-        /// <summary>
         /// 後更新処理
         /// </summary>
         protected override void LateUpdateInternal() {
-            if (_updateMode == UpdateMode.LateUpdate) {
-                var deltaTime = _layeredTime != null ? _layeredTime.DeltaTime : Time.deltaTime;
-                
-                UpdateCollisionInfos(deltaTime);
-                UpdateRaycastCollisionInfos(deltaTime);
-            }
+            var deltaTime = _layeredTime?.DeltaTime ?? Time.deltaTime;
+
+            UpdateCollisionInfos(deltaTime);
+            UpdateRaycastCollisionInfos(deltaTime);
         }
 
         /// <summary>
@@ -263,12 +245,12 @@ namespace GameFramework.CollisionSystems {
         private void UpdateCollisionInfos(float deltaTime) {
             // 削除済みの物をクリア
             for (var i = _collisionInfos.Count - 1; i >= 0; i--) {
-                if (!_collisionInfos[i].destroy) {
+                if (!_collisionInfos[i].Destroy) {
                     continue;
                 }
 
                 // Debug用の登録解除
-                CollisionVisualizer.Unregister(_collisionInfos[i].collision);
+                CollisionVisualizer.Unregister(_collisionInfos[i].Collision);
 
                 _collisionInfos.RemoveAt(i);
             }
@@ -278,24 +260,24 @@ namespace GameFramework.CollisionSystems {
             for (var i = 0; i < _collisionInfos.Count; i++) {
                 var info = _collisionInfos[i];
                 _workCollisionResults.Clear();
-                
+
                 // 自動削除Timerを更新
-                if (info.timer >= 0.0f) {
-                    info.timer -= deltaTime;
-                    info.destroy = info.timer <= 0.0f;
+                if (info.Timer >= 0.0f) {
+                    info.Timer -= deltaTime;
+                    info.Destroy = info.Timer <= 0.0f;
                 }
 
                 // ヒット判定
-                if (!info.collision.Tick(info.layerMask, _workCollisionResults, _workCollisionBuffer)) {
+                if (!info.Collision.Tick(info.LayerMask, _workCollisionResults, _workCollisionBuffer)) {
                     continue;
                 }
 
                 // 衝突が発生していたら通知する
-                hitResult.center = info.collision.Center;
-                hitResult.customData = info.customData;
+                hitResult.center = info.Collision.Center;
+                hitResult.customData = info.CustomData;
                 foreach (var result in _workCollisionResults) {
                     hitResult.collider = result;
-                    info.listener?.OnHitCollision(hitResult);
+                    info.Listener?.OnHitCollision(hitResult);
                 }
             }
         }
@@ -306,12 +288,12 @@ namespace GameFramework.CollisionSystems {
         private void UpdateRaycastCollisionInfos(float deltaTime) {
             // 削除済みの物をクリア
             for (var i = _raycastCollisionInfos.Count - 1; i >= 0; i--) {
-                if (!_raycastCollisionInfos[i].destroy) {
+                if (!_raycastCollisionInfos[i].Destroy) {
                     continue;
                 }
 
                 // Debug用の登録解除
-                CollisionVisualizer.Unregister(_raycastCollisionInfos[i].collision);
+                CollisionVisualizer.Unregister(_raycastCollisionInfos[i].Collision);
 
                 _raycastCollisionInfos.RemoveAt(i);
             }
@@ -321,24 +303,24 @@ namespace GameFramework.CollisionSystems {
             for (var i = 0; i < _raycastCollisionInfos.Count; i++) {
                 var info = _raycastCollisionInfos[i];
                 _workRaycastResults.Clear();
-                
+
                 // 自動削除Timerを更新
-                if (info.timer >= 0.0f) {
-                    info.timer -= deltaTime;
-                    info.destroy = info.timer <= 0.0f;
+                if (info.Timer >= 0.0f) {
+                    info.Timer -= deltaTime;
+                    info.Destroy = info.Timer <= 0.0f;
                 }
 
                 // ヒット判定
-                if (!info.collision.Tick(info.layerMask, _workRaycastResults, _workRaycastBuffer)) {
+                if (!info.Collision.Tick(info.LayerMask, _workRaycastResults, _workRaycastBuffer)) {
                     continue;
                 }
 
                 // 衝突が発生していたら通知する
-                hitResult.CustomData = info.customData;
+                hitResult.CustomData = info.CustomData;
                 foreach (var result in _workRaycastResults) {
                     hitResult.RaycastHit = result;
-                    hitResult.HitCount = ++info.hitCount;
-                    info.listener?.OnHitRaycastCollision(hitResult);
+                    hitResult.HitCount = ++info.HitCount;
+                    info.Listener?.OnHitRaycastCollision(hitResult);
                 }
             }
         }
