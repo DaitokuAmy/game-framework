@@ -55,7 +55,7 @@ namespace ThirdPersonEngine {
             protected override IEnumerator EnterRoutineInternal(StateType prevKey, IScope scope) {
                 _isSprint = false;
 
-                Owner.MotionComponent.Change(Owner.BasePlayableComponent, 0.2f, false);
+                Owner.MotionComponent.Change(Owner.BasePlayable, 0.2f, false);
                 yield break;
             }
 
@@ -71,7 +71,7 @@ namespace ThirdPersonEngine {
             /// アニメーション用プロパティの反映
             /// </summary>
             private void UpdateAnimationProperties(bool ignoreDamping = false) {
-                var playable = Owner.BasePlayableComponent.Playable;
+                var playable = Owner.BasePlayable;
                 var body = Owner.Body;
 
                 // 歩き移動に関するパラメータ

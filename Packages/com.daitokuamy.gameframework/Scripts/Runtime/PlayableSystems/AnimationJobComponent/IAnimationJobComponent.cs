@@ -5,12 +5,12 @@ using UnityEngine.Playables;
 
 namespace GameFramework.PlayableSystems {
     /// <summary>
-    /// AnimationJobを提供するためのインターフェース
+    /// AnimationJobを制御するためのインターフェース
     /// </summary>
-    public interface IAnimationJobProvider : IDisposable {
-        // 初期化済みか
+    public interface IAnimationJobComponent : IDisposable {
+        /// <summary>初期化済みか</summary>
         bool IsInitialized { get; }
-        // 廃棄済みか
+        /// <summary>廃棄済みか</summary>
         bool IsDisposed { get; }
 
         /// <summary>

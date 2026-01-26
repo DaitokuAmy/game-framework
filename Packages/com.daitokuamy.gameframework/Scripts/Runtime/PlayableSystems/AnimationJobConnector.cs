@@ -8,25 +8,27 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// AnimationJobを再生させるためのクラス
     /// </summary>
-    public class AnimationJobConnector : IDisposable {
-        // 再生中のProvider情報
+    public sealed class AnimationJobConnector : IDisposable {
+        /// <summary>
+        /// 再生中情報
+        /// </summary>
         private class PlayingInfo {
-            public int order;
-            public IAnimationJobProvider provider;
+            public int Order;
+            public IAnimationJobComponent Component;
         }
 
         // Animator
-        private Animator _animator;
+        private readonly Animator _animator;
         // Playable情報
-        private PlayableGraph _graph;
+        private readonly PlayableGraph _graph;
         // Output
-        private AnimationPlayableOutput _output;
+        private readonly AnimationPlayableOutput _output;
         // NextPlayable
-        private Playable _nextPlayable;
+        private readonly Playable _nextPlayable;
 
-        // 再生中のProvider情報
-        private List<PlayingInfo> _sortedPlayingInfos = new List<PlayingInfo>();
-        private HashSet<IAnimationJobProvider> _providers = new HashSet<IAnimationJobProvider>();
+        // 再生中のComponent情報
+        private readonly List<PlayingInfo> _sortedPlayingInfos = new();
+        private readonly HashSet<IAnimationJobComponent> _components = new();
 
         // Graph更新フラグ
         private bool _dirtyGraph;
@@ -51,13 +53,13 @@ namespace GameFramework.PlayableSystems {
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
-            // 登録されているProviderをDisposeする
+            // 登録されているComponentをDisposeする
             foreach (var info in _sortedPlayingInfos) {
-                info.provider.Dispose();
+                info.Component.Dispose();
             }
 
             _sortedPlayingInfos.Clear();
-            _providers.Clear();
+            _components.Clear();
 
             // 接続を戻す
             _output.SetSourcePlayable(_nextPlayable);
@@ -67,14 +69,14 @@ namespace GameFramework.PlayableSystems {
         /// 更新処理
         /// </summary>
         public void Update(float deltaTime) {
-            // 無効なProviderがいたら削除
+            // 無効なComponentがいたら削除
             for (var i = _sortedPlayingInfos.Count - 1; i >= 0; i--) {
                 var info = _sortedPlayingInfos[i];
-                if (info.provider != null && !info.provider.IsDisposed) {
+                if (info.Component != null && !info.Component.IsDisposed) {
                     continue;
                 }
 
-                _providers.Remove(info.provider);
+                _components.Remove(info.Component);
                 _sortedPlayingInfos.RemoveAt(i);
                 _dirtyGraph = true;
             }
@@ -84,34 +86,34 @@ namespace GameFramework.PlayableSystems {
                 RefreshGraph();
             }
 
-            // Providerの更新
+            // Componentの更新
             for (var i = 0; i < _sortedPlayingInfos.Count; i++) {
-                _sortedPlayingInfos[i].provider.Update(deltaTime);
+                _sortedPlayingInfos[i].Component.Update(deltaTime);
             }
         }
 
         /// <summary>
-        /// Providerの設定
+        /// Componentの追加
         /// </summary>
-        public void SetProvider(IAnimationJobProvider provider, int order = 0) {
-            if (provider == null || provider.IsDisposed) {
-                Debug.LogError($"Failed provider. {provider}");
+        public void AddComponent(IAnimationJobComponent component, int order = 0) {
+            if (component == null || component.IsDisposed) {
+                Debug.LogError($"Failed component. {component}");
                 return;
             }
 
             // 既に設定済み
-            if (_providers.Contains(provider)) {
+            if (_components.Contains(component)) {
                 return;
             }
 
-            // Provider初期化
-            provider.Initialize(_animator, _graph);
+            // Component初期化
+            component.Initialize(_animator, _graph);
 
             // 要素の追加
-            _providers.Add(provider);
+            _components.Add(component);
             _sortedPlayingInfos.Add(new PlayingInfo {
-                provider = provider,
-                order = order
+                Component = component,
+                Order = order
             });
 
             _dirtyGraph = true;
@@ -133,15 +135,15 @@ namespace GameFramework.PlayableSystems {
         /// </summary>
         private void RefreshGraph() {
             // Listを整理
-            _sortedPlayingInfos.Sort((a, b) => a.order.CompareTo(b.order));
+            _sortedPlayingInfos.Sort((a, b) => a.Order.CompareTo(b.Order));
 
             if (_sortedPlayingInfos.Count > 0) {
                 // Output～NextPlayableの間に直列に並べなおす
-                var outputPlayable = _sortedPlayingInfos[_sortedPlayingInfos.Count - 1].provider.GetPlayable();
+                var outputPlayable = _sortedPlayingInfos[_sortedPlayingInfos.Count - 1].Component.GetPlayable();
                 _output.SetSourcePlayable(outputPlayable);
 
                 for (var i = _sortedPlayingInfos.Count - 2; i >= 0; i--) {
-                    var inputPlayable = _sortedPlayingInfos[i].provider.GetPlayable();
+                    var inputPlayable = _sortedPlayingInfos[i].Component.GetPlayable();
                     outputPlayable.DisconnectInput(0);
                     outputPlayable.ConnectInput(0, inputPlayable, 0);
                     outputPlayable = inputPlayable;

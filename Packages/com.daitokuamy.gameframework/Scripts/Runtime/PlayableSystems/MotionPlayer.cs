@@ -8,13 +8,13 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// Motionを再生させるためのクラス
     /// </summary>
-    public class MotionPlayer : IDisposable {
+    public sealed class MotionPlayer : IDisposable {
         // Playable情報
         private PlayableGraph _graph;
         // 再生速度
         private float _speed = 1.0f;
-        // ルートコンポーネント
-        private LayerMixerPlayableComponent _rootComponent;
+        // ルートとなる再生レイヤー
+        private MotionLayerHandler _rootLayerHandler;
 
         /// <summary>再生に使うAnimator</summary>
         public Animator Animator { get; private set; }
@@ -24,10 +24,8 @@ namespace GameFramework.PlayableSystems {
         public int SkipFrameOffset { get; set; } = 0;
         /// <summary>AnimationJob差し込み用</summary>
         public AnimationJobConnector JobConnector { get; private set; }
-        /// <summary>再生に使うレイヤーハンドル</summary>
-        public MotionHandle Handle { get; private set; }
-        /// <summary>ルートに存在するLayerMixerComponent</summary>
-        public LayerMixerPlayableComponent RootComponent => _rootComponent;
+        /// <summary>再生に使うハンドル</summary>
+        public MotionHandle Handle => _rootLayerHandler.BaseHandle;
 
         /// <summary>
         /// コンストラクタ
@@ -46,11 +44,9 @@ namespace GameFramework.PlayableSystems {
             _graph.SetTimeUpdateMode(updateMode);
             output.SetSortingOrder(outputSortingOrder);
             
-            // RootComponentを生成して接続
-            _rootComponent = new LayerMixerPlayableComponent(animator);
-            ((IPlayableComponent)_rootComponent).Initialize(_graph);
-            Handle = _rootComponent.BaseHandle;
-            output.SetSourcePlayable(_rootComponent.Playable);
+            // RootMotionLayerを生成して接続
+            _rootLayerHandler = new MotionLayerHandler(animator);
+            output.SetSourcePlayable(_rootLayerHandler.CreatePlayable(_graph));
             
             // 再生状態にする
             _graph.Play();
@@ -68,8 +64,8 @@ namespace GameFramework.PlayableSystems {
             JobConnector = null;
 
             // RootComponent
-            _rootComponent?.Dispose();
-            _rootComponent = null;
+            _rootLayerHandler?.Dispose();
+            _rootLayerHandler = null;
 
             // Graphを削除
             if (_graph.IsValid()) {
@@ -103,7 +99,7 @@ namespace GameFramework.PlayableSystems {
             var deltaTime = (updateMode == DirectorUpdateMode.UnscaledGameTime ? Time.unscaledDeltaTime : Time.deltaTime) * _speed;
             
             // レイヤーの更新
-            ((IPlayableComponent)_rootComponent).Update(deltaTime);
+            _rootLayerHandler.Update(deltaTime);
 
             // JobProvider更新
             JobConnector.Update(deltaTime);
@@ -126,13 +122,46 @@ namespace GameFramework.PlayableSystems {
         /// </summary>
         public void SetSpeed(float speed) {
             JobConnector.SetSpeed(speed);
-            ((IPlayableComponent)RootComponent).SetSpeed(speed);
+            _rootLayerHandler.SetSpeed(speed);
 
             if (Math.Abs(speed - _speed) <= float.Epsilon) {
                 return;
             }
 
             _speed = Mathf.Max(0.0f, speed);
+        }
+
+        /// <summary>
+        /// 拡張レイヤーの生成
+        /// </summary>
+        /// <param name="additive">加算レイヤーか</param>
+        /// <param name="avatarMask">アバターマスク</param>
+        /// <param name="weight">初期ウェイト</param>
+        public MotionHandle CreateExtensionLayer(bool additive = false, AvatarMask avatarMask = null, float weight = 1.0f) {
+            return _rootLayerHandler.CreateExtensionLayer(additive, avatarMask, weight);
+        }
+
+        /// <summary>
+        /// 拡張レイヤーの取得
+        /// </summary>
+        /// <param name="index">拡張レイヤーのIndex</param>
+        public MotionHandle GetExtensionLayer(int index) {
+            return _rootLayerHandler.GetExtensionLayer(index);
+        }
+
+        /// <summary>
+        /// 拡張レイヤーの削除
+        /// </summary>
+        /// <param name="handle">対象を表すハンドル</param>
+        public void RemoveExtensionLayer(MotionHandle handle) {
+            _rootLayerHandler.RemoveExtensionLayer(handle);
+        }
+
+        /// <summary>
+        /// 拡張レイヤーの削除
+        /// </summary>
+        public void RemoveExtensionLayers() {
+            _rootLayerHandler.RemoveExtensionLayers();
         }
     }
 }

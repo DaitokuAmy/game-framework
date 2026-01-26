@@ -29,7 +29,7 @@ namespace ThirdPersonEngine {
         /// </summary>
         protected override IEnumerator PlayRoutineInternal(ControllerActorAction action) {
             // クリップを再生する
-            var provider = _motionHandle.Change(action.controller, action.inBlend);
+            var playable = _motionHandle.Change(action.controller, action.inBlend);
             
             // シーケンス再生
             if (action.sequenceClip != null) {
@@ -37,7 +37,7 @@ namespace ThirdPersonEngine {
             }
 
             // 最後のStateが流れ切るのを待つ
-            var controllerPlayable = provider.Playable;
+            var controllerPlayable = playable;
             var enteredLastState = false;
             while (true) {
                 var stateInfo = controllerPlayable.GetCurrentAnimatorStateInfo(0);

@@ -9,7 +9,7 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// RootMotionをコントロールするためのAnimationJobProvider
     /// </summary>
-    public sealed class RootAnimationJobProvider : AnimationJobProvider {
+    public sealed class RootAnimationJobComponent : AnimationJobComponent {
         /// <summary>
         /// Job本体
         /// </summary>

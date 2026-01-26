@@ -7,6 +7,7 @@ using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.PlayableSystems;
 using UnityEngine;
+using UnityEngine.Animations;
 
 namespace ThirdPersonEngine {
     /// <summary>
@@ -17,8 +18,8 @@ namespace ThirdPersonEngine {
 
         /// <summary>初期化用データ</summary>
         protected CharacterActorData Data { get; private set; }
-        /// <summary>基本モーション制御用コンポーネント</summary>
-        protected AnimatorControllerPlayableComponent BasePlayableComponent { get; private set; }
+        /// <summary>基本モーション制御用Playable</summary>
+        protected AnimatorControllerPlayable BasePlayable { get; private set; }
 
         /// <summary>
         /// コンストラクタ
@@ -32,7 +33,7 @@ namespace ThirdPersonEngine {
         /// </summary>
         protected override void ActivateInternal(IScope scope) {
             var baseMotionHandle = GetBaseMotionHandle();
-            BasePlayableComponent = baseMotionHandle.Change(Data.baseController, 0.0f, false);
+            BasePlayable = baseMotionHandle.Change(Data.baseController, 0.0f, false);
             
             base.ActivateInternal(scope);
 
@@ -52,8 +53,8 @@ namespace ThirdPersonEngine {
         /// </summary>
         protected override void AddActionPlayerHandlers(ActorActionPlayer actionPlayer, MotionHandle motionHandle) {
             base.AddActionPlayerHandlers(actionPlayer, motionHandle);
-            actionPlayer.SetHandler<TriggerStateActorAction, TriggerStateActorActionHandler>(new TriggerStateActorActionHandler(BasePlayableComponent.Playable, SequenceControllerInternal));
-            actionPlayer.SetHandler<CrossFadeStateActorAction, CrossFadeStateActorActionHandler>(new CrossFadeStateActorActionHandler(BasePlayableComponent.Playable, SequenceControllerInternal));
+            actionPlayer.SetHandler<TriggerStateActorAction, TriggerStateActorActionHandler>(new TriggerStateActorActionHandler(BasePlayable, SequenceControllerInternal));
+            actionPlayer.SetHandler<CrossFadeStateActorAction, CrossFadeStateActorActionHandler>(new CrossFadeStateActorActionHandler(BasePlayable, SequenceControllerInternal));
         }
         
         /// <summary>
@@ -203,7 +204,7 @@ namespace ThirdPersonEngine {
         /// デフォルトモーションの設定(内部用)
         /// </summary>
         protected void ChangeDefaultMotionInternal(float blendDuration) {
-            MotionComponent.Handle.Change(BasePlayableComponent, blendDuration, false);
+            MotionComponent.Handle.Change(BasePlayable, blendDuration, false);
         }
 
         /// <summary>

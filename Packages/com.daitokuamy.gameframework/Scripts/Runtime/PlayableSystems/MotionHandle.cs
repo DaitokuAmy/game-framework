@@ -1,4 +1,6 @@
 using System;
+using UnityEngine;
+using UnityEngine.Playables;
 
 namespace GameFramework.PlayableSystems {
     /// <summary>
@@ -7,22 +9,26 @@ namespace GameFramework.PlayableSystems {
     public struct MotionHandle : IDisposable {
         public static readonly MotionHandle Null = new();
 
-        private LayerMixerPlayableComponent _parentComponent;
+        private MotionLayerHandler _parentLayerHandler;
         private MotionCrossFader _crossFader;
         private bool _disposed;
         
         /// <summary>有効か</summary>
         public bool IsValid => _crossFader != null && _crossFader.IsValid;
+        /// <summary>PlayableGraph情報</summary>
+        public PlayableGraph Graph => _crossFader.Graph;
+        /// <summary>再生に利用しているAnimator</summary>
+        public Animator Animator => _crossFader.Animator;
         /// <summary>クロスフェーダー本体</summary>
         internal MotionCrossFader CrossFader => _crossFader;
-        /// <summary>登録親のComponent</summary>
-        internal LayerMixerPlayableComponent ParentComponent => _parentComponent;
+        /// <summary>登録親のMotionLayer</summary>
+        internal MotionLayerHandler ParentLayerHandler => _parentLayerHandler;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        internal MotionHandle(LayerMixerPlayableComponent parentComponent, MotionCrossFader crossFader) {
-            _parentComponent = parentComponent;
+        internal MotionHandle(MotionLayerHandler parentLayerHandler, MotionCrossFader crossFader) {
+            _parentLayerHandler = parentLayerHandler;
             _crossFader = crossFader;
             _disposed = false;
         }
@@ -37,10 +43,10 @@ namespace GameFramework.PlayableSystems {
 
             _disposed = true;
             
-            if (_parentComponent != null) {
+            if (_parentLayerHandler != null) {
                 // 接続停止
-                _parentComponent.RemoveExtensionLayer(this);
-                _parentComponent = null;
+                _parentLayerHandler.RemoveExtensionLayer(this);
+                _parentLayerHandler = null;
             }
 
             _crossFader = null;
@@ -49,15 +55,15 @@ namespace GameFramework.PlayableSystems {
         /// <summary>
         /// Playableを変更
         /// </summary>
-        /// <param name="component">変更対象のPlayableを返すProvider</param>
+        /// <param name="playable">再生するPlayable</param>
         /// <param name="blendDuration">ブレンド時間</param>
         /// <param name="autoDispose">自動廃棄するか</param>
-        public void Change(IPlayableComponent component, float blendDuration, bool autoDispose) {
+        public void Change(Playable? playable, float blendDuration, bool autoDispose) {
             if (!IsValid) {
                 return;
             }
             
-            _crossFader.Change(component, blendDuration, autoDispose);
+            _crossFader.Change(playable, blendDuration, autoDispose);
         }
 
         /// <summary>
@@ -68,11 +74,11 @@ namespace GameFramework.PlayableSystems {
                 return;
             }
 
-            if (_parentComponent == null) {
+            if (_parentLayerHandler == null) {
                 return;
             }
             
-            _parentComponent.SetLayerWeight(this, weight);
+            _parentLayerHandler.SetLayerWeight(this, weight);
         }
 
         /// <summary>
@@ -83,11 +89,11 @@ namespace GameFramework.PlayableSystems {
                 return 0.0f;
             }
 
-            if (_parentComponent == null) {
+            if (_parentLayerHandler == null) {
                 return 1.0f;
             }
             
-            return _parentComponent.GetLayerWeight(this);
+            return _parentLayerHandler.GetLayerWeight(this);
         }
     }
 }

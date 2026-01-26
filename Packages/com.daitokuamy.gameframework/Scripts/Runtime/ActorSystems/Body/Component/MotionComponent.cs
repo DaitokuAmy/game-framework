@@ -13,9 +13,9 @@ namespace GameFramework.ActorSystems {
         private DirectorUpdateMode _updateMode = DirectorUpdateMode.GameTime;
 
         // ルートスケール制御用
-        private RootAnimationJobProvider _rootAnimationJobProvider;
+        private RootAnimationJobComponent _rootAnimationJobComponent;
         // 腰高さ調整用
-        private AdjustHeightAnimationJobProvider _adjustHeightAnimationJobProvider;
+        private AdjustHeightAnimationJobComponent _adjustHeightAnimationJobComponent;
         // モーション再生用クラス
         private MotionPlayer _player;
         // 内部的に保持する速度
@@ -28,33 +28,33 @@ namespace GameFramework.ActorSystems {
 
         /// <summary>ルートスケール（座標）</summary>
         public Vector3 RootPositionScale {
-            get => _rootAnimationJobProvider.PositionScale;
-            set => _rootAnimationJobProvider.PositionScale = value;
+            get => _rootAnimationJobComponent.PositionScale;
+            set => _rootAnimationJobComponent.PositionScale = value;
         }
         /// <summary>ルート速度オフセット</summary>
         public Vector3 RootVelocityOffset {
-            get => _rootAnimationJobProvider.VelocityOffset;
-            set => _rootAnimationJobProvider.VelocityOffset = value;
+            get => _rootAnimationJobComponent.VelocityOffset;
+            set => _rootAnimationJobComponent.VelocityOffset = value;
         }
         /// <summary>ルートスケール（回転）</summary>
         public Vector3 RootAngleScale {
-            get => _rootAnimationJobProvider.AngleScale;
-            set => _rootAnimationJobProvider.AngleScale = value;
+            get => _rootAnimationJobComponent.AngleScale;
+            set => _rootAnimationJobComponent.AngleScale = value;
         }
         /// <summary>ルート角速度オフセット</summary>
         public Vector3 RootAngularVelocityOffset {
-            get => _rootAnimationJobProvider.AngularVelocityOffset;
-            set => _rootAnimationJobProvider.AngularVelocityOffset = value;
+            get => _rootAnimationJobComponent.AngularVelocityOffset;
+            set => _rootAnimationJobComponent.AngularVelocityOffset = value;
         }
         /// <summary>腰高さスケール(BoneControllerの指定がないと無効)</summary>
         public float HeightScale {
-            get => _adjustHeightAnimationJobProvider?.HeightScale ?? 1.0f;
+            get => _adjustHeightAnimationJobComponent?.HeightScale ?? 1.0f;
             set {
-                if (_adjustHeightAnimationJobProvider == null) {
+                if (_adjustHeightAnimationJobComponent == null) {
                     return;
                 }
 
-                _adjustHeightAnimationJobProvider.HeightScale = value;
+                _adjustHeightAnimationJobComponent.HeightScale = value;
             }
         }
 
@@ -65,16 +65,16 @@ namespace GameFramework.ActorSystems {
             Animator = Body.GetComponent<Animator>();
             _player = new MotionPlayer(Animator, _updateMode);
 
-            // RootScaleJobの初期化
-            _rootAnimationJobProvider = new RootAnimationJobProvider();
-            _player.JobConnector.SetProvider(_rootAnimationJobProvider);
+            // RootAnimationJobの初期化
+            _rootAnimationJobComponent = new RootAnimationJobComponent();
+            _player.JobConnector.AddComponent(_rootAnimationJobComponent);
 
-            // BoneControllerがある場合、高さ調整用のProviderを追加
+            // BoneControllerがある場合、高さ調整用のJobComponentを追加
             var boneController = Body.GetBodyComponent<BoneComponent>();
             if (boneController != null) {
                 if (boneController.Root != null && boneController.Hips != null) {
-                    _adjustHeightAnimationJobProvider = new AdjustHeightAnimationJobProvider(boneController.Root, boneController.Hips);
-                    _player.JobConnector.SetProvider(_adjustHeightAnimationJobProvider, 1);
+                    _adjustHeightAnimationJobComponent = new AdjustHeightAnimationJobComponent(boneController.Root, boneController.Hips);
+                    _player.JobConnector.AddComponent(_adjustHeightAnimationJobComponent, 1);
                 }
             }
 
@@ -114,31 +114,31 @@ namespace GameFramework.ActorSystems {
         }
 
         /// <summary>
-        /// 再生対象のPlayableProviderを変更
+        /// Playableの変更
         /// </summary>
-        /// <param name="component">変更対象のPlayableを返すProvider</param>
+        /// <param name="playable">再生するPlayable</param>
         /// <param name="blendDuration">ブレンド時間</param>
         /// <param name="autoDispose">再生終了時に自動廃棄するか</param>
-        public void Change(IPlayableComponent component, float blendDuration, bool autoDispose) {
-            _player.Handle.Change(component, blendDuration, autoDispose);
+        public void Change(Playable? playable, float blendDuration, bool autoDispose) {
+            _player.Handle.Change(playable, blendDuration, autoDispose);
         }
 
         /// <summary>
-        /// LayerのWeight設定
+        /// 拡張レイヤーの生成
         /// </summary>
-        /// <param name="weight">再生ウェイト</param>
-        public void SetWeight(float weight) {
-            _player.Handle.SetWeight(weight);
-        }
-
-        /// <summary>
-        /// 拡張レイヤーの追加
-        /// </summary>
-        /// <param name="additive">加算モードか</param>
+        /// <param name="additive">加算レイヤーか</param>
         /// <param name="avatarMask">アバターマスク</param>
-        /// <param name="weight">初期設定のWeight</param>
-        public MotionHandle AddExtensionLayer(bool additive = false, AvatarMask avatarMask = null, float weight = 1.0f) {
-            return _player.RootComponent.AddExtensionLayer(additive, avatarMask, weight);
+        /// <param name="weight">初期ウェイト</param>
+        public MotionHandle CreateExtensionLayer(bool additive = false, AvatarMask avatarMask = null, float weight = 1.0f) {
+            return _player.CreateExtensionLayer(additive, avatarMask, weight);
+        }
+
+        /// <summary>
+        /// 拡張レイヤーの取得
+        /// </summary>
+        /// <param name="index">拡張レイヤーのIndex</param>
+        public MotionHandle GetExtensionLayer(int index) {
+            return _player.GetExtensionLayer(index);
         }
 
         /// <summary>
@@ -146,14 +146,14 @@ namespace GameFramework.ActorSystems {
         /// </summary>
         /// <param name="handle">対象を表すハンドル</param>
         public void RemoveExtensionLayer(MotionHandle handle) {
-            _player.RootComponent.RemoveExtensionLayer(handle);
+            _player.RemoveExtensionLayer(handle);
         }
 
         /// <summary>
         /// 拡張レイヤーの削除
         /// </summary>
         public void RemoveExtensionLayers() {
-            _player.RootComponent.RemoveExtensionLayers();
+            _player.RemoveExtensionLayers();
         }
 
         /// <summary>

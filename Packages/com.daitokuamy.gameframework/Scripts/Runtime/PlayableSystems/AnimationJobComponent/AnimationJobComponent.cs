@@ -6,21 +6,21 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// Playable提供クラスの基底
     /// </summary>
-    public abstract class AnimationJobProvider : IAnimationJobProvider {
+    public abstract class AnimationJobComponent : IAnimationJobComponent {
         private AnimationScriptPlayable _playable;
         private bool _initialized;
         private bool _disposed;
 
         // 初期化済みか
-        bool IAnimationJobProvider.IsInitialized => _initialized;
+        bool IAnimationJobComponent.IsInitialized => _initialized;
         // 廃棄済みか
-        bool IAnimationJobProvider.IsDisposed => _disposed;
+        bool IAnimationJobComponent.IsDisposed => _disposed;
 
         /// <summary>
         /// 初期化処理
         /// </summary>
         /// <inheritdoc/>
-        void IAnimationJobProvider.Initialize(Animator animator, PlayableGraph graph) {
+        void IAnimationJobComponent.Initialize(Animator animator, PlayableGraph graph) {
             if (_initialized) {
                 return;
             }
@@ -33,14 +33,14 @@ namespace GameFramework.PlayableSystems {
         /// <summary>
         /// 更新処理
         /// </summary>
-        void IAnimationJobProvider.Update(float deltaTime) {
+        void IAnimationJobComponent.Update(float deltaTime) {
             UpdateInternal(_playable, deltaTime);
         }
 
         /// <summary>
         /// Playableの取得
         /// </summary>
-        AnimationScriptPlayable IAnimationJobProvider.GetPlayable() => _playable;
+        AnimationScriptPlayable IAnimationJobComponent.GetPlayable() => _playable;
 
         /// <summary>
         /// 廃棄時処理

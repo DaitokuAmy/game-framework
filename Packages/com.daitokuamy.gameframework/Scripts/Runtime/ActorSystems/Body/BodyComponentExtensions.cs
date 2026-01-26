@@ -2,6 +2,8 @@ using GameFramework.PlayableSystems;
 using UnityEngine;
 using UnityEngine.Timeline;
 using GameFramework.GimmickSystems;
+using UnityEngine.Animations;
+using UnityEngine.Playables;
 
 namespace GameFramework.ActorSystems {
     /// <summary>
@@ -11,54 +13,24 @@ namespace GameFramework.ActorSystems {
         /// <summary>
         /// AnimationClipモーションの設定
         /// </summary>
-        public static AnimationClipPlayableComponent Change(this MotionComponent source, AnimationClip clip, float blendDuration, bool autoDispose = true) {
-            if (clip == null) {
-                source.Handle.Change(null, blendDuration, autoDispose);
-                return null;
-            }
-
-            var component = new AnimationClipPlayableComponent(clip);
-            source.Handle.Change(component, blendDuration, autoDispose);
-            return component;
+        public static AnimationClipPlayable Change(this MotionComponent source, AnimationClip clip, float blendDuration, bool autoDispose = true) {
+            return source.Handle.Change(clip, blendDuration, autoDispose);
         }
 
         /// <summary>
         /// AnimatorControllerモーションの設定
         /// </summary>
-        public static AnimatorControllerPlayableComponent Change(this MotionComponent source, RuntimeAnimatorController controller, float blendDuration, bool autoDispose = true) {
-            if (controller == null) {
-                source.Handle.Change(null, blendDuration, autoDispose);
-                return null;
-            }
-
-            var component = new AnimatorControllerPlayableComponent(controller);
-            source.Handle.Change(component, blendDuration, autoDispose);
-            return component;
+        public static AnimatorControllerPlayable Change(this MotionComponent source, RuntimeAnimatorController controller, float blendDuration, bool autoDispose = true) {
+            return source.Handle.Change(controller, blendDuration, autoDispose);
         }
 
         /// <summary>
         /// Timelineモーションの設定
         /// </summary>
-        public static TimelinePlayableComponent Change(this MotionComponent source, TimelineAsset timelineAsset, float blendDuration, bool autoDispose = true) {
-            if (timelineAsset == null) {
-                source.Handle.Change(null, blendDuration, autoDispose);
-                return null;
-            }
-
-            var component = new TimelinePlayableComponent(source.Animator, timelineAsset);
-            source.Handle.Change(component, blendDuration, autoDispose);
-            return component;
+        public static ScriptPlayable<TimelinePlayable> Change(this MotionComponent source, TimelineAsset timelineAsset, float blendDuration, bool autoDispose = true) {
+            return source.Handle.Change(timelineAsset, blendDuration, autoDispose);
         }
 
-        /// <summary>
-        /// LayerMixerの設定
-        /// </summary>
-        public static LayerMixerPlayableComponent ChangeLayerMixer(this MotionComponent source, float blendDuration, bool autoDispose = true) {
-            var component = new LayerMixerPlayableComponent(source.Animator);
-            source.Handle.Change(component, blendDuration, autoDispose);
-            return component;
-        }
-        
         /// <summary>
         /// ActiveGimmickを取得
         /// </summary>

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
@@ -5,34 +6,55 @@ using UnityEngine.Playables;
 
 namespace GameFramework.PlayableSystems {
     /// <summary>
-    /// AnimatorControllerを再生するPlayable用のProvider
+    /// モーション再生のレイヤーをハンドリングするクラス
     /// </summary>
-    public class LayerMixerPlayableComponent : PlayableComponent<AnimationLayerMixerPlayable> {
+    internal sealed class MotionLayerHandler : IDisposable {
         private readonly List<MotionCrossFader> _extensionCrossFaders = new();
         private readonly Animator _animator;
-        
+
+        private bool _disposed;
         private PlayableGraph _graph;
         private AnimationLayerMixerPlayable _playable;
         private MotionCrossFader _baseCrossFader;
         private float _speed;
 
-        /// <summary>基礎となるPlayable</summary>
-        public override AnimationLayerMixerPlayable Playable => _playable;
-        /// <summary>ベースレイヤー用ハンドル</summary>
+        /// <summary>ベース用のモーション再生用ハンドル</summary>
         public MotionHandle BaseHandle { get; private set; }
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         /// <param name="animator">初期化に使うAnimator</param>
-        public LayerMixerPlayableComponent(Animator animator) {
+        public MotionLayerHandler(Animator animator) {
             _animator = animator;
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        public void Dispose() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;
+
+            BaseHandle.Dispose();
+            foreach (var fader in _extensionCrossFaders) {
+                fader.Dispose();
+            }
+
+            _extensionCrossFaders.Clear();
+            _baseCrossFader.Dispose();
+            _baseCrossFader = null;
+
+            _playable.Destroy();
         }
 
         /// <summary>
         /// Playableの生成
         /// </summary>
-        protected override Playable CreatePlayable(PlayableGraph graph) {
+        public Playable CreatePlayable(PlayableGraph graph) {
             _graph = graph;
             _playable = AnimationLayerMixerPlayable.Create(graph);
             _baseCrossFader = new MotionCrossFader(graph, _animator);
@@ -44,7 +66,11 @@ namespace GameFramework.PlayableSystems {
         /// <summary>
         /// 更新処理
         /// </summary>
-        protected override void UpdateInternal(float deltaTime) {
+        public void Update(float deltaTime) {
+            if (_disposed) {
+                return;
+            }
+
             _baseCrossFader.Update(deltaTime);
             foreach (var fader in _extensionCrossFaders) {
                 fader.Update(deltaTime);
@@ -52,22 +78,13 @@ namespace GameFramework.PlayableSystems {
         }
 
         /// <summary>
-        /// 廃棄時処理
-        /// </summary>
-        protected override void DisposeInternal() {
-            foreach (var fader in _extensionCrossFaders) {
-                fader.Dispose();
-            }
-
-            _extensionCrossFaders.Clear();
-            _baseCrossFader.Dispose();
-            _baseCrossFader = null;
-        }
-
-        /// <summary>
         /// 速度の変更
         /// </summary>
-        protected override void SetSpeedInternal(float speed) {
+        public void SetSpeed(float speed) {
+            if (_disposed) {
+                return;
+            }
+
             _baseCrossFader.SetSpeed(speed);
             foreach (var fader in _extensionCrossFaders) {
                 fader.SetSpeed(speed);
@@ -75,12 +92,16 @@ namespace GameFramework.PlayableSystems {
         }
 
         /// <summary>
-        /// 拡張レイヤーの追加
+        /// 拡張レイヤーの生成
         /// </summary>
         /// <param name="additive">加算レイヤーか</param>
         /// <param name="avatarMask">アバターマスク</param>
         /// <param name="weight">初期ウェイト</param>
-        public MotionHandle AddExtensionLayer(bool additive = false, AvatarMask avatarMask = null, float weight = 1.0f) {
+        public MotionHandle CreateExtensionLayer(bool additive = false, AvatarMask avatarMask = null, float weight = 1.0f) {
+            if (_disposed) {
+                return default;
+            }
+
             var crossFader = new MotionCrossFader(_graph, _animator);
             crossFader.SetSpeed((float)_playable.GetSpeed());
 
@@ -96,10 +117,30 @@ namespace GameFramework.PlayableSystems {
         }
 
         /// <summary>
+        /// 生成済みの拡張レイヤー用を取得
+        /// </summary>
+        public MotionHandle GetExtensionLayer(int index) {
+            if (_disposed) {
+                return default;
+            }
+
+            if (index < 0 || index >= _extensionCrossFaders.Count) {
+                return default;
+            }
+
+            var crossFader = _extensionCrossFaders[index];
+            return new MotionHandle(this, crossFader);
+        }
+
+        /// <summary>
         /// 拡張レイヤーの削除
         /// </summary>
         /// <param name="handle">対象のレイヤーを表すHandle</param>
         public void RemoveExtensionLayer(MotionHandle handle) {
+            if (_disposed) {
+                return;
+            }
+
             if (!handle.IsValid) {
                 return;
             }
@@ -127,11 +168,17 @@ namespace GameFramework.PlayableSystems {
         /// 拡張レイヤーの全削除
         /// </summary>
         public void RemoveExtensionLayers() {
+            if (_disposed) {
+                return;
+            }
+
             for (var i = _extensionCrossFaders.Count - 1; i >= 0; i--) {
                 var fader = _extensionCrossFaders[i];
                 _playable.DisconnectInput(i + 1);
                 fader.Dispose();
             }
+
+            _extensionCrossFaders.Clear();
         }
 
         /// <summary>
@@ -140,6 +187,10 @@ namespace GameFramework.PlayableSystems {
         /// <param name="handle">対象のレイヤーを表すHandle</param>
         /// <param name="weight">ウェイト</param>
         public void SetLayerWeight(MotionHandle handle, float weight) {
+            if (_disposed) {
+                return;
+            }
+
             if (!handle.IsValid) {
                 return;
             }
@@ -160,6 +211,10 @@ namespace GameFramework.PlayableSystems {
         /// </summary>
         /// <param name="handle">対象のレイヤーを表すHandle</param>
         public float GetLayerWeight(MotionHandle handle) {
+            if (_disposed) {
+                return 0.0f;
+            }
+
             if (!handle.IsValid) {
                 return 0.0f;
             }

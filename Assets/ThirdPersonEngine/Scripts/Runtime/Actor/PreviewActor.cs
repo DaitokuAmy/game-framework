@@ -195,7 +195,7 @@ namespace ThirdPersonEngine.ModelViewer {
 
             // 加算レイヤーの追加
             if (_motionComponent != null) {
-                _additiveMotionHandle = _motionComponent.AddExtensionLayer(true, weight: 1.0f);
+                _additiveMotionHandle = _motionComponent.CreateExtensionLayer(true, weight: 1.0f);
                 _additiveMotionHandle.RegisterTo(scope);
             }
         }

@@ -6,9 +6,9 @@ using UnityEngine.Playables;
 
 namespace GameFramework.PlayableSystems {
     /// <summary>
-    /// 腰の高さを調整するためのAnimationJobProvider
+    /// 腰の高さを調整するためのAnimationJob用コンポーネント
     /// </summary>
-    public sealed class AdjustHeightAnimationJobProvider : AnimationJobProvider {
+    public sealed class AdjustHeightAnimationJobComponent : AnimationJobComponent {
         /// <summary>
         /// Job本体
         /// </summary>
@@ -57,7 +57,7 @@ namespace GameFramework.PlayableSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public AdjustHeightAnimationJobProvider(Transform root, Transform hips) {
+        public AdjustHeightAnimationJobComponent(Transform root, Transform hips) {
             _root = root;
             _hips = hips;
         }
