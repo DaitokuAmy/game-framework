@@ -6,7 +6,7 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// Motionを再生させるためのクラス
     /// </summary>
-    public class AnimatorStateDispatcher : MonoBehaviour {
+    public sealed class AnimatorStateDispatcher : MonoBehaviour {
         /// <summary>
         /// State関連のイベント通知用情報
         /// </summary>
@@ -35,9 +35,13 @@ namespace GameFramework.PlayableSystems {
             }
         }
 
+        /// <summary>Stateに入った際の通知</summary>
         public event Action<StateEventInfo> AnimatorStateEnterEvent;
+        /// <summary>Stateを抜けた際の通知</summary>
         public event Action<StateEventInfo> AnimatorStateExitEvent;
+        /// <summary>StateMachineに入った際の通知</summary>
         public event Action<StateMachineEventInfo> AnimatorStateMachineEnterEvent;
+        /// <summary>StateMachineを抜けた際の通知</summary>
         public event Action<StateMachineEventInfo> AnimatorStateMachineExitEvent;
         
         /// <summary>

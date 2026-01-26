@@ -6,8 +6,8 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// AnimatorのStateを通知するStateMachineBehaviour
     /// </summary>
-    public class SendAnimatorStateBehaviour : StateMachineBehaviour {
-        private readonly Dictionary<Animator, AnimatorStateDispatcher> _animatorStates = new();
+    public sealed class SendAnimatorStateBehaviour : StateMachineBehaviour {
+        private readonly Dictionary<Animator, AnimatorStateDispatcher> _dispatchers = new();
         
         /// <summary>
         /// State入った時の処理
@@ -75,9 +75,9 @@ namespace GameFramework.PlayableSystems {
         /// 通知用のDispatcherの取得
         /// </summary>
         private AnimatorStateDispatcher GetDispatcher(Animator animator) {
-            if (!_animatorStates.TryGetValue(animator, out var dispatcher)) {
+            if (!_dispatchers.TryGetValue(animator, out var dispatcher)) {
                 dispatcher = animator.GetComponent<AnimatorStateDispatcher>();
-                _animatorStates[animator] = dispatcher;
+                _dispatchers[animator] = dispatcher;
             }
 
             return dispatcher;

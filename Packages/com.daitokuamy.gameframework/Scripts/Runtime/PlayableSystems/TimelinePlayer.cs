@@ -8,7 +8,7 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// タイムライン再生するためのPlayer
     /// </summary>
-    public class TimelinePlayer {
+    public sealed class TimelinePlayer {
         /// <summary>
         /// 再生制御用ハンドル
         /// </summary>

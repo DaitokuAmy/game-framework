@@ -44,7 +44,7 @@ namespace GameFramework.PlayableSystems {
         private Transform _root;
         private Transform _hips;
 
-        // 高さのスケール
+        /// <summary>高さのスケール</summary>
         public float HeightScale {
             get => _properties.IsCreated ? _properties[0] : 1.0f;
             set {
