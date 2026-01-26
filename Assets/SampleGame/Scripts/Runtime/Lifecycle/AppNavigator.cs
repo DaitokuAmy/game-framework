@@ -76,11 +76,6 @@ namespace SampleGame.Lifecycle {
                                         sortieMissionSelect.AddScreen(new SortieDifficultySelectScreenNode());
                                     });
                             });
-                        })
-                        .AddSession(new BattleSessionNode(), battle => {
-                            battle.AddScreen(new BattleHudScreenNode(), battleHud => {
-                                battleHud.AddScreen(new BattlePauseScreenNode());
-                            });
                         });
                 })
                 .CreateRouter(container => {
@@ -93,7 +88,7 @@ namespace SampleGame.Lifecycle {
                                         })
                                         .Connect<SortieMissionSelectScreenNode>(sortieMissionSelect => {
                                             sortieMissionSelect.Connect<SortieDifficultySelectScreenNode>(sortieDifficultySelect => {
-                                                sortieDifficultySelect.Connect<BattleHudScreenNode>();
+                                                //sortieDifficultySelect.Connect<BattleHudScreenNode>();
                                             });
                                         });
                                 })
