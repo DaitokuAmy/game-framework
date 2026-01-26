@@ -20,9 +20,7 @@ namespace GameFramework.PlayableSystems {
         /// </summary>
         /// <param name="animator">再生対象のAnimator</param>
         /// <param name="timelineAsset">再生対象のTimelineAsset</param>
-        /// <param name="autoDispose">自動廃棄するか</param>
-        public TimelinePlayableComponent(Animator animator, TimelineAsset timelineAsset, bool autoDispose)
-            : base(autoDispose) {
+        public TimelinePlayableComponent(Animator animator, TimelineAsset timelineAsset) {
             _animator = animator;
             _timelineAsset = timelineAsset;
         }

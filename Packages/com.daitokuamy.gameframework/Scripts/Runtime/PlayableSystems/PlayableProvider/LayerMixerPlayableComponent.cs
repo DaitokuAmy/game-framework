@@ -9,8 +9,8 @@ namespace GameFramework.PlayableSystems {
     /// </summary>
     public class LayerMixerPlayableComponent : PlayableComponent<AnimationLayerMixerPlayable> {
         private readonly List<MotionCrossFader> _extensionCrossFaders = new();
-
-        private Animator _animator;
+        private readonly Animator _animator;
+        
         private PlayableGraph _graph;
         private AnimationLayerMixerPlayable _playable;
         private MotionCrossFader _baseCrossFader;
@@ -24,9 +24,8 @@ namespace GameFramework.PlayableSystems {
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="autoDispose">自動廃棄するか</param>
-        public LayerMixerPlayableComponent(Animator animator, bool autoDispose)
-            : base(autoDispose) {
+        /// <param name="animator">初期化に使うAnimator</param>
+        public LayerMixerPlayableComponent(Animator animator) {
             _animator = animator;
         }
 

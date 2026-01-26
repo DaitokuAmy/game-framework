@@ -47,7 +47,7 @@ namespace GameFramework.PlayableSystems {
             output.SetSortingOrder(outputSortingOrder);
             
             // RootComponentを生成して接続
-            _rootComponent = new LayerMixerPlayableComponent(animator, false);
+            _rootComponent = new LayerMixerPlayableComponent(animator);
             ((IPlayableComponent)_rootComponent).Initialize(_graph);
             Handle = _rootComponent.BaseHandle;
             output.SetSourcePlayable(_rootComponent.Playable);

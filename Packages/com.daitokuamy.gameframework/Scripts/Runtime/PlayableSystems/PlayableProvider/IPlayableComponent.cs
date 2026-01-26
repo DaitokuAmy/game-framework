@@ -6,12 +6,10 @@ namespace GameFramework.PlayableSystems {
     /// Playableを制御するためのインターフェース
     /// </summary>
     public interface IPlayableComponent : IDisposable {
-        // 初期化済みか
+        /// <summary>初期化済みか</summary>
         bool IsInitialized { get; }
-        // 廃棄済みか
+        /// <summary>廃棄済みか</summary>
         bool IsDisposed { get; }
-        // 自動廃棄するか
-        bool AutoDispose { get; }
 
         /// <summary>
         /// 初期化処理

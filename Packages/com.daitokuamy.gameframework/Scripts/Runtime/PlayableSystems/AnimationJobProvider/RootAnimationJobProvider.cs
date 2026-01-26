@@ -9,21 +9,21 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// RootMotionをコントロールするためのAnimationJobProvider
     /// </summary>
-    public class RootAnimationJobProvider : AnimationJobProvider {
+    public sealed class RootAnimationJobProvider : AnimationJobProvider {
         /// <summary>
         /// Job本体
         /// </summary>
         [BurstCompile]
         public struct AnimationJob : IAnimationJob {
             [ReadOnly]
-            public NativeArray<float3> vectorProperties;
+            public NativeArray<float3> VectorProperties;
 
             /// <summary>
             /// RootMotion更新用
             /// </summary>
             void IAnimationJob.ProcessRootMotion(AnimationStream stream) {
-                stream.velocity = stream.velocity * vectorProperties[0] + vectorProperties[2];
-                stream.angularVelocity = stream.angularVelocity * vectorProperties[1] + vectorProperties[3];
+                stream.velocity = stream.velocity * VectorProperties[0] + VectorProperties[2];
+                stream.angularVelocity = stream.angularVelocity * VectorProperties[1] + VectorProperties[3];
             }
 
             /// <summary>
@@ -36,17 +36,16 @@ namespace GameFramework.PlayableSystems {
         // パラメータを渡すための配列
         private NativeArray<float3> _vectorProperties;
 
-        // ルート移動のスケール
+        /// <summary>ルート移動のスケール</summary>
         public Vector3 PositionScale {
-            get => _vectorProperties.IsCreated ? (Vector3)_vectorProperties[0] : Vector3.zero;
+            get => _vectorProperties.IsCreated ? _vectorProperties[0] : Vector3.zero;
             set {
                 if (_vectorProperties.IsCreated) {
                     _vectorProperties[0] = value;
                 }
             }
         }
-
-        // ルート移動速度のオフセット
+        /// <summary>ルート移動速度のオフセット</summary>
         public Vector3 VelocityOffset {
             get => _vectorProperties.IsCreated ? _vectorProperties[2] : Vector3.zero;
             set {
@@ -55,18 +54,16 @@ namespace GameFramework.PlayableSystems {
                 }
             }
         }
-
-        // ルート回転のスケール
+        /// <summary>ルート回転のスケール</summary>
         public Vector3 AngleScale {
-            get => _vectorProperties.IsCreated ? (Vector3)_vectorProperties[1] : Vector3.zero;
+            get => _vectorProperties.IsCreated ? _vectorProperties[1] : Vector3.zero;
             set {
                 if (_vectorProperties.IsCreated) {
                     _vectorProperties[1] = value;
                 }
             }
         }
-
-        // ルート角速度のオフセット
+        /// <summary>ルート角速度のオフセット</summary>
         public Vector3 AngularVelocityOffset {
             get => _vectorProperties.IsCreated ? _vectorProperties[3] : Vector3.zero;
             set {
@@ -87,7 +84,7 @@ namespace GameFramework.PlayableSystems {
             _vectorProperties[3] = Vector3.zero;
 
             var job = new AnimationJob {
-                vectorProperties = _vectorProperties,
+                VectorProperties = _vectorProperties,
             };
 
             return AnimationScriptPlayable.Create(graph, job);

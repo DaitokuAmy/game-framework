@@ -9,70 +9,16 @@ namespace GameFramework.PlayableSystems {
         private Playable _playable;
         private bool _initialized;
         private bool _disposed;
-        private bool _autoDispose;
 
-        // 初期化済みか
+        /// <inheritdoc/>
         bool IPlayableComponent.IsInitialized => _initialized;
-        // 廃棄済みか
+        /// <inheritdoc/>
         bool IPlayableComponent.IsDisposed => _disposed;
-        // 自動廃棄フラグ
-        bool IPlayableComponent.AutoDispose => _autoDispose;
         
         /// <summary>基礎となるPlayable</summary>
         public abstract TPlayable Playable { get; }
 
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public PlayableComponent(bool autoDispose) {
-            _autoDispose = autoDispose;
-        }
-
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
         /// <inheritdoc/>
-        void IPlayableComponent.Initialize(PlayableGraph graph) {
-            if (_initialized) {
-                return;
-            }
-
-            _initialized = true;
-            _playable = CreatePlayable(graph);
-        }
-
-        /// <summary>
-        /// Playableの取得
-        /// </summary>
-        Playable IPlayableComponent.GetPlayable() {
-            return _playable;
-        }
-
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        void IPlayableComponent.Update(float deltaTime) {
-            UpdateInternal(deltaTime);
-        }
-
-        /// <summary>
-        /// 再生時間の設定
-        /// </summary>
-        void IPlayableComponent.SetTime(float time) {
-            _playable.SetTime(time);
-        }
-
-        /// <summary>
-        /// 再生速度の設定
-        /// </summary>
-        void IPlayableComponent.SetSpeed(float speed) {
-            //_playable.SetSpeed(speed);
-            SetSpeedInternal(speed);
-        }
-
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
         public void Dispose() {
             if (_disposed) {
                 return;
@@ -85,6 +31,36 @@ namespace GameFramework.PlayableSystems {
             if (_playable.IsValid()) {
                 _playable.Destroy();
             }
+        }
+
+        /// <inheritdoc/>
+        void IPlayableComponent.Initialize(PlayableGraph graph) {
+            if (_initialized) {
+                return;
+            }
+
+            _initialized = true;
+            _playable = CreatePlayable(graph);
+        }
+
+        /// <inheritdoc/>
+        Playable IPlayableComponent.GetPlayable() {
+            return _playable;
+        }
+
+        /// <inheritdoc/>
+        void IPlayableComponent.Update(float deltaTime) {
+            UpdateInternal(deltaTime);
+        }
+
+        /// <inheritdoc/>
+        void IPlayableComponent.SetTime(float time) {
+            _playable.SetTime(time);
+        }
+
+        /// <inheritdoc/>
+        void IPlayableComponent.SetSpeed(float speed) {
+            SetSpeedInternal(speed);
         }
 
         /// <summary>

@@ -13,47 +13,47 @@ namespace GameFramework.PlayableSystems {
         /// 再生中情報
         /// </summary>
         private struct PlayingInfo {
-            public IPlayableComponent component;
-            public int inputPort;
-            public float time;
-            public float blendTimer;
+            public IPlayableComponent Component;
+            public int InputPort;
+            public float Time;
+            public float BlendTimer;
+            public bool AutoDispose;
 
             /// <summary>
-            /// 廃棄のTry
+            /// 終了処理のTry
             /// </summary>
             public bool TryDispose(bool force = false) {
-                if (component == null || component.IsDisposed) {
+                if (Component == null || Component.IsDisposed) {
                     return false;
                 }
 
-                if (!component.AutoDispose && !force) {
+                if (!AutoDispose && !force) {
                     return false;
                 }
 
-                component.Dispose();
-                component = null;
+                Component.Dispose();
+                Component = null;
                 return true;
             }
         }
 
         // 登録されているGraph
-        private PlayableGraph _graph;
+        private readonly PlayableGraph _graph;
         // 再生に使うミキサー
-        private AnimationMixerPlayable _mixer;
+        private readonly AnimationMixerPlayable _mixer;
+        // フェードアウト中の再生中情報リスト
+        private readonly List<PlayingInfo> _outPlayingInfos = new();
+        // ワーク領域のWeightリスト
+        private readonly List<float> _workWeights = new();
 
         // カレントな再生中情報
         private PlayingInfo _currentPlayingInfo;
-        // フェードアウト中の再生中情報リスト
-        private List<PlayingInfo> _outPlayingInfos = new();
 
         // 再生に使う時間情報
         private float _blendDuration;
         private float _blendTime;
         private float _prevTime;
         private float _currentTime;
-        
-        // ワーク領域のWeightリスト
-        private List<float> _workWeights = new();
 
         /// <summary>有効か</summary>
         public bool IsValid => Playable.IsValid();
@@ -69,7 +69,7 @@ namespace GameFramework.PlayableSystems {
             _graph = graph;
             Animator = animator;
 
-            // 基本Layerの作成
+            // Mixer作成
             _mixer = AnimationMixerPlayable.Create(graph, 2);
         }
 
@@ -106,7 +106,8 @@ namespace GameFramework.PlayableSystems {
         /// </summary>
         /// <param name="component">変更対象のPlayableを返すProvider</param>
         /// <param name="blendDuration">ブレンド時間</param>
-        public void Change(IPlayableComponent component, float blendDuration) {
+        /// <param name="autoDispose">自動廃棄するか</param>
+        public void Change(IPlayableComponent component, float blendDuration, bool autoDispose) {
             if (!IsValid) {
                 return;
             }
@@ -118,7 +119,7 @@ namespace GameFramework.PlayableSystems {
             }
 
             // 現在再生なComponentと同じならスキップ
-            if (_currentPlayingInfo.component == component) {
+            if (_currentPlayingInfo.Component == component) {
                 return;
             }
 
@@ -128,8 +129,8 @@ namespace GameFramework.PlayableSystems {
             var prevInputPort = -1;
             if (component != null) {
                 for (var i = _outPlayingInfos.Count - 1; i >= 0; i--) {
-                    if (_outPlayingInfos[i].component == component) {
-                        prevInputPort = _outPlayingInfos[i].inputPort;
+                    if (_outPlayingInfos[i].Component == component) {
+                        prevInputPort = _outPlayingInfos[i].InputPort;
                         _outPlayingInfos.RemoveAt(i);
                         break;
                     }
@@ -137,15 +138,16 @@ namespace GameFramework.PlayableSystems {
             }
 
             // 現在のComponentをOutリストに移行
-            if (_currentPlayingInfo.component != null) {
-                _currentPlayingInfo.blendTimer = blendDuration;
+            if (_currentPlayingInfo.Component != null) {
+                _currentPlayingInfo.BlendTimer = blendDuration;
                 _outPlayingInfos.Add(_currentPlayingInfo);
             }
 
             // 現在のComponentを更新
-            _currentPlayingInfo.component = component;
-            _currentPlayingInfo.time = 0.0f;
-            _currentPlayingInfo.blendTimer = blendDuration;
+            _currentPlayingInfo.Component = component;
+            _currentPlayingInfo.Time = 0.0f;
+            _currentPlayingInfo.BlendTimer = blendDuration;
+            _currentPlayingInfo.AutoDispose = autoDispose;
             
             if (component != null) {
                 // 未初期化だった場合は、初期化
@@ -161,19 +163,19 @@ namespace GameFramework.PlayableSystems {
             if (component != null) {
                 // 既に繋がれていたなら、再利用
                 if (prevInputPort >= 0) {
-                    _currentPlayingInfo.inputPort = prevInputPort;
+                    _currentPlayingInfo.InputPort = prevInputPort;
                 }
                 else {
                     var inputIndex = _mixer.AddInput(component.GetPlayable(), 0);
                     _mixer.SetInputWeight(inputIndex, 0.0f);
-                    _currentPlayingInfo.inputPort = inputIndex;
+                    _currentPlayingInfo.InputPort = inputIndex;
                 }
             }
 
             // ブレンド時間更新
             for (var i = 0; i < _outPlayingInfos.Count; i++) {
                 var info = _outPlayingInfos[i];
-                info.blendTimer = Mathf.Min(_outPlayingInfos[i].blendTimer, blendDuration);
+                info.BlendTimer = Mathf.Min(_outPlayingInfos[i].BlendTimer, blendDuration);
                 _outPlayingInfos[i] = info;
             }
             
@@ -190,12 +192,12 @@ namespace GameFramework.PlayableSystems {
             Playable.SetSpeed(speed);
             
             // コンポーネント更新
-            if (_currentPlayingInfo.component != null) {
-                _currentPlayingInfo.component.SetSpeed(speed);
+            if (_currentPlayingInfo.Component != null) {
+                _currentPlayingInfo.Component.SetSpeed(speed);
             }
             
             for (var i = 0; i < _outPlayingInfos.Count; i++) {
-                _outPlayingInfos[i].component.SetSpeed(speed);
+                _outPlayingInfos[i].Component.SetSpeed(speed);
             }
         }
 
@@ -205,31 +207,31 @@ namespace GameFramework.PlayableSystems {
         private void RefreshInputPorts() {
             _workWeights.Clear();
             
-            if (_currentPlayingInfo.component != null) {
-                _workWeights.Add(_mixer.GetInputWeight(_currentPlayingInfo.inputPort));
-                _mixer.DisconnectInput(_currentPlayingInfo.inputPort);
+            if (_currentPlayingInfo.Component != null) {
+                _workWeights.Add(_mixer.GetInputWeight(_currentPlayingInfo.InputPort));
+                _mixer.DisconnectInput(_currentPlayingInfo.InputPort);
             }
 
             for (var i = 0; i < _outPlayingInfos.Count; i++) {
-                _workWeights.Add(_mixer.GetInputWeight(_outPlayingInfos[i].inputPort));
-                _mixer.DisconnectInput(_outPlayingInfos[i].inputPort);
+                _workWeights.Add(_mixer.GetInputWeight(_outPlayingInfos[i].InputPort));
+                _mixer.DisconnectInput(_outPlayingInfos[i].InputPort);
             }
             
             _mixer.SetInputCount(_workWeights.Count);
 
             var index = 0;
-            if (_currentPlayingInfo.component != null) {
-                _mixer.ConnectInput(index, _currentPlayingInfo.component.GetPlayable(), 0);
+            if (_currentPlayingInfo.Component != null) {
+                _mixer.ConnectInput(index, _currentPlayingInfo.Component.GetPlayable(), 0);
                 _mixer.SetInputWeight(index, _workWeights[index]);
-                _currentPlayingInfo.inputPort = index;
+                _currentPlayingInfo.InputPort = index;
                 index++;
             }
 
             for (var i = 0; i < _outPlayingInfos.Count; i++) {
                 var info = _outPlayingInfos[i];
-                _mixer.ConnectInput(index, info.component.GetPlayable(), 0);
+                _mixer.ConnectInput(index, info.Component.GetPlayable(), 0);
                 _mixer.SetInputWeight(index, _workWeights[index]);
-                info.inputPort = index;
+                info.InputPort = index;
                 _outPlayingInfos[i] = info;
                 index++;
             }
@@ -241,17 +243,17 @@ namespace GameFramework.PlayableSystems {
         private void UpdateInternal(float deltaTime) {
             // PlayingInfoの更新
             void UpdatePlayingInfo(ref PlayingInfo info, bool fadeIn) {
-                if (info.blendTimer >= 0.0f) {
+                if (info.BlendTimer >= 0.0f) {
                     // Blend
-                    var fadeRate = info.blendTimer > 0.01f ? Mathf.Min(1.0f, deltaTime / info.blendTimer) : 1.0f;
-                    info.blendTimer -= deltaTime;
-                    var weight = _mixer.GetInputWeight(info.inputPort);
+                    var fadeRate = info.BlendTimer > 0.01f ? Mathf.Min(1.0f, deltaTime / info.BlendTimer) : 1.0f;
+                    info.BlendTimer -= deltaTime;
+                    var weight = _mixer.GetInputWeight(info.InputPort);
                     weight = Mathf.Lerp(weight, fadeIn ? 1.0f : 0.0f, fadeRate);
-                    _mixer.SetInputWeight(info.inputPort, weight);
+                    _mixer.SetInputWeight(info.InputPort, weight);
                 }
 
                 // Time
-                info.time += deltaTime;
+                info.Time += deltaTime;
             }
 
             // PlayableComponentの更新
@@ -269,8 +271,8 @@ namespace GameFramework.PlayableSystems {
                 var info = _outPlayingInfos[i];
 
                 // 廃棄チェック
-                if (info.component.IsDisposed) {
-                    _mixer.DisconnectInput(info.inputPort);
+                if (info.Component.IsDisposed) {
+                    _mixer.DisconnectInput(info.InputPort);
                     _outPlayingInfos.RemoveAt(i);
                 }
                 // 更新
@@ -278,9 +280,9 @@ namespace GameFramework.PlayableSystems {
                     UpdatePlayingInfo(ref info, false);
 
                     // フェード完了したら除外
-                    if (info.blendTimer <= 0.0f) {
+                    if (info.BlendTimer <= 0.0f) {
                         info.TryDispose();
-                        _mixer.DisconnectInput(info.inputPort);
+                        _mixer.DisconnectInput(info.InputPort);
                         _outPlayingInfos.RemoveAt(i);
                     }
                     else {
@@ -289,11 +291,11 @@ namespace GameFramework.PlayableSystems {
                 }
             }
 
-            if (_currentPlayingInfo.component != null) {
+            if (_currentPlayingInfo.Component != null) {
                 // 廃棄チェック
-                if (_currentPlayingInfo.component.IsDisposed) {
-                    _mixer.DisconnectInput(_currentPlayingInfo.inputPort);
-                    _currentPlayingInfo.component = null;
+                if (_currentPlayingInfo.Component.IsDisposed) {
+                    _mixer.DisconnectInput(_currentPlayingInfo.InputPort);
+                    _currentPlayingInfo.Component = null;
                 }
                 // 更新
                 else {
@@ -303,10 +305,10 @@ namespace GameFramework.PlayableSystems {
 
             // コンポーネント更新
             for (var i = 0; i < _outPlayingInfos.Count; i++) {
-                UpdateComponent(_outPlayingInfos[i].component, _outPlayingInfos[i].time);
+                UpdateComponent(_outPlayingInfos[i].Component, _outPlayingInfos[i].Time);
             }
 
-            UpdateComponent(_currentPlayingInfo.component, _currentPlayingInfo.time);
+            UpdateComponent(_currentPlayingInfo.Component, _currentPlayingInfo.Time);
         }
     }
 }

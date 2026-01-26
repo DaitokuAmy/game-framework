@@ -3,21 +3,21 @@ using UnityEngine.Timeline;
 
 namespace GameFramework.PlayableSystems {
     /// <summary>
-    /// PlayablePlayer用の拡張メソッド
+    /// MotionPlayer用の拡張メソッド
     /// </summary>
-    public static class PlayablePlayerExtensions {
+    public static class MotionPlayerExtensions {
         /// <summary>
         /// AnimationClipモーションの設定
         /// </summary>
         public static AnimationClipPlayableComponent Change(this MotionPlayer source, AnimationClip clip, float blendDuration, bool autoDispose = true) {
             if (clip == null) {
-                source.Handle.Change(null, blendDuration);
+                source.Handle.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new AnimationClipPlayableComponent(clip, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new AnimationClipPlayableComponent(clip);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
@@ -25,13 +25,13 @@ namespace GameFramework.PlayableSystems {
         /// </summary>
         public static AnimatorControllerPlayableComponent Change(this MotionPlayer source, RuntimeAnimatorController controller, float blendDuration, bool autoDispose = true) {
             if (controller == null) {
-                source.Handle.Change(null, blendDuration);
+                source.Handle.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new AnimatorControllerPlayableComponent(controller, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new AnimatorControllerPlayableComponent(controller);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
@@ -39,22 +39,22 @@ namespace GameFramework.PlayableSystems {
         /// </summary>
         public static TimelinePlayableComponent Change(this MotionPlayer source, TimelineAsset timelineAsset, float blendDuration, bool autoDispose = true) {
             if (timelineAsset == null) {
-                source.Handle.Change(null, blendDuration);
+                source.Handle.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new TimelinePlayableComponent(source.Animator, timelineAsset, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new TimelinePlayableComponent(source.Animator, timelineAsset);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
         /// LayerMixerの設定
         /// </summary>
         public static LayerMixerPlayableComponent ChangeLayerMixer(this MotionPlayer source, float blendDuration, bool autoDispose = true) {
-            var provider = new LayerMixerPlayableComponent(source.Animator, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new LayerMixerPlayableComponent(source.Animator);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
         
         /// <summary>
@@ -66,13 +66,13 @@ namespace GameFramework.PlayableSystems {
             }
             
             if (clip == null) {
-                source.Change(null, blendDuration);
+                source.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new AnimationClipPlayableComponent(clip, autoDispose);
-            source.Change(provider, blendDuration);
-            return provider;
+            var component = new AnimationClipPlayableComponent(clip);
+            source.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
@@ -84,13 +84,13 @@ namespace GameFramework.PlayableSystems {
             }
             
             if (controller == null) {
-                source.Change(null, blendDuration);
+                source.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new AnimatorControllerPlayableComponent(controller, autoDispose);
-            source.Change(provider, blendDuration);
-            return provider;
+            var component = new AnimatorControllerPlayableComponent(controller);
+            source.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
@@ -102,13 +102,13 @@ namespace GameFramework.PlayableSystems {
             }
             
             if (timelineAsset == null) {
-                source.Change(null, blendDuration);
+                source.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new TimelinePlayableComponent(source.CrossFader.Animator, timelineAsset, autoDispose);
-            source.Change(provider, blendDuration);
-            return provider;
+            var component = new TimelinePlayableComponent(source.CrossFader.Animator, timelineAsset);
+            source.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
@@ -119,9 +119,9 @@ namespace GameFramework.PlayableSystems {
                 return null;
             }
 
-            var provider = new LayerMixerPlayableComponent(source.CrossFader.Animator, autoDispose);
-            source.Change(provider, blendDuration);
-            return provider;
+            var component = new LayerMixerPlayableComponent(source.CrossFader.Animator);
+            source.Change(component, blendDuration, autoDispose);
+            return component;
         }
     }
 }

@@ -8,18 +8,18 @@ namespace GameFramework.PlayableSystems {
     /// <summary>
     /// 腰の高さを調整するためのAnimationJobProvider
     /// </summary>
-    public class AdjustHeightAnimationJobProvider : AnimationJobProvider {
+    public sealed class AdjustHeightAnimationJobProvider : AnimationJobProvider {
         /// <summary>
         /// Job本体
         /// </summary>
         [BurstCompile]
         public struct AnimationJob : IAnimationJob {
             [ReadOnly]
-            public NativeArray<float> properties;
+            public NativeArray<float> Properties;
             [ReadOnly]
-            public TransformStreamHandle rootHandle;
+            public TransformStreamHandle RootHandle;
             
-            public TransformStreamHandle hipsHandle;
+            public TransformStreamHandle HipsHandle;
 
             /// <summary>
             /// RootMotion更新用
@@ -31,12 +31,12 @@ namespace GameFramework.PlayableSystems {
             /// 通常のBone更新用
             /// </summary>
             void IAnimationJob.ProcessAnimation(AnimationStream stream) {
-                var rootPosition = rootHandle.GetPosition(stream);
-                var hipsPosition = hipsHandle.GetPosition(stream);
+                var rootPosition = RootHandle.GetPosition(stream);
+                var hipsPosition = HipsHandle.GetPosition(stream);
                 var directionY = (hipsPosition - rootPosition).y;
-                directionY = directionY * properties[0] - directionY;
+                directionY = directionY * Properties[0] - directionY;
                 hipsPosition.y += directionY;
-                hipsHandle.SetPosition(stream, hipsPosition);
+                HipsHandle.SetPosition(stream, hipsPosition);
             }
         }
 
@@ -77,9 +77,9 @@ namespace GameFramework.PlayableSystems {
             var hipsHandle = animator.BindStreamTransform(_hips);
 
             var job = new AnimationJob {
-                properties = _properties,
-                rootHandle = rootHandle,
-                hipsHandle = hipsHandle
+                Properties = _properties,
+                RootHandle = rootHandle,
+                HipsHandle = hipsHandle
             };
 
             return AnimationScriptPlayable.Create(graph, job);

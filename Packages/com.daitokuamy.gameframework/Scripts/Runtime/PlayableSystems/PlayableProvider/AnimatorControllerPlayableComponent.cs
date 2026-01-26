@@ -17,9 +17,7 @@ namespace GameFramework.PlayableSystems {
         /// コンストラクタ
         /// </summary>
         /// <param name="controller">再生対象のController</param>
-        /// <param name="autoDispose">自動廃棄するか</param>
-        public AnimatorControllerPlayableComponent(RuntimeAnimatorController controller, bool autoDispose)
-            : base(autoDispose) {
+        public AnimatorControllerPlayableComponent(RuntimeAnimatorController controller) {
             _controller = controller;
         }
 

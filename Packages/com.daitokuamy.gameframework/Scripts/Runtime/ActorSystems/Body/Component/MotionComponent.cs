@@ -118,8 +118,9 @@ namespace GameFramework.ActorSystems {
         /// </summary>
         /// <param name="component">変更対象のPlayableを返すProvider</param>
         /// <param name="blendDuration">ブレンド時間</param>
-        public void Change(IPlayableComponent component, float blendDuration = 0.0f) {
-            _player.Handle.Change(component, blendDuration);
+        /// <param name="autoDispose">再生終了時に自動廃棄するか</param>
+        public void Change(IPlayableComponent component, float blendDuration, bool autoDispose) {
+            _player.Handle.Change(component, blendDuration, autoDispose);
         }
 
         /// <summary>

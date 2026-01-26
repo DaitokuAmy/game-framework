@@ -203,7 +203,7 @@ namespace ThirdPersonEngine {
         /// デフォルトモーションの設定(内部用)
         /// </summary>
         protected void ChangeDefaultMotionInternal(float blendDuration) {
-            MotionComponent.Handle.Change(BasePlayableComponent, blendDuration);
+            MotionComponent.Handle.Change(BasePlayableComponent, blendDuration, false);
         }
 
         /// <summary>

@@ -13,13 +13,13 @@ namespace GameFramework.ActorSystems {
         /// </summary>
         public static AnimationClipPlayableComponent Change(this MotionComponent source, AnimationClip clip, float blendDuration, bool autoDispose = true) {
             if (clip == null) {
-                source.Handle.Change(null, blendDuration);
+                source.Handle.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new AnimationClipPlayableComponent(clip, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new AnimationClipPlayableComponent(clip);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
@@ -27,13 +27,13 @@ namespace GameFramework.ActorSystems {
         /// </summary>
         public static AnimatorControllerPlayableComponent Change(this MotionComponent source, RuntimeAnimatorController controller, float blendDuration, bool autoDispose = true) {
             if (controller == null) {
-                source.Handle.Change(null, blendDuration);
+                source.Handle.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new AnimatorControllerPlayableComponent(controller, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new AnimatorControllerPlayableComponent(controller);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
@@ -41,22 +41,22 @@ namespace GameFramework.ActorSystems {
         /// </summary>
         public static TimelinePlayableComponent Change(this MotionComponent source, TimelineAsset timelineAsset, float blendDuration, bool autoDispose = true) {
             if (timelineAsset == null) {
-                source.Handle.Change(null, blendDuration);
+                source.Handle.Change(null, blendDuration, autoDispose);
                 return null;
             }
 
-            var provider = new TimelinePlayableComponent(source.Animator, timelineAsset, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new TimelinePlayableComponent(source.Animator, timelineAsset);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
 
         /// <summary>
         /// LayerMixerの設定
         /// </summary>
         public static LayerMixerPlayableComponent ChangeLayerMixer(this MotionComponent source, float blendDuration, bool autoDispose = true) {
-            var provider = new LayerMixerPlayableComponent(source.Animator, autoDispose);
-            source.Handle.Change(provider, blendDuration);
-            return provider;
+            var component = new LayerMixerPlayableComponent(source.Animator);
+            source.Handle.Change(component, blendDuration, autoDispose);
+            return component;
         }
         
         /// <summary>

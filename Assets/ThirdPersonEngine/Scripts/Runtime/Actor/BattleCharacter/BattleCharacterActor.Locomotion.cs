@@ -55,7 +55,7 @@ namespace ThirdPersonEngine {
             protected override IEnumerator EnterRoutineInternal(StateType prevKey, IScope scope) {
                 _isSprint = false;
 
-                Owner.MotionComponent.Change(Owner.BasePlayableComponent, 0.2f);
+                Owner.MotionComponent.Change(Owner.BasePlayableComponent, 0.2f, false);
                 yield break;
             }
 

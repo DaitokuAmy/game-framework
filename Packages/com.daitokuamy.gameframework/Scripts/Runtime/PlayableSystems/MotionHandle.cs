@@ -47,16 +47,17 @@ namespace GameFramework.PlayableSystems {
         }
 
         /// <summary>
-        /// 再生対象のPlayableProviderを変更
+        /// Playableを変更
         /// </summary>
         /// <param name="component">変更対象のPlayableを返すProvider</param>
         /// <param name="blendDuration">ブレンド時間</param>
-        public void Change(IPlayableComponent component, float blendDuration = 1.0f) {
+        /// <param name="autoDispose">自動廃棄するか</param>
+        public void Change(IPlayableComponent component, float blendDuration, bool autoDispose) {
             if (!IsValid) {
                 return;
             }
             
-            _crossFader.Change(component, blendDuration);
+            _crossFader.Change(component, blendDuration, autoDispose);
         }
 
         /// <summary>
