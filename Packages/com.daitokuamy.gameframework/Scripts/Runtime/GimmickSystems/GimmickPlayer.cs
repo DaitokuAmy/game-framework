@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameFramework.GimmickSystems;
 
-namespace GameFramework.ActorSystems {
+namespace GameFramework.ActorSystemsOld {
     /// <summary>
     /// Gimmick再生用クラス
     /// </summary>

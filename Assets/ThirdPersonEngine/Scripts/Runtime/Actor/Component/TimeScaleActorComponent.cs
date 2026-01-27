@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameFramework.Core;
 using GameFramework;
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystemsOld;
 
 namespace ThirdPersonEngine {
     /// <summary>

@@ -1,6 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystemsOld;
 using GameFramework.Core;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure.ModelViewer;

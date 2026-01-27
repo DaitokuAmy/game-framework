@@ -5,7 +5,6 @@ using System.Linq;
 using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.Playables;
-using UnityEngine.Pool;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -13,7 +12,7 @@ namespace GameFramework.CutsceneSystems {
     /// <summary>
     /// カットシーン管理クラス
     /// </summary>
-    public class CutsceneManager : DisposableLateUpdatable {
+    public sealed class CutsceneManager : DisposableLateUpdatable {
         /// <summary>
         /// 再生管理用ハンドル
         /// </summary>
@@ -56,7 +55,7 @@ namespace GameFramework.CutsceneSystems {
             internal Handle(PlayingInfo playingInfo) {
                 _playingInfo = playingInfo;
             }
-        
+
             /// <inheritdoc/>
             public EventProcessAwaiter GetAwaiter() {
                 return new EventProcessAwaiter(this);
@@ -330,7 +329,7 @@ namespace GameFramework.CutsceneSystems {
         private readonly int _poolDefaultCapacity;
         private readonly int _poolMaxCapacity;
         private readonly bool _updateGameTime;
-        private readonly Dictionary<GameObject, ObjectPool<CutsceneInfo>> _prefabBaseCutscenePools = new();
+        private readonly KeyedObjectPool<GameObject, CutsceneInfo> _prefabBaseCutscenePools;
         private readonly Dictionary<Scene, CutsceneInfo> _sceneBaseCutsceneInfos = new();
         private readonly List<PlayingInfo> _playingInfos = new();
         private readonly ObjectPool<PlayingInfo> _playingInfoPool;
@@ -357,6 +356,35 @@ namespace GameFramework.CutsceneSystems {
                 () => new PlayingInfo(),
                 null, null,
                 info => { info.Cleanup(); });
+
+            _prefabBaseCutscenePools = new KeyedObjectPool<GameObject, CutsceneInfo>(prefab => {
+                var pool = new ObjectPool<CutsceneInfo, GameObject>(prefab,
+                    createFunc: pfb => {
+                        var instance = Object.Instantiate(pfb, _rootTransform);
+                        var cutscene = instance.GetComponent<ICutscene>();
+                        if (cutscene == null) {
+                            var playableDirector = instance.GetComponent<PlayableDirector>();
+                            cutscene = new RuntimeCutscene(playableDirector);
+                        }
+
+                        instance.SetActive(false);
+
+                        // Cutscene初期化
+                        cutscene.Initialize(_updateGameTime);
+
+                        return new CutsceneInfo { Root = instance, Prefab = prefab, Cutscene = cutscene };
+                    },
+                    actionOnGet: null,
+                    actionOnRelease: (_, info) => {
+                        info.Cutscene.OnReturn();
+                        info.Root.SetActive(false);
+                    },
+                    actionOnDestroy: (_, info) => {
+                        info.Cutscene.Dispose();
+                        Object.Destroy(info.Root);
+                    }, true, _poolDefaultCapacity, _poolMaxCapacity);
+                return pool;
+            });
         }
 
         /// <summary>
@@ -365,7 +393,7 @@ namespace GameFramework.CutsceneSystems {
         protected override void DisposeInternal() {
             Clear();
 
-            _playingInfoPool.Dispose();
+            _playingInfoPool.Clear();
             if (_rootTransform != null) {
                 Object.Destroy(_rootTransform.gameObject);
                 _rootTransform = null;
@@ -563,7 +591,7 @@ namespace GameFramework.CutsceneSystems {
         }
 
         /// <summary>
-        /// 再生しているエフェクトとPoolの状態をクリア
+        /// 再生しているカットシーンとPoolの状態をクリア
         /// </summary>
         public void Clear() {
             // Poolに全部戻して削除
@@ -577,16 +605,13 @@ namespace GameFramework.CutsceneSystems {
             }
 
             // Poolを全部削除
-            foreach (var pool in _prefabBaseCutscenePools.Values) {
-                pool.Dispose();
-            }
+            _prefabBaseCutscenePools.ClearAll();
 
             // Cutsceneを全部削除
             foreach (var info in _sceneBaseCutsceneInfos.Values) {
                 info.Cutscene.Dispose();
             }
-
-            _prefabBaseCutscenePools.Clear();
+            
             _sceneBaseCutsceneInfos.Clear();
         }
 
@@ -658,13 +683,7 @@ namespace GameFramework.CutsceneSystems {
                 throw new ArgumentNullException($"Prefab is null");
             }
 
-            // Poolが作られていなければ、ここで生成
-            if (!_prefabBaseCutscenePools.TryGetValue(prefab, out var pool)) {
-                pool = CreatePool(prefab);
-                _prefabBaseCutscenePools[prefab] = pool;
-            }
-
-            return pool.Get();
+            return _prefabBaseCutscenePools.Get(prefab);
         }
 
         /// <summary>
@@ -689,11 +708,7 @@ namespace GameFramework.CutsceneSystems {
         /// </summary>
         private void ReturnCutsceneInfo(CutsceneInfo cutsceneInfo) {
             if (cutsceneInfo.Prefab != null) {
-                if (!_prefabBaseCutscenePools.TryGetValue(cutsceneInfo.Prefab, out var pool)) {
-                    return;
-                }
-
-                pool.Release(cutsceneInfo);
+                _prefabBaseCutscenePools.Release(cutsceneInfo.Prefab, cutsceneInfo);
             }
 
             if (cutsceneInfo.Scene.IsValid()) {
@@ -704,41 +719,6 @@ namespace GameFramework.CutsceneSystems {
                 info.Cutscene.OnReturn();
                 info.Root.SetActive(false);
             }
-        }
-
-        /// <summary>
-        /// Poolの生成
-        /// </summary>
-        private ObjectPool<CutsceneInfo> CreatePool(GameObject prefab) {
-            var pool = new ObjectPool<CutsceneInfo>(() => {
-                    var instance = Object.Instantiate(prefab, _rootTransform);
-                    var cutscene = instance.GetComponent<ICutscene>();
-                    if (cutscene == null) {
-                        var playableDirector = instance.GetComponent<PlayableDirector>();
-                        cutscene = new RuntimeCutscene(playableDirector);
-                    }
-
-                    instance.SetActive(false);
-
-                    // Cutscene初期化
-                    cutscene.Initialize(_updateGameTime);
-
-                    return new CutsceneInfo {
-                        Root = instance,
-                        Prefab = prefab,
-                        Cutscene = cutscene
-                    };
-                }, _ => { },
-                info => {
-                    info.Cutscene.OnReturn();
-                    info.Root.SetActive(false);
-                },
-                info => {
-                    info.Cutscene.Dispose();
-                    Object.Destroy(info.Root);
-                }, true, _poolDefaultCapacity, _poolMaxCapacity);
-
-            return pool;
         }
 
         /// <summary>
@@ -770,11 +750,7 @@ namespace GameFramework.CutsceneSystems {
             // Cutscene初期化
             cutscene.Initialize(_updateGameTime);
 
-            return new CutsceneInfo {
-                Root = instance,
-                Scene = scene,
-                Cutscene = cutscene
-            };
+            return new CutsceneInfo { Root = instance, Scene = scene, Cutscene = cutscene };
         }
     }
 }

@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
 using UnityEngine;
-using UnityEngine.Pool;
 using Object = UnityEngine.Object;
 
 namespace GameFramework.UISystems {
     /// <summary>
     /// UIViewのPool管理するためのクラス
     /// </summary>
-    public class UIViewPool<TView> : IDisposable
+    public sealed class UIViewPool<TView> : IDisposable
         where TView : UIView {
         private class ActiveInfo {
             public TView View;

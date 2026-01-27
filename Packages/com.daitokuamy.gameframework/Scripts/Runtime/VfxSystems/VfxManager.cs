@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using GameFramework.Core;
 using UnityEngine;
-using UnityEngine.Pool;
 using Object = UnityEngine.Object;
 
 namespace GameFramework.VfxSystems {
@@ -163,7 +162,8 @@ namespace GameFramework.VfxSystems {
             /// <summary>
             /// 初期化処理
             /// </summary>
-            public void Setup(ObjectInfo objectInfo, VfxContext context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, ILodProvider lodProvider, int layer, bool autoDispose) {
+            public void Setup(ObjectInfo objectInfo, VfxContext context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, ILodProvider lodProvider, int layer,
+                bool autoDispose) {
                 Cleanup();
 
                 ObjectInfo = objectInfo;
@@ -181,7 +181,7 @@ namespace GameFramework.VfxSystems {
                     }
 
                     trans.gameObject.layer = value;
-                    
+
                     for (var i = 0; i < trans.childCount; i++) {
                         SetLayer(trans.GetChild(i), value);
                     }
@@ -475,7 +475,7 @@ namespace GameFramework.VfxSystems {
         // 生成したGameObjectを保持するためのTransform
         private readonly Transform _rootTransform;
         // インスタンスキャッシュ用のPool
-        private readonly Dictionary<GameObject, ObjectPool<ObjectInfo>> _objectPools = new();
+        private readonly KeyedObjectPool<GameObject, ObjectInfo> _objectPool;
         // PlayingInfoインスタンス使いまわし用のPool
         private readonly ObjectPool<PlayingInfo> _playingInfoPool;
         // 管理用再生中情報
@@ -505,6 +505,91 @@ namespace GameFramework.VfxSystems {
             _rootTransform = root.transform;
 
             _playingInfoPool = new ObjectPool<PlayingInfo>(() => new PlayingInfo());
+
+            // Pool生成
+            _objectPool = new KeyedObjectPool<GameObject, ObjectInfo>(prefab => {
+                // 中身の生成
+                void CreateContent(ObjectInfo objectInfo) {
+                    if (objectInfo == null || objectInfo.Prefab == null) {
+                        return;
+                    }
+
+                    var instance = Object.Instantiate(objectInfo.Prefab, _rootTransform);
+                    var foundComponents = instance.GetComponentsInChildren<IVfxComponent>(true);
+                    _workParticleSystems.Clear();
+                    FindRootParticleSystems(instance.transform, _workParticleSystems);
+                    var vfxComponents = new List<IVfxComponent>(foundComponents.Length + _workParticleSystems.Count);
+                    for (var i = 0; i < foundComponents.Length; ++i) {
+                        vfxComponents.Add(foundComponents[i]);
+                    }
+
+                    for (var i = 0; i < _workParticleSystems.Count; ++i) {
+                        vfxComponents.Add(new ParticleSystemVfxComponent(_workParticleSystems[i]));
+                    }
+
+                    instance.SetActive(false);
+
+                    // Componentを一度停止状態にしておく
+                    foreach (var component in vfxComponents) {
+                        component.StopImmediate();
+                    }
+
+                    objectInfo.Root = instance;
+                    objectInfo.Components = vfxComponents.ToArray();
+                }
+
+                // 中身の削除
+                void DestroyContent(ObjectInfo objectInfo) {
+                    if (objectInfo == null || objectInfo.Root == null) {
+                        return;
+                    }
+
+                    Object.Destroy(objectInfo.Root);
+                    objectInfo.Root = null;
+                    objectInfo.Components = null;
+                }
+
+                var pool = new ObjectPool<ObjectInfo, GameObject>(prefab, pfb => {
+                        var objectInfo = new ObjectInfo();
+                        objectInfo.Prefab = pfb;
+
+                        var instance = Object.Instantiate(objectInfo.Prefab, _rootTransform);
+                        var foundComponents = instance.GetComponentsInChildren<IVfxComponent>(true);
+                        _workParticleSystems.Clear();
+                        FindRootParticleSystems(instance.transform, _workParticleSystems);
+                        var vfxComponents = new List<IVfxComponent>(foundComponents.Length + _workParticleSystems.Count);
+                        for (var i = 0; i < foundComponents.Length; ++i) {
+                            vfxComponents.Add(foundComponents[i]);
+                        }
+
+                        for (var i = 0; i < _workParticleSystems.Count; ++i) {
+                            vfxComponents.Add(new ParticleSystemVfxComponent(_workParticleSystems[i]));
+                        }
+
+                        instance.SetActive(false);
+
+                        // Componentを一度停止状態にしておく
+                        foreach (var component in vfxComponents) {
+                            component.StopImmediate();
+                        }
+
+                        objectInfo.Root = instance;
+                        objectInfo.Components = vfxComponents.ToArray();
+
+                        return objectInfo;
+                    }, (_, info) => {
+                        info.Root.SetActive(true);
+                    }, (_, info) => {
+                        info.Root.SetActive(false);
+                    },
+                    (_, info) => {
+                        Object.Destroy(info.Root);
+                        info.Root = null;
+                        info.Components = null;
+                    }, true, _poolDefaultCapacity, _poolMaxCapacity);
+
+                return pool;
+            });
         }
 
         /// <summary>
@@ -547,8 +632,10 @@ namespace GameFramework.VfxSystems {
                 return;
             }
 
-            Clear();
             _activePool = active;
+            
+            Clear();
+            _objectPool.SetPoolingEnabled(_activePool, true);
         }
 
         /// <summary>
@@ -604,12 +691,8 @@ namespace GameFramework.VfxSystems {
             }
 
             // Poolを全部削除
-            foreach (var pool in _objectPools.Values) {
-                pool.Dispose();
-            }
-
+            _objectPool.ClearAll();
             _playingInfoPool.Clear();
-            _objectPools.Clear();
         }
 
         /// <summary>
@@ -652,13 +735,7 @@ namespace GameFramework.VfxSystems {
                 return null;
             }
 
-            // Poolが作られていなければ、ここで生成
-            if (!_objectPools.TryGetValue(prefab, out var pool)) {
-                pool = CreatePool(prefab, _activePool);
-                _objectPools[prefab] = pool;
-            }
-
-            return pool.Get();
+            return _objectPool.Get(prefab);
         }
 
         /// <summary>
@@ -669,89 +746,7 @@ namespace GameFramework.VfxSystems {
                 return;
             }
 
-            if (!_objectPools.TryGetValue(objectInfo.Prefab, out var pool)) {
-                Debug.unityLogger.LogWarning(nameof(VfxManager), $"Not found object pool. {objectInfo.Prefab.name}");
-                return;
-            }
-
-            pool.Release(objectInfo);
-        }
-
-        /// <summary>
-        /// Poolの生成
-        /// </summary>
-        /// <param name="activePool">InstanceをPoolするか</param>
-        private ObjectPool<ObjectInfo> CreatePool(GameObject prefab, bool activePool) {
-            // 中身の生成
-            void CreateContent(ObjectInfo objectInfo) {
-                if (objectInfo == null || objectInfo.Prefab == null) {
-                    return;
-                }
-
-                var instance = Object.Instantiate(objectInfo.Prefab, _rootTransform);
-                var foundComponents = instance.GetComponentsInChildren<IVfxComponent>(true);
-                _workParticleSystems.Clear();
-                FindRootParticleSystems(instance.transform, _workParticleSystems);
-                var vfxComponents = new List<IVfxComponent>(foundComponents.Length + _workParticleSystems.Count);
-                for (var i = 0; i < foundComponents.Length; ++i) {
-                    vfxComponents.Add(foundComponents[i]);
-                }
-
-                for (var i = 0; i < _workParticleSystems.Count; ++i) {
-                    vfxComponents.Add(new ParticleSystemVfxComponent(_workParticleSystems[i]));
-                }
-
-                instance.SetActive(false);
-
-                // Componentを一度停止状態にしておく
-                foreach (var component in vfxComponents) {
-                    component.StopImmediate();
-                }
-
-                objectInfo.Root = instance;
-                objectInfo.Components = vfxComponents.ToArray();
-            }
-
-            // 中身の削除
-            void DestroyContent(ObjectInfo objectInfo) {
-                if (objectInfo == null || objectInfo.Root == null) {
-                    return;
-                }
-
-                Object.Destroy(objectInfo.Root);
-                objectInfo.Root = null;
-                objectInfo.Components = null;
-            }
-
-            var pool = new ObjectPool<ObjectInfo>(() => {
-                    var objectInfo = new ObjectInfo();
-                    objectInfo.Prefab = prefab;
-
-                    if (activePool) {
-                        CreateContent(objectInfo);
-                    }
-
-                    return objectInfo;
-                }, info => {
-                    if (activePool) {
-                        info.Root.SetActive(true);
-                    }
-                    else {
-                        CreateContent(info);
-                        info.Root.SetActive(true);
-                    }
-                }, info => {
-                    if (activePool) {
-                        info.Root.SetActive(false);
-                    }
-                    else {
-                        info.Root.SetActive(false);
-                        DestroyContent(info);
-                    }
-                },
-                DestroyContent, true, _poolDefaultCapacity, _poolMaxCapacity);
-
-            return pool;
+            _objectPool.Release(objectInfo.Prefab, objectInfo);
         }
 
         /// <summary>

@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GameFramework.Core;
 using GameFramework.UISystems;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace ThirdPersonEngine {
     /// <summary>

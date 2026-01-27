@@ -1,5 +1,5 @@
 using System.Linq;
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystemsOld;
 using UnityEngine;
 
 namespace ThirdPersonEngine.ModelViewer {

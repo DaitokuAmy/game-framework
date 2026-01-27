@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
 using GameFramework.Core;
 
 namespace GameFramework.ProjectileSystems {
     /// <summary>
     /// 飛翔体管理クラス
     /// </summary>
-    public class ProjectileManager : DisposableLateUpdatable {
+    public sealed class ProjectileManager : DisposableLateUpdatable {
         /// <summary>
         /// プール用Objectの情報
         /// </summary>
@@ -27,8 +26,8 @@ namespace GameFramework.ProjectileSystems {
         private readonly int _poolDefaultCapacity;
         private readonly int _poolMaxCapacity;
         private readonly ProjectilePlayer _projectilePlayer;
-        private readonly Dictionary<GameObject, ObjectPool<BulletProjectileInfo>> _bulletPools = new();
-        private readonly Dictionary<GameObject, ObjectPool<BeamProjectileInfo>> _beamPools = new();
+        private readonly KeyedObjectPool<GameObject, BulletProjectileInfo> _bulletPool;
+        private readonly KeyedObjectPool<GameObject, BeamProjectileInfo> _beamPool;
 
         private Transform _rootTransform;
         private bool _activePool = true;
@@ -58,6 +57,65 @@ namespace GameFramework.ProjectileSystems {
             _nullTemplate = new GameObject("Null");
             _nullTemplate.transform.SetParent(_rootTransform, false);
             _nullTemplate.SetActive(false);
+
+            // Pool構築
+            _bulletPool = new KeyedObjectPool<GameObject, BulletProjectileInfo>(prefab => {
+                var pool = new ObjectPool<BulletProjectileInfo, GameObject>(prefab, pfb => {
+                    var info = new BulletProjectileInfo();
+                    info.Prefab = pfb;
+                    var gameObj = Object.Instantiate(info.Prefab, _rootTransform);
+                    var instance = gameObj.GetComponent<IBulletProjectile>();
+                    if (instance == null) {
+                        instance = gameObj.AddComponent<BulletProjectile>();
+                    }
+
+                    instance.SetActive(false);
+                    info.Projectile = instance;
+                    return info;
+                }, (_, info) => {
+                    info.Projectile.SetActive(true);
+                }, (_, info) => {
+                    info.Projectile.SetActive(false);
+                }, (_, info) => {
+                    if (info?.Projectile == null) {
+                        return;
+                    }
+
+                    info.Projectile?.Dispose();
+
+                    info.Projectile = null;
+                }, true, _poolDefaultCapacity, _poolMaxCapacity);
+                return pool;
+            });
+
+            _beamPool = new KeyedObjectPool<GameObject, BeamProjectileInfo>(prefab => {
+                var pool = new ObjectPool<BeamProjectileInfo, GameObject>(prefab, pfb => {
+                    var info = new BeamProjectileInfo();
+                    info.Prefab = pfb;
+                    var gameObj = Object.Instantiate(info.Prefab, _rootTransform);
+                    var instance = gameObj.GetComponent<IBeamProjectile>();
+                    if (instance == null) {
+                        instance = gameObj.AddComponent<BeamProjectile>();
+                    }
+
+                    instance.SetActive(false);
+                    info.Projectile = instance;
+                    return info;
+                }, (_, info) => {
+                    info.Projectile.SetActive(true);
+                }, (_, info) => {
+                    info.Projectile.SetActive(false);
+                }, (_, info) => {
+                    if (info?.Projectile == null) {
+                        return;
+                    }
+
+                    info.Projectile?.Dispose();
+
+                    info.Projectile = null;
+                }, true, _poolDefaultCapacity, _poolMaxCapacity);
+                return pool;
+            });
         }
 
         /// <summary>
@@ -67,9 +125,12 @@ namespace GameFramework.ProjectileSystems {
             if (active == _activePool) {
                 return;
             }
-
-            Clear();
+            
             _activePool = active;
+            
+            Clear();
+            _bulletPool.SetPoolingEnabled(_activePool, true);
+            _beamPool.SetPoolingEnabled(_activePool, true);
         }
 
         /// <summary>
@@ -85,31 +146,25 @@ namespace GameFramework.ProjectileSystems {
                 prefab = _nullTemplate;
             }
 
-            // Poolの初期化
-            if (!_bulletPools.TryGetValue(prefab, out var pool)) {
-                pool = CreateBulletProjectilePool(prefab, _activePool);
-                _bulletPools[prefab] = pool;
-            }
-
             // インスタンスの取得、初期化
-            var objectInfo = pool.Get();
-            var projectileObj = objectInfo.Projectile;
-            projectileObj.SetLocalScale(scale);
+            var projectileInfo = _bulletPool.Get(prefab);
+            var projectile = projectileInfo.Projectile;
+            projectile.SetLocalScale(scale);
 
             // Layer設定
             if (layer < 0) {
                 layer = DefaultLayer;
             }
 
-            SetLayer(projectileObj.transform, layer);
+            SetLayer(projectile.transform, layer);
 
-            void Stopped(IBulletProjectile projectile) {
+            void Stopped(IBulletProjectile _) {
                 // Poolに返却
-                pool.Release(objectInfo);
+                _bulletPool.Release(prefab, projectileInfo);
             }
 
             // Projectileを再生
-            return _projectilePlayer.Play(projectileObj, projectileController, layeredTime, Stopped);
+            return _projectilePlayer.Play(projectile, projectileController, layeredTime, Stopped);
         }
 
         /// <summary>
@@ -125,14 +180,8 @@ namespace GameFramework.ProjectileSystems {
                 prefab = _nullTemplate;
             }
 
-            // Poolの初期化
-            if (!_beamPools.TryGetValue(prefab, out var pool)) {
-                pool = CreateBeamProjectilePool(prefab, _activePool);
-                _beamPools[prefab] = pool;
-            }
-
             // インスタンスの取得、初期化
-            var projectileInfo = pool.Get();
+            var projectileInfo = _beamPool.Get(prefab);
             var projectile = projectileInfo.Projectile;
             projectile.SetLocalScale(scale);
 
@@ -145,7 +194,7 @@ namespace GameFramework.ProjectileSystems {
 
             void Stopped(IBeamProjectile _) {
                 // Poolに返却
-                pool.Release(projectileInfo);
+                _beamPool.Release(prefab, projectileInfo);
             }
 
             // Projectileを再生
@@ -168,16 +217,8 @@ namespace GameFramework.ProjectileSystems {
             StopAll(true);
 
             // Poolを削除
-            foreach (var pool in _bulletPools.Values) {
-                pool.Dispose();
-            }
-
-            foreach (var pool in _beamPools.Values) {
-                pool.Dispose();
-            }
-
-            _bulletPools.Clear();
-            _beamPools.Clear();
+            _bulletPool.ClearAll();
+            _beamPool.ClearAll();
         }
 
         /// <summary>
@@ -194,16 +235,8 @@ namespace GameFramework.ProjectileSystems {
             _projectilePlayer.Dispose();
 
             // Poolを削除
-            foreach (var pool in _bulletPools.Values) {
-                pool.Dispose();
-            }
-
-            foreach (var pool in _beamPools.Values) {
-                pool.Dispose();
-            }
-
-            _bulletPools.Clear();
-            _beamPools.Clear();
+            _bulletPool.ClearAll();
+            _beamPool.ClearAll();
 
             if (_nullTemplate != null) {
                 Object.Destroy(_nullTemplate);
@@ -214,124 +247,6 @@ namespace GameFramework.ProjectileSystems {
                 Object.Destroy(_rootTransform.gameObject);
                 _rootTransform = null;
             }
-        }
-
-        /// <summary>
-        /// BulletPoolの生成
-        /// </summary>
-        private ObjectPool<BulletProjectileInfo> CreateBulletProjectilePool(GameObject prefab, bool activePool) {
-            // インスタンス生成処理
-            void CreateContent(BulletProjectileInfo objectInfo) {
-                var gameObj = Object.Instantiate(objectInfo.Prefab, _rootTransform);
-                var instance = gameObj.GetComponent<IBulletProjectile>();
-                if (instance == null) {
-                    instance = gameObj.AddComponent<BulletProjectile>();
-                }
-
-                instance.SetActive(false);
-                objectInfo.Projectile = instance;
-            }
-
-            // 中身の削除
-            void DestroyContent(BulletProjectileInfo objectInfo) {
-                if (objectInfo == null || objectInfo.Projectile == null) {
-                    return;
-                }
-
-                if (objectInfo.Projectile != null) {
-                    objectInfo.Projectile.Dispose();
-                }
-
-                objectInfo.Projectile = null;
-            }
-
-            var pool = new ObjectPool<BulletProjectileInfo>(() => {
-                    var objectInfo = new BulletProjectileInfo();
-                    objectInfo.Prefab = prefab;
-
-                    if (activePool) {
-                        CreateContent(objectInfo);
-                    }
-
-                    return objectInfo;
-                }, info => {
-                    if (activePool) {
-                        info.Projectile.SetActive(true);
-                    }
-                    else {
-                        CreateContent(info);
-                        info.Projectile.SetActive(true);
-                    }
-                }, info => {
-                    if (activePool) {
-                        info.Projectile.SetActive(false);
-                    }
-                    else {
-                        info.Projectile.SetActive(false);
-                        DestroyContent(info);
-                    }
-                },
-                DestroyContent, true, _poolDefaultCapacity, _poolMaxCapacity);
-            return pool;
-        }
-
-        /// <summary>
-        /// BeamPoolの生成
-        /// </summary>
-        private ObjectPool<BeamProjectileInfo> CreateBeamProjectilePool(GameObject prefab, bool activePool) {
-            // インスタンス生成処理
-            void CreateContent(BeamProjectileInfo objectInfo) {
-                var gameObj = Object.Instantiate(objectInfo.Prefab, _rootTransform);
-                var instance = gameObj.GetComponent<IBeamProjectile>();
-                if (instance == null) {
-                    instance = gameObj.AddComponent<BeamProjectile>();
-                }
-
-                instance.SetActive(false);
-                objectInfo.Projectile = instance;
-            }
-
-            // 中身の削除
-            void DestroyContent(BeamProjectileInfo objectInfo) {
-                if (objectInfo == null || objectInfo.Projectile == null) {
-                    return;
-                }
-
-                if (objectInfo.Projectile != null) {
-                    objectInfo.Projectile.Dispose();
-                }
-
-                objectInfo.Projectile = null;
-            }
-
-            var pool = new ObjectPool<BeamProjectileInfo>(() => {
-                    var objectInfo = new BeamProjectileInfo();
-                    objectInfo.Prefab = prefab;
-
-                    if (activePool) {
-                        CreateContent(objectInfo);
-                    }
-
-                    return objectInfo;
-                }, info => {
-                    if (activePool) {
-                        info.Projectile.SetActive(true);
-                    }
-                    else {
-                        CreateContent(info);
-                        info.Projectile.SetActive(true);
-                    }
-                }, info => {
-                    if (activePool) {
-                        info.Projectile.SetActive(false);
-                    }
-                    else {
-                        info.Projectile.SetActive(false);
-                        DestroyContent(info);
-                    }
-                },
-                DestroyContent, true, _poolDefaultCapacity, _poolMaxCapacity);
-            return pool;
         }
 
         /// <summary>

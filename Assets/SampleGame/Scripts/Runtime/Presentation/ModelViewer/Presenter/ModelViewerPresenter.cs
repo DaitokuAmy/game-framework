@@ -1,6 +1,6 @@
 using GameFramework.CameraSystems;
 using GameFramework;
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystemsOld;
 using GameFramework.Core;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;

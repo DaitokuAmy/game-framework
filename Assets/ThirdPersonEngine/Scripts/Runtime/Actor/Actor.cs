@@ -2,14 +2,14 @@ using System.Collections;
 using System.Threading;
 using ActionSequencer;
 using Cysharp.Threading.Tasks;
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystemsOld;
 using GameFramework;
 
 namespace ThirdPersonEngine {
     /// <summary>
     /// アクター基底
     /// </summary>
-    public abstract class Actor : GameFramework.ActorSystems.Actor {
+    public abstract class Actor : GameFramework.ActorSystemsOld.Actor {
         private readonly CoroutineRunner _coroutineRunner;
 
         /// <summary>外部公開用のシーケンス制御クラス</summary>

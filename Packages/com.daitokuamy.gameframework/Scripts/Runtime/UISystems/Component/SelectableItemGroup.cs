@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using GameFramework.Core;
-using UnityEngine.Pool;
 
 namespace GameFramework.UISystems {
     /// <summary>
@@ -47,7 +45,7 @@ namespace GameFramework.UISystems {
         /// </summary>
         public void Dispose() {
             Clear();
-            _itemInfoPool.Dispose();
+            _itemInfoPool.Clear();
         }
 
         /// <summary>
