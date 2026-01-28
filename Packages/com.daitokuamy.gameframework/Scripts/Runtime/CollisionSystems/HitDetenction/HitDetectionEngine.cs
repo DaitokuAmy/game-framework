@@ -145,7 +145,7 @@ namespace GameFramework.CollisionSystems {
         private sealed class ReceiveEntry {
             public int Id;
             public IReceiveCollider Collider;
-            public ICollisionListener Listener;
+            public IHitListener Listener;
             public int LayerMask;
         }
 
@@ -303,7 +303,7 @@ namespace GameFramework.CollisionSystems {
         /// <param name="collider">受けコリジョン情報</param>
         /// <param name="listener">判定検知用リスナー</param>
         /// <param name="layerMask">判定レイヤーマスク</param>
-        public int RegisterReceive(IReceiveCollider collider, ICollisionListener listener, int layerMask = ~0) {
+        public int RegisterReceive(IReceiveCollider collider, IHitListener listener, int layerMask = ~0) {
             var id = _nextReceiveId++;
             _receiveEntries.Add(new ReceiveEntry { Id = id, Collider = collider, Listener = listener, LayerMask = layerMask });
             return id;
@@ -497,10 +497,10 @@ namespace GameFramework.CollisionSystems {
                     var contactNormal = (Vector3)_contactNormals[i];
                     var evt = new HitEvent(hitId, receiveId, contactPoint, contactNormal, customData);
                     if (_prevPairKeys.ContainsKey(key)) {
-                        listener.OnCollisionStay(evt);
+                        listener.OnHitStay(evt);
                     }
                     else {
-                        listener.OnCollisionEnter(evt);
+                        listener.OnHitEnter(evt);
                     }
                 }
             }
@@ -513,7 +513,7 @@ namespace GameFramework.CollisionSystems {
 
                 var hitId = key.HitId;
                 var receiveId = key.ReceiveId;
-                var listener = default(ICollisionListener);
+                var listener = default(IHitListener);
                 for (var i = 0; i < _receiveEntries.Count; i++) {
                     if (_receiveEntries[i].Id == receiveId) {
                         listener = _receiveEntries[i].Listener;
@@ -524,7 +524,7 @@ namespace GameFramework.CollisionSystems {
                 if (listener != null) {
                     var customData = pair.Value;
                     var evt = new HitEvent(hitId, receiveId, default, default, customData);
-                    listener.OnCollisionExit(evt);
+                    listener.OnHitExit(evt);
                 }
             }
 

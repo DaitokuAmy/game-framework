@@ -2,20 +2,20 @@ namespace GameFramework.CollisionSystems {
     /// <summary>
     /// 衝突検知リスナー
     /// </summary>
-    public interface ICollisionListener {
+    public interface IHitListener {
         /// <summary>
         /// 衝突開始
         /// </summary>
-        void OnCollisionEnter(in HitEvent evt);
+        void OnHitEnter(in HitEvent evt);
 
         /// <summary>
         /// 衝突中
         /// </summary>
-        void OnCollisionStay(in HitEvent evt);
+        void OnHitStay(in HitEvent evt);
 
         /// <summary>
         /// 衝突終了
         /// </summary>
-        void OnCollisionExit(in HitEvent evt);
+        void OnHitExit(in HitEvent evt);
     }
 }
