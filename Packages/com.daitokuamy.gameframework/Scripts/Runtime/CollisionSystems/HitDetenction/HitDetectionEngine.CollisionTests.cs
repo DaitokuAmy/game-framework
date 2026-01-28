@@ -343,7 +343,7 @@ namespace GameFramework.CollisionSystems {
         }
 
         /// <summary>
-        /// 線分 AB 上の点で、点 P に最も近い点を返します。
+        /// 線分AB上の点で、点Pに最も近い点を計算
         /// </summary>
         private static float3 ClosestPointOnSegment(float3 a, float3 b, float3 p) {
             var ab = b - a;
@@ -359,9 +359,10 @@ namespace GameFramework.CollisionSystems {
         }
 
         /// <summary>
-        /// v を正規化して返します。長さがほぼゼロの場合は、線分方向から安定した代替ベクトルを作って返します。
+        /// 長さがある場合、vを正規化して返却
+        /// そうでない場合、線分方向から安定した代替ベクトルを返却
         /// </summary>
-        private static float3 SafeNormalizeFromSegment(float3 v, float3 segA, float3 segB) {
+        private static float3 SafeNormalizeFromSegment(float3 v, float3 p, float3 q) {
             var lenSq = math.lengthsq(v);
             const float eps = 1e-8f;
 
@@ -370,7 +371,7 @@ namespace GameFramework.CollisionSystems {
             }
 
             // v がゼロに近い：線分方向に直交する方向を作る
-            var segDir = segB - segA;
+            var segDir = q - p;
             var segLenSq = math.lengthsq(segDir);
 
             if (segLenSq <= eps) {
@@ -395,7 +396,7 @@ namespace GameFramework.CollisionSystems {
         }
 
         /// <summary>
-        /// 線分と線分の最近点（Ericson系の定番）
+        /// 線分と線分の最近点の計算（Ericson系の定番）
         /// </summary>
         private static void ClosestPointSegmentSegment(
             float3 p1, float3 q1, float3 p2, float3 q2,

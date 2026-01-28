@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using GameFramework.Core;
 using UnityEngine;
-using UnityEngine.Pool;
 
 namespace GameFramework.CollisionSystems {
     /// <summary>
@@ -11,6 +11,7 @@ namespace GameFramework.CollisionSystems {
         private readonly Dictionary<long, List<int>> _cellToIds = new();
         private readonly Dictionary<int, List<long>> _idToCells = new();
         private readonly ObjectPool<List<long>> _listPool;
+        private readonly ObjectPool<HashSet<int>> _hashSetPool;
 
         /// <summary>
         /// コンストラクタ
@@ -23,6 +24,13 @@ namespace GameFramework.CollisionSystems {
                 actionOnGet: list => list.Clear(),
                 actionOnRelease: list => list.Clear(),
                 actionOnDestroy: list => list.Clear(),
+                defaultCapacity: 64);
+
+            _hashSetPool = new ObjectPool<HashSet<int>>(
+                createFunc: () => new HashSet<int>(8),
+                actionOnGet: set => set.Clear(),
+                actionOnRelease: set => set.Clear(),
+                actionOnDestroy: set => set.Clear(),
                 defaultCapacity: 64);
         }
 
@@ -147,7 +155,7 @@ namespace GameFramework.CollisionSystems {
             var maxX = center.x + radius;
             var minZ = center.z - radius;
             var maxZ = center.z + radius;
-            
+
             QueryRect(minX, maxX, minZ, maxZ, outHitIndices);
         }
 
@@ -162,7 +170,7 @@ namespace GameFramework.CollisionSystems {
             var maxX = min.x + radius;
             var minZ = max.z - radius;
             var maxZ = max.z + radius;
-            
+
             QueryRect(minX, maxX, minZ, maxZ, outHitIndices);
         }
 
@@ -171,13 +179,13 @@ namespace GameFramework.CollisionSystems {
         /// </summary>
         public void QueryRect(float minX, float maxX, float minZ, float maxZ, List<int> outHitIndices) {
             outHitIndices.Clear();
-            
+
             var minCx = WorldToCell(minX);
             var maxCx = WorldToCell(maxX);
             var minCz = WorldToCell(minZ);
             var maxCz = WorldToCell(maxZ);
 
-            var yielded = HashSetPool<int>.Get();
+            var yielded = _hashSetPool.Get();
             try {
                 for (var cz = minCz; cz <= maxCz; cz++) {
                     for (var cx = minCx; cx <= maxCx; cx++) {
@@ -196,7 +204,7 @@ namespace GameFramework.CollisionSystems {
                 }
             }
             finally {
-                HashSetPool<int>.Release(yielded);
+                _hashSetPool.Release(yielded);
             }
         }
 
