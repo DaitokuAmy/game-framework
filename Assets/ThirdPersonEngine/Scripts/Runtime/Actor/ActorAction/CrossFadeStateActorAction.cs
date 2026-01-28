@@ -1,6 +1,6 @@
 using System;
 using ActionSequencer;
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using UnityEngine;
 
 namespace ThirdPersonEngine {

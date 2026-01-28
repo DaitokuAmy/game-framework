@@ -5,18 +5,18 @@ namespace GameFramework.Core {
     /// <summary>
     /// アクター本体
     /// </summary>
-    public sealed class Actor<TKey> : IActorRuntime<TKey> {
+    public sealed class Actor<TKey> : IActorRuntime<TKey>, IActorCommandInputPort, IActorSignalInputPort {
         private readonly ActorBuffer<ActorCommand> _commandBuffer = new();
         private readonly ActorBuffer<ActorSignal> _signalBuffer = new();
         private readonly List<ActorCommand> _workCommands = new();
         private readonly List<ActorSignal> _workSignals = new();
 
         private IActorStateMachine _stateMachine;
-        private IActorController<TKey> _controller;
-        private IActorReceiver<TKey> _receiver;
-        private IActorModel<TKey> _model;
-        private IActorPresenter<TKey> _presenter;
-        private IActorView<TKey> _view;
+        private IActorController _controller;
+        private IActorReceiver _receiver;
+        private IActorModel _model;
+        private IActorPresenter _presenter;
+        private IActorView _view;
         private bool _initialized;
         private bool _disposed;
         private bool _active;
@@ -40,11 +40,11 @@ namespace GameFramework.Core {
 
             _disposed = true;
 
-            ResetActorInterface(ref _receiver);
-            ResetActorInterface(ref _view);
-            ResetActorInterface(ref _presenter);
-            ResetActorInterface(ref _model);
-            ResetActorInterface(ref _controller);
+            ResetActorInterface(ref _receiver, DetachedAction);
+            ResetActorInterface(ref _view, null);
+            ResetActorInterface(ref _presenter, null);
+            ResetActorInterface(ref _model, null);
+            ResetActorInterface(ref _controller, DetachedAction);
 
             _active = false;
         }
@@ -70,11 +70,11 @@ namespace GameFramework.Core {
 
             Id = default;
 
-            ResetActorInterface(ref _receiver);
-            ResetActorInterface(ref _view);
-            ResetActorInterface(ref _presenter);
-            ResetActorInterface(ref _model);
-            ResetActorInterface(ref _controller);
+            ResetActorInterface(ref _receiver, DetachedAction);
+            ResetActorInterface(ref _view, null);
+            ResetActorInterface(ref _presenter, null);
+            ResetActorInterface(ref _model, null);
+            ResetActorInterface(ref _controller, DetachedAction);
 
             _active = false;
         }
@@ -215,66 +215,61 @@ namespace GameFramework.Core {
         /// <summary>
         /// Controllerの設定
         /// </summary>
-        public void SetController(IActorController<TKey> controller, bool prevDispose = true) {
-            SetActorInterface(controller, ref _controller, prevDispose);
+        public void SetController(IActorController controller, bool prevDispose = true) {
+            ResetActorInterface(ref _controller, DetachedAction, prevDispose);
+            SetActorInterface(controller, ref _controller, AttachedAction);
         }
 
         /// <summary>
         /// Receiverの設定
         /// </summary>
-        public void SetReceiver(IActorReceiver<TKey> receiver, bool prevDispose = true) {
-            SetActorInterface(receiver, ref _receiver, prevDispose);
+        public void SetReceiver(IActorReceiver receiver, bool prevDispose = true) {
+            ResetActorInterface(ref _receiver, DetachedAction, prevDispose);
+            SetActorInterface(receiver, ref _receiver, AttachedAction);
         }
 
         /// <summary>
         /// Modelの設定
         /// </summary>
-        public void SetModel(IActorModel<TKey> model, bool prevDispose = true) {
-            SetActorInterface(model, ref _model, prevDispose);
+        public void SetModel(IActorModel model, bool prevDispose = true) {
+            ResetActorInterface(ref _model, null, prevDispose);
+            SetActorInterface(model, ref _model, null);
         }
 
         /// <summary>
         /// Presenterの設定
         /// </summary>
-        public void SetPresenter(IActorPresenter<TKey> presenter, bool prevDispose = true) {
-            SetActorInterface(presenter, ref _presenter, prevDispose);
+        public void SetPresenter(IActorPresenter presenter, bool prevDispose = true) {
+            ResetActorInterface(ref _presenter, null, prevDispose);
+            SetActorInterface(presenter, ref _presenter, null);
         }
 
         /// <summary>
         /// Viewの設定
         /// </summary>
-        public void SetView(IActorView<TKey> view, bool prevDispose = true) {
-            SetActorInterface(view, ref _view, prevDispose);
+        public void SetView(IActorView view, bool prevDispose = true) {
+            ResetActorInterface(ref _view, null, prevDispose);
+            SetActorInterface(view, ref _view, null);
         }
 
-        /// <summary>
-        /// コマンドの生成
-        /// </summary>
+        /// <inheritdoc/>
         public T CreateCommand<T>()
             where T : ActorCommand, new() {
             return _commandBuffer.CreateContent<T>();
         }
 
-        /// <summary>
-        /// シグナルの生成
-        /// </summary>
+        /// <inheritdoc/>
+        public void AddCommand(ActorCommand command) {
+            _commandBuffer.AddContent(command);
+        }
+
+        /// <inheritdoc/>
         public T CreateSignal<T>()
             where T : ActorSignal, new() {
             return _signalBuffer.CreateContent<T>();
         }
 
-        /// <summary>
-        /// コマンドの追加
-        /// </summary>
-        /// <param name="command">追加対象のコマンド</param>
-        public void AddCommand(ActorCommand command) {
-            _commandBuffer.AddContent(command);
-        }
-
-        /// <summary>
-        /// シグナルの追加
-        /// </summary>
-        /// <param name="signal">追加対象のシグナル</param>
+        /// <inheritdoc/>
         public void AddSignal(ActorSignal signal) {
             _signalBuffer.AddContent(signal);
         }
@@ -284,18 +279,17 @@ namespace GameFramework.Core {
         /// </summary>
         /// <param name="target">設定対象</param>
         /// <param name="field">設定先のフィールド</param>
-        /// <param name="prevDispose">元々あった物をDisposeするか</param>
-        private void SetActorInterface<T>(T target, ref T field, bool prevDispose = true)
-            where T : class, IActorInterface<TKey> {
+        /// <param name="attachedAction">アタッチされた際の処理</param>
+        private void SetActorInterface<T>(T target, ref T field, Action<T> attachedAction)
+            where T : class, IActorInterface {
             if (!_initialized || _disposed) {
                 return;
             }
 
-            ResetActorInterface(ref field, prevDispose);
-
             field = target;
             if (field != null) {
-                field.Attached(this);
+                attachedAction?.Invoke(field);
+
                 if (_active) {
                     field.Activate();
                 }
@@ -305,8 +299,8 @@ namespace GameFramework.Core {
         /// <summary>
         /// IActorInterfaceの除外処理
         /// </summary>
-        private void ResetActorInterface<T>(ref T field, bool dispose = true)
-            where T : class, IActorInterface<TKey> {
+        private void ResetActorInterface<T>(ref T field, Action<T> detachedAction, bool dispose = true)
+            where T : class, IActorInterface {
             if (field == null) {
                 return;
             }
@@ -315,12 +309,41 @@ namespace GameFramework.Core {
                 field.Deactivate();
             }
 
-            field.Detached();
+            detachedAction?.Invoke(field);
+
             if (dispose) {
                 field.Dispose();
             }
 
             field = null;
+        }
+
+        /// <summary>
+        /// ActorControllerをDetachする際の処理
+        /// </summary>
+        private void DetachedAction(IActorController x) {
+            x.Detached();
+        }
+
+        /// <summary>
+        /// ActorControllerをAttachする際の処理
+        /// </summary>
+        private void AttachedAction(IActorController x) {
+            x.Attached(this);
+        }
+
+        /// <summary>
+        /// ActorReceiverをDetachする際の処理
+        /// </summary>
+        private void DetachedAction(IActorReceiver x) {
+            x.Detached();
+        }
+
+        /// <summary>
+        /// ActorReceiverをAttachする際の処理
+        /// </summary>
+        private void AttachedAction(IActorReceiver x) {
+            x.Attached(this);
         }
     }
 }

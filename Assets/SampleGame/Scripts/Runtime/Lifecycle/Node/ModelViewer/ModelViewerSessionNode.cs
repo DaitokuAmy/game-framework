@@ -3,17 +3,14 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.AssetSystems;
-using GameFramework.ActorSystemsOld;
 using GameFramework.CameraSystems;
 using GameFramework.Core;
 using GameFramework.NavigationSystems;
-using R3;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
-using SampleGame.Presentation.ModelViewer;
 using ThirdPersonEngine;
 using VContainer;
 
@@ -67,13 +64,13 @@ namespace SampleGame.Lifecycle {
             // アプリケーション初期化
             yield return _appService.SetupAsync(scope.Token).ToCoroutine();
 
-            // カメラ操作用Controllerの設定
-            var cameraManager = ObjectResolver.Resolve<CameraManager>();
-            cameraManager.SetCameraHandler("Default", new PreviewCameraHandler(_configData.camera));
-
-            // Recorderのセットアップ
-            var recorder = ObjectResolver.Resolve<ModelRecorder>();
-            recorder.ActorSlot = ObjectResolver.Resolve<ActorEntityManager>().RootTransform;
+            // // カメラ操作用Controllerの設定
+            // var cameraManager = ObjectResolver.Resolve<CameraManager>();
+            // cameraManager.SetCameraHandler("Default", new PreviewCameraHandler(_configData.camera));
+            //
+            // // Recorderのセットアップ
+            // var recorder = ObjectResolver.Resolve<ModelRecorder>();
+            // recorder.ActorSlot = ObjectResolver.Resolve<ActorEntityManager>().RootTransform;
 
             // プレゼンテーション初期化
             SetupPresentations(scope);
@@ -93,8 +90,8 @@ namespace SampleGame.Lifecycle {
         /// Managerの初期化
         /// </summary>
         private void SetupManagers(IContainerBuilder builder) {
-            var actorManager = new ActorEntityManager();
-            builder.RegisterInstance(actorManager);
+            // var actorManager = new ActorEntityManager();
+            // builder.RegisterInstance(actorManager);
 
             // var cameraManager = ServiceResolver.Resolve<CameraManager>();
             // cameraManager.RegisterTask(TaskOrder.Camera);
@@ -118,15 +115,15 @@ namespace SampleGame.Lifecycle {
         /// Factoryの初期化
         /// </summary>
         private void SetupFactories(IContainerBuilder builder) {
-            builder.Register<IPreviewActorFactory, PreviewActorFactory>(Lifetime.Singleton);
-            builder.Register<IEnvironmentActorFactory, EnvironmentActorFactory>(Lifetime.Singleton);
+            // builder.Register<IPreviewActorFactory, PreviewActorFactory>(Lifetime.Singleton);
+            // builder.Register<IEnvironmentActorFactory, EnvironmentActorFactory>(Lifetime.Singleton);
         }
 
         /// <summary>
         /// Presentation層の初期化
         /// </summary>
         private void SetupPresentations(IScope scope) {
-            LogicUtility.CreateLogic<ModelViewerPresenter>(UpdateOrder.Presenter, ObjectResolver, true, scope);
+            //LogicUtility.CreateLogic<ModelViewerPresenter>(UpdateOrder.Presenter, ObjectResolver, true, scope);
         }
     }
 }

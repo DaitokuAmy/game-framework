@@ -1,7 +1,17 @@
 namespace GameFramework.Core {
     /// <summary>
-    /// アクター操作用のインターフェース
+    /// アクターコントローラー(操作用)のインターフェース
     /// </summary>
-    public interface IActorController<TKey> : IActorInterface<TKey> {
+    public interface IActorController : IActorInterface {
+        /// <summary>
+        /// Actorに管理された際の処理
+        /// </summary>
+        /// <param name="commandInputPort">コマンド追加用のPort</param>
+        void Attached(IActorCommandInputPort commandInputPort);
+
+        /// <summary>
+        /// Actor管理から外された際の処理
+        /// </summary>
+        void Detached();
     }
 }

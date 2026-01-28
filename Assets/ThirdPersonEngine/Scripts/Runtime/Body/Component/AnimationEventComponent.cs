@@ -1,5 +1,5 @@
 using System;
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 
 namespace ThirdPersonEngine {

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 using UnityEngine;
 
@@ -8,7 +8,7 @@ namespace ThirdPersonEngine {
     /// <summary>
     /// アクター移動用クラス
     /// </summary>
-    public sealed class MoveActorComponent : ActorComponent {
+    public sealed class MoveActorComponent : ActorViewComponent {
         private readonly IMovableActor _actor;
         private readonly Dictionary<Type, IMoveResolver> _resolvers = new();
 

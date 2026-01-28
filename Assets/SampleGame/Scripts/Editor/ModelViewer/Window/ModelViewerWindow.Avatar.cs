@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.DebugSystems.Editor;
 using R3;
@@ -29,7 +29,7 @@ namespace SampleGame.ModelViewer.Editor {
             /// </summary>
             protected override void StartInternal(ModelViewerWindow window, IScope scope) {
                 var viewerModel = window.Resolver.Resolve<ModelViewerAppService>().DomainService.ModelViewerModel;
-                var actorEntityManager = window.Resolver.Resolve<ActorEntityManager>();
+                //var actorEntityManager = window.Resolver.Resolve<ActorEntityManager>();
 
                 // Actor生成監視
                 viewerModel.ChangedPreviewActorSubject
@@ -43,14 +43,14 @@ namespace SampleGame.ModelViewer.Editor {
                             return;
                         }
 
-                        var actor = actorEntityManager.FindEntity(actorModel.Id).GetActor<PreviewActor>();
-                        foreach (var pair in actorModel.CurrentMeshAvatarIndices) {
-                            var list = new FoldoutList<GameObject>(pair.Key);
-                            _meshAvatarFoldoutLists[pair.Key] = list;
-                            _meshAvatarPrefabLists[pair.Key] = actor.GetMeshAvatarPrefabs(pair.Key)
-                                .Concat(new GameObject[] { null })
-                                .ToArray();
-                        }
+                        // var actor = actorEntityManager.FindEntity(actorModel.Id).GetActor<PreviewActor>();
+                        // foreach (var pair in actorModel.CurrentMeshAvatarIndices) {
+                        //     var list = new FoldoutList<GameObject>(pair.Key);
+                        //     _meshAvatarFoldoutLists[pair.Key] = list;
+                        //     _meshAvatarPrefabLists[pair.Key] = actor.GetMeshAvatarPrefabs(pair.Key)
+                        //         .Concat(new GameObject[] { null })
+                        //         .ToArray();
+                        // }
                     });
 
                 // PreviewActor削除監視

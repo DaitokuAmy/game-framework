@@ -7,7 +7,7 @@ using UnityEngine.Playables;
 using UnityEngine.Animations.Rigging;
 #endif
 
-namespace GameFramework.ActorSystemsOld.Editor {
+namespace GameFramework.ActorSystems.Editor {
     /// <summary>
     /// MotionPreview用Window
     /// </summary>

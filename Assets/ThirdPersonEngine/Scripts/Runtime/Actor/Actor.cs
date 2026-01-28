@@ -2,14 +2,14 @@ using System.Collections;
 using System.Threading;
 using ActionSequencer;
 using Cysharp.Threading.Tasks;
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using GameFramework;
 
 namespace ThirdPersonEngine {
     /// <summary>
     /// アクター基底
     /// </summary>
-    public abstract class Actor : GameFramework.ActorSystemsOld.Actor {
+    public abstract class Actor : ActorView {
         private readonly CoroutineRunner _coroutineRunner;
 
         /// <summary>外部公開用のシーケンス制御クラス</summary>
@@ -38,10 +38,8 @@ namespace ThirdPersonEngine {
         /// <summary>
         /// 更新処理
         /// </summary>
-        protected override void UpdateInternal() {
-            base.UpdateInternal();
-            
-            var deltaTime = Body.DeltaTime;
+        protected override void UpdateInternal(float deltaTime) {
+            base.UpdateInternal(deltaTime);
             
             // コルーチンの更新
             _coroutineRunner.Update();

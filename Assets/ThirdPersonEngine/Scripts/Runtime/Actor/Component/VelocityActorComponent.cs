@@ -1,4 +1,4 @@
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 using UnityEngine;
 
@@ -6,7 +6,7 @@ namespace ThirdPersonEngine {
     /// <summary>
     /// 速度制御用ActorComponent
     /// </summary>
-    public sealed class VelocityActorComponent : ActorComponent {
+    public sealed class VelocityActorComponent : ActorViewComponent {
         /// <summary>
         /// アクター速度制御の設定値用のコンテキストのインタフェース
         /// </summary>

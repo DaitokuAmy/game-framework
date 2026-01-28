@@ -1,14 +1,12 @@
-using System;
 using System.Collections.Generic;
 using GameFramework.Core;
-using GameFramework;
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 
 namespace ThirdPersonEngine {
     /// <summary>
     /// タイムスケール制御用ActorComponent
     /// </summary>
-    public sealed class TimeScaleActorComponent : ActorComponent {
+    public sealed class TimeScaleActorComponent : ActorViewComponent {
         /// <summary>
         /// TimeScaleの情報
         /// </summary>

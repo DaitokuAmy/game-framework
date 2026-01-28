@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.GimmickSystems;
 
-namespace GameFramework.ActorSystemsOld {
+namespace GameFramework.GimmickSystems {
     /// <summary>
     /// Gimmick再生用クラス
     /// </summary>
-    public class GimmickPlayer {
+    public sealed class GimmickPlayer {
         // キャッシュ用のGimmick情報
         private readonly Dictionary<string, List<IGimmick>> _gimmicks = new();
 

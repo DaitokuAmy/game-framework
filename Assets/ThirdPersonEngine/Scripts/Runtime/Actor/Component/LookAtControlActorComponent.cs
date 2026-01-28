@@ -1,11 +1,11 @@
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using UnityEngine;
 
 namespace ThirdPersonEngine {
     /// <summary>
     /// 注視向き制御用ActorComponent
     /// </summary>
-    public sealed class LookAtControlActorComponent : ActorComponent {
+    public sealed class LookAtControlActorComponent : ActorViewComponent {
         private readonly Actor _actor;
         private readonly Transform _lookDir;
 

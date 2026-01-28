@@ -1,11 +1,11 @@
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using UnityEngine;
 
 namespace ThirdPersonEngine {
     /// <summary>
     /// 環境情報サーチ用ActorComponent
     /// </summary>
-    public sealed class SensorActorComponent : ActorComponent {
+    public sealed class SensorActorComponent : ActorViewComponent {
         /// <summary>
         /// 設定
         /// </summary>

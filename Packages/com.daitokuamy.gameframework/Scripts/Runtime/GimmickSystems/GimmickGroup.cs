@@ -7,8 +7,9 @@ namespace GameFramework.GimmickSystems {
     /// <summary>
     /// Gimmick管理用クラス
     /// </summary>
-    [ExecuteAlways][DisallowMultipleComponent]
-    public class GimmickGroup : MonoBehaviour {
+    [ExecuteAlways]
+    [DisallowMultipleComponent]
+    public sealed class GimmickGroup : MonoBehaviour {
         // ギミック情報
         [Serializable]
         public class GimmickInfo {

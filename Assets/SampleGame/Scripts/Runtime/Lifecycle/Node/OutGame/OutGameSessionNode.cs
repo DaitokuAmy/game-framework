@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
-using GameFramework.ActorSystemsOld;
+using GameFramework.ActorSystems;
 using GameFramework.Core;
 using GameFramework.NavigationSystems;
 using GameFramework.UISystems;
@@ -80,7 +80,7 @@ namespace SampleGame.Lifecycle {
         /// Manager初期化
         /// </summary>
         private void SetupManagers(IContainerBuilder builder) {
-            builder.Register<ActorEntityManager>(Lifetime.Singleton);
+            //builder.Register<ActorEntityManager>(Lifetime.Singleton);
             //var cameraManager = ServiceResolver.Resolve<CameraManager>();
             //cameraManager.RegisterTask(TaskOrder.Camera);
         }
