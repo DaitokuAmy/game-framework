@@ -20,14 +20,18 @@ namespace GameFramework.AssetSystem {
             where T : Object {
             private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<T> _handle;
 
+            /// <inheritdoc/>
             bool IAssetInfo<T>.IsDone => _handle.IsDone;
+            /// <inheritdoc/>
             T IAssetInfo<T>.Asset => _handle.Result;
+            /// <inheritdoc/>
             Exception IAssetInfo<T>.Exception => _handle.OperationException;
 
             public AssetInfo(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<T> handle) {
                 _handle = handle;
             }
 
+            /// <inheritdoc/>
             public void Dispose() {
                 if (!_handle.IsValid()) {
                     return;
@@ -43,14 +47,18 @@ namespace GameFramework.AssetSystem {
         private class SceneAssetInfo : ISceneAssetInfo {
             private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SceneInstance> _handle;
 
+            /// <inheritdoc/>
             bool ISceneAssetInfo.IsDone => _handle.IsDone;
+            /// <inheritdoc/>
             Scene ISceneAssetInfo.Scene => _handle.Result.Scene;
+            /// <inheritdoc/>
             Exception ISceneAssetInfo.Exception => _handle.OperationException;
 
             public SceneAssetInfo(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SceneInstance> handle) {
                 _handle = handle;
             }
 
+            /// <inheritdoc/>
             public void Dispose() {
                 if (!_handle.IsValid()) {
                     return;
@@ -58,7 +66,8 @@ namespace GameFramework.AssetSystem {
 
                 Addressables.Release(_handle);
             }
-            
+
+            /// <inheritdoc/>
             AsyncOperation ISceneAssetInfo.ActivateAsync() {
                 if (!_handle.IsValid()) {
                     return null;
@@ -68,18 +77,14 @@ namespace GameFramework.AssetSystem {
             }
         }
 
-        /// <summary>
-        /// 読み込み処理
-        /// </summary>
+        /// <inheritdoc/>
         AssetHandle<T> IAssetProvider.LoadAsync<T>(string address) {
             var operationHandle = Addressables.LoadAssetAsync<T>(address);
             var assetInfo = new AssetInfo<T>(operationHandle);
             return new AssetHandle<T>(assetInfo);
         }
 
-        /// <summary>
-        /// アセットが含まれているか
-        /// </summary>
+        /// <inheritdoc/>
         bool IAssetProvider.Contains<T>(string address) {
             foreach (var locator in Addressables.ResourceLocators) {
                 if (locator is ResourceLocationMap map) {
@@ -97,18 +102,14 @@ namespace GameFramework.AssetSystem {
             return false;
         }
 
-        /// <summary>
-        /// シーンアセットの読み込み
-        /// </summary>
+        /// <inheritdoc/>
         SceneAssetHandle IAssetProvider.LoadSceneAsync(string address, LoadSceneMode mode) {
             var operationHandle = Addressables.LoadSceneAsync(address, mode, false);
             var assetInfo = new SceneAssetInfo(operationHandle);
             return new SceneAssetHandle(assetInfo);
         }
 
-        /// <summary>
-        /// シーンアセットが含まれているか
-        /// </summary>
+        /// <inheritdoc/>
         bool IAssetProvider.ContainsScene(string address) {
             foreach (var locator in Addressables.ResourceLocators) {
                 if (locator is ResourceLocationMap map) {

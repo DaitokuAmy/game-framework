@@ -24,14 +24,18 @@ namespace GameFramework.AssetSystem {
             where T : Object {
             private T _asset;
 
+            /// <inheritdoc/>
             bool IAssetInfo<T>.IsDone => true;
+            /// <inheritdoc/>
             T IAssetInfo<T>.Asset => _asset;
+            /// <inheritdoc/>
             Exception IAssetInfo<T>.Exception => null;
 
             public AssetInfo(T asset) {
                 _asset = asset;
             }
 
+            /// <inheritdoc/>
             public void Dispose() {
                 // Unloadはしない
             }
@@ -46,7 +50,9 @@ namespace GameFramework.AssetSystem {
             private Scene _scene;
             private Exception _exception;
 
+            /// <inheritdoc/>
             bool ISceneAssetInfo.IsDone => _asyncOperation == null || _asyncOperation.isDone;
+            /// <inheritdoc/>
             Scene ISceneAssetInfo.Scene {
                 get {
                     if (_asyncOperation == null || !_asyncOperation.isDone) {
@@ -65,6 +71,7 @@ namespace GameFramework.AssetSystem {
                     return _scene;
                 }
             }
+            /// <inheritdoc/>
             Exception ISceneAssetInfo.Exception => _exception;
 
             public SceneAssetInfo(string path, AsyncOperation asyncOperation) {
@@ -72,18 +79,18 @@ namespace GameFramework.AssetSystem {
                 _asyncOperation = asyncOperation;
             }
 
+            /// <inheritdoc/>
             public void Dispose() {
                 // Unloadはしない
             }
 
+            /// <inheritdoc/>
             AsyncOperation ISceneAssetInfo.ActivateAsync() {
                 return null;
             }
         }
 
-        /// <summary>
-        /// 読み込み処理
-        /// </summary>
+        /// <inheritdoc/>
         AssetHandle<T> IAssetProvider.LoadAsync<T>(string address) {
 #if UNITY_EDITOR
             // Address > Path変換
@@ -98,9 +105,7 @@ namespace GameFramework.AssetSystem {
 #endif
         }
 
-        /// <summary>
-        /// アセットが含まれているか
-        /// </summary>
+        /// <inheritdoc/>
         bool IAssetProvider.Contains<T>(string address) {
 #if UNITY_EDITOR
             // GUIDが存在しなければない扱い
@@ -111,9 +116,7 @@ namespace GameFramework.AssetSystem {
 #endif
         }
 
-        /// <summary>
-        /// シーンアセットの読み込み
-        /// </summary>
+        /// <inheritdoc/>
         SceneAssetHandle IAssetProvider.LoadSceneAsync(string address, LoadSceneMode mode) {
 #if UNITY_EDITOR
             var asyncOperation = EditorSceneManager.LoadSceneAsyncInPlayMode(address, new LoadSceneParameters(mode));
@@ -124,9 +127,7 @@ namespace GameFramework.AssetSystem {
 #endif
         }
 
-        /// <summary>
-        /// シーンアセットが含まれているか
-        /// </summary>
+        /// <inheritdoc/>
         bool IAssetProvider.ContainsScene(string address) {
 #if UNITY_EDITOR
             // GUIDが存在しなければない扱い

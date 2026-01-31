@@ -16,14 +16,18 @@ namespace GameFramework.AssetSystem {
             where T : Object {
             private ResourceRequest _request;
 
+            /// <inheritdoc/>
             bool IAssetInfo<T>.IsDone => _request == null || _request.isDone;
+            /// <inheritdoc/>
             T IAssetInfo<T>.Asset => (T)_request?.asset;
+            /// <inheritdoc/>
             Exception IAssetInfo<T>.Exception => null;
 
             public AssetInfo(ResourceRequest request) {
                 _request = request;
             }
 
+            /// <inheritdoc/>
             public void Dispose() {
                 // Unloadはしない
             }
@@ -35,26 +39,29 @@ namespace GameFramework.AssetSystem {
         private class SceneAssetInfo : ISceneAssetInfo {
             private Scene _scene;
             
+            /// <inheritdoc/>
             bool ISceneAssetInfo.IsDone => true;
+            /// <inheritdoc/>
             Scene ISceneAssetInfo.Scene => _scene;
+            /// <inheritdoc/>
             Exception ISceneAssetInfo.Exception => new Exception("Not supported scene asset.");
 
             public SceneAssetInfo() {
                 _scene = new Scene();
             }
 
+            /// <inheritdoc/>
             public void Dispose() {
                 // Unloadはしない
             }
 
+            /// <inheritdoc/>
             AsyncOperation ISceneAssetInfo.ActivateAsync() {
                 return null;
             }
         }
 
-        /// <summary>
-        /// 読み込み処理
-        /// </summary>
+        /// <inheritdoc/>
         AssetHandle<T> IAssetProvider.LoadAsync<T>(string address) {
             var resourcesPath = GetResourcesPath(address);
             // 読み込み開始
@@ -63,25 +70,19 @@ namespace GameFramework.AssetSystem {
             return new AssetHandle<T>(info);
         }
 
-        /// <summary>
-        /// アセットが含まれているか
-        /// </summary>
+        /// <inheritdoc/>
         bool IAssetProvider.Contains<T>(string address) {
             // Resourcesフォルダ以下にあれば含まれている扱いにする
             return address.Contains("/Resources/");
         }
 
-        /// <summary>
-        /// シーンアセットの読み込み
-        /// </summary>
+        /// <inheritdoc/>
         SceneAssetHandle IAssetProvider.LoadSceneAsync(string address, LoadSceneMode mode) {
             var info = new SceneAssetInfo();
             return new SceneAssetHandle(info);
         }
 
-        /// <summary>
-        /// シーンアセットが含まれているか
-        /// </summary>
+        /// <inheritdoc/>
         bool IAssetProvider.ContainsScene(string address) {
             // 常に失敗
             return false;
