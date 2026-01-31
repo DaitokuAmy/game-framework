@@ -1,11 +1,9 @@
-using System;
-
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// メインシステム起動用のStarter
     /// </summary>
     public sealed class OutGameMainSystemStarter : MainSystemStarter {
         /// <inheritdoc/>
-        protected override Type NavNodeType => typeof(SortieTopScreenNode);
+        protected override int NodeId => AppNavigator.Id.SortieTop;
     }
 }

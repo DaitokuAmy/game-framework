@@ -6,6 +6,6 @@ namespace SampleGame.Lifecycle {
     /// </summary>
     public sealed class IntroductionMainSystemStarter : MainSystemStarter {
         /// <inheritdoc/>
-        protected override Type NavNodeType => typeof(TitleTopScreenNode);
+        protected override int NodeId => AppNavigator.Id.TitleTop;
     }
 }

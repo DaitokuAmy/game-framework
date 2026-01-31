@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 
 #if USE_VCONTAINER
 using VContainer;
@@ -11,8 +12,12 @@ namespace GameFramework.NavigationSystems {
     public interface INavNode {
         /// <summary>Loadを並列で実行可能か</summary>
         bool IsParallelLoading { get; }
+        /// <summary>識別Id</summary>
+        int NodeId { get; }
         /// <summary>接続されている親</summary>
         INavNode Parent { get; }
+        /// <summary>接続している子のリスト</summary>
+        IReadOnlyList<INavNode> Children { get; }
         /// <summary>アクティブ状態</summary>
         bool IsActive { get; }
 #if USE_VCONTAINER
@@ -37,15 +42,17 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// 親の設定
         /// </summary>
+        /// <param name="nodeId">登録された識別Id</param>
         /// <param name="parent">親要素にあたるNode</param>
         /// <param name="parentObjectResolver">VContainer用の親Resolver</param>
-        void SetParent(INavNode parent, IObjectResolver parentObjectResolver);
+        void Setup(int nodeId, INavNode parent, IObjectResolver parentObjectResolver);
 #else
         /// <summary>
         /// 親の設定
         /// </summary>
+        /// <param name="nodeId">登録された識別Id</param>
         /// <param name="parent">親要素にあたるNode</param>
-        void SetParent(INavNode parent);
+        void SetParent(int nodeId, INavNode parent);
 #endif
 
         /// <summary>

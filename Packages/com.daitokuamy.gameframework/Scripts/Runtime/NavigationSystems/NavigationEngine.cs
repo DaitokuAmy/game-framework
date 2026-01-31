@@ -7,14 +7,17 @@ namespace GameFramework.NavigationSystems {
     /// Navigationシステムを動かすためのエンジン
     /// </summary>
     public sealed class NavigationEngine : IDisposable {
+        /// <summary>無効扱いのNodeId</summary>
+        public const int InvalidNodeId = 0;
+        
         private readonly List<INavNode> _nodes = new();
         private readonly NavNodeTree _tree;
-        private readonly IStateRouter<Type, INavNode, NavNodeTree.TransitionOption> _router;
+        private readonly IStateRouter<int, INavNode, NavNodeTree.TransitionOption> _router;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        internal NavigationEngine(IRootNode rootNode, IReadOnlyDictionary<Type, INavNode> nodeMap, Func<NavNodeTree, IStateRouter<Type, INavNode, NavNodeTree.TransitionOption>> createRouterFunc) {
+        internal NavigationEngine(IRootNode rootNode, IReadOnlyDictionary<int, INavNode> nodeMap, Func<NavNodeTree, IStateRouter<int, INavNode, NavNodeTree.TransitionOption>> createRouterFunc) {
             _nodes.AddRange(nodeMap.Values);
             _tree = new NavNodeTree(rootNode, nodeMap, this);
             _router = createRouterFunc.Invoke(_tree);
@@ -44,60 +47,49 @@ namespace GameFramework.NavigationSystems {
         /// Routerの取得
         /// </summary>
         public TRouter GetRouter<TRouter>()
-            where TRouter : class, IStateRouter<Type, INavNode, NavNodeTree.TransitionOption> {
+            where TRouter : class, IStateRouter<int, INavNode, NavNodeTree.TransitionOption> {
             return _router as TRouter;
         }
 
         /// <summary>
         /// 遷移実行
         /// </summary>
-        /// <param name="targetNodeType">遷移先のノードタイプ</param>
+        /// <param name="nodeId">遷移先NodeのId</param>
         /// <param name="option">遷移オプション</param>
         /// <param name="setupAction">遷移先Node</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> TransitionTo(Type targetNodeType, NavNodeTree.TransitionOption option, Action<INavNode> setupAction, ITransition transition,
-            params ITransitionEffect[] effects) {
+        public TransitionHandle<INavNode> TransitionTo(int nodeId, NavNodeTree.TransitionOption? option, Action<IScreenNode> setupAction, ITransition transition, params ITransitionEffect[] effects) {
             if (_router != null) {
-                return _router.TransitionTo(targetNodeType, option, setupAction, transition, effects);
+                return _router.TransitionTo(nodeId, option ?? NavNodeTree.TransitionOption.Default, node => {
+                    setupAction?.Invoke((IScreenNode)node);
+                }, transition, effects);
             }
 
-            return _tree.TransitionTo(targetNodeType, option, false, setupAction, transition, effects);
-        }
-
-        /// <summary>
-        /// 遷移実行
-        /// </summary>
-        /// <param name="option">遷移オプション</param>
-        /// <param name="setupAction">遷移先Node</param>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> TransitionTo<TNode>(NavNodeTree.TransitionOption option, Action<TNode> setupAction, ITransition transition, params ITransitionEffect[] effects)
-            where TNode : IScreenNode {
-            return TransitionTo(typeof(TNode), option, node => {
-                setupAction?.Invoke((TNode)node);
+            return _tree.TransitionTo(nodeId, option ?? NavNodeTree.TransitionOption.Default, false, node => {
+                setupAction?.Invoke((IScreenNode)node);
             }, transition, effects);
         }
 
         /// <summary>
         /// 遷移実行
         /// </summary>
+        /// <param name="nodeId">遷移先NodeのId</param>
         /// <param name="setupAction">遷移先Node</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> TransitionTo<TNode>(Action<TNode> setupAction, ITransition transition, params ITransitionEffect[] effects)
-            where TNode : IScreenNode {
-            return TransitionTo(null, setupAction, transition, effects);
+        public TransitionHandle<INavNode> TransitionTo(int nodeId, Action<IScreenNode> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+            return TransitionTo(nodeId, null, setupAction, transition, effects);
         }
 
         /// <summary>
         /// 遷移実行
         /// </summary>
+        /// <param name="nodeId">遷移先NodeのId</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> TransitionTo<TNode>(ITransition transition, params ITransitionEffect[] effects)
-            where TNode : IScreenNode {
-            return TransitionTo<TNode>(null, null, transition, effects);
+        public TransitionHandle<INavNode> TransitionTo(int nodeId, ITransition transition, params ITransitionEffect[] effects) {
+            return TransitionTo(nodeId, null, null, transition, effects);
         }
 
         /// <summary>
@@ -108,10 +100,10 @@ namespace GameFramework.NavigationSystems {
         /// <param name="setupAction">遷移先初期化用関数</param>
         /// <param name="transition">遷移方法</param>
         /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> Back(int depth = 1, NavNodeTree.TransitionOption option = null, Action<INavNode> setupAction = null, ITransition transition = null,
+        public TransitionHandle<INavNode> Back(int depth = 1, NavNodeTree.TransitionOption? option = null, Action<INavNode> setupAction = null, ITransition transition = null,
             params ITransitionEffect[] effects) {
             if (_router != null) {
-                return _router.Back(depth, option, setupAction, transition, effects);
+                return _router.Back(depth, option ?? NavNodeTree.TransitionOption.Default, setupAction, transition, effects);
             }
 
             throw new NotSupportedException("null router is not supported.");
@@ -186,15 +178,6 @@ namespace GameFramework.NavigationSystems {
         }
 
         /// <summary>
-        /// 特定Nodeが存在する階層に特定のNavNode型が存在するかチェック
-        /// ※自身もチェック対象
-        /// </summary>
-        public bool CheckNodeTypeInParent<TNode>(Type targetNodeType)
-            where TNode : INavNode {
-            return _tree.CheckNodeTypeInParent<TNode>(targetNodeType);
-        }
-
-        /// <summary>
         /// カレントNodeの階層の中で特定の型のNodeを取得
         /// ※カレントもチェック対象
         /// </summary>
@@ -204,12 +187,12 @@ namespace GameFramework.NavigationSystems {
         }
 
         /// <summary>
-        /// 特定Nodeが存在する階層の中で特定の型のNodeを取得
-        /// ※自身もチェック対象
+        /// 特定Nodeの階層の中で特定の型のNodeを取得
+        /// ※指定Nodeもチェック対象
         /// </summary>
-        public TNode GetNodeInParent<TNode>(Type targetNodeType)
+        public TNode GetNodeInParent<TNode>(int targetNodeId)
             where TNode : INavNode {
-            return _tree.GetNodeInParent<TNode>(targetNodeType);
+            return _tree.GetNodeInParent<TNode>(targetNodeId);
         }
 
         /// <summary>
@@ -224,27 +207,35 @@ namespace GameFramework.NavigationSystems {
             }
 
             var backKey = _router.GetBackStateKey(depth);
-            if (backKey == null) {
+            if (backKey == InvalidNodeId) {
                 return default;
             }
-
+            
             return _tree.GetNodeInParent<TNode>(backKey);
+        }
+
+        /// <summary>
+        /// 子要素の含まれている該当Node型のNodeIdを検索
+        /// </summary>
+        public bool TryGetChildNodeId<TNode>(out int nodeId)
+            where TNode : INavNode {
+            nodeId = InvalidNodeId;
+            
+            return _tree.TryGetChildNodeId<TNode>(out nodeId);
         }
 
         /// <summary>
         /// NodeのPreLoad
         /// </summary>
-        public AsyncOperationHandle PreLoad<TNode>()
-            where TNode : INavNode {
-            return _tree.PreLoad(typeof(TNode));
+        public AsyncOperationHandle PreLoad(int nodeId) {
+            return _tree.PreLoad(nodeId);
         }
-
+        
         /// <summary>
         /// NodeのPreLoadをUnload
         /// </summary>
-        public void UnPreLoad<TNode>()
-            where TNode : INavNode {
-            _tree.UnPreLoad(typeof(TNode));
+        public void UnPreLoad(int nodeId) {
+            _tree.UnPreLoad(nodeId);
         }
     }
 }

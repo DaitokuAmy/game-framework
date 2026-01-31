@@ -9,7 +9,6 @@ namespace GameFramework {
     /// Tree管理用StateRouter
     /// </summary>
     public class StateTreeRouter<TKey, TState, TOption> : IStateRouter<TKey, TState, TOption>
-        where TKey : class
         where TState : class {
         private readonly IStateContainer<TKey, TState, TOption> _stateContainer;
         private readonly Dictionary<TKey, StateTreeNode<TKey>> _globalShortcutNodes = new();
@@ -49,7 +48,7 @@ namespace GameFramework {
         public StateTreeRouter(IStateContainer<TKey, TState, TOption> container, string label = "", [CallerFilePath] string caller = "") {
             _stateContainer = container;
             _label = string.IsNullOrEmpty(label) ? PathUtility.GetRelativePath(caller) : label;
-            _rootNode = new StateTreeNode<TKey>(null, null);
+            _rootNode = new StateTreeNode<TKey>(default, null);
             StateMonitor.AddRouter(this);
         }
 

@@ -10,8 +10,8 @@ namespace SampleGame.Lifecycle {
         /// <summary>MainSystem開始引数の取得</summary>
         public sealed override object[] GetArguments() => new object[] { CreateStartArgs() };
         
-        /// <summary>開始時に再生するNavNodeType</summary>
-        protected abstract Type NavNodeType { get; }
+        /// <summary>開始時に再生するNodeId</summary>
+        protected abstract int NodeId { get; }
 
         /// <summary>
         /// NavNodeセットアップ処理
@@ -23,7 +23,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private MainSystem.StartArgs CreateStartArgs() {
             return new MainSystem.StartArgs {
-                NavNodeType = NavNodeType,
+                NodeId = NodeId,
                 SetupAction = OnNodeSetup
             };
         }

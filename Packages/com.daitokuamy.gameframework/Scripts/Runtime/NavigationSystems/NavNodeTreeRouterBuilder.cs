@@ -3,29 +3,29 @@ using System.Collections.Generic;
 
 namespace GameFramework.NavigationSystems {
     /// <summary>
-    /// StateTreeRouter用のBuilder
+    /// NavNodeTreeRouter用のBuilder
     /// </summary>
-    public sealed class NavNodeTreeNodeBuilder {
+    public sealed class NavNodeTreeRouterNodeBuilder {
         /// <summary>
         /// Shortcut情報
         /// </summary>
         private class ShortcutInfo {
-            public Type BaseNodeKey;
-            public NavNodeTreeNodeBuilder BaseNodeBuilder;
+            public int? BaseNodeId;
+            public NavNodeTreeRouterNodeBuilder BaseNodeBuilder;
         }
 
-        private readonly NavNodeTreeNodeBuilder _parent;
-        private readonly Type _key;
-        private readonly List<NavNodeTreeNodeBuilder> _children = new();
+        private readonly NavNodeTreeRouterNodeBuilder _parent;
+        private readonly int _nodeId;
+        private readonly List<NavNodeTreeRouterNodeBuilder> _children = new();
         private readonly List<ShortcutInfo> _shortcutInfos = new();
 
-        private StateTreeNode<Type> _node;
+        private StateTreeNode<int> _node;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        internal NavNodeTreeNodeBuilder(Type key, NavNodeTreeNodeBuilder parent, Action<NavNodeTreeNodeBuilder> buildAction) {
-            _key = key;
+        internal NavNodeTreeRouterNodeBuilder(int nodeId, NavNodeTreeRouterNodeBuilder parent, Action<NavNodeTreeRouterNodeBuilder> buildAction) {
+            _nodeId = nodeId;
             _parent = parent;
             buildAction?.Invoke(this);
         }
@@ -33,10 +33,10 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// 遷移先の接続
         /// </summary>
+        /// <param name="nodeId">接続するNodeId</param>
         /// <param name="buildAction">ネスト時に利用するアクション</param>
-        public NavNodeTreeNodeBuilder Connect<TNodeType>(Action<NavNodeTreeNodeBuilder> buildAction = null)
-            where TNodeType : IScreenNode {
-            var child = new NavNodeTreeNodeBuilder(typeof(TNodeType), this, buildAction);
+        public NavNodeTreeRouterNodeBuilder Connect(int nodeId, Action<NavNodeTreeRouterNodeBuilder> buildAction = null) {
+            var child = new NavNodeTreeRouterNodeBuilder(nodeId, this, buildAction);
             _children.Add(child);
             return this;
         }
@@ -44,9 +44,9 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// Shortcutの指定
         /// </summary>
-        /// <param name="baseNodeKey">スコープを表すNodeKey</param>
-        public NavNodeTreeNodeBuilder SetShortcutScope(Type baseNodeKey) {
-            _shortcutInfos.Add(new ShortcutInfo { BaseNodeKey = baseNodeKey });
+        /// <param name="baseNodeId">スコープを表すNodeId（該当Node以下）</param>
+        public NavNodeTreeRouterNodeBuilder SetShortcutScope(int baseNodeId) {
+            _shortcutInfos.Add(new ShortcutInfo { BaseNodeId = baseNodeId });
             return this;
         }
 
@@ -54,7 +54,7 @@ namespace GameFramework.NavigationSystems {
         /// Shortcutの指定
         /// </summary>
         /// <param name="baseNodeBuilder">スコープを表すNodeBuilder</param>
-        public NavNodeTreeNodeBuilder SetShortcutScope(NavNodeTreeNodeBuilder baseNodeBuilder) {
+        public NavNodeTreeRouterNodeBuilder SetShortcutScope(NavNodeTreeRouterNodeBuilder baseNodeBuilder) {
             _shortcutInfos.Add(new ShortcutInfo { BaseNodeBuilder = baseNodeBuilder });
             return this;
         }
@@ -62,8 +62,8 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// GlobalShortcutの指定
         /// </summary>
-        public NavNodeTreeNodeBuilder SetGlobalShortcut() {
-            _shortcutInfos.Add(new ShortcutInfo { BaseNodeKey = null });
+        public NavNodeTreeRouterNodeBuilder SetGlobalShortcut() {
+            _shortcutInfos.Add(new ShortcutInfo { BaseNodeId = null });
             return this;
         }
 
@@ -71,10 +71,10 @@ namespace GameFramework.NavigationSystems {
         /// 構築処理
         /// </summary>
         internal void Build(NavNodeTreeRouter router) {
-            _node = router.ConnectRoot(_key);
+            _node = router.ConnectRoot(_nodeId);
 
             foreach (var info in _shortcutInfos) {
-                var baseNode = info.BaseNodeBuilder?._node ?? FindNodeInParent(info.BaseNodeKey);
+                var baseNode = info.BaseNodeBuilder?._node ?? FindNodeInParent(info.BaseNodeId);
                 router.SetShortcutNode(_node, baseNode);
             }
 
@@ -86,11 +86,11 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// 構築処理
         /// </summary>
-        internal void Build(NavNodeTreeRouter router, StateTreeNode<Type> parent) {
-            _node = parent.Connect(_key);
+        internal void Build(NavNodeTreeRouter router, StateTreeNode<int> parent) {
+            _node = parent.Connect(_nodeId);
 
             foreach (var info in _shortcutInfos) {
-                var baseNode = info.BaseNodeBuilder?._node ?? FindNodeInParent(info.BaseNodeKey);
+                var baseNode = info.BaseNodeBuilder?._node ?? FindNodeInParent(info.BaseNodeId);
                 router.SetShortcutNode(_node, baseNode);
             }
 
@@ -102,21 +102,21 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// 親要素の生成済みNodeを再帰的に探す
         /// </summary>
-        private StateTreeNode<Type> FindNodeInParent(Type key) {
-            if (key == null) {
+        private StateTreeNode<int> FindNodeInParent(int? nodeId) {
+            if (nodeId == null) {
                 return null;
             }
 
             var p = _parent;
             while (p != null) {
-                if (p._key == key) {
+                if (p._nodeId == nodeId) {
                     return p._node;
                 }
 
                 p = p._parent;
             }
 
-            throw new KeyNotFoundException($"Not found base node key:{key}");
+            throw new KeyNotFoundException($"Not found base node key:{nodeId}");
         }
     }
 
@@ -124,7 +124,7 @@ namespace GameFramework.NavigationSystems {
     /// StateTreeRouterを構築するためのBuilder
     /// </summary>
     public sealed class NavNodeTreeRouterBuilder {
-        private readonly List<NavNodeTreeNodeBuilder> _rootBuilders = new();
+        private readonly List<NavNodeTreeRouterNodeBuilder> _rootBuilders = new();
 
         /// <summary>
         /// コンストラクタ
@@ -142,9 +142,8 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// ルートの追加
         /// </summary>
-        public NavNodeTreeRouterBuilder AddRoot<TNodeType>(Action<NavNodeTreeNodeBuilder> buildAction = null)
-            where TNodeType : IScreenNode {
-            var builder = new NavNodeTreeNodeBuilder(typeof(TNodeType), null, buildAction);
+        public NavNodeTreeRouterBuilder AddRoot(int nodeId, Action<NavNodeTreeRouterNodeBuilder> buildAction = null) {
+            var builder = new NavNodeTreeRouterNodeBuilder(nodeId, null, buildAction);
             _rootBuilders.Add(builder);
             return this;
         }
@@ -152,8 +151,8 @@ namespace GameFramework.NavigationSystems {
         /// <summary>
         /// 構築処理
         /// </summary>
-        public NavNodeTreeRouter Build(NavNodeTree lifecycleTree) {
-            var router = new NavNodeTreeRouter(lifecycleTree);
+        public NavNodeTreeRouter Build(NavNodeTree lifecycle) {
+            var router = new NavNodeTreeRouter(lifecycle);
             foreach (var rootBuilder in _rootBuilders) {
                 rootBuilder.Build(router);
             }

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -12,17 +13,24 @@ namespace GameFramework.NavigationSystems {
     /// NavNode基底
     /// </summary>
     public abstract class NavNode : INavNode {
+        private readonly List<INavNode> _children = new();
+
         private DisposableScope _standbyScope;
         private DisposableScope _loadScope;
         private DisposableScope _initializeScope;
         private DisposableScope _activateScope;
+        private int _nodeId;
         private INavNode _parent;
         private bool _active;
 
         /// <inheritdoc/>
         bool INavNode.IsParallelLoading => IsParallelLoading;
         /// <inheritdoc/>
+        int INavNode.NodeId => _nodeId;
+        /// <inheritdoc/>
         INavNode INavNode.Parent => _parent;
+        /// <inheritdoc/>
+        IReadOnlyList<INavNode> INavNode.Children => _children;
         /// <inheritdoc/>
         bool INavNode.IsActive => _activateScope != null;
 
@@ -49,12 +57,22 @@ namespace GameFramework.NavigationSystems {
 
 #if USE_VCONTAINER
         /// <inheritdoc/>
-        void INavNode.SetParent(INavNode parent, IObjectResolver parentObjectResolver) {
+        void INavNode.Setup(int nodeId, INavNode parent, IObjectResolver parentObjectResolver) {
 #else
         /// <inheritdoc/>
-        void INavNode.SetParent(INavNode parent) {
+        void INavNode.SetParent(int nodeId, INavNode parent) {
 #endif
+            _nodeId = nodeId;
+            
+            if (_parent is NavNode prevParentNode) {
+                prevParentNode._children.Remove(this);
+            }
+
             _parent = parent;
+            if (_parent is NavNode parentNode) {
+                parentNode._children.Add(this);
+            }
+            
 #if USE_VCONTAINER
             if (parentObjectResolver != null) {
                 ObjectResolver = parentObjectResolver.CreateScope(Configure);

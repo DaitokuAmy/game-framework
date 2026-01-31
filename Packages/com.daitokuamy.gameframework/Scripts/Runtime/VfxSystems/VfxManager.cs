@@ -508,47 +508,6 @@ namespace GameFramework.VfxSystems {
 
             // Pool生成
             _objectPool = new KeyedObjectPool<GameObject, ObjectInfo>(prefab => {
-                // 中身の生成
-                void CreateContent(ObjectInfo objectInfo) {
-                    if (objectInfo == null || objectInfo.Prefab == null) {
-                        return;
-                    }
-
-                    var instance = Object.Instantiate(objectInfo.Prefab, _rootTransform);
-                    var foundComponents = instance.GetComponentsInChildren<IVfxComponent>(true);
-                    _workParticleSystems.Clear();
-                    FindRootParticleSystems(instance.transform, _workParticleSystems);
-                    var vfxComponents = new List<IVfxComponent>(foundComponents.Length + _workParticleSystems.Count);
-                    for (var i = 0; i < foundComponents.Length; ++i) {
-                        vfxComponents.Add(foundComponents[i]);
-                    }
-
-                    for (var i = 0; i < _workParticleSystems.Count; ++i) {
-                        vfxComponents.Add(new ParticleSystemVfxComponent(_workParticleSystems[i]));
-                    }
-
-                    instance.SetActive(false);
-
-                    // Componentを一度停止状態にしておく
-                    foreach (var component in vfxComponents) {
-                        component.StopImmediate();
-                    }
-
-                    objectInfo.Root = instance;
-                    objectInfo.Components = vfxComponents.ToArray();
-                }
-
-                // 中身の削除
-                void DestroyContent(ObjectInfo objectInfo) {
-                    if (objectInfo == null || objectInfo.Root == null) {
-                        return;
-                    }
-
-                    Object.Destroy(objectInfo.Root);
-                    objectInfo.Root = null;
-                    objectInfo.Components = null;
-                }
-
                 var pool = new ObjectPool<ObjectInfo, GameObject>(prefab, pfb => {
                         var objectInfo = new ObjectInfo();
                         objectInfo.Prefab = pfb;

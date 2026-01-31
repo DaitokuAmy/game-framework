@@ -1,10 +1,8 @@
-using System;
-
 namespace GameFramework.NavigationSystems {
     /// <summary>
     /// NavNode遷移に使うツリー
     /// </summary>
-    public sealed class NavNodeTreeRouter : StateTreeRouter<Type, INavNode, NavNodeTree.TransitionOption>, INavNodeStateRouter {
+    public sealed class NavNodeTreeRouter : StateTreeRouter<int, INavNode, NavNodeTree.TransitionOption>, INavNodeStateRouter {
         /// <summary>
         /// コンストラクタ
         /// </summary>

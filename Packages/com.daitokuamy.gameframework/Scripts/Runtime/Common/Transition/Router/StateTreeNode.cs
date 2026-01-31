@@ -6,8 +6,7 @@ namespace GameFramework {
     /// <summary>
     /// ステート遷移情報格納用ツリー用ノード
     /// </summary>
-    public class StateTreeNode<TKey> : IDisposable
-        where TKey : class {
+    public class StateTreeNode<TKey> : IDisposable {
         /// <summary>
         /// 遷移情報
         /// </summary>

@@ -25,7 +25,7 @@ namespace SampleGame.Lifecycle {
         /// スタート時の引数
         /// </summary>
         public struct StartArgs {
-            public Type NavNodeType;
+            public int NodeId;
             public Action<INavNode> SetupAction;
         }
 
@@ -33,7 +33,7 @@ namespace SampleGame.Lifecycle {
         /// リブート時の引数
         /// </summary>
         public struct RebootArgs {
-            public Type NavNodeType;
+            public int NodeId;
             public Action<INavNode> SetupAction;
         }
 
@@ -101,7 +101,7 @@ namespace SampleGame.Lifecycle {
             SetupDebug();
 
             // 開始Nodeへの遷移
-            _globalResolver.Resolve<IAppNavigator>().TransitionTo(startArgs.NavNodeType, false, startArgs.SetupAction);
+            _globalResolver.Resolve<IAppNavigator>().TransitionTo(startArgs.NodeId, false, startArgs.SetupAction);
         }
 
         /// <inheritdoc/>
@@ -109,7 +109,7 @@ namespace SampleGame.Lifecycle {
             var rebootArgs = ParseRebootArgs(args);
 
             // 開始Nodeにリセット遷移
-            _globalResolver.Resolve<IAppNavigator>().TransitionTo(rebootArgs.NavNodeType, true, rebootArgs.SetupAction);
+            _globalResolver.Resolve<IAppNavigator>().TransitionTo(rebootArgs.NodeId, true, rebootArgs.SetupAction);
 
             yield break;
         }
@@ -123,7 +123,7 @@ namespace SampleGame.Lifecycle {
                 startArgs = (StartArgs)args[0];
             }
             else {
-                startArgs.NavNodeType = typeof(TitleTopScreenNode);
+                startArgs.NodeId = AppNavigator.Id.TitleTop;
                 startArgs.SetupAction = null;
             }
 
@@ -139,7 +139,7 @@ namespace SampleGame.Lifecycle {
                 rebootArgs = (RebootArgs)args[0];
             }
             else {
-                rebootArgs.NavNodeType = typeof(TitleTopScreenNode);
+                rebootArgs.NodeId = AppNavigator.Id.TitleTop;
                 rebootArgs.SetupAction = null;
             }
 

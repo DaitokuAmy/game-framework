@@ -9,13 +9,13 @@ namespace SampleGame.Lifecycle {
         /// <inheritdoc/>
         async UniTask IAppNavigator.TransitionToTitleTop() {
             var (transition, effects) = GetDefaultTransitionInfo<IntroductionSessionNode>();
-            await _engine.TransitionTo<TitleTopScreenNode>(transition, effects);
+            await _engine.TransitionTo(Id.TitleTop, transition, effects);
         }
         
         /// <inheritdoc/>
         async UniTask IAppNavigator.TransitionToTitleOption() {
             var (transition, effects) = GetDefaultTransitionInfo<IntroductionSessionNode>();
-            await _engine.TransitionTo<TitleOptionScreenNode>(transition, effects);
+            await _engine.TransitionTo(Id.TitleOption, transition, effects);
         }
     }
 }

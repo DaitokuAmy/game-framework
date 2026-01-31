@@ -34,9 +34,9 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        TransitionHandle<INavNode> IAppNavigator.TransitionTo(Type nodeType, bool refresh, Action<INavNode> setupAction) {
-            var (transition, effects) = GetDefaultTransitionInfo(nodeType);
-            return _engine.TransitionTo(nodeType, new NavNodeTree.TransitionOption { Refresh = refresh, }, setupAction, transition, effects);
+        TransitionHandle<INavNode> IAppNavigator.TransitionTo(int nodeId, bool refresh, Action<INavNode> setupAction) {
+            var (transition, effects) = GetDefaultTransitionInfo(nodeId);
+            return _engine.TransitionTo(nodeId, new NavNodeTree.TransitionOption(refresh), setupAction, transition, effects);
         }
 
         /// <inheritdoc/>
@@ -60,37 +60,38 @@ namespace SampleGame.Lifecycle {
 
             _scope = new DisposableScope();
             _engine = NavigationEngineBuilder.Create()
-                .CreateLifecycle(new RootNode(), root => {
+                .CreateLifecycle<RootNode>(Id.Root, root => {
                     root
-                        .AddSession(new IntroductionSessionNode(), introduction => {
-                            introduction.AddScreen(new TitleTopScreenNode())
-                                .AddScreen(new TitleOptionScreenNode());
+                        .AddSession<IntroductionSessionNode>(Id.Introduction, introduction => {
+                            introduction.AddScreen<TitleTopScreenNode>(Id.TitleTop)
+                                .AddScreen<TitleOptionScreenNode>(Id.TitleOption);
                         })
-                        .AddSession(new OutGameSessionNode(), outGame => {
-                            outGame.AddScreen(new SortieScreenNode(), sortie => {
-                                sortie.AddScreen(new SortieTopScreenNode())
-                                    .AddScreen(new SortieRoleSelectScreenNode(), sortieRoleSelect => {
-                                        sortieRoleSelect.AddScreen(new SortieRoleInformationScreenNode());
+                        .AddSession<OutGameSessionNode>(Id.OutGame, outGame => {
+                            outGame.AddScreen<SortieScreenNode>(Id.Sortie, sortie => {
+                                sortie.AddScreen<SortieTopScreenNode>(Id.SortieTop)
+                                    .AddScreen<SortieRoleSelectScreenNode>(Id.SortieRoleSelectTop, sortieRoleSelect => {
+                                        sortieRoleSelect.AddScreen<SortieRoleInformationScreenNode>(Id.SortieRoleInformation);
                                     })
-                                    .AddScreen(new SortieMissionSelectScreenNode(), sortieMissionSelect => {
-                                        sortieMissionSelect.AddScreen(new SortieDifficultySelectScreenNode());
+                                    .AddScreen<SortieMissionSelectScreenNode>(Id.SortieMissionSelect, sortieMissionSelect => {
+                                        sortieMissionSelect.AddScreen<SortieDifficultySelectScreenNode>(Id.SortieDifficultySelect);
                                     });
                             });
                         });
                 })
                 .CreateRouter(container => {
                     return NavNodeTreeRouterBuilder.Create()
-                        .AddRoot<TitleTopScreenNode>(titleTop => {
-                            titleTop.Connect<TitleOptionScreenNode>()
-                                .Connect<SortieTopScreenNode>(sortieTop => {
-                                    sortieTop.Connect<SortieRoleSelectScreenNode>(sortieRoleSelect => {
-                                            sortieRoleSelect.Connect<SortieRoleInformationScreenNode>();
+                        .AddRoot(Id.TitleTop, titleTop => {
+                            titleTop.Connect(Id.TitleOption)
+                                .Connect(Id.SortieTop, sortieTop => {
+                                    sortieTop.Connect(Id.SortieRoleSelectTop, sortieRoleSelect => {
+                                            sortieRoleSelect.Connect(Id.SortieRoleInformation);
                                         })
-                                        .Connect<SortieMissionSelectScreenNode>(sortieMissionSelect => {
-                                            sortieMissionSelect.Connect<SortieDifficultySelectScreenNode>(sortieDifficultySelect => {
-                                                //sortieDifficultySelect.Connect<BattleHudScreenNode>();
+                                        .Connect(Id.SortieMissionSelect, sortieMissionSelect => {
+                                            sortieMissionSelect.Connect(Id.SortieDifficultySelect, sortieDifficultySelect => {
+                                                //sortieDifficultySelect.Connect(Id.BattleHud);
                                             });
-                                        });
+                                        })
+                                        .SetGlobalShortcut();
                                 })
                                 .SetGlobalShortcut();
                         })
@@ -105,13 +106,13 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// デフォルトの遷移情報取得
         /// </summary>
-        private (ITransition ITransition, ITransitionEffect[]) GetDefaultTransitionInfo(Type nodeType) {
+        private (ITransition ITransition, ITransitionEffect[]) GetDefaultTransitionInfo(int nodeId) {
             var transition = CrossTransition;
             var effects = Array.Empty<ITransitionEffect>();
 
             // SessionNodeに差があるか
             var currentSessionNode = _engine.GetNodeInParent<SessionNode>();
-            var nextSessionNode = _engine.GetNodeInParent<SessionNode>(nodeType);
+            var nextSessionNode = _engine.GetNodeInParent<SessionNode>(nodeId);
             if (currentSessionNode != nextSessionNode) {
                 // OutInTransition, LoadingEffectsにする
                 transition = OutInTransition;
