@@ -1,5 +1,5 @@
 using System.Linq;
-using GameFramework.Core;
+using GameFramework;
 using GameFramework.DebugSystems.Editor;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;

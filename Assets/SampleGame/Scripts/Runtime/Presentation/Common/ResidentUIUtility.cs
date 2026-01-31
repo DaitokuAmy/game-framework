@@ -1,5 +1,5 @@
-using GameFramework.Core;
-using GameFramework.UISystems;
+using GameFramework;
+using GameFramework.UISystem;
 using R3;
 using ThirdPersonEngine;
 using UnityEngine;

@@ -1,8 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using ActionSequencer;
-using GameFramework.ActorSystems;
-using GameFramework.PlayableSystems;
+using GameFramework.ActorSystem;
+using GameFramework.PlayableSystem;
 using ThirdPersonEngine;
 
 namespace ThirdPersonEngine {

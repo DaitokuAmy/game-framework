@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using GameFramework;
-using GameFramework.UISystems;
+using GameFramework.UISystem;
 using TMPro;
 using UnityEngine;
 

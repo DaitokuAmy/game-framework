@@ -1,6 +1,6 @@
 using System;
 using ActionSequencer;
-using GameFramework.CameraSystems;
+using GameFramework.CameraSystem;
 using Unity.Cinemachine;
 using UnityEngine;
 

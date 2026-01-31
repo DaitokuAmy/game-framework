@@ -1,5 +1,5 @@
 using System;
-using GameFramework.NavigationSystems;
+using GameFramework.NavigationSystem;
 
 namespace SampleGame.Lifecycle {
     /// <summary>

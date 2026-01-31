@@ -1,7 +1,7 @@
 using System.Collections;
 using ActionSequencer;
-using GameFramework.ActorSystems;
-using GameFramework.PlayableSystems;
+using GameFramework.ActorSystem;
+using GameFramework.PlayableSystem;
 using ThirdPersonEngine;
 using UnityEngine.Playables;
 

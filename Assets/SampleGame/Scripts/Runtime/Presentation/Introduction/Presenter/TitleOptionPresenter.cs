@@ -1,5 +1,5 @@
 using GameFramework;
-using GameFramework.Core;
+using GameFramework;
 using SampleGame.Application;
 using R3;
 using SampleGame.Presentation.Introduction;

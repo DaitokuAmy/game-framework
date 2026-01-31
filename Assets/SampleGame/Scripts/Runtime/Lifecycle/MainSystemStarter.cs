@@ -1,12 +1,12 @@
 using System;
-using GameFramework.NavigationSystems;
+using GameFramework.NavigationSystem;
 using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// メインシステム起動用のStarter基底
     /// </summary>
-    public abstract class MainSystemStarter : GameFramework.BootSystems.MainSystemStarter {
+    public abstract class MainSystemStarter : GameFramework.BootSystem.MainSystemStarter {
         /// <summary>MainSystem開始引数の取得</summary>
         public sealed override object[] GetArguments() => new object[] { CreateStartArgs() };
         

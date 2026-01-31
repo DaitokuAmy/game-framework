@@ -1,7 +1,7 @@
 using System;
 using GameFramework;
-using GameFramework.Core;
-using GameFramework.NavigationSystems;
+using GameFramework;
+using GameFramework.NavigationSystem;
 using SampleGame.Application;
 using SampleGame.Presentation;
 using UnityEngine;

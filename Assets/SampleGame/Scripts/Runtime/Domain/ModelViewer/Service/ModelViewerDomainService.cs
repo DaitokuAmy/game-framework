@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.Core;
+using GameFramework;
 using VContainer;
 
 namespace SampleGame.Domain.ModelViewer {

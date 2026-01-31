@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.Core;
+using GameFramework;
 using SampleGame.Domain.ModelViewer;
 using ThirdPersonEngine;
 using VContainer;

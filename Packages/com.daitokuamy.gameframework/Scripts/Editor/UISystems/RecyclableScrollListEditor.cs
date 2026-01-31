@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GameFramework.UISystems.Editor {
+namespace GameFramework.UISystem.Editor {
     /// <summary>
     /// RecyclableScrollListのエディタ拡張
     /// </summary>

@@ -1,4 +1,4 @@
-using GameFramework.Core;
+using GameFramework;
 using R3;
 using GameFramework;
 

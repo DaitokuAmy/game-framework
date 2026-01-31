@@ -1,14 +1,14 @@
 using System.Collections;
 using GameFramework;
-using GameFramework.Core;
-using GameFramework.NavigationSystems;
+using GameFramework;
+using GameFramework.NavigationSystem;
 using UnityEngine;
 
 namespace SampleGame.Lifecycle {
     /// <summary>
     /// RootNode
     /// </summary>
-    public class RootNode : GameFramework.NavigationSystems.RootNode {
+    public class RootNode : GameFramework.NavigationSystem.RootNode {
         /// <inheritdoc/>
         protected override IEnumerator InitializeRoutine(TransitionHandle<INavNode> handle, IScope scope) {
             yield return base.InitializeRoutine(handle, scope);

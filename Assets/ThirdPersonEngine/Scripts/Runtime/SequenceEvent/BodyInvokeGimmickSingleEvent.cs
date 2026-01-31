@@ -1,4 +1,4 @@
-using GameFramework.GimmickSystems;
+using GameFramework.GimmickSystem;
 
 namespace ThirdPersonEngine {
     /// <summary>

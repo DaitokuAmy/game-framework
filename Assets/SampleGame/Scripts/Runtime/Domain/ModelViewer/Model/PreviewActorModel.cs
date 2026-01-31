@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using GameFramework.Core;
+using GameFramework;
 using Unity.Mathematics;
 
 namespace SampleGame.Domain.ModelViewer {

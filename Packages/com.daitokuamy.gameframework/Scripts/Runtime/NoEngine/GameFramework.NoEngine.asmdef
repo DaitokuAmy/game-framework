@@ -1,0 +1,35 @@
+{
+    "name": "GameFramework.NoEngine",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:b0214a6008ed146ff8f122a6a9c2f6cc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "R3.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.cysharp.r3",
+            "expression": "",
+            "define": "USE_R3"
+        },
+        {
+            "name": "com.cysharp.unitask",
+            "expression": "",
+            "define": "USE_UNI_TASK"
+        },
+        {
+            "name": "jp.hadashikick.vcontainer",
+            "expression": "",
+            "define": "USE_VCONTAINER"
+        }
+    ],
+    "noEngineReferences": true
+}

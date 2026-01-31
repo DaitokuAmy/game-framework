@@ -1,7 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.Core;
-using GameFramework.UISystems;
+using GameFramework;
+using GameFramework.UISystem;
 
 namespace SampleGame.Presentation {
     /// <summary>

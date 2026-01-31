@@ -1,11 +1,11 @@
 using System.Linq;
-using GameFramework.EnvironmentSystems;
+using GameFramework.EnvironmentSystem;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using RenderSettings = UnityEngine.RenderSettings;
 
-namespace GameFramework.EnvironmentSystems.Editor {
+namespace GameFramework.EnvironmentSystem.Editor {
     /// <summary>
     /// 環境設定のPropertyDrawer
     /// </summary>

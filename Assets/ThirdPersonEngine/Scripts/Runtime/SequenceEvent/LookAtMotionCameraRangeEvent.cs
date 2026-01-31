@@ -1,8 +1,8 @@
 using System;
 using ActionSequencer;
 using Unity.Cinemachine;
-using GameFramework.CameraSystems;
-using GameFramework.Core;
+using GameFramework.CameraSystem;
+using GameFramework;
 using UnityEngine;
 
 namespace ThirdPersonEngine {

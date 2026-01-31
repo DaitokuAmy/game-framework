@@ -8,7 +8,7 @@ using UnityEditorInternal;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace GameFramework.GimmickSystems.Editor {
+namespace GameFramework.GimmickSystem.Editor {
     /// <summary>
     /// GimmickPartsのエディタ拡張
     /// </summary>

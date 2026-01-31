@@ -2,7 +2,7 @@ using System.Collections;
 using System.Threading;
 using ActionSequencer;
 using Cysharp.Threading.Tasks;
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystem;
 using GameFramework;
 
 namespace ThirdPersonEngine {

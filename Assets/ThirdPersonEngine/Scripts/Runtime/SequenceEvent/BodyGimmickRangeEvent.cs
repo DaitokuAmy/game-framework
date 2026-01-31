@@ -1,6 +1,6 @@
 using ActionSequencer;
-using GameFramework.GimmickSystems;
-using GameFramework.ActorSystems;
+using GameFramework.GimmickSystem;
+using GameFramework.ActorSystem;
 using UnityEngine;
 
 namespace ThirdPersonEngine {

@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystem;
 using UnityEngine.Serialization;
 
 namespace ThirdPersonEngine {

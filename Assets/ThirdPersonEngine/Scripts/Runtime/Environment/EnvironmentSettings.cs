@@ -1,4 +1,4 @@
-using GameFramework.EnvironmentSystems;
+using GameFramework.EnvironmentSystem;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;

@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using GameFramework;
-using GameFramework.ActorSystems;
-using GameFramework.Core;
-using GameFramework.PlayableSystems;
+using GameFramework.ActorSystem;
+using GameFramework;
+using GameFramework.PlayableSystem;
 using GluonGui.WorkspaceWindow.Views;
 using UnityEngine;
 

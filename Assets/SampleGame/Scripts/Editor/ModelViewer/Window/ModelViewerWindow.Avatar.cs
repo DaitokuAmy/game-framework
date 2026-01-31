@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.ActorSystems;
-using GameFramework.Core;
+using GameFramework.ActorSystem;
+using GameFramework;
 using GameFramework.DebugSystems.Editor;
 using R3;
 using SampleGame.Application.ModelViewer;

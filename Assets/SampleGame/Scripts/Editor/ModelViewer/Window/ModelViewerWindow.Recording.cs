@@ -1,4 +1,4 @@
-using GameFramework.CameraSystems;
+using GameFramework.CameraSystem;
 using SampleGame.Application.ModelViewer;
 using ThirdPersonEngine;
 using Unity.Cinemachine;

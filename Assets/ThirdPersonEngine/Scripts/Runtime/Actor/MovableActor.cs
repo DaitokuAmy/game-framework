@@ -1,4 +1,4 @@
-using GameFramework.ActorSystems;
+using GameFramework.ActorSystem;
 using UnityEngine;
 
 namespace ThirdPersonEngine {

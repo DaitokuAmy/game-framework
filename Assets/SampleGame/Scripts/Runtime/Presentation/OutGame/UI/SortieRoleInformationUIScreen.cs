@@ -1,4 +1,4 @@
-using GameFramework.UISystems;
+using GameFramework.UISystem;
 
 namespace SampleGame.Presentation.OutGame {
     /// <summary>

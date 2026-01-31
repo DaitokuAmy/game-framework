@@ -1,5 +1,5 @@
 using System.Collections;
-using GameFramework.VfxSystems;
+using GameFramework.VfxSystem;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;

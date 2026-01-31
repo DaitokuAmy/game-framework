@@ -1,6 +1,6 @@
 using GameFramework;
-using GameFramework.Core;
-using GameFramework.UISystems;
+using GameFramework;
+using GameFramework.UISystem;
 using UnityEngine;
 
 namespace ThirdPersonEngine {

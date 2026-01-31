@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GameFramework.VfxSystems.Editor {
+namespace GameFramework.VfxSystem.Editor {
     /// <summary>
     /// VfxManagerDispatcherのEditor拡張
     /// </summary>

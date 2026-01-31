@@ -1,5 +1,5 @@
 using System.Linq;
-using GameFramework.UISystems;
+using GameFramework.UISystem;
 using UnityDebugMenu;
 using UnityEngine;
 using VContainer;

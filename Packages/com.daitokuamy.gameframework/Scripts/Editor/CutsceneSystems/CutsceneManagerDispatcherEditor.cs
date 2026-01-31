@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GameFramework.CutsceneSystems.Editor {
+namespace GameFramework.CutsceneSystem.Editor {
     /// <summary>
     /// CutsceneManagerDispatcherのEditor拡張
     /// </summary>

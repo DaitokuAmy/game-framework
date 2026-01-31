@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using GameFramework.ActorSystems;
-using GameFramework.Core;
+using GameFramework.ActorSystem;
+using GameFramework;
 using UnityEngine;
 
 namespace ThirdPersonEngine {

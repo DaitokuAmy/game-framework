@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.AssetSystems;
-using GameFramework.Core;
+using GameFramework.AssetSystem;
+using GameFramework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -11,7 +11,7 @@ namespace SampleGame.Infrastructure {
     /// <summary>
     /// Sample用のAssetRequest基底
     /// </summary>
-    public abstract class AssetRequest<T> : GameFramework.AssetSystems.AssetRequest<T> where T : Object {
+    public abstract class AssetRequest<T> : GameFramework.AssetSystem.AssetRequest<T> where T : Object {
 #if UNITY_EDITOR
         public override int[] ProviderIndices => new[] { (int)AssetProviderType.AssetDatabase, (int)AssetProviderType.Addressables };
 #else
@@ -48,7 +48,7 @@ namespace SampleGame.Infrastructure {
     /// <summary>
     /// Sample用のSceneAssetRequest基底
     /// </summary>
-    public abstract class SceneAssetRequest : GameFramework.AssetSystems.SceneAssetRequest {
+    public abstract class SceneAssetRequest : GameFramework.AssetSystem.SceneAssetRequest {
         private LoadSceneMode _mode;
         private string _address;
 

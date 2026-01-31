@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using GameFramework.Core;
+using GameFramework;
 using SampleGame.Domain;
 
 namespace SampleGame.Infrastructure {

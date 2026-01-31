@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using GameFramework.Core;
-using GameFramework.ActorSystems;
+using GameFramework;
+using GameFramework.ActorSystem;
 
 namespace ThirdPersonEngine {
     /// <summary>

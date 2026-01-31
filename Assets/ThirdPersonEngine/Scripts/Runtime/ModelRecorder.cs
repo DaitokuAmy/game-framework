@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using GameFramework;
-using GameFramework.Core;
+using GameFramework;
 using UnityEngine;
 
 #if UNITY_EDITOR

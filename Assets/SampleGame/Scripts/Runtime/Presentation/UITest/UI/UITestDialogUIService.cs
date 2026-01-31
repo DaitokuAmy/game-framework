@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.UISystems;
+using GameFramework.UISystem;
 using UnityEngine;
 
 namespace SampleGame.Presentation.UITest {

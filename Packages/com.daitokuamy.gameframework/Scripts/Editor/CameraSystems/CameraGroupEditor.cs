@@ -7,7 +7,7 @@ using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;
 
-namespace GameFramework.CameraSystems.Editor {
+namespace GameFramework.CameraSystem.Editor {
     /// <summary>
     /// CameraGroupのエディタ拡張
     /// </summary>

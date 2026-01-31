@@ -1,7 +1,7 @@
 using System;
 using GameFramework;
-using GameFramework.Core;
-using GameFramework.NavigationSystems;
+using GameFramework;
+using GameFramework.NavigationSystem;
 
 namespace SampleGame.Application {
     /// <summary>

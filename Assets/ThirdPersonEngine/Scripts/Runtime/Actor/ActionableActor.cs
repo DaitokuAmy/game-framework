@@ -1,6 +1,6 @@
-using GameFramework.ActorSystems;
-using GameFramework.Core;
-using GameFramework.PlayableSystems;
+using GameFramework.ActorSystem;
+using GameFramework;
+using GameFramework.PlayableSystem;
 
 namespace ThirdPersonEngine {
     /// <summary>

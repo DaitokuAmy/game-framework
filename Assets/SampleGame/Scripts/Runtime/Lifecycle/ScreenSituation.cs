@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using GameFramework;
-using GameFramework.Core;
-using GameFramework.NavigationSystems;
-using GameFramework.UISystems;
+using GameFramework;
+using GameFramework.NavigationSystem;
+using GameFramework.UISystem;
 using SampleGame.Application;
 using VContainer;
 

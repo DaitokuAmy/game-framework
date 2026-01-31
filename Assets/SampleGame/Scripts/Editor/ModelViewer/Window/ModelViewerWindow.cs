@@ -1,4 +1,4 @@
-using GameFramework.Core;
+using GameFramework;
 using GameFramework.DebugSystems.Editor;
 using SampleGame.Lifecycle;
 using UnityEditor;

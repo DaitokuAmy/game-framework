@@ -3,9 +3,9 @@ using System.Collections;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.ActorSystems;
-using GameFramework.Core;
-using GameFramework.PlayableSystems;
+using GameFramework.ActorSystem;
+using GameFramework;
+using GameFramework.PlayableSystem;
 using UnityEngine;
 using UnityEngine.Animations;
 

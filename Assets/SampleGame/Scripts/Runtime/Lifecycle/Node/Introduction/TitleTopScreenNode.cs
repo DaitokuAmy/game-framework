@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using GameFramework.UISystems;
+using GameFramework.UISystem;
 using SampleGame.Presentation.Introduction;
 
 namespace SampleGame.Lifecycle {

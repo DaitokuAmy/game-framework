@@ -1,6 +1,6 @@
 using System.Linq;
-using GameFramework.ActorSystems;
-using GameFramework.Core;
+using GameFramework.ActorSystem;
+using GameFramework;
 using GameFramework.DebugSystems.Editor;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;

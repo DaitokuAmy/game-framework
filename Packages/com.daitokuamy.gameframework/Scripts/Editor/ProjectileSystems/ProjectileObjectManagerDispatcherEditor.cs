@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GameFramework.ProjectileSystems.Editor {
+namespace GameFramework.ProjectileSystem.Editor {
     /// <summary>
     /// ProjectileObjectManagerDispatcherのEditor拡張
     /// </summary>

@@ -1,7 +1,7 @@
 using ActionSequencer;
-using GameFramework.ActorSystems;
-using GameFramework.CameraSystems;
-using GameFramework.VfxSystems;
+using GameFramework.ActorSystem;
+using GameFramework.CameraSystem;
+using GameFramework.VfxSystem;
 
 namespace ThirdPersonEngine {
     /// <summary>

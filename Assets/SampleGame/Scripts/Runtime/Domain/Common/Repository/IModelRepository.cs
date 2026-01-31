@@ -1,4 +1,4 @@
-using GameFramework.Core;
+using GameFramework;
 
 namespace SampleGame.Domain {
     /// <summary>

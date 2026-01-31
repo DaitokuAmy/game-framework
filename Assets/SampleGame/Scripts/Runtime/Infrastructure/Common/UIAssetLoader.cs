@@ -1,5 +1,5 @@
-using GameFramework.AssetSystems;
-using GameFramework.UISystems;
+using GameFramework.AssetSystem;
+using GameFramework.UISystem;
 using UnityEngine;
 
 namespace SampleGame.Infrastructure {

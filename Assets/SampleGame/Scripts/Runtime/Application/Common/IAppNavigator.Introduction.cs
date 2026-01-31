@@ -1,5 +1,5 @@
 using Cysharp.Threading.Tasks;
-using GameFramework.Core;
+using GameFramework;
 
 namespace SampleGame.Application {
     /// <summary>

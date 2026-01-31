@@ -1,0 +1,29 @@
+using System;
+
+namespace GameFramework {
+    /// <summary>
+    /// 完了通知付き、一連の処理を表すインターフェース
+    /// </summary>
+    public interface IEventProcess : IProcess {
+        /// <summary>終了通知</summary>
+        event Action ExitEvent;
+
+        /// <summary>
+        /// Awaiterの実装
+        /// </summary>
+        EventProcessAwaiter GetAwaiter();
+    }
+    
+    /// <summary>
+    /// 完了通知付き、一連の処理を表すインターフェース
+    /// </summary>
+    public interface IEventProcess<T> : IProcess<T> {
+        /// <summary>終了通知</summary>
+        event Action<T> ExitEvent;
+
+        /// <summary>
+        /// Awaiterの実装
+        /// </summary>
+        EventProcessAwaiter<T> GetAwaiter();
+    }
+}

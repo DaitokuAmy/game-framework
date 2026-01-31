@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace GameFramework.UISystems.Editor {
+namespace GameFramework.UISystem.Editor {
     /// <summary>
     /// ComponentSelectorAttribute用のインスペクタ拡張
     /// </summary>

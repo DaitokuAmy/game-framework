@@ -2,8 +2,8 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
-using GameFramework.AssetSystems;
-using GameFramework.Core;
+using GameFramework.AssetSystem;
+using GameFramework;
 using ThirdPersonEngine;
 using VContainer;
 

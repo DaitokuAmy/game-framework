@@ -1,6 +1,6 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.Core;
+using GameFramework;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>

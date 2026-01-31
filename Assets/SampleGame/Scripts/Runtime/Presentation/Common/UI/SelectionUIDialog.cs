@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using GameFramework;
-using GameFramework.Core;
-using GameFramework.UISystems;
+using GameFramework;
+using GameFramework.UISystem;
 using TMPro;
 using UnityEngine;
 using R3;
