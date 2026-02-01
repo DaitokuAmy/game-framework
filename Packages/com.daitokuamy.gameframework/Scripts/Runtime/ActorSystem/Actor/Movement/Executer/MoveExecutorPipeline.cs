@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace GameFramework.ActorSystem {
@@ -7,22 +6,54 @@ namespace GameFramework.ActorSystem {
     /// </summary>
     internal sealed class MoveExecutorPipeline<TRequest> : IMoveExecutorPipeline
         where TRequest : struct, IMoveRequest {
-        /// <summary>登録されている実行器一覧</summary>
         private readonly List<IMoveExecutor<TRequest>> _executors = new();
-        /// <summary>優先度順にソート済みの実行器配列</summary>
-        private IMoveExecutor<TRequest>[] _sorted = Array.Empty<IMoveExecutor<TRequest>>();
-        /// <summary>ソート状態が古いかどうか</summary>
-        private bool _dirty = true;
 
-        /// <summary>現在実行中の実行器</summary>
+        private bool _dirty = true;
         private IMoveExecutor<TRequest> _active;
-        /// <summary>現在実行中実行器のインデックス</summary>
         private int _activeIndex;
-        /// <summary>最後に開始したリクエスト</summary>
         private TRequest _lastRequest;
 
-        /// <summary>現在実行中かどうか</summary>
-        public bool IsRunning => _active != null;
+        /// <inheritdoc/>
+        bool IMoveExecutorPipeline.IsRunning => _active != null;
+
+        /// <inheritdoc/>
+        RunResult IMoveExecutorPipeline.Tick(float deltaTime) {
+            if (_active == null) {
+                return RunResult.Cancelled;
+            }
+
+            var result = _active.Tick(deltaTime);
+            if (result == RunResult.Running) {
+                return result;
+            }
+
+            if (result == RunResult.FailedRecoverable) {
+                _active.Cancel();
+                _active = null;
+                EnsureSorted();
+                for (var i = _activeIndex + 1; i < _executors.Count; i++) {
+                    if (_executors[i].TryStart(in _lastRequest) != StartResult.Accepted) continue;
+                    _active = _executors[i];
+                    _activeIndex = i;
+                    return RunResult.Running;
+                }
+
+                return RunResult.FailedHard;
+            }
+
+            _active = null;
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public void Cancel(bool skip) {
+            if (_active == null) {
+                return;
+            }
+
+            _active.Cancel(skip);
+            _active = null;
+        }
 
         /// <summary>
         /// 実行器を追加する
@@ -39,15 +70,15 @@ namespace GameFramework.ActorSystem {
         /// <param name="request">移動リクエスト</param>
         /// <returns>開始できた場合 true</returns>
         public bool Start(in TRequest request) {
-            Cancel();
+            Cancel(false);
             _lastRequest = request;
             EnsureSorted();
-            for (var i = 0; i < _sorted.Length; i++) {
-                if (_sorted[i].TryStart(in request) != StartResult.Accepted) {
+            for (var i = 0; i < _executors.Count; i++) {
+                if (_executors[i].TryStart(in request) != StartResult.Accepted) {
                     continue;
                 }
 
-                _active = _sorted[i];
+                _active = _executors[i];
                 _activeIndex = i;
                 return true;
             }
@@ -71,57 +102,14 @@ namespace GameFramework.ActorSystem {
         }
 
         /// <summary>
-        /// 実行中処理を進行する
+        /// Executorの並び替え
         /// </summary>
-        /// <param name="deltaTime">前フレームからの経過時間</param>
-        /// <returns>実行結果</returns>
-        public RunResult Tick(float deltaTime) {
-            if (_active == null) {
-                return RunResult.Cancelled;
-            }
-
-            var result = _active.Tick(deltaTime);
-            if (result == RunResult.Running) {
-                return result;
-            }
-
-            if (result == RunResult.FailedRecoverable) {
-                _active.Cancel();
-                _active = null;
-                EnsureSorted();
-                for (var i = _activeIndex + 1; i < _sorted.Length; i++) {
-                    if (_sorted[i].TryStart(in _lastRequest) != StartResult.Accepted) continue;
-                    _active = _sorted[i];
-                    _activeIndex = i;
-                    return RunResult.Running;
-                }
-
-                return RunResult.FailedHard;
-            }
-
-            _active = null;
-            return result;
-        }
-
-        /// <summary>
-        /// 実行中処理をキャンセルする
-        /// </summary>
-        public void Cancel() {
-            if (_active == null) {
-                return;
-            }
-
-            _active.Cancel();
-            _active = null;
-        }
-
         private void EnsureSorted() {
             if (!_dirty) {
                 return;
             }
 
-            _sorted = _executors.ToArray();
-            Array.Sort(_sorted, static (a, b) => b.Priority.CompareTo(a.Priority));
+            _executors.Sort(static (a, b) => a.Priority.CompareTo(b.Priority));
             _dirty = false;
         }
     }

@@ -24,7 +24,7 @@ namespace GameFramework.ProjectileSystem {
         /// 飛翔更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void Update(float deltaTime);
+        void Tick(float deltaTime);
 
         /// <summary>
         /// 飛翔終了処理
@@ -73,8 +73,8 @@ namespace GameFramework.ProjectileSystem {
         /// Projectileの更新
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void IBeamProjectileComponent.Update(float deltaTime) {
-            UpdateInternal(deltaTime);
+        void IBeamProjectileComponent.Tick(float deltaTime) {
+            TickInternal(deltaTime);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace GameFramework.ProjectileSystem {
         /// 飛翔更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        protected virtual void UpdateInternal(float deltaTime) {
+        protected virtual void TickInternal(float deltaTime) {
         }
 
         /// <summary>

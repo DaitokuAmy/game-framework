@@ -14,7 +14,7 @@ namespace GameFramework.ProjectileSystem {
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        bool Update(float deltaTime);
+        bool Tick(float deltaTime);
 
         /// <summary>
         /// 飛翔終了

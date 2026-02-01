@@ -79,8 +79,16 @@ namespace GameFramework.ActorSystem {
         /// <summary>
         /// 移動をキャンセルする
         /// </summary>
-        public void Cancel() {
+        public void Cancel(bool skip) {
             _driver.ResetLocomotion();
+
+            if (skip) {
+                var target = _request.Target.GetWorldPosition();
+                var pos = _movable.Position;
+                var delta = target - pos;
+                _movable.ApplyMove(delta, true);
+            }
+            
             _running = false;
         }
     }

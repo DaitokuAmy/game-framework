@@ -1,0 +1,81 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b39965bc4c6d0148b081752a2ec402d, type: 3}
+  m_Name: ActionSequencerSettings
+  m_EditorClassIdentifier: ActionSequencer::ActionSequencer.ActionSequencerSettings
+  _sequenceEventTypeInfos:
+  - fullName: SampleGameEngine.BodyActiveGimmickRangeEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30AF\u30C6\u30A3\u30D6"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyActiveGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30AF\u30C6\u30A3\u30D6"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyAnimationGimmickRangeEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30CB\u30E1\u30FC\u30B7\u30E7\u30F3"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyAnimationGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30A2\u30CB\u30E1\u30FC\u30B7\u30E7\u30F3"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyColorChangeGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u8272\u5909\u66F4"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyEffectRangeEvent
+    label: "Body/\u30A8\u30D5\u30A7\u30AF\u30C8"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyEffectSignalEvent
+    label: "Body/\u30A8\u30D5\u30A7\u30AF\u30C8"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyFloatChangeGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u5024\u5909\u66F4"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyHdrColorChangeGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u8272\u5909\u66F4(HDR)"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyInvokeGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u767A\u706B"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyStateGimmickRangeEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30B9\u30C6\u30FC\u30C8\u5909\u66F4"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyStateGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30B9\u30C6\u30FC\u30C8\u5909\u66F4"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.BodyVectorChangeGimmickSingleEvent
+    label: "Body/\u30AE\u30DF\u30C3\u30AF/\u30D9\u30AF\u30C8\u30EB\u5909\u66F4"
+    color: {r: 0.25, g: 0.5, b: 0.45901638, a: 1}
+  - fullName: SampleGameEngine.CameraRangeEvent
+    label: "Camera/\u5909\u66F4"
+    color: {r: 0.99333334, g: 1, b: 0.6, a: 1}
+  - fullName: SampleGameEngine.LookAtMotionCameraRangeEvent
+    label: "Camera/\u5909\u66F4(LookAtMotion)"
+    color: {r: 0.99333334, g: 1, b: 0.6, a: 1}
+  - fullName: SampleGameEngine.MotionCameraRangeEvent
+    label: "Camera/\u5909\u66F4(Motion)"
+    color: {r: 0.99333334, g: 1, b: 0.6, a: 1}
+  - fullName: SampleGameEngine.SplineCameraRangeEvent
+    label: "Camera/\u5909\u66F4(Spline)"
+    color: {r: 0.99333334, g: 1, b: 0.6, a: 1}
+  - fullName: SampleGameEngine.GravityScaleRangeEvent
+    label: "\u30AD\u30E3\u30E9/\u91CD\u529B\u4FC2\u6570"
+    color: {r: 1, g: 0.6098693, b: 0.5019608, a: 1}
+  - fullName: SampleGameEngine.AttackRangeSequenceEvent
+    label: "\u30AD\u30E3\u30E9/\u653B\u6483"
+    color: {r: 1, g: 0.6098693, b: 0.5019608, a: 1}
+  - fullName: SampleGameEngine.CombableRangeSequenceEvent
+    label: "\u30AD\u30E3\u30E9/\u30B3\u30F3\u30DC\u53EF\u80FD"
+    color: {r: 1, g: 0.6098693, b: 0.5019608, a: 1}
+  - fullName: SampleGameEngine.RepeatSequenceClipRangeEvent
+    label: "\u6C4E\u7528/\u30EA\u30D4\u30FC\u30C8"
+    color: {r: 0.58431375, g: 0.5019608, b: 1, a: 1}
+  - fullName: SampleGameEngine.LogRangeSequenceEvent
+    label: "\u6C4E\u7528/\u30ED\u30B0"
+    color: {r: 0.58431375, g: 0.5019608, b: 1, a: 1}

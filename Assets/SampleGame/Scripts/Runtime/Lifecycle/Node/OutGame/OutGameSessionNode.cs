@@ -10,7 +10,7 @@ using GameFramework.UISystem;
 using SampleGame.Domain;
 using SampleGame.Infrastructure;
 using SampleGame.Presentation.OutGame;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using VContainer;
 
 namespace SampleGame.Lifecycle {

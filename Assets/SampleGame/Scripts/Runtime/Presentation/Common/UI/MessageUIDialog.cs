@@ -1,10 +1,9 @@
 using GameFramework;
-using GameFramework;
 using GameFramework.UISystem;
 using TMPro;
 using UnityEngine;
 using R3;
-using ThirdPersonEngine;
+using SampleGameEngine;
 
 namespace SampleGame.Presentation {
     /// <summary>

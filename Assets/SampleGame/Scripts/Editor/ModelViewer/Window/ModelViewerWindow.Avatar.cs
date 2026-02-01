@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using GameFramework.ActorSystem;
 using GameFramework;
-using GameFramework.DebugSystems.Editor;
+using GameFramework.DebugSystem.Editor;
 using R3;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain.ModelViewer;
-using ThirdPersonEngine.ModelViewer;
+using SampleGameEngine.ModelViewer;
 using UnityEngine;
 using VContainer;
 

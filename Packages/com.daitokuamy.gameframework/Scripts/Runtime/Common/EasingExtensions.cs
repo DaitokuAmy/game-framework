@@ -1,5 +1,4 @@
 using UnityEngine;
-using GameFramework.Core;
 
 namespace GameFramework {
     /// <summary>

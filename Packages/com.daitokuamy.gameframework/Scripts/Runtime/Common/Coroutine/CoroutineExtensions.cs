@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using UnityEngine;
-using GameFramework.Core;
 
 #if USE_R3
 using R3;

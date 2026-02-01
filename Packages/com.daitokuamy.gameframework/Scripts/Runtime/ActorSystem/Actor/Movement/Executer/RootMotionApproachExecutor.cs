@@ -75,8 +75,16 @@ namespace GameFramework.ActorSystem {
         }
 
         /// <inheritdoc/>
-        public void Cancel() {
+        public void Cancel(bool skip) {
             _driver.ResetLocomotion();
+
+            if (skip) {
+                var target = _request.Target.GetWorldPosition();
+                var position = _movable.Position;
+                var delta = target - position;
+                _movable.ApplyMove(delta, true);
+            }
+            
             _running = false;
         }
     }

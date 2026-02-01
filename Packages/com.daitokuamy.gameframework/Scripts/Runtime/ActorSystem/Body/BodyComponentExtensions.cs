@@ -32,6 +32,13 @@ namespace GameFramework.ActorSystem {
         }
 
         /// <summary>
+        /// Playableの設定
+        /// </summary>
+        public static void Change(this MotionComponent source, Playable playable, float blendDuration) {
+            source.Handle.Change(playable, blendDuration, false);
+        }
+
+        /// <summary>
         /// ActiveGimmickを取得
         /// </summary>
         /// <param name="source">操作対象</param>

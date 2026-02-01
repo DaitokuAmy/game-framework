@@ -1,6 +1,6 @@
 using GameFramework.CameraSystem;
 using SampleGame.Application.ModelViewer;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using Unity.Cinemachine;
 using UnityEditor;
 using UnityEngine;

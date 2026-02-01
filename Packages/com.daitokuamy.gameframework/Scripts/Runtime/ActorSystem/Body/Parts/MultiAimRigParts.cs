@@ -5,7 +5,7 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// AimRigLayer制御用パーツ
     /// </summary>
-    public class MultiAimRigParts : RigParts {
+    public sealed class MultiAimRigParts : RigParts {
         [SerializeField, Tooltip("ターゲットにするGameObjectのリスト")]
         private GameObject[] _sourceObjects;
 

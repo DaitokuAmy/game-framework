@@ -15,13 +15,48 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 8def2611f049b7145a6b63603d6050eb
   m_SerializeEntries:
-  - m_GUID: a48447a7ca18c0f4f8b3f69e615da327
-    m_Address: Assets/SampleGame/ActorAssets/BattleCharacter/ch001/Data/dat_battle_character_actor_setup_ch001_00.asset
+  - m_GUID: 0dcb9b1a4603b8f4ba38d55dc7da2f35
+    m_Address: Assets/SampleGameAssets/Environment/Field/fld001/scn_env_fld001.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4985ceaeef1ca9749996182597c668db
+    m_Address: Assets/SampleGameAssets/Actor/Camera/cam001/Prefabs/pfb_act_cam001.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4b4e4e44113f54b4491fe54f22f59382
+    m_Address: Assets/SampleGameAssets/Actor/Character/ch003/Prefabs/pfb_act_ch003_01.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5832e11797321bf4899da456166de77f
+    m_Address: Assets/SampleGameAssets/Actor/Character/ch003/Data/dat_act_ch003_00.asset
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 78fc67f9313ef4463abf3c4b748c0cb4
+    m_Address: Assets/SampleGameAssets/Environment/Field/fld002/scn_env_fld002.unity
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 84ecdb1dee48a21479545ef5e400775b
+    m_Address: Assets/SampleGameAssets/Environment/Field/fld000/scn_env_fld000.unity
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e90cc77ab40acd7449c212852d734a25
-    m_Address: Assets/SampleGame/BodyAssets/Character/ch001/prfb_ch001_00.prefab
+    m_Address: Assets/SampleGameAssets/Actor/Character/ch001/pfb_act_ch001_00.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e9bfbb501ea981a4dbac54f6a62c8051
+    m_Address: Assets/SampleGameAssets/Actor/Character/ch003/Prefabs/pfb_act_ch003_00.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eb9074b43dbef49d2b687af87df71b6c
+    m_Address: Assets/SampleGameAssets/Actor/Character/ch002/pfb_act_ch002_00.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

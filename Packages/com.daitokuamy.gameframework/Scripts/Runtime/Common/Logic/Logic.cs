@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using GameFramework.Core;
 
 namespace GameFramework {
     /// <summary>

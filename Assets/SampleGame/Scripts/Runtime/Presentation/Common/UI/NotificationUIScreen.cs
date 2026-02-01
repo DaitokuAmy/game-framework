@@ -1,7 +1,6 @@
 using GameFramework;
-using GameFramework;
 using GameFramework.UISystem;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using TMPro;
 using UnityEngine;
 

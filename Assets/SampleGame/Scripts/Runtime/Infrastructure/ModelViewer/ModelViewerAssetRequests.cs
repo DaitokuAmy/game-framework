@@ -1,4 +1,4 @@
-using ThirdPersonEngine;
+using SampleGameEngine;
 
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>

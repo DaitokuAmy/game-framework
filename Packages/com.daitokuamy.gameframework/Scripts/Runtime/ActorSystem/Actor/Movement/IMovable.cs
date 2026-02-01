@@ -14,8 +14,8 @@ namespace GameFramework.ActorSystem {
         /// 移動量を適用する
         /// </summary>
         /// <param name="worldDelta">ワールド空間の移動量</param>
-        /// <param name="isWarp">ワープ移動かどうか</param>
-        void ApplyMove(Vector3 worldDelta, bool isWarp = false);
+        /// <param name="warp">ワープ移動かどうか</param>
+        void ApplyMove(Vector3 worldDelta, bool warp = false);
 
         /// <summary>
         /// 回転を適用する

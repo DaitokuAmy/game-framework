@@ -101,7 +101,14 @@ namespace GameFramework.ActorSystem {
         }
 
         /// <inheritdoc/>
-        public void Cancel() {
+        public void Cancel(bool skip) {
+            if (skip) {
+                var target = _request.Target.GetWorldPosition();
+                var position = _movable.Position;
+                var delta = target - position;
+                _movable.ApplyMove(delta, true);
+            }
+            
             _velocity = Vector3.zero;
             _running = false;
         }

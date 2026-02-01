@@ -1,4 +1,3 @@
-using GameFramework.Core;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ namespace GameFramework.Editor {
     /// Permil型用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(Permil))]
-    public class PermilPropertyDrawer : PropertyDrawer {
+    public sealed class PermilPropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>

@@ -20,7 +20,10 @@ namespace GameFramework.ActorSystem {
         /// </summary>
         /// <param name="deltaTime">前フレームからの経過時間</param>
         public void Tick(float deltaTime) {
-            if (_active == null) return;
+            if (_active == null) {
+                return;
+            }
+
             var result = _active.Tick(deltaTime);
             if (result != RunResult.Running) {
                 _active = null;
@@ -31,31 +34,46 @@ namespace GameFramework.ActorSystem {
         /// 現在の移動を停止する
         /// </summary>
         public void Stop() {
-            if (_active == null) return;
+            if (_active == null) {
+                return;
+            }
+
             _active.Cancel();
             _active = null;
         }
 
         /// <summary>
-        /// MoveTo 用の実行器を追加する
+        /// 現在の移動をスキップする
+        /// </summary>
+        public void Skip() {
+            if (_active == null) {
+                return;
+            }
+            
+            _active.Cancel();
+            _active = null;
+        }
+
+        /// <summary>
+        /// MoveTo用の実行器を追加する
         /// </summary>
         /// <param name="executor">追加する実行器</param>
         public void AddExecutor(IMoveExecutor<MoveToRequest> executor) => _moveTo.Add(executor);
 
         /// <summary>
-        /// Approach 用の実行器を追加する
+        /// Approach用の実行器を追加する
         /// </summary>
         /// <param name="executor">追加する実行器</param>
         public void AddExecutor(IMoveExecutor<ApproachRequest> executor) => _approach.Add(executor);
 
         /// <summary>
-        /// Warp 用の実行器を追加する
+        /// Warp用の実行器を追加する
         /// </summary>
         /// <param name="executor">追加する実行器</param>
         public void AddExecutor(IMoveExecutor<WarpRequest> executor) => _warp.Add(executor);
 
         /// <summary>
-        /// Drive 用の実行器を追加する
+        /// Drive用の実行器を追加する
         /// </summary>
         /// <param name="executor">追加する実行器</param>
         public void AddExecutor(IMoveExecutor<DriveRequest> executor) => _drive.Add(executor);
@@ -162,6 +180,7 @@ namespace GameFramework.ActorSystem {
             _active = ok ? _warp : null;
             return ok;
         }
+
         /// <summary>
         /// Transform + 相対オフセットへワープする
         /// </summary>
@@ -184,7 +203,7 @@ namespace GameFramework.ActorSystem {
         public bool Warp(Transform target) {
             return Warp(target, Vector3.zero);
         }
-        
+
         /// <summary>
         /// 継続入力で移動する（毎フレ呼び出し想定）
         /// </summary>

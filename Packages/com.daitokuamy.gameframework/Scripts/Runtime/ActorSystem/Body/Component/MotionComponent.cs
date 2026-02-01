@@ -1,4 +1,3 @@
-using GameFramework.Core;
 using GameFramework.PlayableSystem;
 using UnityEngine;
 using UnityEngine.Playables;
@@ -8,7 +7,7 @@ namespace GameFramework.ActorSystem {
     /// モーション制御用クラス
     /// </summary>
     [RequireComponent(typeof(Animator))]
-    public class MotionComponent : SerializedBodyComponent {
+    public sealed class MotionComponent : SerializedBodyComponent {
         [SerializeField, Tooltip("モーション更新モード")]
         private DirectorUpdateMode _updateMode = DirectorUpdateMode.GameTime;
 

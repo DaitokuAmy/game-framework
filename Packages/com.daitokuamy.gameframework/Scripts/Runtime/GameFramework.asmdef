@@ -5,6 +5,7 @@
         "GUID:f06555f75b070af458a003d92f9efb00",
         "GUID:f51ebe6a0ceec4240a699833d6309b23",
         "GUID:b0214a6008ed146ff8f122a6a9c2f6cc",
+        "GUID:b7ce230c26f0a4c31a26e8847a04cc87",
         "GUID:df380645f10b7bc4b97d4f5eb6303d95",
         "GUID:4307f53044263cf4b835bd812fc161a4",
         "GUID:21d1eb854b91ade49bc69a263d12bee2",
@@ -59,6 +60,11 @@
             "name": "jp.hadashikick.vcontainer",
             "expression": "",
             "define": "USE_VCONTAINER"
+        },
+        {
+            "name": "com.daitokuamy.actionsequencer",
+            "expression": "",
+            "define": "USE_ACTION_SEQUENCER"
         }
     ],
     "noEngineReferences": false

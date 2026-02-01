@@ -1,6 +1,5 @@
 using System.Collections;
 using GameFramework;
-using GameFramework;
 using GameFramework.NavigationSystem;
 using UnityEngine;
 

@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using GameFramework.Editor;
 using SampleGame.Infrastructure.ModelViewer;
-using ThirdPersonEngine;
+using SampleGameEngine;
 
 namespace SampleGame.Editor {
     /// <summary>
@@ -106,7 +106,7 @@ namespace SampleGame.Editor {
 
                 // 設定に追加
                 actorData.meshAvatarInfos = avatarDict
-                    .Select(x => new PreviewActorData.MeshAvatarInfo { key = x.Key, prefabs = x.Value.ToArray(), defaultIndex = 0 }).ToArray();
+                    .Select(x => new PreviewActorData.AvatarMeshInfo { key = x.Key, prefabs = x.Value.ToArray(), defaultIndex = 0 }).ToArray();
             }
 
             // 元ファイルがある場合は、上書きコピー

@@ -1,6 +1,5 @@
 using System;
 using GameFramework;
-using GameFramework;
 using GameFramework.NavigationSystem;
 
 namespace SampleGame.Application {

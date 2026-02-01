@@ -6,7 +6,7 @@ namespace GameFramework.Editor {
     /// InterfaceReference型用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(InterfaceReferenceBase), true)]
-    public class InterfaceReferencePropertyDrawer : PropertyDrawer {
+    public sealed class InterfaceReferencePropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>

@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Core;
 using GameFramework.Kinematics;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
     /// Attachment制御クラス
     /// </summary>
-    public class AttachmentComponent : BodyComponent {
+    public sealed class AttachmentComponent : BodyComponent {
         // Attachmentリスト
         private List<IAttachment> _attachments = new List<IAttachment>();
         // 外部から追加されたAttachmentリスト

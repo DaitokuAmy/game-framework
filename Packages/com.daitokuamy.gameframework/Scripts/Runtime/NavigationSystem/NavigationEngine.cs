@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using GameFramework.Core;
 
 namespace GameFramework.NavigationSystem {
     /// <summary>

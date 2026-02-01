@@ -6,7 +6,7 @@ namespace GameFramework.VfxSystem {
     /// <summary>
     /// AnimationClip制御用のVfxComponent
     /// </summary>
-    public class AnimationClipVfxComponent : MonoBehaviour, IVfxComponent {
+    public sealed class AnimationClipVfxComponent : MonoBehaviour, IVfxComponent {
         [SerializeField, Tooltip("再生に使うAnimator")]
         private Animator _animator;
         [SerializeField, Tooltip("再生するクリップ")]
@@ -19,15 +19,14 @@ namespace GameFramework.VfxSystem {
         // 再生中か
         private bool _isPlaying;
 
-        // 再生中か
+        /// <inheritdoc/>
         bool IVfxComponent.IsPlaying => _isPlaying;
-        // 有効なデータか
+        
+        /// <summary>有効なデータか</summary>
         private bool IsValid => _animator != null && _animationClip != null;
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        void IVfxComponent.Update(float deltaTime) {
+        /// <inheritdoc/>
+        void IVfxComponent.Tick(float deltaTime) {
             if (!_playableGraph.IsValid()) {
                 return;
             }
@@ -42,9 +41,7 @@ namespace GameFramework.VfxSystem {
             }
         }
 
-        /// <summary>
-        /// 再生
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Play() {
             if (!_playableGraph.IsValid()) {
                 return;
@@ -55,9 +52,7 @@ namespace GameFramework.VfxSystem {
             _isPlaying = true;
         }
 
-        /// <summary>
-        /// 停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Stop() {
             if (!_playableGraph.IsValid()) {
                 return;
@@ -69,9 +64,7 @@ namespace GameFramework.VfxSystem {
             _isPlaying = false;
         }
 
-        /// <summary>
-        /// 即時停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.StopImmediate() {
             if (!_playableGraph.IsValid()) {
                 return;
@@ -83,15 +76,11 @@ namespace GameFramework.VfxSystem {
             _isPlaying = false;
         }
 
-        /// <summary>
-        /// 再生速度の設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetSpeed(float speed) {
         }
 
-        /// <summary>
-        /// Lodレベルの設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetLodLevel(int level) {
         }
 

@@ -1,6 +1,6 @@
 using System.Collections;
 using GameFramework;
-using ThirdPersonEngine;
+using SampleGameEngine;
 
 namespace SampleGame.Presentation {
     /// <summary>

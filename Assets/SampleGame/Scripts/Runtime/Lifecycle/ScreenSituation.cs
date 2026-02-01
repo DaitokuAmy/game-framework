@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using GameFramework;
-using GameFramework;
 using GameFramework.NavigationSystem;
 using GameFramework.UISystem;
 using SampleGame.Application;

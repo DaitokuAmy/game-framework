@@ -6,7 +6,7 @@ namespace GameFramework.ActorSystem {
     /// Collider情報保持クラス
     /// </summary>
     [DisallowMultipleComponent]
-    public class ColliderParts : MonoBehaviour {
+    public sealed class ColliderParts : MonoBehaviour {
         // ユニーク骨情報
         [Serializable]
         public class Info {

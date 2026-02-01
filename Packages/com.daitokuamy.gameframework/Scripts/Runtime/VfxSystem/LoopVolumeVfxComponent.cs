@@ -6,7 +6,7 @@ namespace GameFramework.VfxSystem {
     /// <summary>
     /// Volume制御用のVfxComponent
     /// </summary>
-    public class LoopVolumeVfxComponent : MonoBehaviour, IVfxComponent {
+    public sealed class LoopVolumeVfxComponent : MonoBehaviour, IVfxComponent {
         // フェードタイプ
         private enum FadeType {
             None,
@@ -34,13 +34,11 @@ namespace GameFramework.VfxSystem {
         private float _fadeTime;
         private float _fadeStartWeight;
 
-        // 再生中か
+        /// <inheritdoc/>
         bool IVfxComponent.IsPlaying => _volume != null && _volume.enabled;
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        void IVfxComponent.Update(float deltaTime) {
+        /// <inheritdoc/>
+        void IVfxComponent.Tick(float deltaTime) {
             if (_volume == null) {
                 return;
             }
@@ -70,9 +68,7 @@ namespace GameFramework.VfxSystem {
             }
         }
 
-        /// <summary>
-        /// 再生
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Play() {
             if (_volume == null) {
                 return;
@@ -85,9 +81,7 @@ namespace GameFramework.VfxSystem {
             _fadeStartWeight = 0.0f;
         }
 
-        /// <summary>
-        /// 停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Stop() {
             if (_volume == null) {
                 return;
@@ -98,9 +92,7 @@ namespace GameFramework.VfxSystem {
             _fadeStartWeight = _volume.weight;
         }
 
-        /// <summary>
-        /// 即時停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.StopImmediate() {
             if (_volume == null) {
                 return;
@@ -112,15 +104,11 @@ namespace GameFramework.VfxSystem {
             _volume.enabled = false;
         }
 
-        /// <summary>
-        /// 再生速度の設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetSpeed(float speed) {
         }
 
-        /// <summary>
-        /// Lodレベルの設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetLodLevel(int level) {
         }
     }

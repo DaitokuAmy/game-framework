@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Linq;
 using System.Threading;
-using GameFramework.Core;
 
 namespace GameFramework.UISystem {
     /// <summary>

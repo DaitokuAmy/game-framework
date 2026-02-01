@@ -6,7 +6,7 @@ namespace GameFramework.ActorSystem {
     /// ギズモ描画イベントを提供するためのクラス
     /// </summary>
     [AddComponentMenu(""), DisallowMultipleComponent]
-    public class GizmoDispatcher : MonoBehaviour {
+    public sealed class GizmoDispatcher : MonoBehaviour {
         /// <summary>ギズモ描画通知</summary>
         public event Action DrawGizmosEvent;
         /// <summary>選択中ギズモ描画通知</summary>

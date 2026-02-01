@@ -102,7 +102,7 @@ namespace GameFramework.ActorSystem {
         }
 
         /// <inheritdoc/>
-        public void Cancel() {
+        public void Cancel(bool skip) {
             _velocity = Vector3.zero;
             _running = false;
         }

@@ -6,7 +6,7 @@ namespace GameFramework.ActorSystem {
     /// Mesh結合情報保持クラス
     /// </summary>
     [DisallowMultipleComponent]
-    public class MeshParts : MonoBehaviour {
+    public sealed class MeshParts : MonoBehaviour {
         // コンストレイント用のMask
         [Flags]
         public enum ConstraintMasks {

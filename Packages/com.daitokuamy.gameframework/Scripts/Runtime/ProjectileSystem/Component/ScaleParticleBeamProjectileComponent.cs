@@ -92,8 +92,8 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 更新処理
         /// </summary>
-        protected override void UpdateInternal(float deltaTime) {
-            base.UpdateInternal(deltaTime);
+        protected override void TickInternal(float deltaTime) {
+            base.TickInternal(deltaTime);
 
             UpdateTransformInternal(ProjectileController);
         }

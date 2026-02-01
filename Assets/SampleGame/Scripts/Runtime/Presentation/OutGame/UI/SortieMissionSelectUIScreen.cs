@@ -1,7 +1,7 @@
 using System.Linq;
 using GameFramework.UISystem;
 using R3;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using UnityEngine;
 
 namespace SampleGame.Presentation.OutGame {

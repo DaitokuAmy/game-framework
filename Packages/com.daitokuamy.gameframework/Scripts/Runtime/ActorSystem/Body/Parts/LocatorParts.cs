@@ -7,7 +7,7 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// Transform管理クラス
     /// </summary>
-    public class LocatorParts : MonoBehaviour {
+    public sealed class LocatorParts : MonoBehaviour {
         // ロケーター情報
         [Serializable]
         private class LocatorInfo {

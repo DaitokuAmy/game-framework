@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using GameFramework.Core;
 using GameFramework.Pooling;
 
 namespace GameFramework.UISystem {

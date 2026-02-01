@@ -8,7 +8,7 @@ namespace GameFramework.Core.Editor {
     /// TweenCurve型用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(TweenCurve))]
-    public class TweenCurvePropertyDrawer : PropertyDrawer {
+    public sealed class TweenCurvePropertyDrawer : PropertyDrawer {
         private bool _initialized;
         private GUIContent[] _typeLabels;
 

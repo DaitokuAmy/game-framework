@@ -6,7 +6,7 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// TwoBoneIK制御用パーツ
     /// </summary>
-    public class TwoBoneIKRigParts : RigParts {
+    public sealed class TwoBoneIKRigParts : RigParts {
         /// <summary>
         /// ターゲット情報
         /// </summary>

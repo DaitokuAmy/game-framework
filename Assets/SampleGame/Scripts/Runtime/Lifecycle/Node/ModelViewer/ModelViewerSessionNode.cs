@@ -11,7 +11,7 @@ using SampleGame.Domain;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using VContainer;
 
 namespace SampleGame.Lifecycle {

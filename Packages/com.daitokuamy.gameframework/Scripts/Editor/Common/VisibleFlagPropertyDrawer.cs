@@ -8,7 +8,7 @@ namespace GameFramework.Core.Editor {
     /// VisibleFlagAttribute用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(VisibleFlagAttribute))]
-    public class VisibleFlagPropertyDrawer : PropertyDrawer {
+    public sealed class VisibleFlagPropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>

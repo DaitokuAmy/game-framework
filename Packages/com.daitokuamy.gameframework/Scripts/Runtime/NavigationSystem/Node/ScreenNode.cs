@@ -1,5 +1,4 @@
 using System.Collections;
-using GameFramework.Core;
 
 namespace GameFramework.NavigationSystem {
     /// <summary>

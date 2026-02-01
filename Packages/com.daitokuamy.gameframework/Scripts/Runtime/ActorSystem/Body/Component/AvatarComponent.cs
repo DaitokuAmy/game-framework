@@ -6,7 +6,7 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// Avatar制御用クラス
     /// </summary>
-    public class AvatarComponent : SerializedBodyComponent {
+    public sealed class AvatarComponent : SerializedBodyComponent {
         /// <summary>
         /// Avatar適用のためのインターフェース
         /// </summary>

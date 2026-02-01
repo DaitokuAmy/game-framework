@@ -4,13 +4,13 @@ namespace GameFramework.VfxSystem {
     /// <summary>
     /// ParticleSystem制御用のVfxComponent
     /// </summary>
-    public class ParticleSystemVfxComponent : IVfxComponent {
+    public sealed class ParticleSystemVfxComponent : IVfxComponent {
         // 再生基点のParticleSystem
         private ParticleSystem _rootParticleSystem;
         // 含まれているParticleSystem
         private ParticleSystem[] _particleSystems;
 
-        // 再生中か
+        /// <inheritdoc/>
         bool IVfxComponent.IsPlaying => _rootParticleSystem != null && _rootParticleSystem.IsAlive(true);
 
         /// <summary>
@@ -24,15 +24,11 @@ namespace GameFramework.VfxSystem {
             }
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        void IVfxComponent.Update(float deltaTime) {
+        /// <inheritdoc/>
+        void IVfxComponent.Tick(float deltaTime) {
         }
 
-        /// <summary>
-        /// 再生
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Play() {
             if (_rootParticleSystem == null) {
                 return;
@@ -41,9 +37,7 @@ namespace GameFramework.VfxSystem {
             _rootParticleSystem.Play(true);
         }
 
-        /// <summary>
-        /// 停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Stop() {
             if (_rootParticleSystem == null) {
                 return;
@@ -52,9 +46,7 @@ namespace GameFramework.VfxSystem {
             _rootParticleSystem.Stop(true);
         }
 
-        /// <summary>
-        /// 即時停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.StopImmediate() {
             if (_rootParticleSystem == null) {
                 return;
@@ -63,9 +55,7 @@ namespace GameFramework.VfxSystem {
             _rootParticleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         }
 
-        /// <summary>
-        /// 再生速度の設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetSpeed(float speed) {
             if (_rootParticleSystem == null) {
                 return;
@@ -78,9 +68,7 @@ namespace GameFramework.VfxSystem {
             }
         }
 
-        /// <summary>
-        /// Lodレベルの設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetLodLevel(int level) {
         }
     }

@@ -4,13 +4,13 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// Mesh結合用のAvatarResolver
     /// </summary>
-    public class MeshAvatarResolver : AvatarComponent.IResolver {
+    public sealed class MeshAvatarResolver : AvatarComponent.IResolver {
         private string _key;
         private GameObject _prefab;
         private string _parentLocatorName;
         private GameObject _partObject;
 
-        // 識別キー
+        /// <inheritdoc/>
         string AvatarComponent.IResolver.Key => _key;
 
         /// <summary>

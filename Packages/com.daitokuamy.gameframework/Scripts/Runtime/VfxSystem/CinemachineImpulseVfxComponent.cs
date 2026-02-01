@@ -7,7 +7,7 @@ namespace GameFramework.VfxSystem {
     /// <summary>
     /// CinemachineImpulse制御用のVfxComponent
     /// </summary>
-    public class CinemachineImpulseVfxComponent : MonoBehaviour, IVfxComponent {
+    public sealed class CinemachineImpulseVfxComponent : MonoBehaviour, IVfxComponent {
         [SerializeField, Tooltip("衝撃設定")]
         private CinemachineImpulseSource _impulseSource;
         [SerializeField, Tooltip("遅延時間")]
@@ -18,13 +18,11 @@ namespace GameFramework.VfxSystem {
         // 再生中フラグ
         private bool _isPlaying;
 
-        // 再生中か
+        /// <inheritdoc/>
         bool IVfxComponent.IsPlaying => _isPlaying;
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        void IVfxComponent.Update(float deltaTime) {
+        /// <inheritdoc/>
+        void IVfxComponent.Tick(float deltaTime) {
             _time += deltaTime;
 
             if (_time >= 0.0f && !_impulseSource.enabled) {
@@ -37,9 +35,7 @@ namespace GameFramework.VfxSystem {
             }
         }
 
-        /// <summary>
-        /// 再生
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Play() {
             if (_impulseSource == null) {
                 return;
@@ -50,9 +46,7 @@ namespace GameFramework.VfxSystem {
             _isPlaying = true;
         }
 
-        /// <summary>
-        /// 停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Stop() {
             if (_impulseSource == null) {
                 return;
@@ -63,9 +57,7 @@ namespace GameFramework.VfxSystem {
             _isPlaying = false;
         }
 
-        /// <summary>
-        /// 即時停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.StopImmediate() {
             if (_impulseSource == null) {
                 return;
@@ -76,15 +68,11 @@ namespace GameFramework.VfxSystem {
             _isPlaying = false;
         }
 
-        /// <summary>
-        /// 再生速度の設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetSpeed(float speed) {
         }
 
-        /// <summary>
-        /// Lodレベルの設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetLodLevel(int level) {
         }
 

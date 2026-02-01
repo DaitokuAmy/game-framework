@@ -1,11 +1,10 @@
-﻿using GameFramework.Core;
-using GameFramework.GimmickSystem;
+﻿using GameFramework.GimmickSystem;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
     /// Gimmick制御用コントローラ
     /// </summary>
-    public class GimmickComponent : BodyComponent {
+    public sealed class GimmickComponent : BodyComponent {
         // ギミック再生用クラス
         private GimmickPlayer _gimmickPlayer;
 

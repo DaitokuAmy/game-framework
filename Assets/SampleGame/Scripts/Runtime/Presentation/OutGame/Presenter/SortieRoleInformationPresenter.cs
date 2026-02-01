@@ -1,5 +1,4 @@
 using GameFramework;
-using GameFramework;
 
 namespace SampleGame.Presentation.OutGame {
     /// <summary>

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Core;
 using Unity.Burst;
 using Unity.Collections;
 using UnityEngine;
@@ -12,7 +11,7 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// Bodyの骨制御クラス
     /// </summary>
-    public class BoneComponent : SerializedBodyComponent {
+    public sealed class BoneComponent : SerializedBodyComponent {
         /// <summary>
         /// Job本体
         /// </summary>

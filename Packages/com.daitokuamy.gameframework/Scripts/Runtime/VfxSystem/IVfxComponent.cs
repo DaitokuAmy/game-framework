@@ -7,9 +7,9 @@ namespace GameFramework.VfxSystem {
         bool IsPlaying { get; }
 
         /// <summary>
-        /// 更新処理
+        /// フレーム更新
         /// </summary>
-        void Update(float deltaTime);
+        void Tick(float deltaTime);
 
         /// <summary>
         /// 再生

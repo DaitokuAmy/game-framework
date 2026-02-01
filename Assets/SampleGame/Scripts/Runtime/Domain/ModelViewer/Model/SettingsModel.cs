@@ -1,6 +1,5 @@
 using GameFramework;
 using R3;
-using GameFramework;
 
 namespace SampleGame.Domain.ModelViewer {
     /// <summary>

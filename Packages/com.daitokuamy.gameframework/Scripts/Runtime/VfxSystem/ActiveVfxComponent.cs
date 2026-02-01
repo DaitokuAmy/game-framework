@@ -4,7 +4,7 @@ namespace GameFramework.VfxSystem {
     /// <summary>
     /// Active制御用のVfxComponent
     /// </summary>
-    public class ActiveVfxComponent : MonoBehaviour, IVfxComponent {
+    public sealed class ActiveVfxComponent : MonoBehaviour, IVfxComponent {
         [SerializeField, Tooltip("制御用GameObject")]
         private GameObject[] _targetObjects;
         [SerializeField, Tooltip("表示遅延時間")]
@@ -17,13 +17,11 @@ namespace GameFramework.VfxSystem {
         // 現在時間
         private float _time;
 
-        // 再生中か
+        /// <inheritdoc/>
         bool IVfxComponent.IsPlaying => _time < _duration;
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        void IVfxComponent.Update(float deltaTime) {
+        /// <inheritdoc/>
+        void IVfxComponent.Tick(float deltaTime) {
             if (_targetObjects.Length <= 0.0f) {
                 return;
             }
@@ -33,9 +31,7 @@ namespace GameFramework.VfxSystem {
             SetActive(active);
         }
 
-        /// <summary>
-        /// 再生
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Play() {
             if (_targetObjects.Length <= 0.0f) {
                 return;
@@ -45,9 +41,7 @@ namespace GameFramework.VfxSystem {
             SetActive(_time >= 0.0f);
         }
 
-        /// <summary>
-        /// 停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.Stop() {
             if (_targetObjects.Length <= 0.0f) {
                 return;
@@ -57,9 +51,7 @@ namespace GameFramework.VfxSystem {
             SetActive(false);
         }
 
-        /// <summary>
-        /// 即時停止
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.StopImmediate() {
             if (_targetObjects.Length <= 0.0f) {
                 return;
@@ -69,15 +61,11 @@ namespace GameFramework.VfxSystem {
             SetActive(false);
         }
 
-        /// <summary>
-        /// 再生速度の設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetSpeed(float speed) {
         }
 
-        /// <summary>
-        /// Lodレベルの設定
-        /// </summary>
+        /// <inheritdoc/>
         void IVfxComponent.SetLodLevel(int level) {
         }
 

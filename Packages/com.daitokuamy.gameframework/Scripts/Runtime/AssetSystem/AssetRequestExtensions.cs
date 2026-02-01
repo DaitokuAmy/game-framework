@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading;
-using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 #if USE_UNI_TASK

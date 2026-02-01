@@ -1,4 +1,3 @@
-using GameFramework.Core;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +6,7 @@ namespace GameFramework.Editor {
     /// Percent型用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(Percent))]
-    public class PercentPropertyDrawer : PropertyDrawer {
+    public sealed class PercentPropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>

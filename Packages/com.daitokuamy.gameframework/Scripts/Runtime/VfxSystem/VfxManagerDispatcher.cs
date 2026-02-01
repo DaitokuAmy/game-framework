@@ -1,15 +1,14 @@
-using System;
 using UnityEngine;
 
 namespace GameFramework.VfxSystem {
     /// <summary>
     /// VfxManagerに生成されるRootにつけるDispatcher
     /// </summary>
-    public class VfxManagerDispatcher : MonoBehaviour {
+    public sealed class VfxManagerDispatcher : MonoBehaviour {
         [SerializeField, Tooltip("Poolを使わないフラグ")]
         private bool _unusedPool;
         
-        // 参照先のVfxManager
+        /// <summary>参照先のVfxManager</summary>
         public VfxManager Manager { get; private set; }
 
         /// <summary>

@@ -7,7 +7,7 @@ namespace GameFramework.Editor {
     /// <summary>
     /// Unity標準Console風のログ表示ウィンドウ仮想描画、Collapse、フィルター、アイコンなどに対応
     /// </summary>
-    public class ConsoleWindow : EditorWindow {
+    public sealed class ConsoleWindow : EditorWindow {
         /// <summary>
         /// ログエントリ1件分を表す構造体
         /// </summary>

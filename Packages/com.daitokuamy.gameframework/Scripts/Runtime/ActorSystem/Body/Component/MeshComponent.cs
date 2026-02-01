@@ -2,14 +2,13 @@
 using UnityEngine;
 using System;
 using System.Linq;
-using GameFramework.Core;
 using UnityEngine.Animations;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
     /// Mesh制御クラス
     /// </summary>
-    public class MeshComponent : BodyComponent {
+    public sealed class MeshComponent : BodyComponent {
         /// <summary>
         /// 追加したメッシュに関係する情報
         /// </summary>

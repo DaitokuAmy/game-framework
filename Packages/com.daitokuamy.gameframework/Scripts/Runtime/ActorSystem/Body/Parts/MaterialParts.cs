@@ -6,7 +6,7 @@ namespace GameFramework.ActorSystem {
     /// Material情報保持クラス
     /// </summary>
     [DisallowMultipleComponent]
-    public class MaterialParts : MonoBehaviour {
+    public sealed class MaterialParts : MonoBehaviour {
         /// <summary>
         /// 登録情報
         /// </summary>

@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
     /// プロパティ管理クラス
     /// </summary>
-    public class PropertyComponent : BodyComponent {
+    public sealed class PropertyComponent : BodyComponent {
         private readonly List<PropertyParts> _propertyPartsList = new();
 
         /// <summary>

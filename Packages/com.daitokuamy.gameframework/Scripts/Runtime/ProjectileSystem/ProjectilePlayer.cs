@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using GameFramework.Core;
 
 namespace GameFramework.ProjectileSystem {
     /// <summary>
@@ -189,7 +188,7 @@ namespace GameFramework.ProjectileSystem {
             /// </summary>
             public bool Update() {
                 var deltaTime = LayeredTime?.DeltaTime ?? Time.deltaTime;
-                if (!ProjectileController.Update(deltaTime)) {
+                if (!ProjectileController.Tick(deltaTime)) {
                     Stop(null);
                 }
 

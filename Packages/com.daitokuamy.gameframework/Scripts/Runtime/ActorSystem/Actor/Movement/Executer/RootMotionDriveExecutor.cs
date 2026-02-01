@@ -76,7 +76,7 @@ namespace GameFramework.ActorSystem {
         }
 
         /// <inheritdoc/>
-        public void Cancel() {
+        public void Cancel(bool skip) {
             _driver.ResetLocomotion();
             _running = false;
         }

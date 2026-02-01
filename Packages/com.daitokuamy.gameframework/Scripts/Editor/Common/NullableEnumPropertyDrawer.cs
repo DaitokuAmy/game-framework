@@ -8,7 +8,7 @@ namespace GameFramework.Editor {
     /// NullableEnum型用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(NullableEnum<>))]
-    public class NullableEnumPropertyDrawer : PropertyDrawer {
+    public sealed class NullableEnumPropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>

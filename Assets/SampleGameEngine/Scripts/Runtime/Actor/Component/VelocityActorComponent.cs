@@ -1,0 +1,175 @@
+using GameFramework.ActorSystem;
+using GameFramework;
+using UnityEngine;
+
+namespace SampleGameEngine {
+    /// <summary>
+    /// 速度制御用ActorComponent
+    /// </summary>
+    public sealed class VelocityActorComponent : ActorViewComponent {
+        /// <summary>
+        /// アクター速度制御の設定値用のコンテキストのインタフェース
+        /// </summary>
+        public interface ISettings {
+            /// <summary>空中のブレーキ速度</summary>
+            float AirBrake { get; }
+            /// <summary>地上のブレーキ速度</summary>
+            float GroundBrake { get; }
+            /// <summary>重力加速度</summary>
+            float Gravity { get; }
+        }
+
+        private readonly ISettings _settings;
+
+        private bool _isActive = true;
+        private IMovableActor _actor;
+        private LayeredScale _gravityScale;
+        private Vector3 _velocity;
+        private float _gravitySpeed;
+        
+        /// <inheritdoc/>
+        public override int ExecutionOrder => (int)ActorComponentOrder.Velocity;
+
+        /// <summary>有効状態か</summary>
+        public bool IsActive {
+            get => _isActive;
+            set {
+                if (value == _isActive) {
+                    return;
+                }
+
+                _isActive = value;
+                if (!_isActive) {
+                    // 非アクティブにする際は速度をリセット
+                    ResetVelocity();
+                }
+            }
+        }
+        /// <summary>重力加速度</summary>
+        public float Gravity => _settings.Gravity * _gravityScale;
+        /// <summary>現在の速度</summary>
+        public Vector3 Velocity => _velocity + Vector3.up * _gravitySpeed;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="actor">制御対象のActor</param>
+        /// <param name="settings">設定値</param>
+        public VelocityActorComponent(IMovableActor actor, ISettings settings) {
+            _actor = actor;
+            _settings = settings;
+        }
+
+        /// <summary>
+        /// 廃棄時処理
+        /// </summary>
+        protected override void DisposeInternal() {
+            IsActive = false;
+            _actor = null;
+        }
+
+        /// <summary>
+        /// 更新処理
+        /// </summary>
+        protected override void UpdateInternal(float deltaTime) {
+            if (!IsActive) {
+                return;
+            }
+
+            UpdateTransform(deltaTime);
+        }
+
+        /// <summary>
+        /// 速度の発生
+        /// </summary>
+        public void AddVelocity(Vector3 velocity) {
+            _velocity += velocity;
+        }
+
+        /// <summary>
+        /// 速度の設定
+        /// </summary>
+        public void SetVelocity(Vector3 velocity, bool ignoreY = false) {
+            _velocity.x = velocity.x;
+            if (!ignoreY) {
+                _velocity.y = velocity.y;
+            }
+
+            _velocity.z = velocity.z;
+            _gravitySpeed = 0.0f;
+        }
+
+        /// <summary>
+        /// 速度のリセット
+        /// </summary>
+        public void ResetVelocity() {
+            _velocity = Vector3.zero;
+            _gravitySpeed = 0.0f;
+        }
+
+        /// <summary>
+        /// 重力による速度をリセット
+        /// </summary>
+        public void ResetGravity() {
+            _gravitySpeed = 0.0f;
+        }
+
+        /// <summary>
+        /// 重力スケールの設定
+        /// </summary>
+        public void SetGravityScale(ActorControlLayerType type, float scale) {
+            _gravityScale.Set((int)type, scale);
+        }
+
+        /// <summary>
+        /// 重力スケールのリセット
+        /// </summary>
+        public void ResetGravityScale(ActorControlLayerType type) {
+            SetGravityScale(type, 1.0f);
+        }
+
+        /// <summary>
+        /// 重力スケールのリセット
+        /// </summary>
+        public void ResetGravityScales() {
+            _gravityScale.SetAll(1.0f);
+        }
+
+        /// <summary>
+        /// Transformの更新
+        /// </summary>
+        private void UpdateTransform(float deltaTime) {
+            // 地上判定
+            var position = _actor.Position;
+            var isGrounded = _actor.IsGrounded;
+
+            if (isGrounded) {
+                _gravitySpeed = 0.0f;
+            }
+            else {
+                // 重力加速度を反映
+                _gravitySpeed += Gravity * deltaTime;
+            }
+
+            // ブレーキ反映
+            var brake = isGrounded ? _settings.GroundBrake : _settings.AirBrake;
+            var velocityXZ = new Vector2(_velocity.x, _velocity.z);
+            if (velocityXZ.sqrMagnitude <= brake * brake) {
+                velocityXZ.x = 0.0f;
+                velocityXZ.y = 0.0f;
+            }
+            else {
+                velocityXZ -= velocityXZ.normalized * brake;
+            }
+
+            _velocity.x = velocityXZ.x;
+            _velocity.z = velocityXZ.y;
+
+            // 座標更新
+            position += _velocity * deltaTime;
+            position.y += _gravitySpeed * _gravityScale * deltaTime;
+            position.y = Mathf.Max(_actor.GroundHeight, position.y);
+            _actor.ApplyMove(position - _actor.Position);
+        }
+    }
+}

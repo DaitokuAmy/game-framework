@@ -1,0 +1,33 @@
+#if USE_ACTION_SEQUENCER
+using ActionSequencer;
+using UnityEngine;
+
+namespace GameFramework.ActorSystem {
+    /// <summary>
+    /// SequenceController提供用のMonoBehaviour
+    /// </summary>
+    public sealed class SequenceControllerProvider : MonoBehaviour, ISequenceControllerProvider {
+        /// <summary>再生に使用しているController</summary>
+        public SequenceController SequenceController { get; private set; }
+
+        /// <summary>
+        /// SequenceControllerの設定
+        /// </summary>
+        public static void SetController(GameObject gameObject, SequenceController sequenceController) {
+            var provider = gameObject.GetComponent<SequenceControllerProvider>();
+            if (provider == null) {
+                provider = gameObject.AddComponent<SequenceControllerProvider>();
+            }
+
+            provider.SetControllerInternal(sequenceController);
+        }
+
+        /// <summary>
+        /// SequenceControllerの設定
+        /// </summary>
+        private void SetControllerInternal(SequenceController controller) {
+            SequenceController = controller;
+        }
+    }
+}
+#endif

@@ -35,16 +35,20 @@ namespace GameFramework.ActorSystem {
 
             var target = _request.Target.GetWorldPosition();
             var delta = target - _movable.Position;
-            delta.y = 0.0f;
-
-            _movable.ApplyMove(delta, isWarp: true);
+            _movable.ApplyMove(delta, true);
 
             _running = false;
             return RunResult.Succeeded;
         }
 
         /// <inheritdoc/>
-        public void Cancel() {
+        public void Cancel(bool skip) {
+            if (_running && skip) {
+                var target = _request.Target.GetWorldPosition();
+                var delta = target - _movable.Position;
+                _movable.ApplyMove(delta, true);
+            }
+            
             _running = false;
         }
     }

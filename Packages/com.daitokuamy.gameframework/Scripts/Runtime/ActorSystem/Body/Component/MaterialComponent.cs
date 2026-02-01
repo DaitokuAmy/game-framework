@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Core;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
     /// Body用のMaterial制御クラス
     /// </summary>
-    public class MaterialComponent : BodyComponent {
+    public sealed class MaterialComponent : BodyComponent {
         // キャッシュ用のMaterial情報リスト
         private readonly Dictionary<string, List<MaterialInstance>> _materialInfos = new();
 

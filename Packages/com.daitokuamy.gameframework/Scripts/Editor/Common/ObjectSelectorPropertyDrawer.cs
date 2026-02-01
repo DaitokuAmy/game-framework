@@ -6,7 +6,7 @@ namespace GameFramework.Editor {
     /// ObjectSelectorAttribute型用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(ObjectSelectorAttribute))]
-    public class ObjectSelectorPropertyDrawerPropertyDrawer : PropertyDrawer {
+    public sealed class ObjectSelectorPropertyDrawerPropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>

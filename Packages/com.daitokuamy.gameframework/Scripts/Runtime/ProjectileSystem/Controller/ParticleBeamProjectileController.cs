@@ -120,7 +120,7 @@ namespace GameFramework.ProjectileSystem {
         /// 更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        bool IProjectileController.Update(float deltaTime) {
+        bool IProjectileController.Tick(float deltaTime) {
             // 照射距離更新
             if (_stopped) {
                 _tailDistance += _tailSpeed * deltaTime;

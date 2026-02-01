@@ -8,7 +8,7 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// プロパティ管理クラス
     /// </summary>
-    public class PropertyParts : MonoBehaviour {
+    public sealed class PropertyParts : MonoBehaviour {
         [Serializable]
         private class FloatPropertyInfo {
             public string key;

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using GameFramework.Core;
 using GameFramework.Pooling;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -247,7 +246,7 @@ namespace GameFramework.VfxSystem {
                         continue;
                     }
 
-                    component.Update(deltaTime);
+                    component.Tick(deltaTime);
                 }
 
                 if (dirty || _context.constraintPosition) {

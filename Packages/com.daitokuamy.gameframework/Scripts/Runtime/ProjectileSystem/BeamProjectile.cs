@@ -155,7 +155,7 @@ namespace GameFramework.ProjectileSystem {
             
             _coroutineRunner.Update();
             foreach (var component in _projectileComponents) {
-                component.Update(deltaTime);
+                component.Tick(deltaTime);
             }
         }
 

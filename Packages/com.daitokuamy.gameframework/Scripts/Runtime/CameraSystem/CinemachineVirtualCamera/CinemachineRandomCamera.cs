@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Text;
 using Unity.Cinemachine;
-using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.CameraSystem {

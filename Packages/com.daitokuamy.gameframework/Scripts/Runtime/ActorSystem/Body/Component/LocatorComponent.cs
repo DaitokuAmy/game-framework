@@ -1,13 +1,12 @@
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
     /// Transform管理クラス
     /// </summary>
-    public class LocatorComponent : BodyComponent {
+    public sealed class LocatorComponent : BodyComponent {
         // ロケーター管理クラスのリスト
         private List<LocatorParts> _locatorPartsList = new List<LocatorParts>();
 

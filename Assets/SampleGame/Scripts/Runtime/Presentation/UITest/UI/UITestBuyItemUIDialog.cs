@@ -1,9 +1,8 @@
 using System.Linq;
 using GameFramework;
-using GameFramework;
 using GameFramework.UISystem;
 using R3;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

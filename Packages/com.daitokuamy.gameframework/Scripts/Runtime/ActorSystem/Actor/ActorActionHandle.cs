@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using GameFramework.Core;
 
 namespace GameFramework.ActorSystem {
     /// <summary>

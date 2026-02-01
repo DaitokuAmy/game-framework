@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Linq;
 using GameFramework;
-using GameFramework;
 
 namespace SampleGame.Presentation {
     /// <summary>

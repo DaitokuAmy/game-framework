@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using UnityEngine.Playables;
 using UnityEngine.Timeline;
-using GameFramework.Core;
 
 namespace GameFramework.PlayableSystem {
     /// <summary>

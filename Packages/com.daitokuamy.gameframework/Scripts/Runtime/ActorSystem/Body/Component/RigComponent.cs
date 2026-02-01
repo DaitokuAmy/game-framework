@@ -1,7 +1,6 @@
 ﻿#if USE_ANIMATION_RIGGING
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Core;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -9,7 +8,7 @@ namespace GameFramework.ActorSystem {
     /// <summary>
     /// BodyのRig制御クラス
     /// </summary>
-    public class RigComponent : BodyComponent {
+    public sealed class RigComponent : BodyComponent {
         // リグ構築用
         private RigBuilder _rigBuilder;
         // RigParts情報

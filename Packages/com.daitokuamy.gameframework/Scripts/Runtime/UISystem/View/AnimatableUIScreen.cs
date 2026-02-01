@@ -1,5 +1,4 @@
 using System.Collections;
-using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.UISystem {

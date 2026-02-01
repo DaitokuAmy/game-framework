@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.ActorSystem {
@@ -9,7 +8,7 @@ namespace GameFramework.ActorSystem {
     /// Body用のCollider制御クラス
     /// </summary>
     [AddComponentMenu("")]
-    public class ColliderComponent : SerializedBodyComponent {
+    public sealed class ColliderComponent : SerializedBodyComponent {
         // キャッシュ用のMaterial情報リスト
         private readonly Dictionary<string, List<Collider>> _colliderInfos = new();
 

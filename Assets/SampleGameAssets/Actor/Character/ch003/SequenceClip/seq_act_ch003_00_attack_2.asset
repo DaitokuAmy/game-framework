@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8152536216155757503
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f3dc1b502acd48ad9608fc38cadbbcb, type: 3}
+  m_Name: SequenceTrack
+  m_EditorClassIdentifier: ActionSequencer::ActionSequencer.SequenceTrack
+  label: Track
+  sequenceEvents:
+  - {fileID: -3534012490225252489}
+--- !u!114 &-3534012490225252489
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6817584f28103224ea2dcf790d51d2ac, type: 3}
+  m_Name: AttackRangeSequenceEvent
+  m_EditorClassIdentifier: SampleEngine.Runtime::SampleEngine.AttackRangeSequenceEvent
+  label: "\u653B\u6483\u5224\u5B9A"
+  active: 1
+  enterTime: 0.31666666
+  exitTime: 0.6166667
+  OffsetPositon: {x: 0, y: 1.3, z: 1.3}
+  Radius: 1
+  Constraint: 1
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ec08f2e03b1d49a8aa03fbf2f4ddcce, type: 3}
+  m_Name: seq_act_ch001_00_attack_2
+  m_EditorClassIdentifier: ActionSequencer::ActionSequencer.SequenceClip
+  tracks:
+  - {fileID: -8152536216155757503}
+  frameRate: 60
+  filterData: {fileID: 0}
+  includeClips: []

@@ -1,11 +1,11 @@
-using GameFramework.DebugSystems.Editor;
+using GameFramework.DebugSystem.Editor;
 using UnityEditor;
 
 namespace GameFramework.Editor {
     /// <summary>
     /// Stateの情報監視用ウィンドウ
     /// </summary>
-    public partial class StateMonitorWindow : DebugWindowBase<StateMonitorWindow> {
+    public sealed partial class StateMonitorWindow : DebugWindowBase<StateMonitorWindow> {
         /// <summary>
         /// 開く処理
         /// </summary>

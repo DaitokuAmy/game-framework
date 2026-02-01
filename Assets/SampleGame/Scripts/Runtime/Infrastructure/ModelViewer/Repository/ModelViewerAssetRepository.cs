@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using GameFramework;
 using GameFramework.AssetSystem;
 using GameFramework;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using VContainer;
 
 namespace SampleGame.Infrastructure.ModelViewer {

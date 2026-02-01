@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using GameFramework.Core;
 
 namespace GameFramework.EnvironmentSystem {
     /// <summary>

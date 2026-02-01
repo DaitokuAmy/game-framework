@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
-using GameFramework;
 using GameFramework.NavigationSystem;
 using GameFramework.UISystem;
 using SampleGame.Presentation.Introduction;
 using SampleGame.Presentation.OutGame;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using VContainer;
 
 namespace SampleGame.Lifecycle {

@@ -78,34 +78,34 @@ namespace GameFramework.Editor {
     /// MinMaxFloat用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(MinMaxFloat))]
-    public class MinMaxFloatDrawer : MinMaxValueDrawer {
+    public sealed class MinMaxFloatDrawer : MinMaxValueDrawer {
     }
 
     /// <summary>
     /// MinMaxVector2用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(MinMaxVector2))]
-    public class MinMaxVector2Drawer : MinMaxValueDrawer {
+    public sealed class MinMaxVector2Drawer : MinMaxValueDrawer {
     }
 
     /// <summary>
     /// MinMaxVector3用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(MinMaxVector3))]
-    public class MinMaxVector3Drawer : MinMaxValueDrawer {
+    public sealed class MinMaxVector3Drawer : MinMaxValueDrawer {
     }
 
     /// <summary>
     /// MinMaxVector4用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(MinMaxVector4))]
-    public class MinMaxVector4Drawer : MinMaxValueDrawer {
+    public sealed class MinMaxVector4Drawer : MinMaxValueDrawer {
     }
 
     /// <summary>
     /// MinMaxAnimationCurve用のPropertyDrawer
     /// </summary>
     [CustomPropertyDrawer(typeof(MinMaxAnimationCurve))]
-    public class MinMaxAnimationCurveDrawer : MinMaxValueDrawer {
+    public sealed class MinMaxAnimationCurveDrawer : MinMaxValueDrawer {
     }
 }

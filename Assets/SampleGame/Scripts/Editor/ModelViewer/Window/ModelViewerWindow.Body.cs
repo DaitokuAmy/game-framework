@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GameFramework.ActorSystem;
 using GameFramework;
-using GameFramework.DebugSystems.Editor;
+using GameFramework.DebugSystem.Editor;
 using GameFramework.GimmickSystem;
 using SampleGame.Application.ModelViewer;
 using UnityEditor;

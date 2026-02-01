@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using GameFramework.Core;
 using UnityEngine;
 
 namespace GameFramework.Tests {

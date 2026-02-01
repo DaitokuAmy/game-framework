@@ -10,7 +10,7 @@ using GameFramework.UISystem;
 using SampleGame.Application;
 using SampleGame.Infrastructure;
 using SampleGame.Presentation;
-using ThirdPersonEngine;
+using SampleGameEngine;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using VContainer;

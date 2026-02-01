@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0cee765ef9c6154cbec3ed1911e3478, type: 3}
+  m_Name: dat_act_ch003_00
+  m_EditorClassIdentifier: Assembly-CSharp::SampleEngine.CharacterActorData
+  LocomotionController: {fileID: 22100000, guid: 92bc6067e4c7e0b4882a5a26f74951c4, type: 2}
+  SpeedMultiplier: 10
+  JumpAction:
+    Clip: {fileID: -203655887218126122, guid: 5474a1fd6eb4d5a40b6ce5be2876a7f8, type: 3}
+    SequenceClip: {fileID: 11400000, guid: fc4c7f34eec76cb4489c136eba831413, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2
+  KnockbackAction:
+    Controller: {fileID: 22100000, guid: c201f9197103acc4dba012f90403b60c, type: 2}
+    SequenceClip: {fileID: 11400000, guid: 1d39c9881b098c644970d7a57db7f4b2, type: 2}
+    StartState: Knockback
+    InBlend: 0.2
+    OutBlend: 0.2
+  AttackActions:
+  - Clip: {fileID: -203655887218126122, guid: 9172444f06386364bad9f7db683c4f2e, type: 3}
+    SequenceClip: {fileID: 11400000, guid: adbe46e4e60b858468ecdae873e97407, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2
+  - Clip: {fileID: -203655887218126122, guid: 9dfc8f6f68033dd4f9bc40b2fcc0f8a3, type: 3}
+    SequenceClip: {fileID: 11400000, guid: 22c64813f2250e045af999ccf201f7ab, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2
+  - Clip: {fileID: -203655887218126122, guid: 8b2b4495a1b3c3247ab2379216588c22, type: 3}
+    SequenceClip: {fileID: 11400000, guid: a05005e288bfede44b1727c17797db9f, type: 2}
+    InBlend: 0.2
+    OutBlend: 0.2

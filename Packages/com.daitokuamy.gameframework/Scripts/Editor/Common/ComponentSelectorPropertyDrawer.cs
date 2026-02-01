@@ -6,7 +6,7 @@ namespace GameFramework.Editor {
     /// ComponentSelectorAttribute用のインスペクタ拡張
     /// </summary>
     [CustomPropertyDrawer(typeof(ComponentSelectorAttribute))]
-    public class ComponentSelectorPropertyDrawer : PropertyDrawer {
+    public sealed class ComponentSelectorPropertyDrawer : PropertyDrawer {
         /// <summary>
         /// GUI描画
         /// </summary>

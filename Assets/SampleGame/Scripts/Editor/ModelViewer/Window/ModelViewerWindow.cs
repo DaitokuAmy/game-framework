@@ -1,5 +1,4 @@
-using GameFramework;
-using GameFramework.DebugSystems.Editor;
+using GameFramework.DebugSystem.Editor;
 using SampleGame.Lifecycle;
 using UnityEditor;
 using UnityEngine;

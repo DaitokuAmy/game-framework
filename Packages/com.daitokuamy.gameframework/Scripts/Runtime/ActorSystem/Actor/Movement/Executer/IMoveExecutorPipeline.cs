@@ -15,6 +15,7 @@ namespace GameFramework.ActorSystem {
         /// <summary>
         /// 実行中の処理をキャンセルする
         /// </summary>
-        void Cancel();
+        /// <param name="skip">最終位置までショートカットさせるか</param>
+        void Cancel(bool skip = false);
     }
 }

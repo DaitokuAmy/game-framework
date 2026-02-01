@@ -1,6 +1,5 @@
 using System;
 using GameFramework;
-using GameFramework;
 using GameFramework.NavigationSystem;
 using SampleGame.Application;
 using SampleGame.Presentation;

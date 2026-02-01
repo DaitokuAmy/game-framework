@@ -14,6 +14,7 @@ namespace GameFramework.ActorSystem {
 
         private MoveToRequest _request;
         private bool _running;
+        private Vector3 _destination;
 
         /// <summary>
         /// コンストラクタ
@@ -27,12 +28,10 @@ namespace GameFramework.ActorSystem {
             _running = false;
         }
 
-        /// <summary>
-        /// 移動開始を試行する
-        /// </summary>
+        /// <inheritdoc/>
         public StartResult TryStart(in MoveToRequest request) {
-            var destination = request.Target.GetWorldPosition();
-            if (!_agent.TrySetDestination(destination)) {
+            _destination = request.Target.GetWorldPosition();
+            if (!_agent.TrySetDestination(_destination)) {
                 return StartResult.Rejected;
             }
 
@@ -41,9 +40,7 @@ namespace GameFramework.ActorSystem {
             return StartResult.Accepted;
         }
 
-        /// <summary>
-        /// 移動処理を進行する
-        /// </summary>
+        /// <inheritdoc/>
         public RunResult Tick(float deltaTime) {
             if (!_running) {
                 return RunResult.Cancelled;
@@ -68,11 +65,15 @@ namespace GameFramework.ActorSystem {
             return RunResult.Running;
         }
 
-        /// <summary>
-        /// 移動をキャンセルする
-        /// </summary>
-        public void Cancel() {
+        /// <inheritdoc/>
+        public void Cancel(bool skip) {
             _agent.ResetPath();
+            
+            if (skip) {
+                var delta = _destination - _movable.Position;
+                _movable.ApplyMove(delta, true);
+            }
+            
             _running = false;
         }
     }

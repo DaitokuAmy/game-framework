@@ -19,7 +19,7 @@ namespace GameFramework.Tests {
             
             public bool IsPlaying { get; private set; }
 
-            void IVfxComponent.Update(float deltaTime) {
+            void IVfxComponent.Tick(float deltaTime) {
             }
 
             void IVfxComponent.SetSpeed(float speed) {
