@@ -1,5 +1,5 @@
 {
-    "name": "SampleGame.Editor",
+    "name": "SampleGameEngine.Editor",
     "rootNamespace": "",
     "references": [
         "GUID:e3695dd90e1123f4f9b8cd3922d359e2",
