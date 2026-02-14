@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 
 namespace GameFramework.EditorTools.Editor {
@@ -9,7 +9,7 @@ namespace GameFramework.EditorTools.Editor {
         /// <summary>
         /// RectTransform編集系の支援モジュール
         /// </summary>
-        private sealed class TransformModule : EditorToolModule<UISupportToolWindow, UISupportUserData> {
+        private sealed class TransformModule : EditorToolModule<UISupportToolWindow, ConfigData, UserData> {
             /// <summary>タブ表示名</summary>
             public override string DisplayName => "変形";
 
@@ -17,45 +17,57 @@ namespace GameFramework.EditorTools.Editor {
             /// GUIを描画
             /// </summary>
             public override void OnGUI() {
-                Window.Data.EnableArrowNudge = EditorGUILayout.ToggleLeft("矢印キーで移動", Window.Data.EnableArrowNudge);
-                Window.Data.AutoRoundOnNudge = EditorGUILayout.ToggleLeft("移動後に1pxへ自動丸め", Window.Data.AutoRoundOnNudge);
-                Window.Data.ArrowStep = Mathf.Max(0.1f, EditorGUILayout.FloatField("矢印移動量", Window.Data.ArrowStep));
-                Window.Data.ShiftArrowStep = Mathf.Max(1.0f, EditorGUILayout.FloatField("Shift+矢印移動量", Window.Data.ShiftArrowStep));
-                if (GUILayout.Button("SceneViewへフォーカス（矢印移動用）")) {
-                    EditorSupportTool.FocusSceneView();
+                EditorGUI.BeginChangeCheck();
+                Window.User.EnableArrowNudge = EditorGUILayout.ToggleLeft("矢印キーで移動", Window.User.EnableArrowNudge);
+                Window.User.AutoRoundOnNudge = EditorGUILayout.ToggleLeft("移動後に1pxへ自動丸め", Window.User.AutoRoundOnNudge);
+                Window.User.ArrowStep = Mathf.Max(0.1f, EditorGUILayout.FloatField("矢印移動量", Window.User.ArrowStep));
+                Window.User.ShiftArrowStep = Mathf.Max(1.0f, EditorGUILayout.FloatField("Shift+矢印移動量", Window.User.ShiftArrowStep));
+                if (EditorGUI.EndChangeCheck()) {
+                    Window.SaveState();
                 }
+
+                if (GUILayout.Button("SceneViewへフォーカス（矢印移動用）")) {
+                    UISupportTool.FocusSceneView();
+                }
+
                 EditorGUILayout.HelpBox("Hierarchy選択時は上のボタンでSceneViewへフォーカスしてから矢印キーを操作してください。", MessageType.None);
 
                 EditorGUILayout.Space(8.0f);
                 if (GUILayout.Button("選択UIを1px単位で丸める")) {
-                    EditorSupportTool.RoundSelectedRectTransforms();
+                    UISupportTool.RoundSelectedRectTransforms();
                 }
 
                 if (GUILayout.Button("選択UIのScaleを1にする")) {
-                    EditorSupportTool.NormalizeSelectedScale();
+                    UISupportTool.NormalizeSelectedScale();
                 }
 
                 EditorGUILayout.Space(8.0f);
                 if (GUILayout.Button("現在の矩形にアンカーを合わせる")) {
-                    EditorSupportTool.FitAnchorsToCurrentRectForSelection();
+                    UISupportTool.FitAnchorsToCurrentRectForSelection();
                 }
 
                 if (GUILayout.Button("親にStretchアンカーを設定")) {
-                    EditorSupportTool.SetParentStretchAnchorsForSelection();
+                    UISupportTool.SetParentStretchAnchorsForSelection();
                 }
 
                 if (GUILayout.Button("選択UIのアンカーを[0..1]に正規化")) {
-                    EditorSupportTool.NormalizeSelectedAnchors();
+                    UISupportTool.NormalizeSelectedAnchors();
                 }
 
-                Window.SaveState();
+                if (GUILayout.Button("選択UIのサイズを親へ転送して親Fitにする")) {
+                    UISupportTool.TransferSizeToParentAndFitToParentForSelection();
+                }
+
+                if (GUILayout.Button("選択中の連続オブジェクトをGroup化")) {
+                    UISupportTool.GroupConsecutiveSelection("UIGroup");
+                }
             }
 
             /// <summary>
             /// SceneView GUIを描画
             /// </summary>
             public override void OnSceneGUI(SceneView sceneView) {
-                if (!Window.Data.EnableArrowNudge) {
+                if (!Window.User.EnableArrowNudge) {
                     return;
                 }
 
@@ -87,7 +99,7 @@ namespace GameFramework.EditorTools.Editor {
                     return;
                 }
 
-                var step = current.shift ? Window.Data.ShiftArrowStep : Window.Data.ArrowStep;
+                var step = current.shift ? Window.User.ShiftArrowStep : Window.User.ArrowStep;
                 NudgeSelected(delta * step);
                 current.Use();
                 SceneView.RepaintAll();
@@ -130,18 +142,16 @@ namespace GameFramework.EditorTools.Editor {
             /// 選択中RectTransformを移動
             /// </summary>
             private void NudgeSelected(Vector2 delta) {
-                var rects = EditorSupportTool.GetSelectedRectTransforms();
+                var rects = UISupportTool.GetSelectedRectTransforms();
                 for (var i = 0; i < rects.Count; i++) {
                     var rect = rects[i];
-                    EditorSupportTool.RecordAndDirty(rect, "Nudge RectTransform");
+                    UISupportTool.RecordAndDirty(rect, "Nudge RectTransform");
                     rect.anchoredPosition += delta;
-                    if (Window.Data.AutoRoundOnNudge) {
-                        EditorSupportTool.RoundRectTransform(rect);
+                    if (Window.User.AutoRoundOnNudge) {
+                        UISupportTool.RoundRectTransform(rect);
                     }
                 }
             }
-
         }
     }
 }
-

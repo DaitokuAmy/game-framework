@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
@@ -12,7 +12,7 @@ namespace GameFramework.EditorTools.Editor {
         /// <summary>
         /// SerializeFieldの自動バインド支援モジュール
         /// </summary>
-        private sealed class BindingModule : EditorToolModule<UISupportToolWindow, UISupportUserData> {
+        private sealed class BindingModule : EditorToolModule<UISupportToolWindow, ConfigData, UserData> {
             private readonly List<BindingIssue> _issues = new();
 
             /// <summary>タブ表示名</summary>
@@ -88,7 +88,7 @@ namespace GameFramework.EditorTools.Editor {
             private static int AutoBindBehaviour(MonoBehaviour behaviour) {
                 var type = behaviour.GetType();
                 var count = 0;
-                foreach (var field in EditorSupportTool.GetSerializableObjectFields(type)) {
+                foreach (var field in UISupportTool.GetSerializableObjectFields(type)) {
                     var currentValue = field.GetValue(behaviour) as UnityEngine.Object;
                     if (currentValue != null) {
                         continue;
@@ -99,7 +99,7 @@ namespace GameFramework.EditorTools.Editor {
                         continue;
                     }
 
-                    EditorSupportTool.RecordAndDirty(behaviour, "Auto Bind SerializeField");
+                    UISupportTool.RecordAndDirty(behaviour, "Auto Bind SerializeField");
                     field.SetValue(behaviour, found);
                     count++;
                 }
@@ -194,7 +194,7 @@ namespace GameFramework.EditorTools.Editor {
                         }
 
                         var type = behaviour.GetType();
-                        foreach (var field in EditorSupportTool.GetSerializableObjectFields(type)) {
+                        foreach (var field in UISupportTool.GetSerializableObjectFields(type)) {
                             var currentValue = field.GetValue(behaviour) as UnityEngine.Object;
                             if (currentValue == null) {
                                 _issues.Add(new BindingIssue {
@@ -210,4 +210,3 @@ namespace GameFramework.EditorTools.Editor {
         }
     }
 }
-

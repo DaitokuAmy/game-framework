@@ -4,9 +4,10 @@ namespace GameFramework.EditorTools.Editor {
     /// <summary>
     /// EditorToolWindowで管理されるモジュール基底
     /// </summary>
-    public abstract class EditorToolModule<TWindow, TConfigData>
-        where TWindow : EditorToolWindow<TWindow, TConfigData>
-        where TConfigData : class, new() {
+    public abstract class EditorToolModule<TWindow, TConfigData, TUserData>
+        where TWindow : EditorToolWindow<TWindow, TConfigData, TUserData>
+        where TConfigData : class, new()
+        where TUserData : class, new() {
         private DisposableScope _attachScope;
         private DisposableScope _startScope;
 

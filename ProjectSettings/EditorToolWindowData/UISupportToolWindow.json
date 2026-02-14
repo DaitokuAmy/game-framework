@@ -1,14 +1,5 @@
 {
     "ConfigData": {
-        "EnableArrowNudge": true,
-        "AutoRoundOnNudge": true,
-        "ArrowStep": 1.0,
-        "ShiftArrowStep": 10.0,
-        "DrawAnchorVisualization": true,
-        "PreviewDuration": 0.3499999940395355,
-        "PreviewScale": 1.0800000429153443,
-        "PreviewUseFade": true,
-        "PreviewUseScale": true,
         "RenameButtonSuffix": "Button",
         "RenameTextSuffix": "Text",
         "RenameImageSuffix": "Image",

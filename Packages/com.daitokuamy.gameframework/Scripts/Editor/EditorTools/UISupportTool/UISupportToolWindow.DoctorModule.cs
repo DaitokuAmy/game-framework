@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,7 +11,7 @@ namespace GameFramework.EditorTools.Editor {
         /// <summary>
         /// UI構成の診断を行うモジュール
         /// </summary>
-        private sealed class DoctorModule : EditorToolModule<UISupportToolWindow, UISupportUserData> {
+        private sealed class DoctorModule : EditorToolModule<UISupportToolWindow, ConfigData, UserData> {
             private readonly List<DoctorIssue> _issues = new();
 
             /// <summary>タブ表示名</summary>
@@ -37,7 +37,7 @@ namespace GameFramework.EditorTools.Editor {
                 }
 
                 if (GUILayout.Button("選択ボタンのNavigationをNoneにする")) {
-                    EditorSupportTool.SetButtonNavigationNoneForSelection();
+                    UISupportTool.SetButtonNavigationNoneForSelection();
                 }
 
                 EditorGUILayout.Space(6.0f);
@@ -201,4 +201,3 @@ namespace GameFramework.EditorTools.Editor {
         }
     }
 }
-

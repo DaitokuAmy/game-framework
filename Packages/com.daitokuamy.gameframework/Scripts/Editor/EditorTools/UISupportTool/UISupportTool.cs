@@ -11,7 +11,7 @@ namespace GameFramework.EditorTools.Editor {
     /// <summary>
     /// UI編集を補助する再利用可能なEditor機能群
     /// </summary>
-    public static class EditorSupportTool {
+    public static class UISupportTool {
         /// <summary>
         /// SceneViewへフォーカスを移動
         /// </summary>
@@ -134,7 +134,7 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// Serialize対象Object参照フィールド列挙
+        /// Serialize対象Object参照フィールドを列挙
         /// </summary>
         public static IEnumerable<FieldInfo> GetSerializableObjectFields(Type type) {
             if (type == null) {
@@ -151,7 +151,7 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// Undo記録とdirty化を実行
+        /// Undo記録とDirty化を実行
         /// </summary>
         public static void RecordAndDirty(Object target, string undoLabel) {
             if (target == null) {
@@ -304,6 +304,111 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
+        /// 選択RectTransformのサイズを親へ転送後に親Fitアンカー化
+        /// </summary>
+        public static void TransferSizeToParentAndFitToParent(RectTransform rect) {
+            if (rect == null || rect.parent is not RectTransform parentRect) {
+                return;
+            }
+
+            RecordAndDirty(parentRect, "Transfer Size To Parent");
+            parentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, rect.rect.width);
+            parentRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, rect.rect.height);
+
+            RecordAndDirty(rect, "Fit Child To Parent");
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+
+        /// <summary>
+        /// 選択RectTransformにサイズ転送+親Fitアンカー化を適用
+        /// </summary>
+        public static void TransferSizeToParentAndFitToParentForSelection() {
+            var rects = GetSelectedRectTransforms();
+            for (var i = 0; i < rects.Count; i++) {
+                TransferSizeToParentAndFitToParent(rects[i]);
+            }
+        }
+
+        /// <summary>
+        /// 連続選択オブジェクトを新規GameObjectでグループ化
+        /// </summary>
+        public static bool GroupConsecutiveSelection(string groupName = "Group") {
+            var selected = Selection.gameObjects;
+            if (selected == null || selected.Length <= 0) {
+                return false;
+            }
+
+            var firstSelectedTransform = selected[0] != null ? selected[0].transform : null;
+
+            var selectedTransforms = new List<Transform>(selected.Length);
+            for (var i = 0; i < selected.Length; i++) {
+                if (selected[i] != null) {
+                    selectedTransforms.Add(selected[i].transform);
+                }
+            }
+
+            if (selectedTransforms.Count <= 0) {
+                return false;
+            }
+
+            var parent = selectedTransforms[0].parent;
+            for (var i = 1; i < selectedTransforms.Count; i++) {
+                if (selectedTransforms[i].parent != parent) {
+                    Debug.LogWarning("[UISupport] Group化には同一親の連続選択が必要です。");
+                    return false;
+                }
+            }
+
+            selectedTransforms.Sort((a, b) => a.GetSiblingIndex().CompareTo(b.GetSiblingIndex()));
+            for (var i = 1; i < selectedTransforms.Count; i++) {
+                if (selectedTransforms[i].GetSiblingIndex() != selectedTransforms[i - 1].GetSiblingIndex() + 1) {
+                    Debug.LogWarning("[UISupport] Group化にはHierarchy上で連続したオブジェクト選択が必要です。");
+                    return false;
+                }
+            }
+
+            var siblingIndex = selectedTransforms[0].GetSiblingIndex();
+            var hasRectTransformParent = parent is RectTransform;
+            var groupObject = hasRectTransformParent
+                ? new GameObject(groupName, typeof(RectTransform))
+                : new GameObject(groupName);
+            Undo.RegisterCreatedObjectUndo(groupObject, "Create Group");
+
+            if (parent != null) {
+                Undo.SetTransformParent(groupObject.transform, parent, "Set Group Parent");
+            }
+
+            if (firstSelectedTransform != null) {
+                if (groupObject.transform is RectTransform groupRect && firstSelectedTransform is RectTransform firstRect) {
+                    groupRect.anchorMin = firstRect.anchorMin;
+                    groupRect.anchorMax = firstRect.anchorMax;
+                    groupRect.pivot = firstRect.pivot;
+                    groupRect.anchoredPosition3D = firstRect.anchoredPosition3D;
+                    groupRect.sizeDelta = firstRect.sizeDelta;
+                    groupRect.localRotation = firstRect.localRotation;
+                    groupRect.localScale = firstRect.localScale;
+                }
+                else {
+                    groupObject.transform.localPosition = firstSelectedTransform.localPosition;
+                    groupObject.transform.localRotation = firstSelectedTransform.localRotation;
+                    groupObject.transform.localScale = firstSelectedTransform.localScale;
+                }
+            }
+
+            groupObject.transform.SetSiblingIndex(siblingIndex);
+
+            for (var i = 0; i < selectedTransforms.Count; i++) {
+                Undo.SetTransformParent(selectedTransforms[i], groupObject.transform, "Group Selected Objects");
+            }
+
+            Selection.activeGameObject = groupObject;
+            return true;
+        }
+
+        /// <summary>
         /// ButtonのNavigationをNone化
         /// </summary>
         public static void SetButtonNavigationNone(Button button) {
@@ -434,6 +539,14 @@ namespace GameFramework.EditorTools.Editor {
             if (command.context is RectTransform rectTransform) {
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
             }
+        }
+
+        /// <summary>
+        /// RectTransformコンテキストでサイズ転送+親Fitを実行
+        /// </summary>
+        [MenuItem("CONTEXT/RectTransform/Game Framework/UI Support/サイズを親へ転送して親Fit")]
+        private static void TransferSizeToParentAndFitToParentFromContext(MenuCommand command) {
+            TransferSizeToParentAndFitToParent(command.context as RectTransform);
         }
 
         /// <summary>

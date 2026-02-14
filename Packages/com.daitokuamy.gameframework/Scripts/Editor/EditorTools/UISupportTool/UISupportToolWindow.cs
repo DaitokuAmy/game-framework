@@ -6,10 +6,7 @@ namespace GameFramework.EditorTools.Editor {
     /// <summary>
     /// UI作業を支援する統合ツールWindow
     /// </summary>
-    internal sealed partial class UISupportToolWindow : EditorToolWindow<UISupportToolWindow, UISupportToolWindow.UISupportUserData> {
-        /// <summary>Window設定データ</summary>
-        private UISupportUserData Data => ConfigData;
-
+    internal sealed partial class UISupportToolWindow : EditorToolWindow<UISupportToolWindow, UISupportToolWindow.ConfigData, UISupportToolWindow.UserData> {
         /// <summary>
         /// Windowを開く
         /// </summary>
@@ -24,12 +21,11 @@ namespace GameFramework.EditorTools.Editor {
         /// <summary>
         /// モジュール一覧を生成
         /// </summary>
-        protected override IEnumerable<EditorToolModule<UISupportToolWindow, UISupportUserData>> CreateModules() {
+        protected override IEnumerable<EditorToolModule<UISupportToolWindow, ConfigData, UserData>> CreateModules() {
             yield return new TransformModule();
             yield return new BindingModule();
             yield return new DoctorModule();
             yield return new AutomationModule();
-            yield return new PreviewModule();
         }
 
         /// <summary>
@@ -37,7 +33,7 @@ namespace GameFramework.EditorTools.Editor {
         /// </summary>
         private void SaveState() {
             SaveConfigData();
+            SaveEditorPrefsData();
         }
     }
 }
-

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
@@ -13,7 +13,7 @@ namespace GameFramework.EditorTools.Editor {
         /// <summary>
         /// UI作業の自動化機能モジュール
         /// </summary>
-        private sealed class AutomationModule : EditorToolModule<UISupportToolWindow, UISupportUserData> {
+        private sealed class AutomationModule : EditorToolModule<UISupportToolWindow, ConfigData, UserData> {
             /// <summary>テンプレートフォルダ初期値パス</summary>
             private const string DefaultTemplatePrefabFolderPath = "Assets/Sample Game/UI/Prefabs/Template";
 
@@ -40,7 +40,7 @@ namespace GameFramework.EditorTools.Editor {
                 EditorGUILayout.Space(8.0f);
 
                 if (GUILayout.Button("選択対象のLayoutを再計算")) {
-                    EditorSupportTool.RebuildLayoutsInSelection();
+                    UISupportTool.RebuildLayoutsInSelection();
                 }
             }
 
@@ -49,15 +49,17 @@ namespace GameFramework.EditorTools.Editor {
             /// </summary>
             private void DrawNamingTools() {
                 EditorGUILayout.LabelField("命名", EditorStyles.boldLabel);
-                Window.Data.RenameButtonSuffix = EditorGUILayout.TextField("Button接尾辞", Window.Data.RenameButtonSuffix);
-                Window.Data.RenameTextSuffix = EditorGUILayout.TextField("Text接尾辞", Window.Data.RenameTextSuffix);
-                Window.Data.RenameImageSuffix = EditorGUILayout.TextField("Image接尾辞", Window.Data.RenameImageSuffix);
+                EditorGUI.BeginChangeCheck();
+                Window.Config.RenameButtonSuffix = EditorGUILayout.TextField("Button接尾辞", Window.Config.RenameButtonSuffix);
+                Window.Config.RenameTextSuffix = EditorGUILayout.TextField("Text接尾辞", Window.Config.RenameTextSuffix);
+                Window.Config.RenameImageSuffix = EditorGUILayout.TextField("Image接尾辞", Window.Config.RenameImageSuffix);
+                if (EditorGUI.EndChangeCheck()) {
+                    Window.SaveState();
+                }
 
                 if (GUILayout.Button("選択UIを命名規則でリネーム")) {
                     RenameSelectedObjectsByConvention();
                 }
-
-                Window.SaveState();
             }
 
             /// <summary>
@@ -70,7 +72,7 @@ namespace GameFramework.EditorTools.Editor {
                 _isApplyFontMaterial = EditorGUILayout.ToggleLeft("マテリアルも適用", _isApplyFontMaterial);
 
                 if (GUILayout.Button("選択UIにフォント/マテリアルを適用")) {
-                    EditorSupportTool.ReplaceFontInSelection(_targetFont, _targetFontMaterial, _isApplyFontMaterial);
+                    UISupportTool.ReplaceFontInSelection(_targetFont, _targetFontMaterial, _isApplyFontMaterial);
                 }
             }
 
@@ -82,6 +84,11 @@ namespace GameFramework.EditorTools.Editor {
 
                 EnsureTemplateFolderGuidInitialized();
                 DrawTemplateFolderField();
+                var prevIsAutoUnpackTemplatePrefab = Window.User.IsAutoUnpackTemplatePrefab;
+                Window.User.IsAutoUnpackTemplatePrefab = EditorGUILayout.ToggleLeft("配置後にPrefabを自動アンパック", Window.User.IsAutoUnpackTemplatePrefab);
+                if (prevIsAutoUnpackTemplatePrefab != Window.User.IsAutoUnpackTemplatePrefab) {
+                    Window.SaveState();
+                }
 
                 using (new EditorGUILayout.HorizontalScope()) {
                     if (GUILayout.Button("テンプレート一覧を再読込")) {
@@ -122,7 +129,7 @@ namespace GameFramework.EditorTools.Editor {
                 }
 
                 var guid = string.IsNullOrEmpty(selectedPath) ? string.Empty : AssetDatabase.AssetPathToGUID(selectedPath);
-                Window.Data.TemplatePrefabFolderGuid = guid;
+                Window.Config.TemplatePrefabFolderGuid = guid;
                 Window.SaveState();
 
                 _selectedTemplateIndex = 0;
@@ -145,7 +152,7 @@ namespace GameFramework.EditorTools.Editor {
             /// テンプレートフォルダGUIDの初期化を保証
             /// </summary>
             private void EnsureTemplateFolderGuidInitialized() {
-                if (!string.IsNullOrEmpty(Window.Data.TemplatePrefabFolderGuid)) {
+                if (!string.IsNullOrEmpty(Window.Config.TemplatePrefabFolderGuid)) {
                     return;
                 }
 
@@ -153,7 +160,7 @@ namespace GameFramework.EditorTools.Editor {
                     return;
                 }
 
-                Window.Data.TemplatePrefabFolderGuid = AssetDatabase.AssetPathToGUID(DefaultTemplatePrefabFolderPath);
+                Window.Config.TemplatePrefabFolderGuid = AssetDatabase.AssetPathToGUID(DefaultTemplatePrefabFolderPath);
                 Window.SaveState();
             }
 
@@ -161,11 +168,11 @@ namespace GameFramework.EditorTools.Editor {
             /// テンプレートフォルダのパスを取得
             /// </summary>
             private string GetTemplateFolderPath() {
-                if (string.IsNullOrEmpty(Window.Data.TemplatePrefabFolderGuid)) {
+                if (string.IsNullOrEmpty(Window.Config.TemplatePrefabFolderGuid)) {
                     return string.Empty;
                 }
 
-                return AssetDatabase.GUIDToAssetPath(Window.Data.TemplatePrefabFolderGuid);
+                return AssetDatabase.GUIDToAssetPath(Window.Config.TemplatePrefabFolderGuid);
             }
 
             /// <summary>
@@ -227,6 +234,10 @@ namespace GameFramework.EditorTools.Editor {
                     instance.transform.localScale = Vector3.one;
                 }
 
+                if (Window.User.IsAutoUnpackTemplatePrefab && PrefabUtility.IsPartOfPrefabInstance(instance)) {
+                    PrefabUtility.UnpackPrefabInstance(instance, PrefabUnpackMode.Completely, InteractionMode.UserAction);
+                }
+
                 Selection.activeObject = instance;
             }
 
@@ -246,7 +257,7 @@ namespace GameFramework.EditorTools.Editor {
                         continue;
                     }
 
-                    EditorSupportTool.RecordAndDirty(obj, "UI Auto Rename");
+                    UISupportTool.RecordAndDirty(obj, "UI Auto Rename");
                     obj.name += suffix;
                 }
             }
@@ -256,15 +267,15 @@ namespace GameFramework.EditorTools.Editor {
             /// </summary>
             private string GetSuffix(GameObject obj) {
                 if (obj.GetComponent<Button>() != null) {
-                    return Window.Data.RenameButtonSuffix;
+                    return Window.Config.RenameButtonSuffix;
                 }
 
                 if (obj.GetComponent<TMP_Text>() != null) {
-                    return Window.Data.RenameTextSuffix;
+                    return Window.Config.RenameTextSuffix;
                 }
 
                 if (obj.GetComponent<Image>() != null) {
-                    return Window.Data.RenameImageSuffix;
+                    return Window.Config.RenameImageSuffix;
                 }
 
                 return string.Empty;
