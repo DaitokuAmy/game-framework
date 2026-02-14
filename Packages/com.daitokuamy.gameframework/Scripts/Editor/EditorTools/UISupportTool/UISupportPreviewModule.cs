@@ -26,11 +26,6 @@ namespace GameFramework.EditorTools.Editor {
             /// </summary>
             public override void OnGUI() {
                 Window.Data.DrawAnchorVisualization = EditorGUILayout.ToggleLeft("SceneViewでAnchor/Padding可視化", Window.Data.DrawAnchorVisualization);
-                Window.Data.DrawSafeAreaSimulation = EditorGUILayout.ToggleLeft("SceneViewでSafeAreaシミュレーション表示", Window.Data.DrawSafeAreaSimulation);
-                Window.Data.SafeAreaPresetIndex = EditorGUILayout.Popup(
-                    "SafeAreaプリセット",
-                    Window.Data.SafeAreaPresetIndex,
-                    System.Array.ConvertAll(EditorSupportTool.SafeAreaPresets, x => x.Label));
 
                 EditorGUILayout.Space(8.0f);
                 Window.Data.PreviewDuration = Mathf.Max(0.05f, EditorGUILayout.FloatField("再生時間", Window.Data.PreviewDuration));
@@ -68,10 +63,6 @@ namespace GameFramework.EditorTools.Editor {
             public override void OnSceneGUI(SceneView sceneView) {
                 if (Window.Data.DrawAnchorVisualization) {
                     DrawAnchorVisualization();
-                }
-
-                if (Window.Data.DrawSafeAreaSimulation) {
-                    DrawSafeAreaSimulation();
                 }
             }
 
@@ -194,36 +185,6 @@ namespace GameFramework.EditorTools.Editor {
                 }
             }
 
-            /// <summary>
-            /// SafeArea可視化を描画
-            /// </summary>
-            private void DrawSafeAreaSimulation() {
-                var selected = EditorSupportTool.GetSelectedRectTransforms();
-                for (var i = 0; i < selected.Count; i++) {
-                    var rect = selected[i];
-                    if (rect == null) {
-                        continue;
-                    }
-
-                    var safeRect = EditorSupportTool.GetSafeAreaRect(Window.Data.SafeAreaPresetIndex, rect);
-                    DrawSafeAreaRect(rect, safeRect);
-                }
-            }
-
-            /// <summary>
-            /// SafeArea矩形を線描画
-            /// </summary>
-            private static void DrawSafeAreaRect(RectTransform rectTransform, Rect localRect) {
-                var transform = rectTransform.transform;
-
-                var p0 = transform.TransformPoint(new Vector3(localRect.xMin, localRect.yMin, 0.0f));
-                var p1 = transform.TransformPoint(new Vector3(localRect.xMax, localRect.yMin, 0.0f));
-                var p2 = transform.TransformPoint(new Vector3(localRect.xMax, localRect.yMax, 0.0f));
-                var p3 = transform.TransformPoint(new Vector3(localRect.xMin, localRect.yMax, 0.0f));
-
-                Handles.color = new Color(1.0f, 0.7f, 0.0f, 0.95f);
-                Handles.DrawAAPolyLine(p0, p1, p2, p3, p0);
-            }
         }
     }
 }

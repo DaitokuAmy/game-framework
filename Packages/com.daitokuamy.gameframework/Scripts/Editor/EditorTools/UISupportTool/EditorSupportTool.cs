@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,23 +12,91 @@ namespace GameFramework.EditorTools.Editor {
     /// UI編集を補助する再利用可能なEditor機能群
     /// </summary>
     public static class EditorSupportTool {
-        /// <summary>SafeAreaプリセット一覧</summary>
-        public static readonly (string Label, Rect NormalizedRect)[] SafeAreaPresets = {
-            ("なし(全画面)", new Rect(0.0f, 0.0f, 1.0f, 1.0f)),
-            ("iPhone X 縦", new Rect(0.0f, 0.035f, 1.0f, 0.93f)),
-            ("iPhone X 横", new Rect(0.06f, 0.02f, 0.88f, 0.96f)),
-            ("Android 縦長", new Rect(0.0f, 0.02f, 1.0f, 0.96f))
-        };
+        /// <summary>
+        /// SceneViewへフォーカスを移動
+        /// </summary>
+        public static void FocusSceneView() {
+            EditorApplication.delayCall += FocusSceneViewInternal;
+        }
+
+        /// <summary>
+        /// SceneViewへのフォーカスを遅延実行
+        /// </summary>
+        private static void FocusSceneViewInternal() {
+            FocusSceneViewWindow();
+            EditorApplication.delayCall += FocusSceneViewWindow;
+        }
+
+        /// <summary>
+        /// SceneViewウィンドウへフォーカスを設定
+        /// </summary>
+        private static void FocusSceneViewWindow() {
+            SceneView.FocusWindowIfItsOpen<SceneView>();
+
+            var sceneView = SceneView.lastActiveSceneView;
+            if (sceneView == null) {
+                sceneView = EditorWindow.GetWindow<SceneView>();
+            }
+
+            if (sceneView == null) {
+                return;
+            }
+
+            GUI.FocusControl(null);
+            sceneView.wantsMouseMove = true;
+            sceneView.Focus();
+            sceneView.Repaint();
+            SceneView.RepaintAll();
+            sceneView.SendEvent(new Event {
+                type = EventType.MouseMove,
+                mousePosition = sceneView.position.size * 0.5f
+            });
+            SimulateSceneViewClickKeepingSelection(sceneView);
+        }
+
+        /// <summary>
+        /// 選択状態を維持したままSceneViewへ疑似クリックを送信
+        /// </summary>
+        private static void SimulateSceneViewClickKeepingSelection(SceneView sceneView) {
+            if (sceneView == null) {
+                return;
+            }
+
+            var previousSelection = Selection.objects;
+            var mousePosition = sceneView.position.size * 0.5f;
+
+            sceneView.SendEvent(new Event {
+                type = EventType.MouseDown,
+                button = 0,
+                mousePosition = mousePosition
+            });
+            sceneView.SendEvent(new Event {
+                type = EventType.MouseUp,
+                button = 0,
+                mousePosition = mousePosition
+            });
+
+            EditorApplication.delayCall += () => {
+                if (previousSelection != null) {
+                    Selection.objects = previousSelection;
+                }
+            };
+        }
 
         /// <summary>
         /// 選択中RectTransform一覧を取得
         /// </summary>
         public static IReadOnlyList<RectTransform> GetSelectedRectTransforms() {
-            var objects = Selection.GetFiltered<RectTransform>(SelectionMode.Editable | SelectionMode.TopLevel);
-            var list = new List<RectTransform>(objects.Length);
-            for (var i = 0; i < objects.Length; i++) {
-                if (objects[i] != null) {
-                    list.Add(objects[i]);
+            var selectedGameObjects = Selection.gameObjects;
+            var list = new List<RectTransform>(selectedGameObjects.Length);
+            for (var i = 0; i < selectedGameObjects.Length; i++) {
+                if (selectedGameObjects[i] == null) {
+                    continue;
+                }
+
+                var rectTransform = selectedGameObjects[i].GetComponent<RectTransform>();
+                if (rectTransform != null) {
+                    list.Add(rectTransform);
                 }
             }
 
@@ -103,25 +172,6 @@ namespace GameFramework.EditorTools.Editor {
                     LayoutRebuilder.ForceRebuildLayoutImmediate(rects[i]);
                 }
             }
-        }
-
-        /// <summary>
-        /// SafeAreaローカル矩形を取得
-        /// </summary>
-        public static Rect GetSafeAreaRect(int presetIndex, RectTransform container) {
-            if (container == null) {
-                return default;
-            }
-
-            var clampedIndex = Mathf.Clamp(presetIndex, 0, SafeAreaPresets.Length - 1);
-            var normalized = SafeAreaPresets[clampedIndex].NormalizedRect;
-            var size = container.rect.size;
-
-            return new Rect(
-                normalized.xMin * size.x,
-                normalized.yMin * size.y,
-                normalized.width * size.x,
-                normalized.height * size.y);
         }
 
         /// <summary>
@@ -231,32 +281,6 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// SafeAreaアンカーを設定
-        /// </summary>
-        public static void ApplySafeAreaAnchors(RectTransform rect, Rect normalizedSafeArea) {
-            if (rect == null) {
-                return;
-            }
-
-            RecordAndDirty(rect, "Apply SafeArea Anchors");
-            rect.anchorMin = normalizedSafeArea.min;
-            rect.anchorMax = normalizedSafeArea.max;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-        }
-
-        /// <summary>
-        /// 選択中RectTransformへSafeAreaアンカーを設定
-        /// </summary>
-        public static void ApplySafeAreaAnchorsForSelection(int presetIndex) {
-            var safeArea = SafeAreaPresets[Mathf.Clamp(presetIndex, 0, SafeAreaPresets.Length - 1)].NormalizedRect;
-            var rects = GetSelectedRectTransforms();
-            for (var i = 0; i < rects.Count; i++) {
-                ApplySafeAreaAnchors(rects[i], safeArea);
-            }
-        }
-
-        /// <summary>
         /// RectTransformアンカーを[0..1]へ正規化
         /// </summary>
         public static void NormalizeAnchors(RectTransform rect) {
@@ -307,23 +331,43 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// 選択中uGUI Textのフォントを置換
+        /// 選択中TMP_Textのフォントを置換
         /// </summary>
-        public static void ReplaceFontInSelection(Font font) {
-            if (font == null) {
+        public static void ReplaceFontInSelection(TMP_FontAsset font) {
+            ReplaceFontInSelection(font, null, false);
+        }
+
+        /// <summary>
+        /// 選択中TMP_Textのフォントとマテリアルを置換
+        /// </summary>
+        public static void ReplaceFontInSelection(TMP_FontAsset font, Material material, bool applyMaterial) {
+            if (font == null && (!applyMaterial || material == null)) {
                 return;
             }
 
             var selected = Selection.gameObjects;
             for (var i = 0; i < selected.Length; i++) {
-                var texts = selected[i].GetComponentsInChildren<Text>(true);
+                var texts = selected[i].GetComponentsInChildren<TMP_Text>(true);
                 for (var j = 0; j < texts.Length; j++) {
                     if (texts[j] == null) {
                         continue;
                     }
 
-                    RecordAndDirty(texts[j], "Replace UI Font");
-                    texts[j].font = font;
+                    var willChangeFont = font != null && texts[j].font != font;
+                    var willChangeMaterial = applyMaterial && material != null && texts[j].fontSharedMaterial != material;
+                    if (!willChangeFont && !willChangeMaterial) {
+                        continue;
+                    }
+
+                    RecordAndDirty(texts[j], "Replace TMP Font/Material");
+
+                    if (willChangeFont) {
+                        texts[j].font = font;
+                    }
+
+                    if (willChangeMaterial) {
+                        texts[j].fontSharedMaterial = material;
+                    }
                 }
             }
         }

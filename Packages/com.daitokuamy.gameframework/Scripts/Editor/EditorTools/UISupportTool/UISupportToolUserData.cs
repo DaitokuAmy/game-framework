@@ -16,20 +16,17 @@ namespace GameFramework.EditorTools.Editor {
             public float ShiftArrowStep = 10.0f;
 
             public bool DrawAnchorVisualization = true;
-            public bool DrawSafeAreaSimulation;
-            public int SafeAreaPresetIndex;
 
             public float PreviewDuration = 0.35f;
             public float PreviewScale = 1.08f;
             public bool PreviewUseFade = true;
             public bool PreviewUseScale = true;
 
-            public string RenameButtonPrefix = "Button_";
-            public string RenameTextPrefix = "Text_";
-            public string RenameImagePrefix = "Image_";
+            public string RenameButtonSuffix = "Button";
+            public string RenameTextSuffix = "Text";
+            public string RenameImageSuffix = "Image";
+            public string TemplatePrefabFolderGuid = "";
 
-            public string PresenterNamespace = "GameFramework.UI";
-            public string PresenterBaseClass = "MonoBehaviour";
         }
     }
 }

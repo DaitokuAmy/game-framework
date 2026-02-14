@@ -7,8 +7,8 @@ namespace GameFramework.EditorTools.Editor {
     /// UI作業を支援する統合ツールWindow
     /// </summary>
     internal sealed partial class UISupportToolWindow : EditorToolWindow<UISupportToolWindow, UISupportToolWindow.UISupportUserData> {
-        /// <summary>Windowユーザー設定データ</summary>
-        private UISupportUserData Data => UserData;
+        /// <summary>Window設定データ</summary>
+        private UISupportUserData Data => ConfigData;
 
         /// <summary>
         /// Windowを開く
@@ -33,10 +33,10 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// ユーザーデータを保存
+        /// 設定データを保存
         /// </summary>
         private void SaveState() {
-            SaveUserData();
+            SaveConfigData();
         }
     }
 }

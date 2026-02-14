@@ -1,21 +1,17 @@
 {
-    "SelectedModuleIndex": 4,
-    "UserData": {
+    "ConfigData": {
         "EnableArrowNudge": true,
         "AutoRoundOnNudge": true,
         "ArrowStep": 1.0,
         "ShiftArrowStep": 10.0,
         "DrawAnchorVisualization": true,
-        "DrawSafeAreaSimulation": false,
-        "SafeAreaPresetIndex": 0,
         "PreviewDuration": 0.3499999940395355,
         "PreviewScale": 1.0800000429153443,
         "PreviewUseFade": true,
         "PreviewUseScale": true,
-        "RenameButtonPrefix": "Button_",
-        "RenameTextPrefix": "Text_",
-        "RenameImagePrefix": "Image_",
-        "PresenterNamespace": "GameFramework.UI",
-        "PresenterBaseClass": "MonoBehaviour"
+        "RenameButtonSuffix": "Button",
+        "RenameTextSuffix": "Text",
+        "RenameImageSuffix": "Image",
+        "TemplatePrefabFolderGuid": "235f8985be1964349ac91d247c2f3b79"
     }
 }

@@ -8,13 +8,12 @@ namespace GameFramework.EditorTools.Editor {
     /// <summary>
     /// EditorToolModuleを統合管理するホストWindow
     /// </summary>
-    public abstract class EditorToolWindow<TWindow, TUserData> : EditorWindow
-        where TWindow : EditorToolWindow<TWindow, TUserData>
-        where TUserData : class, new() {
+    public abstract class EditorToolWindow<TWindow, TConfigData> : EditorWindow
+        where TWindow : EditorToolWindow<TWindow, TConfigData>
+        where TConfigData : class, new() {
         [Serializable]
-        private sealed class WindowSaveData {
-            public int SelectedModuleIndex;
-            public TUserData UserData = new();
+        private sealed class WindowConfigData {
+            public TConfigData ConfigData = new();
         }
 
         /// <summary>タブ内左右余白</summary>
@@ -24,30 +23,32 @@ namespace GameFramework.EditorTools.Editor {
         /// <summary>タブ描画領域の左右マージン</summary>
         private const float TabAreaHorizontalMargin = 24.0f;
 
-        private readonly List<EditorToolModule<TWindow, TUserData>> _modules = new();
+        private readonly List<EditorToolModule<TWindow, TConfigData>> _modules = new();
         private readonly List<Vector2> _moduleScrollPositions = new();
 
         private int _selectedModuleIndex;
         private int _startedModuleIndex = -1;
-        private TUserData _userData;
+        private TConfigData _configData;
 
-        /// <summary>ユーザー設定保存ファイルパス（必要ならoverride）</summary>
-        protected virtual string UserDataFilePath => $"ProjectSettings/EditorToolWindowData/{GetType().Name}.json";
+        /// <summary>Config設定保存ファイルパス（必要ならoverride）</summary>
+        protected virtual string ConfigDataFilePath => $"ProjectSettings/EditorToolWindowData/{GetType().Name}.json";
+        /// <summary>EditorPrefsキー接頭辞</summary>
+        protected virtual string EditorPrefsKeyPrefix => $"GameFramework.EditorTools.EditorToolWindow.{GetType().FullName}";
         /// <summary>有効状態か</summary>
         protected virtual bool IsActive => true;
         /// <summary>モジュール描画するか</summary>
         protected virtual bool IsDrawModule => true;
 
-        /// <summary>ユーザー設定データ</summary>
-        protected TUserData UserData {
-            get => _userData;
-            set => _userData = value;
+        /// <summary>Config設定データ</summary>
+        protected TConfigData ConfigData {
+            get => _configData;
+            set => _configData = value;
         }
 
         /// <summary>
         /// モジュール一覧を生成
         /// </summary>
-        protected abstract IEnumerable<EditorToolModule<TWindow, TUserData>> CreateModules();
+        protected abstract IEnumerable<EditorToolModule<TWindow, TConfigData>> CreateModules();
 
         /// <summary>エラーメッセージ取得</summary>
         protected virtual string GetGuiErrorMessage() => null;
@@ -68,16 +69,15 @@ namespace GameFramework.EditorTools.Editor {
             _modules.Clear();
             _moduleScrollPositions.Clear();
 
-            var saveData = LoadWindowSaveDataFromFile();
-            _selectedModuleIndex = saveData.SelectedModuleIndex;
-            _userData = saveData.UserData ?? new TUserData();
+            _configData = LoadConfigDataFromFile();
+            _selectedModuleIndex = LoadSelectedModuleIndexFromEditorPrefs();
 
             if (this is not TWindow typedWindow) {
-                throw new InvalidOperationException($"{GetType().Name} must inherit EditorToolWindow<{GetType().Name}, {typeof(TUserData).Name}>.");
+                throw new InvalidOperationException($"{GetType().Name} must inherit EditorToolWindow<{GetType().Name}, {typeof(TConfigData).Name}>.");
             }
 
             var modules = CreateModules();
-            _modules.AddRange(modules ?? Array.Empty<EditorToolModule<TWindow, TUserData>>());
+            _modules.AddRange(modules ?? Array.Empty<EditorToolModule<TWindow, TConfigData>>());
 
             for (var i = 0; i < _modules.Count; i++) {
                 _modules[i].Attach(typedWindow);
@@ -94,7 +94,8 @@ namespace GameFramework.EditorTools.Editor {
         /// </summary>
         private void OnDisable() {
             SceneView.duringSceneGui -= OnSceneGUIInternal;
-            SaveUserDataToFile();
+            SaveConfigDataToFile();
+            SaveSelectedModuleIndexToEditorPrefs();
 
             for (var i = 0; i < _modules.Count; i++) {
                 _modules[i].Detach();
@@ -184,6 +185,7 @@ namespace GameFramework.EditorTools.Editor {
 
             _selectedModuleIndex = Mathf.Clamp(_selectedModuleIndex, 0, _modules.Count - 1);
             if (prevSelected != _selectedModuleIndex) {
+                SaveSelectedModuleIndexToEditorPrefs();
                 SwitchStartedModule(_selectedModuleIndex);
             }
         }
@@ -274,49 +276,49 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// ユーザー設定データを保存
+        /// Config設定データを保存
         /// </summary>
-        protected void SaveUserData() {
-            SaveUserDataToFile();
+        protected void SaveConfigData() {
+            SaveConfigDataToFile();
         }
 
         /// <summary>
-        /// ユーザー設定データを再読込
+        /// Config設定データを再読込
         /// </summary>
-        protected void ReloadUserData() {
-            var saveData = LoadWindowSaveDataFromFile();
-            _selectedModuleIndex = saveData.SelectedModuleIndex;
-            _userData = saveData.UserData ?? new TUserData();
+        protected void ReloadConfigData() {
+            _configData = LoadConfigDataFromFile();
+            _selectedModuleIndex = LoadSelectedModuleIndexFromEditorPrefs();
         }
 
         /// <summary>
-        /// Window設定ファイルを読込
+        /// Config設定ファイルを読込
         /// </summary>
-        private WindowSaveData LoadWindowSaveDataFromFile() {
-            var fullPath = GetUserDataFileFullPath();
+        private TConfigData LoadConfigDataFromFile() {
+            var fullPath = GetConfigDataFileFullPath();
             if (!File.Exists(fullPath)) {
-                return new WindowSaveData();
+                return new TConfigData();
             }
 
             try {
                 var json = File.ReadAllText(fullPath);
                 if (string.IsNullOrEmpty(json)) {
-                    return new WindowSaveData();
+                    return new TConfigData();
                 }
 
-                return JsonUtility.FromJson<WindowSaveData>(json) ?? new WindowSaveData();
+                var data = JsonUtility.FromJson<WindowConfigData>(json);
+                return data?.ConfigData ?? new TConfigData();
             }
             catch (Exception ex) {
                 Debug.LogException(ex);
-                return new WindowSaveData();
+                return new TConfigData();
             }
         }
 
         /// <summary>
-        /// ユーザー設定ファイルへ保存
+        /// Config設定ファイルへ保存
         /// </summary>
-        private void SaveUserDataToFile() {
-            var fullPath = GetUserDataFileFullPath();
+        private void SaveConfigDataToFile() {
+            var fullPath = GetConfigDataFileFullPath();
 
             try {
                 var dirPath = Path.GetDirectoryName(fullPath);
@@ -324,9 +326,8 @@ namespace GameFramework.EditorTools.Editor {
                     Directory.CreateDirectory(dirPath);
                 }
 
-                var saveData = new WindowSaveData {
-                    SelectedModuleIndex = _selectedModuleIndex,
-                    UserData = _userData ?? new TUserData()
+                var saveData = new WindowConfigData {
+                    ConfigData = _configData ?? new TConfigData()
                 };
                 var json = JsonUtility.ToJson(saveData, true);
                 File.WriteAllText(fullPath, json);
@@ -337,15 +338,36 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// ユーザー設定ファイルの絶対パスを取得
+        /// Config設定ファイルの絶対パスを取得
         /// </summary>
-        private string GetUserDataFileFullPath() {
-            if (Path.IsPathRooted(UserDataFilePath)) {
-                return UserDataFilePath;
+        private string GetConfigDataFileFullPath() {
+            if (Path.IsPathRooted(ConfigDataFilePath)) {
+                return ConfigDataFilePath;
             }
 
             var projectRootPath = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-            return Path.GetFullPath(Path.Combine(projectRootPath, UserDataFilePath));
+            return Path.GetFullPath(Path.Combine(projectRootPath, ConfigDataFilePath));
+        }
+
+        /// <summary>
+        /// 選択中モジュールIndexをEditorPrefsから読込
+        /// </summary>
+        private int LoadSelectedModuleIndexFromEditorPrefs() {
+            return EditorPrefs.GetInt(GetSelectedModuleIndexEditorPrefsKey(), 0);
+        }
+
+        /// <summary>
+        /// 選択中モジュールIndexをEditorPrefsへ保存
+        /// </summary>
+        private void SaveSelectedModuleIndexToEditorPrefs() {
+            EditorPrefs.SetInt(GetSelectedModuleIndexEditorPrefsKey(), _selectedModuleIndex);
+        }
+
+        /// <summary>
+        /// 選択中モジュールIndex用EditorPrefsキーを取得
+        /// </summary>
+        private string GetSelectedModuleIndexEditorPrefsKey() {
+            return $"{EditorPrefsKeyPrefix}.SelectedModuleIndex";
         }
 
         /// <summary>

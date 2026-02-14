@@ -1,22 +1,23 @@
-using UnityEditor;
+﻿using UnityEditor;
 
 namespace GameFramework.EditorTools.Editor {
     /// <summary>
-    /// EditorToolWindowで管理するモジュール基底
+    /// EditorToolWindowで管理されるモジュール基底
     /// </summary>
-    public abstract class EditorToolModule<TWindow, TUserData>
-        where TWindow : EditorToolWindow<TWindow, TUserData>
-        where TUserData : class, new() {
+    public abstract class EditorToolModule<TWindow, TConfigData>
+        where TWindow : EditorToolWindow<TWindow, TConfigData>
+        where TConfigData : class, new() {
         private DisposableScope _attachScope;
         private DisposableScope _startScope;
 
         /// <summary>表示名</summary>
         public abstract string DisplayName { get; }
+
         /// <summary>紐付け先Window</summary>
         protected TWindow Window { get; private set; }
 
         /// <summary>
-        /// 紐付け処理
+        /// Windowへアタッチ
         /// </summary>
         internal void Attach(TWindow window) {
             if (_attachScope != null) {
@@ -29,7 +30,7 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// 開始処理
+        /// モジュール開始
         /// </summary>
         internal void Start() {
             if (_startScope != null) {
@@ -41,7 +42,7 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// 終了処理
+        /// モジュール終了
         /// </summary>
         internal void Exit() {
             if (_startScope == null) {
@@ -55,7 +56,7 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// 紐付け解除処理
+        /// Windowからデタッチ
         /// </summary>
         internal void Detach() {
             Exit();
@@ -72,32 +73,32 @@ namespace GameFramework.EditorTools.Editor {
         }
 
         /// <summary>
-        /// 紐付け時処理
+        /// Attach時処理
         /// </summary>
         protected virtual void OnAttachInternal(IScope scope) { }
 
         /// <summary>
-        /// 開始時処理
+        /// Start時処理
         /// </summary>
         protected virtual void OnStartInternal(IScope scope) { }
 
         /// <summary>
-        /// 終了時処理
+        /// Exit時処理
         /// </summary>
         protected virtual void OnExitInternal() { }
 
         /// <summary>
-        /// 解除時処理
+        /// Detach時処理
         /// </summary>
         protected virtual void OnDetachInternal() { }
 
         /// <summary>
-        /// GUI描画処理
+        /// GUI描画
         /// </summary>
         public virtual void OnGUI() { }
 
         /// <summary>
-        /// SceneGUI描画処理
+        /// SceneGUI描画
         /// </summary>
         public virtual void OnSceneGUI(SceneView sceneView) { }
 

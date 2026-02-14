@@ -21,6 +21,10 @@ namespace GameFramework.EditorTools.Editor {
                 Window.Data.AutoRoundOnNudge = EditorGUILayout.ToggleLeft("移動後に1pxへ自動丸め", Window.Data.AutoRoundOnNudge);
                 Window.Data.ArrowStep = Mathf.Max(0.1f, EditorGUILayout.FloatField("矢印移動量", Window.Data.ArrowStep));
                 Window.Data.ShiftArrowStep = Mathf.Max(1.0f, EditorGUILayout.FloatField("Shift+矢印移動量", Window.Data.ShiftArrowStep));
+                if (GUILayout.Button("SceneViewへフォーカス（矢印移動用）")) {
+                    EditorSupportTool.FocusSceneView();
+                }
+                EditorGUILayout.HelpBox("Hierarchy選択時は上のボタンでSceneViewへフォーカスしてから矢印キーを操作してください。", MessageType.None);
 
                 EditorGUILayout.Space(8.0f);
                 if (GUILayout.Button("選択UIを1px単位で丸める")) {
@@ -40,15 +44,6 @@ namespace GameFramework.EditorTools.Editor {
                     EditorSupportTool.SetParentStretchAnchorsForSelection();
                 }
 
-                Window.Data.SafeAreaPresetIndex = EditorGUILayout.Popup(
-                    "SafeAreaプリセット",
-                    Window.Data.SafeAreaPresetIndex,
-                    System.Array.ConvertAll(EditorSupportTool.SafeAreaPresets, x => x.Label));
-
-                if (GUILayout.Button("選択UIへSafeAreaアンカーを適用")) {
-                    EditorSupportTool.ApplySafeAreaAnchorsForSelection(Window.Data.SafeAreaPresetIndex);
-                }
-
                 if (GUILayout.Button("選択UIのアンカーを[0..1]に正規化")) {
                     EditorSupportTool.NormalizeSelectedAnchors();
                 }
@@ -65,17 +60,37 @@ namespace GameFramework.EditorTools.Editor {
                 }
 
                 var current = Event.current;
-                if (current == null || current.type != EventType.KeyDown) {
+                if (current == null) {
+                    return;
+                }
+
+                if (current.type == EventType.Layout) {
+                    HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+                    return;
+                }
+
+                if (!IsArrowKey(current.keyCode)) {
+                    return;
+                }
+
+                if (current.type == EventType.KeyUp) {
+                    current.Use();
+                    return;
+                }
+
+                if (current.type != EventType.KeyDown) {
                     return;
                 }
 
                 if (!TryGetArrowDelta(current, out var delta)) {
+                    current.Use();
                     return;
                 }
 
                 var step = current.shift ? Window.Data.ShiftArrowStep : Window.Data.ArrowStep;
                 NudgeSelected(delta * step);
                 current.Use();
+                SceneView.RepaintAll();
             }
 
             /// <summary>
@@ -102,6 +117,16 @@ namespace GameFramework.EditorTools.Editor {
             }
 
             /// <summary>
+            /// 矢印キーか判定
+            /// </summary>
+            private static bool IsArrowKey(KeyCode keyCode) {
+                return keyCode == KeyCode.LeftArrow ||
+                       keyCode == KeyCode.RightArrow ||
+                       keyCode == KeyCode.UpArrow ||
+                       keyCode == KeyCode.DownArrow;
+            }
+
+            /// <summary>
             /// 選択中RectTransformを移動
             /// </summary>
             private void NudgeSelected(Vector2 delta) {
@@ -115,6 +140,7 @@ namespace GameFramework.EditorTools.Editor {
                     }
                 }
             }
+
         }
     }
 }
