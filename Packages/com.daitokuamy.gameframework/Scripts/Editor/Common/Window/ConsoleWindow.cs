@@ -1,4 +1,4 @@
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace GameFramework.Editor {
             public int Hash => (Condition + StackTrace + Type).GetHashCode();
         }
 
-        private const float RowHeight = 20f;
+        private const float RowHeight = 20.0f;
 
         private static Texture2D s_logIcon;
         private static Texture2D s_warningIcon;
@@ -220,7 +220,7 @@ namespace GameFramework.Editor {
         /// ログタイプに応じた色を返す
         /// </summary>
         private Color GetColor(LogType type) => type switch {
-            LogType.Warning => new Color(1f, 0.65f, 0f),
+            LogType.Warning => new Color(1.0f, 0.65f, 0.0f),
             LogType.Error => Color.red,
             LogType.Exception => Color.magenta,
             LogType.Assert => Color.cyan,

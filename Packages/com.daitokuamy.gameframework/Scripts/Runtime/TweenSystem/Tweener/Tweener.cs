@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GameFramework.TweenSystem {
     /// <summary>
@@ -20,8 +20,8 @@ namespace GameFramework.TweenSystem {
             Elapsed += deltaTime;
 
             var t01 = Mathf.Clamp01(Elapsed / Length);
-            if (t01 >= 1f) {
-                Apply(1f);
+            if (t01 >= 1.0f) {
+                Apply(1.0f);
                 CompleteInternal();
                 return;
             }
@@ -69,3 +69,5 @@ namespace GameFramework.TweenSystem {
         }
     }
 }
+
+

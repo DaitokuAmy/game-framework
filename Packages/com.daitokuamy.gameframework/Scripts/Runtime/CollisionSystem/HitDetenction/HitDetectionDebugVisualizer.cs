@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GameFramework.CollisionSystem {
     /// <summary>
@@ -129,7 +129,7 @@ namespace GameFramework.CollisionSystem {
         /// Gizmosでワイヤーカプセル（線分+半径）を描画します（簡易版）
         /// </summary>
         private static void DrawWireCapsule(Vector3 a, Vector3 b, float radius) {
-            if (radius <= 0f) {
+            if (radius <= 0.0f) {
                 Gizmos.DrawLine(a, b);
                 return;
             }

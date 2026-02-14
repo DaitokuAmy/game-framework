@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GameFramework.CollisionSystem {
     /// <summary>
@@ -61,7 +61,7 @@ namespace GameFramework.CollisionSystem {
             var worldHeight = _collider.height * axisScale;
 
             // カプセルの“円柱部分”半長（height < 2r なら0）
-            var halfSegment = Mathf.Max(0f, worldHeight * 0.5f - worldRadius);
+            var halfSegment = Mathf.Max(0.0f, worldHeight * 0.5f - worldRadius);
 
             // center（ワールド）
             var centerWorld = t.TransformPoint(_collider.center);

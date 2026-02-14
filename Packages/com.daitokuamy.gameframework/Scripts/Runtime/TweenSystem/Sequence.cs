@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Buffers;
 using UnityEngine;
 
@@ -61,7 +61,7 @@ namespace GameFramework.TweenSystem {
                 var tickEnd = Mathf.Min(_time, item.End);
                 var dt = tickEnd - tickStart;
 
-                if (dt > 0f) {
+                if (dt > 0.0f) {
                     item.Tween.TickInternal(dt);
                 }
             }
@@ -74,7 +74,7 @@ namespace GameFramework.TweenSystem {
         /// <inheritdoc/>
         protected override void OnForceComplete() {
             var remaining = _duration - _time;
-            if (remaining > 0f) {
+            if (remaining > 0.0f) {
                 OnTick(remaining);
             }
         }
@@ -89,12 +89,12 @@ namespace GameFramework.TweenSystem {
         /// <inheritdoc/>
         protected override void OnReset() {
             _owner = null!;
-            _time = 0f;
-            _duration = 0f;
+            _time = 0.0f;
+            _duration = 0.0f;
 
-            _cursor = 0f;
-            _lastAppendStart = 0f;
-            _groupEnd = 0f;
+            _cursor = 0.0f;
+            _lastAppendStart = 0.0f;
+            _groupEnd = 0.0f;
 
             if (_items != null) {
                 ArrayPool<Item>.Shared.Return(_items, clearArray: true);
@@ -111,12 +111,12 @@ namespace GameFramework.TweenSystem {
         public void Setup(TweenPlayer owner) {
             _owner = owner;
             _itemsCount = 0;
-            _time = 0f;
-            _duration = 0f;
+            _time = 0.0f;
+            _duration = 0.0f;
 
-            _cursor = 0f;
-            _lastAppendStart = 0f;
-            _groupEnd = 0f;
+            _cursor = 0.0f;
+            _lastAppendStart = 0.0f;
+            _groupEnd = 0.0f;
         }
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace GameFramework.TweenSystem {
         public Sequence Insert(float at, Tween tween) {
             EnsureCapacity(_itemsCount + 1);
 
-            var start = Mathf.Max(0f, at);
+            var start = Mathf.Max(0.0f, at);
             var end = start + tween.Duration;
 
             _items[_itemsCount++] = new Item { Tween = tween, Start = start, End = end };

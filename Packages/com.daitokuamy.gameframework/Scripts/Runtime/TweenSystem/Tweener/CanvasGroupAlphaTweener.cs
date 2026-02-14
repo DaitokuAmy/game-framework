@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace GameFramework.TweenSystem {
     /// <summary>
@@ -21,7 +21,7 @@ namespace GameFramework.TweenSystem {
 
         /// <inheritdoc/>
         protected override void OnBegin() {
-            _from = _target != null ? _target.alpha : 0f;
+            _from = _target != null ? _target.alpha : 0.0f;
         }
 
         /// <inheritdoc/>
@@ -36,8 +36,9 @@ namespace GameFramework.TweenSystem {
         /// <inheritdoc/>
         protected override void OnResetTweener() {
             _target = null!;
-            _from = 0f;
-            _to = 0f;
+            _from = 0.0f;
+            _to = 0.0f;
         }
     }
 }
+

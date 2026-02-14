@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace GameFramework {
     /// <summary>
@@ -249,7 +249,7 @@ namespace GameFramework {
 
         private static float Spring(float start, float end, float ratio) {
             ratio = FloatMath.Clamp01(ratio);
-            ratio = (FloatMath.Sin(ratio * FloatMath.PI * (0.2f + 2.5f * ratio * ratio * ratio)) * FloatMath.Pow(1f - ratio, 2.2f) + ratio) * (1f + (1.2f * (1f - ratio)));
+            ratio = (FloatMath.Sin(ratio * FloatMath.PI * (0.2f + 2.5f * ratio * ratio * ratio)) * FloatMath.Pow(1.0f - ratio, 2.2f) + ratio) * (1.0f + (1.2f * (1.0f - ratio)));
             return start + (end - start) * ratio;
         }
 
@@ -260,7 +260,7 @@ namespace GameFramework {
         }
 
         private static float EaseOutBounce(float start, float end, float ratio) {
-            ratio /= 1f;
+            ratio /= 1.0f;
             end -= start;
             if (ratio < (1 / 2.75f)) {
                 return end * (7.5625f * ratio * ratio) + start;
@@ -334,7 +334,7 @@ namespace GameFramework {
                 return start + end;
             }
 
-            if (a == 0f || a < FloatMath.Abs(end)) {
+            if (a == 0.0f || a < FloatMath.Abs(end)) {
                 a = end;
                 s = p / 4;
             }
@@ -361,7 +361,7 @@ namespace GameFramework {
                 return start + end;
             }
 
-            if (a == 0f || a < FloatMath.Abs(end)) {
+            if (a == 0.0f || a < FloatMath.Abs(end)) {
                 a = end;
                 s = p / 4;
             }
@@ -388,7 +388,7 @@ namespace GameFramework {
                 return start + end;
             }
 
-            if (a == 0f || a < FloatMath.Abs(end)) {
+            if (a == 0.0f || a < FloatMath.Abs(end)) {
                 a = end;
                 s = p / 4;
             }

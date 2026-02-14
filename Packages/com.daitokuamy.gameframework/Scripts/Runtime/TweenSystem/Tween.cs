@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace GameFramework.TweenSystem {
     /// <summary>
@@ -165,7 +165,7 @@ namespace GameFramework.TweenSystem {
                 return;
             }
 
-            if (deltaTime <= 0f) {
+            if (deltaTime <= 0.0f) {
                 return;
             }
 
@@ -201,3 +201,4 @@ namespace GameFramework.TweenSystem {
         }
     }
 }
+
