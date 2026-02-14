@@ -56,8 +56,8 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         private void SetupPresentations(IScope scope) {
             var uiService = _uiManager.GetService<IntroductionUIService>();
-            uiService.TitleTopUIScreen.RegisterHandler(LogicUtility.CreateLogic<TitleTopPresenter>(ObjectResolver, false, scope));
-            uiService.TitleOptionUIScreen.RegisterHandler(LogicUtility.CreateLogic<TitleOptionPresenter>(ObjectResolver, false, scope));
+            uiService.TitleTopUIScreen.RegisterHandler(LogicUtility.CreateLogic<TitleTopPresenter>(UpdateOrder.Presenter, ObjectResolver, false, scope));
+            uiService.TitleOptionUIScreen.RegisterHandler(LogicUtility.CreateLogic<TitleOptionPresenter>(UpdateOrder.Presenter, ObjectResolver, false, scope));
         }
     }
 }
