@@ -2,33 +2,26 @@ using UnityEngine;
 
 namespace GameFramework.TweenSystem {
     /// <summary>
-    /// Transformのpositionをtoへ補間するTweener
+    /// TransformのlocalScaleをtoへ補間するTweener
     /// </summary>
-    public sealed class MoveToTweener : Tweener {
+    public sealed class ScaleToTweener : Tweener {
         private Transform _target = null!;
         private Vector3 _from;
         private Vector3 _to;
-        private Space _space;
 
         /// <summary>
         /// 初期化（fromはBegin時にキャプチャ）
         /// </summary>
-        public MoveToTweener Setup(Transform target, Vector3 to, float duration, Space space = Space.World) {
+        public ScaleToTweener Setup(Transform target, Vector3 to, float duration) {
             _target = target;
             _to = to;
-            _space = space;
             SetupDuration(duration);
             return this;
         }
 
         /// <inheritdoc/>
         protected override void OnBegin() {
-            if (_target == null) {
-                _from = default;
-                return;
-            }
-
-            _from = _space == Space.World ? _target.position : _target.localPosition;
+            _from = _target != null ? _target.localScale : default;
         }
 
         /// <inheritdoc/>
@@ -37,13 +30,7 @@ namespace GameFramework.TweenSystem {
                 return;
             }
 
-            var value = Vector3.LerpUnclamped(_from, _to, eased);
-            if (_space == Space.World) {
-                _target.position = value;
-                return;
-            }
-
-            _target.localPosition = value;
+            _target.localScale = Vector3.LerpUnclamped(_from, _to, eased);
         }
 
         /// <inheritdoc/>
@@ -51,7 +38,6 @@ namespace GameFramework.TweenSystem {
             _target = null!;
             _from = default;
             _to = default;
-            _space = Space.World;
         }
     }
 }

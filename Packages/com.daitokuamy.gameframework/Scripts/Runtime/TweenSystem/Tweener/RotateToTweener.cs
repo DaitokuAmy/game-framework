@@ -2,20 +2,20 @@ using UnityEngine;
 
 namespace GameFramework.TweenSystem {
     /// <summary>
-    /// Transformのpositionをtoへ補間するTweener
+    /// Transformのrotationをtoへ補間するTweener
     /// </summary>
-    public sealed class MoveToTweener : Tweener {
+    public sealed class RotateToTweener : Tweener {
         private Transform _target = null!;
-        private Vector3 _from;
-        private Vector3 _to;
+        private Quaternion _from;
+        private Quaternion _to;
         private Space _space;
 
         /// <summary>
         /// 初期化（fromはBegin時にキャプチャ）
         /// </summary>
-        public MoveToTweener Setup(Transform target, Vector3 to, float duration, Space space = Space.World) {
+        public RotateToTweener Setup(Transform target, Vector3 toEuler, float duration, Space space = Space.World) {
             _target = target;
-            _to = to;
+            _to = Quaternion.Euler(toEuler);
             _space = space;
             SetupDuration(duration);
             return this;
@@ -24,11 +24,11 @@ namespace GameFramework.TweenSystem {
         /// <inheritdoc/>
         protected override void OnBegin() {
             if (_target == null) {
-                _from = default;
+                _from = Quaternion.identity;
                 return;
             }
 
-            _from = _space == Space.World ? _target.position : _target.localPosition;
+            _from = _space == Space.World ? _target.rotation : _target.localRotation;
         }
 
         /// <inheritdoc/>
@@ -37,20 +37,20 @@ namespace GameFramework.TweenSystem {
                 return;
             }
 
-            var value = Vector3.LerpUnclamped(_from, _to, eased);
+            var value = Quaternion.SlerpUnclamped(_from, _to, eased);
             if (_space == Space.World) {
-                _target.position = value;
+                _target.rotation = value;
                 return;
             }
 
-            _target.localPosition = value;
+            _target.localRotation = value;
         }
 
         /// <inheritdoc/>
         protected override void OnResetTweener() {
             _target = null!;
-            _from = default;
-            _to = default;
+            _from = Quaternion.identity;
+            _to = Quaternion.identity;
             _space = Space.World;
         }
     }

@@ -1,0 +1,44 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace GameFramework.TweenSystem {
+    /// <summary>
+    /// Sliderのvalueをtoへ補間するTweener
+    /// </summary>
+    public sealed class SliderValueTweener : Tweener {
+        private Slider _target = null!;
+        private float _from;
+        private float _to;
+
+        /// <summary>
+        /// 初期化（fromはBegin時にキャプチャ）
+        /// </summary>
+        public SliderValueTweener Setup(Slider target, float to, float duration) {
+            _target = target;
+            _to = to;
+            SetupDuration(duration);
+            return this;
+        }
+
+        /// <inheritdoc/>
+        protected override void OnBegin() {
+            _from = _target != null ? _target.value : 0f;
+        }
+
+        /// <inheritdoc/>
+        protected override void Apply(float eased) {
+            if (_target == null) {
+                return;
+            }
+
+            _target.value = Mathf.LerpUnclamped(_from, _to, eased);
+        }
+
+        /// <inheritdoc/>
+        protected override void OnResetTweener() {
+            _target = null!;
+            _from = 0f;
+            _to = 0f;
+        }
+    }
+}

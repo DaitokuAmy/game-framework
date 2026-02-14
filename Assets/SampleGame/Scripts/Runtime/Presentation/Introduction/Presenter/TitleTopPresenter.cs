@@ -47,8 +47,7 @@ namespace SampleGame.Presentation.OutGame {
             if (Input.GetKeyDown(KeyCode.Space)) {
                 var icon = Screen.TestIcon;
                 var target = Screen.Points[Random.Range(0, Screen.Points.Length)];
-                var moveTo = _tweenPlayer.CreateTweener<MoveToTweener>()
-                    .Setup(icon, target.position, 0.5f)
+                var moveTo = _tweenPlayer.MoveTo(icon, target.position, 0.5f, Space.World)
                     .SetEase(EaseType.EaseInCubic)
                     .OnComplete(() => Debug.Log("Completed_Space"));
                 _tweenPlayer.ForceCompleteAll();
@@ -58,8 +57,8 @@ namespace SampleGame.Presentation.OutGame {
                 var icon = Screen.TestIcon;
                 var target = Screen.Points[Random.Range(0, Screen.Points.Length)];
                 var sequence = _tweenPlayer.CreateSequence()
-                    .Append(_tweenPlayer.CreateTweener<MoveToTweener>().Setup(icon, target.position, 0.5f))
-                    .Append(_tweenPlayer.CreateTweener<MoveToTweener>().Setup(icon, Vector3.zero, 0.5f))
+                    .Append(_tweenPlayer.MoveTo(icon, target.position, 0.5f))
+                    .Append(_tweenPlayer.MoveTo(icon, Vector3.zero, 0.5f))
                     .OnComplete(() => Debug.Log("Completed_0"));;
                 _tweenPlayer.ForceCompleteAll();
                 _tweenPlayer.Play(sequence);
