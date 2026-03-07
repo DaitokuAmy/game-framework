@@ -11,7 +11,7 @@ namespace GameFramework.Editor {
         /// GUI描画
         /// </summary>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
-            var valueProp = property.FindPropertyRelative("_value");
+            var valueProp = property.FindPropertyRelative("RawValue");
             var current = valueProp.intValue / (float)Percent.UnitValue;
 
             label.text += " (Percent)";
