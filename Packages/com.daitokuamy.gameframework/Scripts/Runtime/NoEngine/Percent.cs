@@ -9,19 +9,25 @@ namespace GameFramework {
     public struct Percent : IEquatable<Percent>, IComparable<Percent>, IFormattable {
         /// <summary>百分率の1.0</summary>
         public const int UnitValue = 100;
+
         /// <summary>0%を表す定数</summary>
         public static readonly Percent Zero = new(0);
+
         /// <summary>100%を表す定数</summary>
         public static readonly Percent One = new(UnitValue);
 
         /// <summary>生値</summary>
-        public int RawValue;
+        public long RawValue;
+
         /// <summary>小数点値</summary>
         public float AsFloat => RawValue / (float)UnitValue;
+
         /// <summary>百分率値</summary>
-        public int AsPercent => RawValue;
+        public int AsPercent => (int)RawValue;
+
         /// <summary>Zeroか</summary>
         public bool IsZero => RawValue == 0;
+
         /// <summary>100%か</summary>
         public bool IsOne => RawValue == UnitValue;
 
@@ -112,11 +118,11 @@ namespace GameFramework {
         }
 
         public static Percent operator +(Percent a, int b) {
-            return new Percent(a.RawValue + b * UnitValue);
+            return new Percent(a.RawValue + (long)b * UnitValue);
         }
 
         public static Percent operator +(int a, Percent b) {
-            return new Percent(a * UnitValue + b.RawValue);
+            return new Percent((long)a * UnitValue + b.RawValue);
         }
 
         public static Percent operator -(Percent a, Percent b) {
@@ -132,23 +138,23 @@ namespace GameFramework {
         }
 
         public static Percent operator -(Percent a, int b) {
-            return new Percent(a.RawValue - b * UnitValue);
+            return new Percent(a.RawValue - (long)b * UnitValue);
         }
 
         public static Percent operator -(int a, Percent b) {
-            return new Percent(a * UnitValue - b.RawValue);
+            return new Percent((long)a * UnitValue - b.RawValue);
         }
 
         public static Percent operator *(Percent a, Percent b) {
-            return new Percent(a.RawValue * b.RawValue / UnitValue);
+            return new Percent { RawValue = a.RawValue * b.RawValue / UnitValue, };
         }
 
         public static Percent operator *(Percent a, float b) {
-            return new Percent(a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue);
+            return new Percent { RawValue = a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue, };
         }
 
         public static Percent operator *(float a, Percent b) {
-            return new Percent(FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue);
+            return new Percent { RawValue = FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue, };
         }
 
         public static Percent operator *(Percent a, int b) {
@@ -164,7 +170,11 @@ namespace GameFramework {
         }
 
         public static Percent operator /(Percent a, float b) {
-            return new Percent(a.RawValue / FloatMath.RoundToInt(b * UnitValue) * UnitValue);
+            if (b == 0.0f) {
+                throw new DivideByZeroException();
+            }
+
+            return new Percent { RawValue = (long)Math.Round(a.RawValue / b), };
         }
 
         public static float operator /(float a, Percent b) {
@@ -172,15 +182,19 @@ namespace GameFramework {
         }
 
         public static Percent operator /(Percent a, int b) {
-            return new Percent(a.RawValue / (b * UnitValue) * UnitValue);
+            if (b == 0) {
+                throw new DivideByZeroException();
+            }
+
+            return new Percent { RawValue = a.RawValue / b, };
         }
 
         public static float operator /(int a, Percent b) {
-            return a * UnitValue / (float)b.RawValue;
+            return (long)a * UnitValue / (float)b.RawValue;
         }
 
         public static explicit operator int(Percent percent) {
-            return percent.RawValue / UnitValue;
+            return (int)(percent.RawValue / UnitValue);
         }
 
         public static implicit operator Percent(int value) {
@@ -202,7 +216,7 @@ namespace GameFramework {
         /// </summary>
         /// <param name="value">Percentではないただのint値</param>
         public static Percent CreateFromIntValue(int value) {
-            return new Percent(value * UnitValue);
+            return new Percent((long)value * UnitValue);
         }
 
         /// <summary>

@@ -9,19 +9,25 @@ namespace GameFramework {
     public struct Permil : IEquatable<Permil>, IComparable<Permil>, IFormattable {
         /// <summary>千分率の1.0</summary>
         public const int UnitValue = 1000;
+
         /// <summary>0‰を表す定数</summary>
         public static readonly Permil Zero = new(0);
+
         /// <summary>1000‰を表す定数</summary>
         public static readonly Permil One = new(UnitValue);
 
         /// <summary>生値</summary>
-        public int RawValue;
+        public long RawValue;
+
         /// <summary>小数点値</summary>
         public float AsFloat => RawValue / (float)UnitValue;
+
         /// <summary>千分率値</summary>
-        public int AsPermil => RawValue;
+        public int AsPermil => (int)RawValue;
+
         /// <summary>Zeroか</summary>
         public bool IsZero => RawValue == 0;
+
         /// <summary>1000‰か</summary>
         public bool IsOne => RawValue == UnitValue;
 
@@ -112,11 +118,11 @@ namespace GameFramework {
         }
 
         public static Permil operator +(Permil a, int b) {
-            return new Permil(a.RawValue + b * UnitValue);
+            return new Permil(a.RawValue + (long)b * UnitValue);
         }
 
         public static Permil operator +(int a, Permil b) {
-            return new Permil(a * UnitValue + b.RawValue);
+            return new Permil((long)a * UnitValue + b.RawValue);
         }
 
         public static Permil operator -(Permil a, Permil b) {
@@ -132,23 +138,23 @@ namespace GameFramework {
         }
 
         public static Permil operator -(Permil a, int b) {
-            return new Permil(a.RawValue - b * UnitValue);
+            return new Permil(a.RawValue - (long)b * UnitValue);
         }
 
         public static Permil operator -(int a, Permil b) {
-            return new Permil(a * UnitValue - b.RawValue);
+            return new Permil((long)a * UnitValue - b.RawValue);
         }
 
         public static Permil operator *(Permil a, Permil b) {
-            return new Permil(a.RawValue * b.RawValue / UnitValue);
+            return new Permil { RawValue = a.RawValue * b.RawValue / UnitValue, };
         }
 
         public static Permil operator *(Permil a, float b) {
-            return new Permil(a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue);
+            return new Permil { RawValue = a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue, };
         }
 
         public static Permil operator *(float a, Permil b) {
-            return new Permil(FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue);
+            return new Permil { RawValue = FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue, };
         }
 
         public static Permil operator *(Permil a, int b) {
@@ -164,7 +170,11 @@ namespace GameFramework {
         }
 
         public static Permil operator /(Permil a, float b) {
-            return new Permil(a.RawValue / FloatMath.RoundToInt(b * UnitValue) * UnitValue);
+            if (b == 0.0f) {
+                throw new DivideByZeroException();
+            }
+
+            return new Permil { RawValue = (long)FloatMath.Round(a.RawValue / b), };
         }
 
         public static float operator /(float a, Permil b) {
@@ -172,15 +182,19 @@ namespace GameFramework {
         }
 
         public static Permil operator /(Permil a, int b) {
-            return new Permil(a.RawValue / (b * UnitValue) * UnitValue);
+            if (b == 0) {
+                throw new DivideByZeroException();
+            }
+
+            return new Permil { RawValue = a.RawValue / b, };
         }
 
         public static float operator /(int a, Permil b) {
-            return a * UnitValue / (float)b.RawValue;
+            return (long)a * UnitValue / (float)b.RawValue;
         }
 
         public static explicit operator int(Permil permil) {
-            return permil.RawValue / UnitValue;
+            return (int)(permil.RawValue / UnitValue);
         }
 
         public static implicit operator Permil(int value) {
@@ -202,7 +216,7 @@ namespace GameFramework {
         /// </summary>
         /// <param name="value">Permilではないただのint値</param>
         public static Permil CreateFromIntValue(int value) {
-            return new Permil(value * UnitValue);
+            return new Permil((long)value * UnitValue);
         }
 
         /// <summary>
