@@ -146,15 +146,15 @@ namespace GameFramework {
         }
 
         public static Permil operator *(Permil a, Permil b) {
-            return new Permil { RawValue = a.RawValue * b.RawValue / UnitValue, };
+            return new Permil(a.RawValue * b.RawValue / UnitValue);
         }
 
         public static Permil operator *(Permil a, float b) {
-            return new Permil { RawValue = a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue, };
+            return new Permil(a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue);
         }
 
         public static Permil operator *(float a, Permil b) {
-            return new Permil { RawValue = FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue, };
+            return new Permil(FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue);
         }
 
         public static Permil operator *(Permil a, int b) {
@@ -174,7 +174,7 @@ namespace GameFramework {
                 throw new DivideByZeroException();
             }
 
-            return new Permil { RawValue = (long)FloatMath.Round(a.RawValue / b), };
+            return new Permil((long)FloatMath.Round(a.RawValue / b));
         }
 
         public static float operator /(float a, Permil b) {
@@ -186,7 +186,7 @@ namespace GameFramework {
                 throw new DivideByZeroException();
             }
 
-            return new Permil { RawValue = a.RawValue / b, };
+            return new Permil(a.RawValue / b);
         }
 
         public static float operator /(int a, Permil b) {
@@ -231,6 +231,14 @@ namespace GameFramework {
         /// </summary>
         /// <param name="permil">千分率の値(1000を1.0とした物)</param>
         public Permil(int permil) {
+            RawValue = permil;
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="permil">千分率の値(1000を1.0とした物)</param>
+        public Permil(long permil) {
             RawValue = permil;
         }
 

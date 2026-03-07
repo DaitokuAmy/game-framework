@@ -146,15 +146,15 @@ namespace GameFramework {
         }
 
         public static Percent operator *(Percent a, Percent b) {
-            return new Percent { RawValue = a.RawValue * b.RawValue / UnitValue, };
+            return new Percent(a.RawValue * b.RawValue / UnitValue);
         }
 
         public static Percent operator *(Percent a, float b) {
-            return new Percent { RawValue = a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue, };
+            return new Percent(a.RawValue * FloatMath.RoundToInt(b * UnitValue) / UnitValue);
         }
 
         public static Percent operator *(float a, Percent b) {
-            return new Percent { RawValue = FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue, };
+            return new Percent(FloatMath.RoundToInt(a * UnitValue) * b.RawValue / UnitValue);
         }
 
         public static Percent operator *(Percent a, int b) {
@@ -174,7 +174,7 @@ namespace GameFramework {
                 throw new DivideByZeroException();
             }
 
-            return new Percent { RawValue = (long)Math.Round(a.RawValue / b), };
+            return new Percent((long)Math.Round(a.RawValue / b));
         }
 
         public static float operator /(float a, Percent b) {
@@ -186,7 +186,7 @@ namespace GameFramework {
                 throw new DivideByZeroException();
             }
 
-            return new Percent { RawValue = a.RawValue / b, };
+            return new Percent(a.RawValue / b);
         }
 
         public static float operator /(int a, Percent b) {
@@ -231,6 +231,14 @@ namespace GameFramework {
         /// </summary>
         /// <param name="percent">百分率の値(100を1.0とした物)</param>
         public Percent(int percent) {
+            RawValue = percent;
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="percent">百分率の値(100を1.0とした物)</param>
+        public Percent(long percent) {
             RawValue = percent;
         }
 
