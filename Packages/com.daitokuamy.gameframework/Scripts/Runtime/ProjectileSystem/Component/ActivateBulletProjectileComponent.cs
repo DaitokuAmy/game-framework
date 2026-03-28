@@ -15,7 +15,7 @@ namespace GameFramework.ProjectileSystem {
         private GameObject[] _exitObjects;
 
         /// <inheritdoc/>
-        protected override void StartInternal() {
+        protected override void PlayInternal() {
             SetActiveObjects(_hitObjects, false);
             SetActiveObjects(_exitObjects, false);
 
@@ -23,7 +23,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        protected override IEnumerator ExitRoutineInternal() {
+        protected override IEnumerator StopRoutineInternal() {
             SetActiveObjects(_baseObjects, false);
             SetActiveObjects(_exitObjects, true);
             yield break;

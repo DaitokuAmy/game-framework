@@ -17,18 +17,18 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        void Start(IBulletProjectileController projectileController);
+        void Play(IBulletProjectileController projectileController);
 
         /// <summary>
         /// 飛翔更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void Update(float deltaTime);
+        void Tick(float deltaTime);
 
         /// <summary>
         /// 飛翔終了コルーチン
         /// </summary>
-        IEnumerator ExitRoutine();
+        IEnumerator StopRoutine();
 
         /// <summary>
         /// 衝突発生通知
@@ -56,19 +56,19 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IBulletProjectileComponent.Start(IBulletProjectileController projectileController) {
+        void IBulletProjectileComponent.Play(IBulletProjectileController projectileController) {
             ProjectileController = projectileController;
-            StartInternal();
+            PlayInternal();
         }
 
         /// <inheritdoc/>
-        void IBulletProjectileComponent.Update(float deltaTime) {
-            UpdateInternal(deltaTime);
+        void IBulletProjectileComponent.Tick(float deltaTime) {
+            TickInternal(deltaTime);
         }
 
         /// <inheritdoc/>
-        IEnumerator IBulletProjectileComponent.ExitRoutine() {
-            yield return ExitRoutineInternal();
+        IEnumerator IBulletProjectileComponent.StopRoutine() {
+            yield return StopRoutineInternal();
         }
 
         /// <inheritdoc/>
@@ -92,20 +92,20 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected virtual void StartInternal() {
+        protected virtual void PlayInternal() {
         }
 
         /// <summary>
         /// 飛翔更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        protected virtual void UpdateInternal(float deltaTime) {
+        protected virtual void TickInternal(float deltaTime) {
         }
 
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected virtual IEnumerator ExitRoutineInternal() {
+        protected virtual IEnumerator StopRoutineInternal() {
             yield break;
         }
 

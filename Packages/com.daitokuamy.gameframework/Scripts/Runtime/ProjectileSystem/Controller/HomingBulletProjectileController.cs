@@ -101,7 +101,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IProjectileController.Start() {
+        void IProjectileController.Play() {
             Position = _startPoint;
             _velocity = Rotation * Vector3.forward * _startSpeed;
             _distance = 0.0f;

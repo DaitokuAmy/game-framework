@@ -86,7 +86,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IProjectileController.Start() {
+        void IProjectileController.Play() {
             _rollRotation = Quaternion.Euler(0.0f, 0.0f, _roll);
             Position = _startPoint;
             Rotation = _startRotation * _rollRotation;

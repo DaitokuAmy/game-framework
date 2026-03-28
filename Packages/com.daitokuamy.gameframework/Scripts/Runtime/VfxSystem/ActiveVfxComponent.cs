@@ -14,20 +14,28 @@ namespace GameFramework.VfxSystem {
         [SerializeField, Tooltip("ループか")]
         private bool _loop;
 
-        // 現在時間
         private float _time;
+        private bool _isPlaying;
 
         /// <inheritdoc/>
-        bool IVfxComponent.IsPlaying => _time < _duration;
+        bool IVfxComponent.IsPlaying => _isPlaying;
 
         /// <inheritdoc/>
         void IVfxComponent.Tick(float deltaTime) {
+            if (!_isPlaying) {
+                return;
+            }
+
             if (_targetObjects.Length <= 0.0f) {
                 return;
             }
 
             _time += deltaTime;
-            var active = _time >= 0.0f && (_loop || _time < _duration);
+            if (!_loop && _time >= _duration) {
+                _isPlaying = false;
+            }
+
+            var active = _isPlaying && _time >= 0.0f && (_loop || _time < _duration);
             SetActive(active);
         }
 
@@ -38,6 +46,7 @@ namespace GameFramework.VfxSystem {
             }
 
             _time = -_delay;
+            _isPlaying = true;
             SetActive(_time >= 0.0f);
         }
 
@@ -48,6 +57,7 @@ namespace GameFramework.VfxSystem {
             }
 
             _time = _duration;
+            _isPlaying = false;
             SetActive(false);
         }
 
@@ -58,6 +68,7 @@ namespace GameFramework.VfxSystem {
             }
 
             _time = _duration;
+            _isPlaying = false;
             SetActive(false);
         }
 
@@ -77,7 +88,7 @@ namespace GameFramework.VfxSystem {
                 if (obj == null) {
                     continue;
                 }
-                
+
                 if (obj.activeSelf != active) {
                     obj.SetActive(active);
                 }

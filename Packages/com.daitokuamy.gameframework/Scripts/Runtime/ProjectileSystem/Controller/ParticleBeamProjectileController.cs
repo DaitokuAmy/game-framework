@@ -103,7 +103,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IProjectileController.Start() {
+        void IProjectileController.Play() {
             _stopped = false;
             _headDistance = 0.0f;
             _tailDistance = 0.0f;

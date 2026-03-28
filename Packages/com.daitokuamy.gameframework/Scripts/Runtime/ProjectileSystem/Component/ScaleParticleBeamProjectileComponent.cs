@@ -72,7 +72,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        protected override void StartInternal() {
+        protected override void PlayInternal() {
             StopParticle(_hitParticle);
             StopParticle(_exitHeadParticle);
             StopParticle(_collisionParticle);
@@ -92,7 +92,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        protected override IEnumerator ExitRoutineInternal() {
+        protected override IEnumerator StopRoutineInternal() {
             UpdateTransformInternal(ProjectileController);
 
             StopParticle(_headParticle);

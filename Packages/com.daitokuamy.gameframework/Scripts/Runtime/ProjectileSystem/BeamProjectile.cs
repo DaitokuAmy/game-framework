@@ -33,18 +33,23 @@ namespace GameFramework.ProjectileSystem {
         /// 飛翔開始処理
         /// </summary>
         /// <param name="projectileController">飛翔物の情報</param>
-        void Start(IBeamProjectileController projectileController);
+        void Play(IBeamProjectileController projectileController);
 
         /// <summary>
         /// 飛翔更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void Update(float deltaTime);
+        void Tick(float deltaTime);
 
         /// <summary>
         /// 飛翔終了処理
         /// </summary>
-        void Exit();
+        void Stop();
+
+        /// <summary>
+        /// 飛翔即時終了処理
+        /// </summary>
+        void StopImmediate();
 
         /// <summary>
         /// 衝突発生通知
@@ -117,7 +122,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IBeamProjectile.Start(IBeamProjectileController projectileController) {
+        void IBeamProjectile.Play(IBeamProjectileController projectileController) {
             if (_isPlaying) {
                 return;
             }
@@ -130,17 +135,17 @@ namespace GameFramework.ProjectileSystem {
             _isPlaying = true;
             Controller = projectileController;
             ApplyTransform();
-            
-            StartInternal();
+
+            PlayInternal();
             foreach (var component in _projectileComponents) {
-                component.Start(projectileController);
+                component.Play(projectileController);
             }
         }
 
         /// <inheritdoc/>
-        void IBeamProjectile.Update(float deltaTime) {
+        void IBeamProjectile.Tick(float deltaTime) {
             ApplyTransform();
-            
+
             _coroutineRunner.Update();
             foreach (var component in _projectileComponents) {
                 component.Tick(deltaTime);
@@ -148,7 +153,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IBeamProjectile.Exit() {
+        void IBeamProjectile.Stop() {
             if (!_isPlaying) {
                 return;
             }
@@ -156,12 +161,12 @@ namespace GameFramework.ProjectileSystem {
             if (_stopRoutine != null) {
                 return;
             }
-            
+
             ApplyTransform();
 
             IEnumerator Routine() {
-                var list = _projectileComponents.Select(x => x.ExitRoutine())
-                    .Concat(new[] { ExitRoutineInternal() });
+                var list = _projectileComponents.Select(x => x.StopRoutine())
+                    .Concat(new[] { StopRoutineInternal() });
                 yield return new MergedCoroutine(list);
                 Controller = null;
                 _isPlaying = false;
@@ -169,6 +174,17 @@ namespace GameFramework.ProjectileSystem {
             }
 
             _stopRoutine = _coroutineRunner.StartCoroutine(Routine());
+        }
+
+        /// <inheritdoc/>
+        void IBeamProjectile.StopImmediate() {
+            if (_stopRoutine != null) {
+                _coroutineRunner.StopCoroutine(_stopRoutine);
+                _stopRoutine = null;
+            }
+
+            Controller = null;
+            _isPlaying = false;
         }
 
         /// <inheritdoc/>
@@ -195,13 +211,13 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected virtual void StartInternal() {
+        protected virtual void PlayInternal() {
         }
 
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected virtual IEnumerator ExitRoutineInternal() {
+        protected virtual IEnumerator StopRoutineInternal() {
             yield break;
         }
 
@@ -222,8 +238,7 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// Transform情報の反映
         /// </summary>
-        private void ApplyTransform()
-        {
+        private void ApplyTransform() {
             var trans = transform;
             trans.position = Controller.HeadPosition;
             trans.rotation = Controller.Rotation;

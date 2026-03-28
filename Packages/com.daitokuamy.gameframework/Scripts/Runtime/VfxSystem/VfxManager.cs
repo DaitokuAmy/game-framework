@@ -14,90 +14,92 @@ namespace GameFramework.VfxSystem {
         /// 再生管理用ハンドル
         /// </summary>
         public struct Handle : IDisposable, IProcess {
-            private PlayingInfo _playingInfo;
-            /// <summary>未使用</summary>
+            private VfxManager _manager;
+            private int _handleId;
+            
+            /// <inheritdoc/>
             object IEnumerator.Current => null;
-            /// <summary>完了しているか</summary>
+            /// <inheritdoc/>
             bool IProcess.IsDone => !IsPlaying;
-            /// <summary>エラー</summary>
+            /// <inheritdoc/>
             Exception IProcess.Exception => null;
 
             /// <summary>有効なハンドルか</summary>
-            public bool IsValid => !IsDisposed && _playingInfo.Initialized;
+            public bool IsValid => TryGetPlayingInfo(out var playingInfo) && playingInfo.Initialized;
             /// <summary>再生中か</summary>
-            public bool IsPlaying => !IsDisposed && _playingInfo.IsPlaying();
+            public bool IsPlaying => TryGetPlayingInfo(out var playingInfo) && playingInfo.Initialized && playingInfo.IsPlaying();
             /// <summary>廃棄済みか</summary>
-            public bool IsDisposed => _playingInfo == null;
+            public bool IsDisposed => !TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized;
 
             /// <summary>制御座標</summary>
             public Vector3 ContextPosition {
                 get {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return Vector3.zero;
                     }
 
-                    return _playingInfo.GetContextPosition();
+                    return playingInfo.GetContextPosition();
                 }
                 set {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return;
                     }
 
-                    _playingInfo.SetContextPosition(value);
+                    playingInfo.SetContextPosition(value);
                 }
             }
             /// <summary>制御向き</summary>
             public Quaternion ContextRotation {
                 get {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return Quaternion.identity;
                     }
 
-                    return _playingInfo.GetContextRotation();
+                    return playingInfo.GetContextRotation();
                 }
                 set {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return;
                     }
 
-                    _playingInfo.SetContextRotation(value);
+                    playingInfo.SetContextRotation(value);
                 }
             }
             /// <summary>制御スケール</summary>
             public Vector3 ContextLocalScale {
                 get {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return Vector3.zero;
                     }
 
-                    return _playingInfo.GetContextLocalScale();
+                    return playingInfo.GetContextLocalScale();
                 }
                 set {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return;
                     }
 
-                    _playingInfo.SetContextLocalScale(value);
+                    playingInfo.SetContextLocalScale(value);
                 }
             }
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            internal Handle(PlayingInfo info) {
-                _playingInfo = info;
+            internal Handle(VfxManager manager, int handleId) {
+                _manager = manager;
+                _handleId = handleId;
             }
 
-            /// <summary>
-            /// 廃棄時処理
-            /// </summary>
+            /// <inheritdoc/>
             public void Dispose() {
                 if (IsDisposed) {
                     return;
                 }
 
-                _playingInfo.Cleanup();
-                _playingInfo = null;
+                _manager.DisposeHandle(_handleId);
+                _manager = null;
+                _handleId = 0;
             }
 
             /// <inheritdoc/>
@@ -117,7 +119,7 @@ namespace GameFramework.VfxSystem {
                     return;
                 }
 
-                _playingInfo.Play();
+                _manager.PlayHandle(_handleId);
             }
 
             /// <summary>
@@ -128,7 +130,19 @@ namespace GameFramework.VfxSystem {
                     return;
                 }
 
-                _playingInfo.Stop(immediate, autoDispose);
+                _manager.StopHandle(_handleId, immediate, autoDispose);
+            }
+
+            /// <summary>
+            /// 再生情報の取得
+            /// </summary>
+            private bool TryGetPlayingInfo(out PlayingInfo playingInfo) {
+                if (_manager == null) {
+                    playingInfo = null;
+                    return false;
+                }
+
+                return _manager.TryGetPlayingInfo(_handleId, out playingInfo);
             }
         }
 
@@ -136,22 +150,18 @@ namespace GameFramework.VfxSystem {
         /// 再生中情報
         /// </summary>
         internal class PlayingInfo {
-            // 追従基準にするTransform
             private Transform _positionRoot;
             private Transform _rotationRoot;
-            // TimeScale変更用LayeredTime
             private LayeredTime _layeredTime;
-            // Lodレベル通知用インターフェース
             private ILodProvider _lodProvider;
-            // 操作用の情報
             private VfxContext _context;
-            // 自動廃棄するか
             private bool _autoDispose;
-            // Transform更新フラグ
             private bool _transformDirty;
 
             /// <summary>制御対象Object情報</summary>
             public ObjectInfo ObjectInfo { get; private set; }
+            /// <summary>ハンドル識別子</summary>
+            public int HandleId { get; private set; }
             /// <summary>廃棄済みか</summary>
             public bool Initialized { get; private set; }
 
@@ -159,10 +169,11 @@ namespace GameFramework.VfxSystem {
             /// 初期化処理
             /// </summary>
             public void Setup(ObjectInfo objectInfo, VfxContext context, Transform positionRoot, Transform rotationRoot, LayeredTime layeredTime, ILodProvider lodProvider, int layer,
-                bool autoDispose) {
+                int handleId, bool autoDispose) {
                 Cleanup();
 
                 ObjectInfo = objectInfo;
+                HandleId = handleId;
                 _context = context;
                 _positionRoot = positionRoot;
                 _rotationRoot = rotationRoot;
@@ -222,6 +233,25 @@ namespace GameFramework.VfxSystem {
                 OnChangedLodLevel(0);
 
                 Initialized = false;
+            }
+
+            /// <summary>
+            /// Pool返却前の後始末
+            /// </summary>
+            public ObjectInfo ReleaseObjectInfo() {
+                var objectInfo = ObjectInfo;
+
+                ObjectInfo = null;
+                HandleId = 0;
+                _positionRoot = null;
+                _rotationRoot = null;
+                _layeredTime = null;
+                _lodProvider = null;
+                _context = default;
+                _autoDispose = false;
+                _transformDirty = false;
+
+                return objectInfo;
             }
 
             /// <summary>
@@ -464,23 +494,14 @@ namespace GameFramework.VfxSystem {
             public IVfxComponent[] Components;
         }
 
-        // Poolキャパシティ
-        private readonly int _poolDefaultCapacity;
-        private readonly int _poolMaxCapacity;
-
-        // 生成したGameObjectを保持するためのTransform
         private readonly Transform _rootTransform;
-        // インスタンスキャッシュ用のPool
         private readonly KeyedObjectPool<GameObject, ObjectInfo> _objectPool;
-        // PlayingInfoインスタンス使いまわし用のPool
-        private readonly ObjectPool<PlayingInfo> _playingInfoPool;
-        // 管理用再生中情報
+        private readonly InstancePool<PlayingInfo> _playingInfoPool;
         private readonly List<PlayingInfo> _playingInfos = new();
-        // 変数領域確保用のParticleSystemリスト
+        private readonly Dictionary<int, PlayingInfo> _playingInfoMap = new();
         private readonly List<ParticleSystem> _workParticleSystems = new();
-
-        // Poolを有効にするフラグ
         private bool _activePool = true;
+        private int _nextHandleId = 1;
 
         /// <summary>デフォルト指定のLayer</summary>
         public int DefaultLayer { get; set; } = 0;
@@ -491,16 +512,13 @@ namespace GameFramework.VfxSystem {
         /// <param name="poolDefaultCapacity">Poolのデフォルトキャパシティ</param>
         /// <param name="poolMaxCapacity">Poolの最大キャパシティ</param>
         public VfxManager(int poolDefaultCapacity = 10, int poolMaxCapacity = 10000) {
-            _poolDefaultCapacity = poolDefaultCapacity;
-            _poolMaxCapacity = poolMaxCapacity;
-
             var root = new GameObject(nameof(VfxManager), typeof(VfxManagerDispatcher));
             var dispatcher = root.GetComponent<VfxManagerDispatcher>();
             dispatcher.Setup(this);
             Object.DontDestroyOnLoad(root);
             _rootTransform = root.transform;
 
-            _playingInfoPool = new ObjectPool<PlayingInfo>(() => new PlayingInfo());
+            _playingInfoPool = new InstancePool<PlayingInfo>();
 
             // Pool生成
             _objectPool = new KeyedObjectPool<GameObject, ObjectInfo>(prefab => {
@@ -541,7 +559,7 @@ namespace GameFramework.VfxSystem {
                         Object.Destroy(info.Root);
                         info.Root = null;
                         info.Components = null;
-                    }, true, _poolDefaultCapacity, _poolMaxCapacity);
+                    }, true, poolDefaultCapacity, poolMaxCapacity);
 
                 return pool;
             });
@@ -569,8 +587,7 @@ namespace GameFramework.VfxSystem {
                 // 廃棄対象ならPoolに戻す
                 if (!info.Initialized) {
                     _playingInfos.RemoveAt(i);
-                    _playingInfoPool.Release(info);
-                    ReturnObjectInfo(info.ObjectInfo);
+                    ReleasePlayingInfo(info);
                 }
             }
         }
@@ -603,7 +620,7 @@ namespace GameFramework.VfxSystem {
             // 再生情報の生成
             var playingInfo = CreatePlayingInfo(context, positionRoot, rotationRoot, layeredTime, lodProvider, layer, false);
             // Handle化して返却
-            return new Handle(playingInfo);
+            return playingInfo != null ? new Handle(this, playingInfo.HandleId) : default;
         }
 
         /// <summary>
@@ -621,7 +638,7 @@ namespace GameFramework.VfxSystem {
             // 再生
             playingInfo?.Play();
             // Handle化して返却
-            return new Handle(playingInfo);
+            return playingInfo != null ? new Handle(this, playingInfo.HandleId) : default;
         }
 
         /// <summary>
@@ -637,8 +654,7 @@ namespace GameFramework.VfxSystem {
 
                 // Poolに戻す
                 _playingInfos.RemoveAt(i);
-                _playingInfoPool.Release(info);
-                ReturnObjectInfo(info.ObjectInfo);
+                ReleasePlayingInfo(info);
             }
 
             // Poolを全部削除
@@ -669,12 +685,74 @@ namespace GameFramework.VfxSystem {
             }
 
             // 再生情報の構築
+            var handleId = _nextHandleId++;
             var playingInfo = _playingInfoPool.Get();
-            playingInfo.Setup(objectInfo, context, positionRoot, rotationRoot, layeredTime, lodProvider, layer, autoDispose);
+            playingInfo.Setup(objectInfo, context, positionRoot, rotationRoot, layeredTime, lodProvider, layer, handleId, autoDispose);
             playingInfo.Stop(true, false);
             _playingInfos.Add(playingInfo);
+            _playingInfoMap.Add(handleId, playingInfo);
 
             return playingInfo;
+        }
+
+        /// <summary>
+        /// 再生情報の取得
+        /// </summary>
+        private bool TryGetPlayingInfo(int handleId, out PlayingInfo playingInfo) {
+            if (handleId <= 0) {
+                playingInfo = null;
+                return false;
+            }
+
+            return _playingInfoMap.TryGetValue(handleId, out playingInfo);
+        }
+
+        /// <summary>
+        /// Handle経由の廃棄
+        /// </summary>
+        private void DisposeHandle(int handleId) {
+            if (!TryGetPlayingInfo(handleId, out var playingInfo) || !playingInfo.Initialized) {
+                return;
+            }
+
+            playingInfo.Cleanup();
+        }
+
+        /// <summary>
+        /// Handle経由の再生
+        /// </summary>
+        private void PlayHandle(int handleId) {
+            if (!TryGetPlayingInfo(handleId, out var playingInfo) || !playingInfo.Initialized) {
+                return;
+            }
+
+            playingInfo.Play();
+        }
+
+        /// <summary>
+        /// Handle経由の停止
+        /// </summary>
+        private void StopHandle(int handleId, bool immediate, bool autoDispose) {
+            if (!TryGetPlayingInfo(handleId, out var playingInfo) || !playingInfo.Initialized) {
+                return;
+            }
+
+            playingInfo.Stop(immediate, autoDispose);
+        }
+
+        /// <summary>
+        /// PlayingInfoの返却
+        /// </summary>
+        private void ReleasePlayingInfo(PlayingInfo playingInfo) {
+            if (playingInfo == null) {
+                return;
+            }
+
+            _playingInfoMap.Remove(playingInfo.HandleId);
+
+            var objectInfo = playingInfo.ReleaseObjectInfo();
+            _playingInfoPool.Release(playingInfo);
+            ReturnObjectInfo(objectInfo);
         }
 
         /// <summary>
@@ -693,7 +771,7 @@ namespace GameFramework.VfxSystem {
         /// ObjectInfoの返却
         /// </summary>
         private void ReturnObjectInfo(ObjectInfo objectInfo) {
-            if (objectInfo.Prefab == null) {
+            if (objectInfo == null || objectInfo.Prefab == null) {
                 return;
             }
 

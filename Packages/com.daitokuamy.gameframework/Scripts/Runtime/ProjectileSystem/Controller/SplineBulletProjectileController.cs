@@ -96,7 +96,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IProjectileController.Start() {
+        void IProjectileController.Play() {
             var vector = _endPoint - _startPoint;
             Position = _startPoint;
             Rotation = Quaternion.LookRotation(vector);

@@ -29,6 +29,45 @@ namespace GameFramework.Tests {
             }
         }
 
+        /// <summary>
+        /// モック実装：一定時間後に停止する VfxComponent
+        /// </summary>
+        private class TimedMockVfxComponent : MonoBehaviour, IVfxComponent {
+            public bool IsPlaying { get; private set; }
+
+            private float _elapsedTime;
+
+            void IVfxComponent.Play() {
+                _elapsedTime = 0.0f;
+                IsPlaying = true;
+            }
+
+            void IVfxComponent.Stop() {
+                IsPlaying = false;
+            }
+
+            void IVfxComponent.StopImmediate() {
+                IsPlaying = false;
+            }
+
+            void IVfxComponent.Tick(float deltaTime) {
+                if (!IsPlaying) {
+                    return;
+                }
+
+                _elapsedTime += deltaTime;
+                if (_elapsedTime >= 0.01f) {
+                    IsPlaying = false;
+                }
+            }
+
+            void IVfxComponent.SetSpeed(float speed) {
+            }
+
+            void IVfxComponent.SetLodLevel(int level) {
+            }
+        }
+
         private GameObject _prefab;
         private VfxManager _manager;
         private UpdateScheduler _updateScheduler;
@@ -135,6 +174,72 @@ namespace GameFramework.Tests {
             yield return null;
 
             Assert.That(handle.IsValid, Is.False, "Handle should auto-dispose after playback ends.");
+        }
+
+        /// <summary>
+        /// 無効化済み Handle が後続の再生を操作しないことを検証
+        /// </summary>
+        [UnityTest]
+        public IEnumerator ReleasedHandle_ShouldNotAffectNextPlayback() {
+            var context = new VfxContext {
+                prefab = _prefab,
+                localScale = Vector3.one
+            };
+
+            var releasedHandle = _manager.Play(context);
+            ManualUpdate();
+            yield return null;
+
+            releasedHandle.Stop(immediate: true, autoDispose: true);
+            ManualUpdate();
+            yield return null;
+
+            Assert.That(releasedHandle.IsValid, Is.False, "Released handle should stay invalid.");
+
+            var nextHandle = _manager.Play(context);
+            ManualUpdate();
+            yield return null;
+
+            releasedHandle.Stop(immediate: true);
+            ManualUpdate();
+            yield return null;
+
+            Assert.That(releasedHandle.IsValid, Is.False, "Released handle should not become valid again.");
+            Assert.That(nextHandle.IsPlaying, Is.True, "Released handle should not stop the next playback.");
+        }
+
+        /// <summary>
+        /// 自動廃棄後に古い Handle が別インスタンスへ再接続しないことを検証
+        /// </summary>
+        [UnityTest]
+        public IEnumerator ReleasedHandle_ShouldNotControlReusedPlayingInfo() {
+            Object.DestroyImmediate(_prefab);
+            _prefab = new GameObject("TimedVfxPrefab");
+            _prefab.AddComponent<TimedMockVfxComponent>();
+
+            var context = new VfxContext {
+                prefab = _prefab,
+                localScale = Vector3.one
+            };
+
+            var oldHandle = _manager.Play(context);
+            ManualUpdate();
+            yield return null;
+
+            ManualUpdate();
+            yield return null;
+
+            Assert.That(oldHandle.IsValid, Is.False, "Old handle should become invalid after auto-dispose.");
+
+            var newHandle = _manager.Play(context);
+            ManualUpdate();
+            yield return null;
+
+            Assert.That(newHandle.IsValid, Is.True, "New handle should be valid.");
+            oldHandle.Stop(immediate: true);
+
+            Assert.That(oldHandle.IsValid, Is.False, "Old handle should remain invalid after a new play session starts.");
+            Assert.That(newHandle.IsPlaying, Is.True, "Old handle should not stop the new play session.");
         }
 
         /// <summary>

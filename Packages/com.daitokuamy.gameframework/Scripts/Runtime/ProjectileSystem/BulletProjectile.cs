@@ -32,18 +32,24 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        void Start(IBulletProjectileController projectileController);
+        void Play(IBulletProjectileController projectileController);
 
         /// <summary>
         /// 飛翔更新処理
         /// </summary>
         /// <param name="deltaTime">変位時間</param>
-        void Update(float deltaTime);
+        void Tick(float deltaTime);
 
         /// <summary>
         /// 飛翔終了処理
         /// </summary>
-        void Exit();
+        void Stop();
+
+        /// <summary>
+        /// 飛翔即時終了処理
+        /// </summary>
+        void StopImmediate();
+
 
         /// <summary>
         /// スケールの設定
@@ -115,7 +121,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IBulletProjectile.Start(IBulletProjectileController projectileController) {
+        void IBulletProjectile.Play(IBulletProjectileController projectileController) {
             if (_isPlaying) {
                 return;
             }
@@ -124,24 +130,24 @@ namespace GameFramework.ProjectileSystem {
             Controller = projectileController;
             ApplyTransform(Controller);
             
-            StartInternal();
+            PlayInternal();
             foreach (var component in _projectileComponents) {
-                component.Start(projectileController);
+                component.Play(projectileController);
             }
         }
 
         /// <inheritdoc/>
-        void IBulletProjectile.Update(float deltaTime) {
+        void IBulletProjectile.Tick(float deltaTime) {
             ApplyTransform(Controller);
             
             _coroutineRunner.Update();
             foreach (var component in _projectileComponents) {
-                component.Update(deltaTime);
+                component.Tick(deltaTime);
             }
         }
 
         /// <inheritdoc/>
-        void IBulletProjectile.Exit() {
+        void IBulletProjectile.Stop() {
             if (!_isPlaying) {
                 return;
             }
@@ -151,8 +157,8 @@ namespace GameFramework.ProjectileSystem {
             }
 
             IEnumerator Routine() {
-                var list = _projectileComponents.Select(x => x.ExitRoutine())
-                    .Concat(new[] { ExitRoutineInternal() });
+                var list = _projectileComponents.Select(x => x.StopRoutine())
+                    .Concat(new[] { StopRoutineInternal() });
                 yield return new MergedCoroutine(list);
                 Controller = null;
                 _isPlaying = false;
@@ -161,6 +167,18 @@ namespace GameFramework.ProjectileSystem {
 
             _stopRoutine = _coroutineRunner.StartCoroutine(Routine());
         }
+
+        /// <inheritdoc/>
+        void IBulletProjectile.StopImmediate() {
+            if (_stopRoutine != null) {
+                _coroutineRunner.StopCoroutine(_stopRoutine);
+                _stopRoutine = null;
+            }
+
+            Controller = null;
+            _isPlaying = false;
+        }
+
 
         /// <inheritdoc/>
         void IBulletProjectile.OnHitCollision(RaycastHit hit) {
@@ -186,13 +204,13 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected virtual void StartInternal() {
+        protected virtual void PlayInternal() {
         }
 
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected virtual IEnumerator ExitRoutineInternal() {
+        protected virtual IEnumerator StopRoutineInternal() {
             yield break;
         }
 

@@ -27,7 +27,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        protected override void StartInternal() {
+        protected override void PlayInternal() {
             StopParticle(_hitParticle);
             StopParticle(_exitParticle);
 
@@ -35,7 +35,7 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        protected override IEnumerator ExitRoutineInternal() {
+        protected override IEnumerator StopRoutineInternal() {
             StopParticle(_baseParticle);
             PlayParticle(_exitParticle);
 

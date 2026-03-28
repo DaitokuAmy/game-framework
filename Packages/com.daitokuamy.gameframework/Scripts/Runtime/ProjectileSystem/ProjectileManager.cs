@@ -222,7 +222,7 @@ namespace GameFramework.ProjectileSystem {
 
         /// <inheritdoc/>
         protected override void LateUpdateInternal() {
-            _projectilePlayer.Update();
+            _projectilePlayer.Tick();
         }
 
         /// <inheritdoc/>

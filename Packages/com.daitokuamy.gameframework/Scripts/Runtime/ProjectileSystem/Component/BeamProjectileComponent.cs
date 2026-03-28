@@ -18,7 +18,7 @@ namespace GameFramework.ProjectileSystem {
         /// 飛翔開始処理
         /// </summary>
         /// <param name="projectileController">飛翔物の情報</param>
-        void Start(IBeamProjectileController projectileController);
+        void Play(IBeamProjectileController projectileController);
 
         /// <summary>
         /// 飛翔更新処理
@@ -29,7 +29,7 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔終了処理
         /// </summary>
-        IEnumerator ExitRoutine();
+        IEnumerator StopRoutine();
 
         /// <summary>
         /// 衝突発生通知
@@ -57,9 +57,9 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        void IBeamProjectileComponent.Start(IBeamProjectileController projectileController) {
+        void IBeamProjectileComponent.Play(IBeamProjectileController projectileController) {
             ProjectileController = projectileController;
-            StartInternal();
+            PlayInternal();
         }
 
         /// <inheritdoc/>
@@ -68,8 +68,8 @@ namespace GameFramework.ProjectileSystem {
         }
 
         /// <inheritdoc/>
-        IEnumerator IBeamProjectileComponent.ExitRoutine() {
-            yield return ExitRoutineInternal();
+        IEnumerator IBeamProjectileComponent.StopRoutine() {
+            yield return StopRoutineInternal();
         }
 
         /// <inheritdoc/>
@@ -93,7 +93,7 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔開始処理
         /// </summary>
-        protected virtual void StartInternal() {
+        protected virtual void PlayInternal() {
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔終了子ルーチン処理
         /// </summary>
-        protected virtual IEnumerator ExitRoutineInternal() {
+        protected virtual IEnumerator StopRoutineInternal() {
             yield break;
         }
 

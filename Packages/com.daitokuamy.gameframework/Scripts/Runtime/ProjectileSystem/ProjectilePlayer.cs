@@ -12,7 +12,8 @@ namespace GameFramework.ProjectileSystem {
         /// 飛翔ハンドル
         /// </summary>
         public readonly struct Handle : IEventProcess, IDisposable {
-            private readonly PlayingInfo _playingInfo;
+            private readonly ProjectilePlayer _player;
+            private readonly int _handleId;
 
             /// <inheritdoc/>
             object IEnumerator.Current => null;
@@ -21,30 +22,31 @@ namespace GameFramework.ProjectileSystem {
             Exception IProcess.Exception => null;
 
             /// <inheritdoc/>
-            bool IProcess.IsDone => _playingInfo?.IsDone ?? true;
+            bool IProcess.IsDone => !TryGetPlayingInfo(out var playingInfo) || playingInfo.IsDone;
 
             /// <inheritdoc/>
             event Action IEventProcess.ExitEvent {
                 add {
-                    if (_playingInfo != null) {
-                        _playingInfo.ExitEvent += value;
+                    if (TryGetPlayingInfo(out var playingInfo)) {
+                        playingInfo.ExitEvent += value;
                     }
                 }
                 remove {
-                    if (_playingInfo != null) {
-                        _playingInfo.ExitEvent -= value;
+                    if (TryGetPlayingInfo(out var playingInfo)) {
+                        playingInfo.ExitEvent -= value;
                     }
                 }
             }
 
             /// <summary>有効なハンドルか</summary>
-            public bool IsValid => _playingInfo?.IsValid ?? false;
+            public bool IsValid => TryGetPlayingInfo(out var playingInfo) && playingInfo.IsValid;
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            internal Handle(PlayingInfo info) {
-                _playingInfo = info;
+            internal Handle(ProjectilePlayer player, int handleId) {
+                _player = player;
+                _handleId = handleId;
             }
 
             /// <summary>
@@ -55,8 +57,7 @@ namespace GameFramework.ProjectileSystem {
                     return;
                 }
 
-                _playingInfo.Stop(null);
-                _playingInfo.Stopped();
+                _player.DisposeHandle(_handleId);
             }
 
             /// <inheritdoc/>
@@ -77,33 +78,45 @@ namespace GameFramework.ProjectileSystem {
             /// コリジョン判定に使うレイを取得
             /// </summary>
             public (Ray ray, float distance) GetCollisionRay() {
-                if (!IsValid) {
+                if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsValid) {
                     return default;
                 }
                 
-                return _playingInfo.GetCollisionRay();
+                return playingInfo.GetCollisionRay();
             }
 
             /// <summary>
             /// 衝突処理
             /// </summary>
             public void Hit(RaycastHit hit) {
-                if (!IsValid) {
+                if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsValid) {
                     return;
                 }
 
-                _playingInfo.Hit(hit);
+                playingInfo.Hit(hit);
             }
 
             /// <summary>
             /// 停止処理
             /// </summary>
             public void Stop(Vector3? stopPosition = null) {
-                if (!IsValid) {
+                if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsValid) {
                     return;
                 }
 
-                _playingInfo.Stop(stopPosition);
+                playingInfo.Stop(stopPosition);
+            }
+
+            /// <summary>
+            /// 再生情報の取得
+            /// </summary>
+            private bool TryGetPlayingInfo(out PlayingInfo playingInfo) {
+                if (_player == null) {
+                    playingInfo = null;
+                    return false;
+                }
+
+                return _player.TryGetPlayingInfo(_handleId, out playingInfo);
             }
         }
 
@@ -120,6 +133,7 @@ namespace GameFramework.ProjectileSystem {
 
             public State CurrentState;
             public LayeredTime LayeredTime;
+            public int HandleId { get; set; }
 
             /// <summary>飛翔情報</summary>
             public abstract IProjectileController ProjectileController { get; }
@@ -136,12 +150,12 @@ namespace GameFramework.ProjectileSystem {
             /// <summary>
             /// 開始処理
             /// </summary>
-            protected abstract void StartInternal(IProjectileController projectileController);
+            protected abstract void PlayInternal(IProjectileController projectileController);
 
             /// <summary>
             /// 更新処理
             /// </summary>
-            protected abstract bool UpdateInternal(float deltaTime);
+            protected abstract bool TickInternal(float deltaTime);
 
             /// <summary>
             /// 当たり判定用レイの取得
@@ -164,6 +178,11 @@ namespace GameFramework.ProjectileSystem {
             protected abstract void StoppedInternal();
 
             /// <summary>
+            /// 即時停止処理
+            /// </summary>
+            protected abstract void StopImmediateInternal();
+
+            /// <summary>
             /// タイムスケールの変更
             /// </summary>
             protected abstract void ChangedTimeScaleInternal(float timeScale);
@@ -171,28 +190,30 @@ namespace GameFramework.ProjectileSystem {
             /// <summary>
             /// 開始処理
             /// </summary>
-            public void Start(IProjectileController projectileController) {
+            public void Play(IProjectileController projectileController) {
                 if (CurrentState >= State.Started) {
                     return;
                 }
 
-                LayeredTime.ChangedTimeScaleEvent += ChangedTimeScaleInternal;
+                if (LayeredTime != null) {
+                    LayeredTime.ChangedTimeScaleEvent += ChangedTimeScaleInternal;
+                }
 
-                projectileController.Start();
-                StartInternal(projectileController);
+                projectileController.Play();
+                PlayInternal(projectileController);
                 CurrentState = State.Started;
             }
 
             /// <summary>
             /// 更新処理
             /// </summary>
-            public bool Update() {
+            public bool Tick() {
                 var deltaTime = LayeredTime?.DeltaTime ?? Time.deltaTime;
                 if (!ProjectileController.Tick(deltaTime)) {
                     Stop(null);
                 }
 
-                return UpdateInternal(deltaTime);
+                return TickInternal(deltaTime);
             }
 
             /// <summary>
@@ -231,6 +252,23 @@ namespace GameFramework.ProjectileSystem {
             }
 
             /// <summary>
+            /// 即時停止処理
+            /// </summary>
+            public void StopImmediate(Vector3? stopPosition) {
+                if (CurrentState >= State.Stopped) {
+                    return;
+                }
+
+                if (CurrentState < State.Stopping) {
+                    ProjectileController.Stop(stopPosition);
+                    CurrentState = State.Stopping;
+                }
+
+                StopImmediateInternal();
+                Stopped();
+            }
+
+            /// <summary>
             /// 停止完了
             /// </summary>
             public void Stopped() {
@@ -238,7 +276,10 @@ namespace GameFramework.ProjectileSystem {
                     return;
                 }
 
-                LayeredTime.ChangedTimeScaleEvent -= ChangedTimeScaleInternal;
+                if (LayeredTime != null) {
+                    LayeredTime.ChangedTimeScaleEvent -= ChangedTimeScaleInternal;
+                }
+
                 ExitEvent?.Invoke();
                 ExitEvent = null;
                 StoppedInternal();
@@ -262,9 +303,9 @@ namespace GameFramework.ProjectileSystem {
             public override IProjectileController ProjectileController => Projectile?.Controller;
 
             /// <inheritdoc/>
-            protected override bool UpdateInternal(float deltaTime) {
+            protected override bool TickInternal(float deltaTime) {
                 var prevPos = Projectile.transform.position;
-                Projectile.Update(deltaTime);
+                Projectile.Tick(deltaTime);
                 var nextPos = Projectile.transform.position;
                 
                 // コリジョン情報更新
@@ -275,8 +316,8 @@ namespace GameFramework.ProjectileSystem {
             }
 
             /// <inheritdoc/>
-            protected override void StartInternal(IProjectileController projectileController) {
-                Projectile.Start((IBulletProjectileController)projectileController);
+            protected override void PlayInternal(IProjectileController projectileController) {
+                Projectile.Play((IBulletProjectileController)projectileController);
                 
                 // コリジョン情報更新
                 var pos = Projectile.transform.position;
@@ -295,9 +336,18 @@ namespace GameFramework.ProjectileSystem {
 
             /// <inheritdoc/>
             protected override void StopInternal() {
-                Projectile.Exit();
+                Projectile.Stop();
                 
                 // コリジョン情報更新
+                var nextPos = Projectile.transform.position;
+                _collisionDistance = Vector3.Distance(_collisionRay.origin, nextPos);
+                _collisionRay.direction = nextPos - _collisionRay.origin;
+            }
+
+            /// <inheritdoc/>
+            protected override void StopImmediateInternal() {
+                Projectile.StopImmediate();
+
                 var nextPos = Projectile.transform.position;
                 _collisionDistance = Vector3.Distance(_collisionRay.origin, nextPos);
                 _collisionRay.direction = nextPos - _collisionRay.origin;
@@ -331,8 +381,8 @@ namespace GameFramework.ProjectileSystem {
             public override IProjectileController ProjectileController => Projectile?.Controller;
 
             /// <inheritdoc/>
-            protected override bool UpdateInternal(float deltaTime) {
-                Projectile.Update(deltaTime);
+            protected override bool TickInternal(float deltaTime) {
+                Projectile.Tick(deltaTime);
 
                 // コリジョン情報更新
                 var controller = Projectile.Controller;
@@ -344,9 +394,9 @@ namespace GameFramework.ProjectileSystem {
             }
 
             /// <inheritdoc/>
-            protected override void StartInternal(IProjectileController projectileController) {
+            protected override void PlayInternal(IProjectileController projectileController) {
                 var controller = (IBeamProjectileController)projectileController;
-                Projectile.Start(controller);
+                Projectile.Play(controller);
 
                 // コリジョン情報更新
                 _collisionRay.origin = controller.TailPosition;
@@ -366,13 +416,22 @@ namespace GameFramework.ProjectileSystem {
 
             /// <inheritdoc/>
             protected override void StopInternal() {
-                Projectile.Exit();
+                Projectile.Stop();
 
                 // コリジョン情報更新
                 var controller = Projectile.Controller;
                 _collisionRay.origin = controller.TailPosition;
                 _collisionRay.direction = controller.HeadPosition - controller.TailPosition;
                 _collisionDistance = controller.Distance;
+            }
+
+            /// <inheritdoc/>
+            protected override void StopImmediateInternal() {
+                var controller = Projectile.Controller;
+                _collisionRay.origin = controller.TailPosition;
+                _collisionRay.direction = controller.HeadPosition - controller.TailPosition;
+                _collisionDistance = controller.Distance;
+                Projectile.StopImmediate();
             }
 
             /// <inheritdoc/>
@@ -389,6 +448,8 @@ namespace GameFramework.ProjectileSystem {
 
         private readonly List<PlayingInfo> _playingInfos = new();
         private readonly List<PlayingInfo> _removePlayingInfos = new();
+        private readonly Dictionary<int, PlayingInfo> _playingInfoMap = new();
+        private int _nextHandleId = 1;
 
         /// <summary>
         /// 廃棄時処理
@@ -401,7 +462,7 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 更新処理
         /// </summary>
-        public void Update() {
+        public void Tick() {
             UpdatePlayingInfos();
         }
 
@@ -418,14 +479,16 @@ namespace GameFramework.ProjectileSystem {
             LayeredTime layeredTime,
             Action<IBulletProjectile> onStopped) {
             var playingInfo = new BulletPlayingInfo {
+                HandleId = _nextHandleId++,
                 Projectile = projectile,
                 LayeredTime = layeredTime,
             };
             playingInfo.StoppedEvent += onStopped;
             _playingInfos.Add(playingInfo);
-            playingInfo.Start(projectileController);
+            _playingInfoMap.Add(playingInfo.HandleId, playingInfo);
+            playingInfo.Play(projectileController);
 
-            var handle = new Handle(playingInfo);
+            var handle = new Handle(this, playingInfo.HandleId);
             return handle;
         }
 
@@ -442,14 +505,16 @@ namespace GameFramework.ProjectileSystem {
             LayeredTime layeredTime,
             Action<IBeamProjectile> onStopped) {
             var playingInfo = new BeamPlayingInfo {
+                HandleId = _nextHandleId++,
                 Projectile = projectile,
                 LayeredTime = layeredTime
             };
             playingInfo.StoppedEvent += onStopped;
             _playingInfos.Add(playingInfo);
-            playingInfo.Start(projectileController);
+            _playingInfoMap.Add(playingInfo.HandleId, playingInfo);
+            playingInfo.Play(projectileController);
 
-            var handle = new Handle(playingInfo);
+            var handle = new Handle(this, playingInfo.HandleId);
             return handle;
         }
 
@@ -458,12 +523,15 @@ namespace GameFramework.ProjectileSystem {
         /// </summary>
         /// <param name="clear">即時クリア</param>
         public void StopAll(bool clear = false) {
-            for (var i = 0; i < _playingInfos.Count; i++) {
+            for (var i = _playingInfos.Count - 1; i >= 0; i--) {
                 var info = _playingInfos[i];
-                info.Stop(null);
                 if (clear) {
-                    info.Stopped();
+                    UnregisterPlayingInfo(info);
+                    info.StopImmediate(null);
+                    continue;
                 }
+
+                info.Stop(null);
             }
 
             if (clear) {
@@ -479,8 +547,8 @@ namespace GameFramework.ProjectileSystem {
             // 不要なProjectileの再生情報をクリア
             for (var i = _removePlayingInfos.Count - 1; i >= 0; i--) {
                 var playingInfo = _removePlayingInfos[i];
+                UnregisterPlayingInfo(playingInfo);
                 playingInfo.Stopped();
-                _playingInfos.Remove(playingInfo);
             }
 
             _removePlayingInfos.Clear();
@@ -489,11 +557,48 @@ namespace GameFramework.ProjectileSystem {
             for (var i = 0; i < _playingInfos.Count; i++) {
                 var playingInfo = _playingInfos[i];
                 // 更新処理
-                if (!playingInfo.Update()) {
+                if (!playingInfo.Tick()) {
                     // 完了終了リストに追加(コリジョン判定などもあるので、1frame遅れて消す)
                     _removePlayingInfos.Add(playingInfo);
                 }
             }
+        }
+
+        /// <summary>
+        /// 再生情報の取得
+        /// </summary>
+        private bool TryGetPlayingInfo(int handleId, out PlayingInfo playingInfo) {
+            if (handleId <= 0) {
+                playingInfo = null;
+                return false;
+            }
+
+            return _playingInfoMap.TryGetValue(handleId, out playingInfo);
+        }
+
+        /// <summary>
+        /// Handle経由の廃棄
+        /// </summary>
+        private void DisposeHandle(int handleId) {
+            if (!TryGetPlayingInfo(handleId, out var playingInfo)) {
+                return;
+            }
+
+            UnregisterPlayingInfo(playingInfo);
+            playingInfo.StopImmediate(null);
+        }
+
+        /// <summary>
+        /// 再生情報の管理解除
+        /// </summary>
+        private void UnregisterPlayingInfo(PlayingInfo playingInfo) {
+            if (playingInfo == null) {
+                return;
+            }
+
+            _playingInfoMap.Remove(playingInfo.HandleId);
+            _playingInfos.Remove(playingInfo);
+            _removePlayingInfos.Remove(playingInfo);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>
         /// 飛翔開始
         /// </summary>
-        void Start();
+        void Play();
 
         /// <summary>
         /// 更新処理
