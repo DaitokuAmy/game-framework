@@ -173,8 +173,12 @@ namespace GameFramework {
                 return new TransitionHandle<TState>(new Exception("In transitioning"));
             }
 
+            if (ReferenceEquals(key, null)) {
+                return new TransitionHandle<TState>(new ArgumentNullException(nameof(key)));
+            }
+
             // 同じ場所なら何もしない
-            if (key.Equals(CurrentKey)) {
+            if (EqualityComparer<TKey>.Default.Equals(key, CurrentKey)) {
                 return TransitionHandle<TState>.Empty;
             }
 

@@ -246,7 +246,7 @@ namespace GameFramework {
         /// <param name="key">接続先を表すキー</param>
         /// <param name="includeShortcut">shortcutに設定された物をチェックするか</param>
         public bool CheckTransition(TKey key, bool includeShortcut = true) {
-            var nextNode = CurrentNode.TryGetNext(key);
+            var nextNode = CurrentNode != null ? CurrentNode.TryGetNext(key) : null;
             if (nextNode != null) {
                 return true;
             }

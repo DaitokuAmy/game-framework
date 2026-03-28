@@ -317,14 +317,14 @@ namespace GameFramework {
             scheduledUpdatableInfos.Clear();
 
             // 登録解除を実行
-            foreach (var groupInfo in _updatableGroupInfos.Values) {
+            foreach (var groupInfo in updatableGroupInfos.Values) {
                 for (var i = groupInfo.UpdatableInfos.Count - 1; i >= 0; i--) {
                     var updatableInfo = groupInfo.UpdatableInfos[i];
 
                     // KillされたUpdatableを除外
                     if (updatableInfo.Status == UpdatableState.Killed) {
                         groupInfo.UpdatableInfos.RemoveAt(i);
-                        _updatableInfos.Remove(updatableInfo.Updatable);
+                        updatableInfos.Remove(updatableInfo.Updatable);
                     }
                 }
             }
@@ -381,7 +381,7 @@ namespace GameFramework {
                 updatableInfos[updatable] = info;
 
                 // 登録通知
-                if (updatable is IUpdatableEventHandler handler) {
+                if (updatable is IUpdatableEventHandlerBase<TUpdatable> handler) {
                     handler.OnRegistered(this);
                 }
             }

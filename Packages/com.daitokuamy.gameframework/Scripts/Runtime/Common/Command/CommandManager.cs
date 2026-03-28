@@ -121,23 +121,19 @@ namespace GameFramework {
         /// <param name="priority">キャンセルするCommandのPriority</param>
         public void CancelCommands(int priority) {
             // 実行中のコマンドを強制終了
-            for (var i = _executingCommands.Count - 1; i >= 0; i--) {
+            for (var i = 0; i < _executingCommands.Count; i++) {
                 var command = _executingCommands[i];
-                if (command.Priority > priority) {
-                    break;
+                if (command.Priority <= priority) {
+                    _executingCommands[i].Destroy();
                 }
-                
-                _executingCommands[i].Destroy();
             }
             
             // 実行待機中のコマンドを強制終了
-            for (var i = _standbyCommands.Count - 1; i >= 0; i--) {
+            for (var i = 0; i < _standbyCommands.Count; i++) {
                 var command = _standbyCommands[i];
-                if (command.Priority > priority) {
-                    break;
+                if (command.Priority <= priority) {
+                    _standbyCommands[i].Destroy();
                 }
-                
-                _standbyCommands[i].Destroy();
             }
         }
 
