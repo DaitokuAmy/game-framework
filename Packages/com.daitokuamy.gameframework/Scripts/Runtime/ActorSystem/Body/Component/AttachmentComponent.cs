@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
-using GameFramework.Kinematics;
+using GameFramework.AttachmentSystem;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
