@@ -66,14 +66,19 @@ namespace GameFramework.BootSystem {
         private IEnumerator StartRoutine(object[] args) {
             _currentState = State.Starting;
 
-            if (_mainSystem != null) {
-                yield return _mainSystem.StartRoutine(args);
+            try {
+                if (_mainSystem != null) {
+                    yield return _mainSystem.StartRoutine(args);
+                }
+                else {
+                    Debug.LogWarning("MainSystem is null.");
+                }
             }
-            else {
-                Debug.LogWarning("MainSystem is null.");
+            finally {
+                if (s_instance == this) {
+                    _currentState = State.Active;
+                }
             }
-
-            _currentState = State.Active;
         }
 
         /// <summary>
@@ -83,14 +88,19 @@ namespace GameFramework.BootSystem {
         private IEnumerator RebootRoutine(object[] args) {
             _currentState = State.Rebooting;
 
-            if (_mainSystem != null) {
-                yield return _mainSystem.RebootRoutine(args);
+            try {
+                if (_mainSystem != null) {
+                    yield return _mainSystem.RebootRoutine(args);
+                }
+                else {
+                    Debug.LogWarning("MainSystem is null.");
+                }
             }
-            else {
-                Debug.LogWarning("MainSystem is null.");
+            finally {
+                if (s_instance == this) {
+                    _currentState = State.Active;
+                }
             }
-
-            _currentState = State.Active;
         }
 
         /// <summary>
@@ -129,7 +139,7 @@ namespace GameFramework.BootSystem {
 
             // Starterから引数を取得
             var starter = MainSystemStarter.Current;
-            var arguments = starter != null ? starter.GetArguments() : Array.Empty<object>();
+            var arguments = starter != null ? starter.GetArguments() ?? Array.Empty<object>() : Array.Empty<object>();
 
             // 開始処理
             yield return StartRoutine(arguments);

@@ -54,6 +54,11 @@ namespace GameFramework.BootSystem {
                 return;
             }
 
+            if (string.IsNullOrEmpty(_bootSceneName)) {
+                Debug.LogWarning("Boot scene name is empty.");
+                return;
+            }
+
             SceneManager.LoadScene(_bootSceneName);
             StartInternal();
         }

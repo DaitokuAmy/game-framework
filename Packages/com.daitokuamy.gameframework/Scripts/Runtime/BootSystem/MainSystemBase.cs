@@ -15,10 +15,14 @@ namespace GameFramework.BootSystem {
         /// <param name="args">起動時に渡された引数</param>
         internal IEnumerator StartRoutine(object[] args) {
             IsWarming = true;
-            PreStartInternal(args);
-            yield return StartRoutineInternal(args);
-            PostStartInternal(args);
-            IsWarming = false;
+            try {
+                PreStartInternal(args);
+                yield return StartRoutineInternal(args);
+                PostStartInternal(args);
+            }
+            finally {
+                IsWarming = false;
+            }
         }
 
         /// <summary>
@@ -27,10 +31,14 @@ namespace GameFramework.BootSystem {
         /// <param name="args">リブート時に渡された引数</param>
         internal IEnumerator RebootRoutine(object[] args) {
             IsWarming = true;
-            PreRebootInternal(args);
-            yield return RebootRoutineInternal(args);
-            PostRebootInternal(args);
-            IsWarming = false;
+            try {
+                PreRebootInternal(args);
+                yield return RebootRoutineInternal(args);
+                PostRebootInternal(args);
+            }
+            finally {
+                IsWarming = false;
+            }
         }
 
         /// <summary>
