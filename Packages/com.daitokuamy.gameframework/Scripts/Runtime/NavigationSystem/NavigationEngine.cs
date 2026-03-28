@@ -6,10 +6,9 @@ namespace GameFramework.NavigationSystem {
     /// Navigationシステムを動かすためのエンジン
     /// </summary>
     public sealed class NavigationEngine : IDisposable {
-        /// <summary>無効扱いのNodeId</summary>
+        /// <summary>無効値を表すNodeId</summary>
         public const int InvalidNodeId = 0;
-        
-        private readonly List<INavNode> _nodes = new();
+
         private readonly NavNodeTree _tree;
         private readonly IStateRouter<int, INavNode, NavNodeTree.TransitionOption> _router;
 
@@ -17,22 +16,15 @@ namespace GameFramework.NavigationSystem {
         /// コンストラクタ
         /// </summary>
         internal NavigationEngine(IRootNode rootNode, IReadOnlyDictionary<int, INavNode> nodeMap, Func<NavNodeTree, IStateRouter<int, INavNode, NavNodeTree.TransitionOption>> createRouterFunc) {
-            _nodes.AddRange(nodeMap.Values);
             _tree = new NavNodeTree(rootNode, nodeMap, this);
-            _router = createRouterFunc.Invoke(_tree);
+            _router = createRouterFunc?.Invoke(_tree);
         }
 
         /// <summary>
-        /// 廃棄処理
+        /// 破棄処理
         /// </summary>
         public void Dispose() {
-            // Treeの廃棄
             _tree.Dispose();
-
-            // 各種NodeのRelease
-            for (var i = _nodes.Count - 1; i >= 0; i--) {
-                _nodes[i].Release();
-            }
         }
 
         /// <summary>
@@ -51,54 +43,62 @@ namespace GameFramework.NavigationSystem {
         }
 
         /// <summary>
-        /// 遷移実行
+        /// 指定した screen node へ遷移します。
         /// </summary>
         /// <param name="nodeId">遷移先NodeのId</param>
         /// <param name="option">遷移オプション</param>
-        /// <param name="setupAction">遷移先Node</param>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> TransitionTo(int nodeId, NavNodeTree.TransitionOption? option, Action<IScreenNode> setupAction, ITransition transition, params ITransitionEffect[] effects) {
-            if (_router != null) {
-                return _router.TransitionTo(nodeId, option ?? NavNodeTree.TransitionOption.Default, node => {
-                    setupAction?.Invoke((IScreenNode)node);
-                }, transition, effects);
+        /// <param name="setupAction">遷移先の事前設定</param>
+        /// <param name="transition">遷移方式</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle<INavNode> TransitionTo<TScreen>(int nodeId, NavNodeTree.TransitionOption? option, Action<TScreen> setupAction, ITransition transition,
+            params ITransitionEffect[] effects)
+            where TScreen : class, IScreenNode {
+            void Setup(INavNode node) {
+                if (node is not TScreen screenNode) {
+                    throw new InvalidOperationException($"Node <{nodeId}> is not {typeof(TScreen).Name}.");
+                }
+
+                setupAction?.Invoke(screenNode);
             }
 
-            return _tree.TransitionTo(nodeId, option ?? NavNodeTree.TransitionOption.Default, false, node => {
-                setupAction?.Invoke((IScreenNode)node);
-            }, transition, effects);
+            if (_router != null) {
+                return _router.TransitionTo(nodeId, option ?? NavNodeTree.TransitionOption.Default, Setup, transition, effects);
+            }
+
+            return _tree.TransitionTo(nodeId, option ?? NavNodeTree.TransitionOption.Default, false, Setup, transition, effects);
         }
 
         /// <summary>
-        /// 遷移実行
+        /// 指定した screen node へ遷移します。
         /// </summary>
         /// <param name="nodeId">遷移先NodeのId</param>
-        /// <param name="setupAction">遷移先Node</param>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> TransitionTo(int nodeId, Action<IScreenNode> setupAction, ITransition transition, params ITransitionEffect[] effects) {
+        /// <param name="setupAction">遷移先の事前設定</param>
+        /// <param name="transition">遷移方式</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle<INavNode> TransitionTo<TScreen>(int nodeId, Action<TScreen> setupAction, ITransition transition, params ITransitionEffect[] effects)
+            where TScreen : class, IScreenNode {
             return TransitionTo(nodeId, null, setupAction, transition, effects);
         }
 
         /// <summary>
-        /// 遷移実行
+        /// 指定した screen node へ遷移します。
         /// </summary>
         /// <param name="nodeId">遷移先NodeのId</param>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
-        public TransitionHandle<INavNode> TransitionTo(int nodeId, ITransition transition, params ITransitionEffect[] effects) {
-            return TransitionTo(nodeId, null, null, transition, effects);
+        /// <param name="transition">遷移方式</param>
+        /// <param name="effects">遷移演出</param>
+        public TransitionHandle<INavNode> TransitionTo<TScreen>(int nodeId, ITransition transition, params ITransitionEffect[] effects)
+            where TScreen : class, IScreenNode {
+            return TransitionTo<TScreen>(nodeId, null, null, transition, effects);
         }
 
         /// <summary>
         /// 戻る処理
         /// </summary>
-        /// <param name="depth">戻り階層数(1～)</param>
+        /// <param name="depth">戻る階層数(1以上)</param>
         /// <param name="option">遷移時に渡すオプション</param>
-        /// <param name="setupAction">遷移先初期化用関数</param>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
+        /// <param name="setupAction">遷移先事前処理用関数</param>
+        /// <param name="transition">遷移方式</param>
+        /// <param name="effects">遷移演出</param>
         public TransitionHandle<INavNode> Back(int depth = 1, NavNodeTree.TransitionOption? option = null, Action<INavNode> setupAction = null, ITransition transition = null,
             params ITransitionEffect[] effects) {
             if (_router != null) {
@@ -111,10 +111,10 @@ namespace GameFramework.NavigationSystem {
         /// <summary>
         /// 戻る処理
         /// </summary>
-        /// <param name="depth">戻り階層数(1～)</param>
-        /// <param name="setupAction">遷移先初期化用関数</param>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
+        /// <param name="depth">戻る階層数(1以上)</param>
+        /// <param name="setupAction">遷移先事前処理用関数</param>
+        /// <param name="transition">遷移方式</param>
+        /// <param name="effects">遷移演出</param>
         public TransitionHandle<INavNode> Back(int depth = 1, Action<INavNode> setupAction = null, ITransition transition = null, params ITransitionEffect[] effects) {
             return Back(depth, null, setupAction, transition, effects);
         }
@@ -122,9 +122,9 @@ namespace GameFramework.NavigationSystem {
         /// <summary>
         /// 戻る処理
         /// </summary>
-        /// <param name="setupAction">遷移先初期化用関数</param>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
+        /// <param name="setupAction">遷移先事前処理用関数</param>
+        /// <param name="transition">遷移方式</param>
+        /// <param name="effects">遷移演出</param>
         public TransitionHandle<INavNode> Back(Action<INavNode> setupAction, ITransition transition = null, params ITransitionEffect[] effects) {
             return Back(1, null, setupAction, transition, effects);
         }
@@ -132,8 +132,8 @@ namespace GameFramework.NavigationSystem {
         /// <summary>
         /// 戻る処理
         /// </summary>
-        /// <param name="transition">遷移方法</param>
-        /// <param name="effects">遷移時演出</param>
+        /// <param name="transition">遷移方式</param>
+        /// <param name="effects">遷移演出</param>
         public TransitionHandle<INavNode> Back(ITransition transition = null, params ITransitionEffect[] effects) {
             return Back(1, null, null, transition, effects);
         }
@@ -141,8 +141,8 @@ namespace GameFramework.NavigationSystem {
         /// <summary>
         /// 状態リセット
         /// </summary>
-        /// <param name="setupAction">遷移先初期化用関数</param>
-        /// <param name="effects">遷移時演出</param>
+        /// <param name="setupAction">遷移先事前処理用関数</param>
+        /// <param name="effects">遷移演出</param>
         public TransitionHandle<INavNode> Reset(Action<INavNode> setupAction, params ITransitionEffect[] effects) {
             if (_router != null) {
                 return _router.Reset(setupAction, effects);
@@ -154,22 +154,20 @@ namespace GameFramework.NavigationSystem {
         /// <summary>
         /// 状態リセット
         /// </summary>
-        /// <param name="effects">遷移時演出</param>
+        /// <param name="effects">遷移演出</param>
         public TransitionHandle<INavNode> Reset(params ITransitionEffect[] effects) {
             return Reset(null, effects);
         }
 
         /// <summary>
-        /// 現在カレントなNodeの取得
+        /// 現在遷移中なNodeの取得
         /// </summary>
-        /// <returns></returns>
         public INavNode GetCurrentNode() {
             return _tree.Current;
         }
 
         /// <summary>
-        /// カレントNodeの階層に特定のNavNode型が存在するかチェック
-        /// ※カレントもチェック対象
+        /// カレントNodeの親階層に指定のNavNode型が存在するかチェック
         /// </summary>
         public bool CheckNodeTypeInParent<TNode>()
             where TNode : INavNode {
@@ -177,8 +175,7 @@ namespace GameFramework.NavigationSystem {
         }
 
         /// <summary>
-        /// カレントNodeの階層の中で特定の型のNodeを取得
-        /// ※カレントもチェック対象
+        /// カレントNodeの親階層の中で指定の型のNodeを取得
         /// </summary>
         public TNode GetNodeInParent<TNode>()
             where TNode : INavNode {
@@ -186,8 +183,7 @@ namespace GameFramework.NavigationSystem {
         }
 
         /// <summary>
-        /// 特定Nodeの階層の中で特定の型のNodeを取得
-        /// ※指定Nodeもチェック対象
+        /// 指定Nodeの親階層の中で指定の型のNodeを取得
         /// </summary>
         public TNode GetNodeInParent<TNode>(int targetNodeId)
             where TNode : INavNode {
@@ -195,10 +191,9 @@ namespace GameFramework.NavigationSystem {
         }
 
         /// <summary>
-        /// 戻り先のNodeの階層の中で特定型のNodeを取得
-        /// ※戻り先もチェック対象
+        /// 戻り先のNodeの親階層の中で指定型のNodeを取得
         /// </summary>
-        /// <param name="depth">戻る深さ</param>
+        /// <param name="depth">戻る階層</param>
         public TNode GetBackNodeInParent<TNode>(int depth = 1)
             where TNode : INavNode {
             if (_router == null) {
@@ -209,17 +204,17 @@ namespace GameFramework.NavigationSystem {
             if (backKey == InvalidNodeId) {
                 return default;
             }
-            
+
             return _tree.GetNodeInParent<TNode>(backKey);
         }
 
         /// <summary>
-        /// 子要素の含まれている該当Node型のNodeIdを検索
+        /// 子孫階層の含まれている指定型NodeのNodeIdを取得
         /// </summary>
         public bool TryGetChildNodeId<TNode>(out int nodeId)
             where TNode : INavNode {
             nodeId = InvalidNodeId;
-            
+
             return _tree.TryGetChildNodeId<TNode>(out nodeId);
         }
 
@@ -229,7 +224,7 @@ namespace GameFramework.NavigationSystem {
         public AsyncOperationHandle PreLoad(int nodeId) {
             return _tree.PreLoad(nodeId);
         }
-        
+
         /// <summary>
         /// NodeのPreLoadをUnload
         /// </summary>

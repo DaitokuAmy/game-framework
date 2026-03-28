@@ -33,7 +33,7 @@ namespace SampleGame.Lifecycle {
         }
 
         /// <inheritdoc/>
-        TransitionHandle<INavNode> IAppNavigator.TransitionTo(int nodeId, bool refresh, Action<INavNode> setupAction) {
+        TransitionHandle<INavNode> IAppNavigator.TransitionTo(int nodeId, bool refresh, Action<ScreenNode> setupAction) {
             var (transition, effects) = GetDefaultTransitionInfo(nodeId);
             return _engine.TransitionTo(nodeId, new NavNodeTree.TransitionOption(refresh), setupAction, transition, effects);
         }

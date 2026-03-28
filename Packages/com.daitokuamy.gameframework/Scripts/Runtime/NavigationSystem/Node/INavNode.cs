@@ -7,16 +7,16 @@ using VContainer;
 
 namespace GameFramework.NavigationSystem {
     /// <summary>
-    /// ナビゲーションシステムで管理されるノードの基本インターフェース
+    /// ナビゲーションシステムで遷移されるノードの基本インターフェース
     /// </summary>
     public interface INavNode {
         /// <summary>Loadを並列で実行可能か</summary>
         bool IsParallelLoading { get; }
         /// <summary>識別Id</summary>
         int NodeId { get; }
-        /// <summary>接続されている親</summary>
+        /// <summary>親として設定されているノード</summary>
         INavNode Parent { get; }
-        /// <summary>接続している子のリスト</summary>
+        /// <summary>親として持っている子のリスト</summary>
         IReadOnlyList<INavNode> Children { get; }
         /// <summary>アクティブ状態</summary>
         bool IsActive { get; }
@@ -32,26 +32,26 @@ namespace GameFramework.NavigationSystem {
         void SetFocus(bool focus);
 
         /// <summary>
-        /// 遷移方法を上書きする処理
+        /// 遷移方法を上書きする場合の処理
         /// </summary>
         /// <param name="nextNode">遷移先のNode</param>
-        /// <param name="transition">現在の遷移手法</param>
+        /// <param name="transition">現在の遷移方式</param>
         ITransition OverrideTransition(INavNode nextNode, ITransition transition);
 
 #if USE_VCONTAINER
         /// <summary>
         /// 親の設定
         /// </summary>
-        /// <param name="nodeId">登録された識別Id</param>
-        /// <param name="parent">親要素にあたるNode</param>
+        /// <param name="nodeId">登録される識別Id</param>
+        /// <param name="parent">親階層にあたるノード</param>
         /// <param name="parentObjectResolver">VContainer用の親Resolver</param>
         void Setup(int nodeId, INavNode parent, IObjectResolver parentObjectResolver);
 #else
         /// <summary>
         /// 親の設定
         /// </summary>
-        /// <param name="nodeId">登録された識別Id</param>
-        /// <param name="parent">親要素にあたるNode</param>
+        /// <param name="nodeId">登録される識別Id</param>
+        /// <param name="parent">親階層にあたるノード</param>
         void Setup(int nodeId, INavNode parent);
 #endif
 
@@ -74,18 +74,23 @@ namespace GameFramework.NavigationSystem {
         IEnumerator InitializeRoutine(TransitionHandle<INavNode> handle);
 
         /// <summary>
-        /// アクティブ時処理
+        /// アクティブ化処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         void Activate(TransitionHandle<INavNode> handle);
 
         /// <summary>
-        /// 更新処理
+        /// アクティブ状態に関係なく常時呼ばれる更新
+        /// </summary>
+        void UpdateAlways();
+
+        /// <summary>
+        /// アクティブ状態のときだけ呼ばれる更新
         /// </summary>
         void Update();
 
         /// <summary>
-        /// 非アクティブ時処理
+        /// 非アクティブ化処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         void Deactivate(TransitionHandle<INavNode> handle);
@@ -103,12 +108,12 @@ namespace GameFramework.NavigationSystem {
         void Unload(TransitionHandle<INavNode> handle);
 
         /// <summary>
-        /// 廃棄
+        /// 解放処理
         /// </summary>
         void Release();
 
         /// <summary>
-        /// 強制終了
+        /// 強制終了処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         void Shutdown(TransitionHandle<INavNode> handle);

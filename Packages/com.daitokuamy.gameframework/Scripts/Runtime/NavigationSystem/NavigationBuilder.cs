@@ -250,6 +250,10 @@ namespace GameFramework.NavigationSystem {
         /// </summary>
         public NavigationEngine Build() {
 #endif
+            if (_rootNodeBuilder == null) {
+                throw new InvalidOperationException("RootNode is not set. Call CreateLifecycle(...) before Build().");
+            }
+
 #if USE_VCONTAINER
             var rootNode = _rootNodeBuilder.Build(_nodeMap, parentObjectResolver);
 #else

@@ -16,7 +16,7 @@ namespace SampleGame.Lifecycle {
         /// <summary>
         /// NavNodeセットアップ処理
         /// </summary>
-        protected virtual void OnNodeSetup(INavNode navNode) {}
+        protected virtual void OnNodeSetup(ScreenNode navNode) {}
 
         /// <summary>
         /// 開始引数の生成

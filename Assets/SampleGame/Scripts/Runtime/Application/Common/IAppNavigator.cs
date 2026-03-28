@@ -15,6 +15,6 @@ namespace SampleGame.Application {
         /// <summary>
         /// 汎用遷移処理
         /// </summary>
-        TransitionHandle<INavNode> TransitionTo(int nodeId, bool refresh, Action<INavNode> setupAction);
+        TransitionHandle<INavNode> TransitionTo(int nodeId, bool refresh, Action<ScreenNode> setupAction);
     }
 }

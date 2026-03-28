@@ -125,6 +125,10 @@ namespace GameFramework.NavigationSystem {
             var preLoadInfos = _preLoadInfos.Values.ToArray();
             _preLoadInfos.Clear();
             foreach (var info in preLoadInfos) {
+                if (!info.AsyncOperator.IsDone) {
+                    info.AsyncOperator.Aborted(new OperationCanceledException());
+                }
+
                 if (_runningNodes.Contains(info.Node)) {
                     continue;
                 }
@@ -136,6 +140,10 @@ namespace GameFramework.NavigationSystem {
             for (var i = _runningNodes.Count - 1; i >= 0; i--) {
                 var node = _runningNodes[i];
                 node.Shutdown(emptyHandle);
+            }
+
+            foreach (var node in _nodeMap.Values) {
+                node.Release();
             }
         }
 
@@ -335,6 +343,14 @@ namespace GameFramework.NavigationSystem {
         /// </summary>
         public void Update() {
             _coroutineRunner?.Update();
+
+            var runningNodes = _runningNodes.ToArray();
+            for (var i = 0; i < runningNodes.Length; i++) {
+                runningNodes[i].UpdateAlways();
+                if (runningNodes[i].IsActive) {
+                    runningNodes[i].Update();
+                }
+            }
         }
 
         /// <inheritdoc/>
@@ -491,7 +507,7 @@ namespace GameFramework.NavigationSystem {
             var searchType = typeof(T);
             var node = Current;
             while (node != null) {
-                if (node.GetType().IsAssignableFrom(searchType)) {
+                if (searchType.IsAssignableFrom(node.GetType())) {
                     return true;
                 }
 
@@ -634,7 +650,7 @@ namespace GameFramework.NavigationSystem {
             }
 
             // Running中の物は無視
-            if (!_runningNodes.Contains(preLoadInfo.Node)) {
+            if (_runningNodes.Contains(preLoadInfo.Node)) {
                 return;
             }
 

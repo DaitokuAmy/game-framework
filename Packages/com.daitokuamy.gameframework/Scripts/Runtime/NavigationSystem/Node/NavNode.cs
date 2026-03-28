@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 #if USE_VCONTAINER
 using VContainer;
@@ -20,7 +18,6 @@ namespace GameFramework.NavigationSystem {
         private DisposableScope _activateScope;
         private int _nodeId;
         private INavNode _parent;
-        private bool _active;
 
         /// <inheritdoc/>
         bool INavNode.IsParallelLoading => IsParallelLoading;
@@ -62,7 +59,7 @@ namespace GameFramework.NavigationSystem {
         void INavNode.Setup(int nodeId, INavNode parent) {
 #endif
             _nodeId = nodeId;
-            
+
             if (_parent is NavNode prevParentNode) {
                 prevParentNode._children.Remove(this);
             }
@@ -71,7 +68,7 @@ namespace GameFramework.NavigationSystem {
             if (_parent is NavNode parentNode) {
                 parentNode._children.Add(this);
             }
-            
+
 #if USE_VCONTAINER
             if (parentObjectResolver != null) {
                 ObjectResolver = parentObjectResolver.CreateScope(Configure);
@@ -113,6 +110,11 @@ namespace GameFramework.NavigationSystem {
         }
 
         /// <inheritdoc/>
+        void INavNode.UpdateAlways() {
+            UpdateAlways();
+        }
+
+        /// <inheritdoc/>
         void INavNode.Update() {
             Update();
         }
@@ -140,6 +142,14 @@ namespace GameFramework.NavigationSystem {
 
         /// <inheritdoc/>
         void INavNode.Release() {
+            if (_standbyScope == null && Engine == null
+#if USE_VCONTAINER
+                && ObjectResolver == null
+#endif
+               ) {
+                return;
+            }
+
             Release();
 #if USE_VCONTAINER
             ObjectResolver?.Dispose();
@@ -178,10 +188,10 @@ namespace GameFramework.NavigationSystem {
         protected virtual void SetFocus(bool focus) { }
 
         /// <summary>
-        /// 遷移方法を上書きする処理
+        /// 遷移方法を上書きする場合の処理
         /// </summary>
         /// <param name="nextNode">遷移先のNode</param>
-        /// <param name="transition">現在の遷移手法</param>
+        /// <param name="transition">現在の遷移方式</param>
         protected virtual ITransition OverrideTransition(INavNode nextNode, ITransition transition) {
             return transition;
         }
@@ -202,7 +212,7 @@ namespace GameFramework.NavigationSystem {
         /// 読み込み処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        /// <param name="scope">生存スコープ</param>
+        /// <param name="scope">読み込みスコープ</param>
         protected virtual IEnumerator LoadRoutine(TransitionHandle<INavNode> handle, IScope scope) {
             yield break;
         }
@@ -211,25 +221,30 @@ namespace GameFramework.NavigationSystem {
         /// 初期化処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        /// <param name="scope">生存スコープ</param>
+        /// <param name="scope">初期化スコープ</param>
         protected virtual IEnumerator InitializeRoutine(TransitionHandle<INavNode> handle, IScope scope) {
             yield break;
         }
 
         /// <summary>
-        /// アクティブ時処理
+        /// アクティブ化処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
-        /// <param name="scope">生存スコープ</param>
+        /// <param name="scope">アクティブスコープ</param>
         protected virtual void Activate(TransitionHandle<INavNode> handle, IScope scope) { }
 
         /// <summary>
-        /// 更新処理
+        /// アクティブ状態に関係なく常時呼ばれる更新
+        /// </summary>
+        protected virtual void UpdateAlways() { }
+
+        /// <summary>
+        /// アクティブ状態のときだけ呼ばれる更新
         /// </summary>
         protected virtual void Update() { }
 
         /// <summary>
-        /// 非アクティブ時処理
+        /// 非アクティブ化処理
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         protected virtual void Deactivate(TransitionHandle<INavNode> handle) { }
@@ -247,7 +262,7 @@ namespace GameFramework.NavigationSystem {
         protected virtual void Unload(TransitionHandle<INavNode> handle) { }
 
         /// <summary>
-        /// 廃棄処理
+        /// 解放処理
         /// </summary>
         protected virtual void Release() { }
 

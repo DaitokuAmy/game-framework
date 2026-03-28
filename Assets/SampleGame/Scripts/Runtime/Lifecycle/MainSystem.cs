@@ -26,7 +26,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         public struct StartArgs {
             public int NodeId;
-            public Action<INavNode> SetupAction;
+            public Action<ScreenNode> SetupAction;
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace SampleGame.Lifecycle {
         /// </summary>
         public struct RebootArgs {
             public int NodeId;
-            public Action<INavNode> SetupAction;
+            public Action<ScreenNode> SetupAction;
         }
 
         private DisposableScope _globalScope;
