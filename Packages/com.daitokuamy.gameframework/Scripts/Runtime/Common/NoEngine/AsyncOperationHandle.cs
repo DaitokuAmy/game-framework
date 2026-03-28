@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Runtime.CompilerServices;
 
 namespace GameFramework {
@@ -280,7 +281,7 @@ namespace GameFramework {
     /// </summary>
     public readonly struct AsyncOperationHandle<T> : IProcess<T> {
         /// <summary>キャンセル済みHandle</summary>
-        public static readonly AsyncOperationHandle<T> CanceledHandle = new();
+        public static readonly AsyncOperationHandle<T> CanceledHandle = new(new OperationCanceledException());
         /// <summary>完了済みHandle</summary>
         public static readonly AsyncOperationHandle<T> CompletedHandle = new();
 
@@ -392,6 +393,9 @@ namespace GameFramework {
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetResult() {
+            if (_handle.Exception != null) {
+                ExceptionDispatchInfo.Capture(_handle.Exception).Throw();
+            }
         }
     }
 
@@ -432,6 +436,10 @@ namespace GameFramework {
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetResult() {
+            if (_handle.Exception != null) {
+                ExceptionDispatchInfo.Capture(_handle.Exception).Throw();
+            }
+
             return _handle.Result;
         }
     }

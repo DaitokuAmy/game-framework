@@ -7,13 +7,6 @@ namespace GameFramework {
     /// </summary>
     public static class ScopeExtensions {
         /// <summary>
-        /// スコープが有効か
-        /// </summary>
-        public static bool IsValid(this IScope source) {
-            return source != null && !source.Token.IsCancellationRequested;
-        }
-
-        /// <summary>
         /// CancellationTokenのScope変換
         /// </summary>
         public static IScope ToScope(this CancellationToken source) {
@@ -28,6 +21,11 @@ namespace GameFramework {
         public static T RegisterTo<T>(this T source, IScope scope)
             where T : IDisposable {
             if (scope == null) {
+                return source;
+            }
+
+            if (!scope.IsValid) {
+                source.Dispose();
                 return source;
             }
 

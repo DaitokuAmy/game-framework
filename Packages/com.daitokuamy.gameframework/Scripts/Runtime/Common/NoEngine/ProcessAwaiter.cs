@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Runtime.CompilerServices;
 
 namespace GameFramework {
@@ -49,6 +50,9 @@ namespace GameFramework {
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void GetResult() {
+            if (_process.Exception != null) {
+                ExceptionDispatchInfo.Capture(_process.Exception).Throw();
+            }
         }
 
         /// <summary>
@@ -107,6 +111,10 @@ namespace GameFramework {
         [DebuggerHidden]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetResult() {
+            if (_process.Exception != null) {
+                ExceptionDispatchInfo.Capture(_process.Exception).Throw();
+            }
+
             return _process.Result;
         }
 

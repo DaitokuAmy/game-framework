@@ -10,6 +10,8 @@ namespace GameFramework {
 
         /// <summary>廃棄済みか</summary>
         public bool Disposed { get; private set; }
+        /// <summary>スコープが有効か</summary>
+        public bool IsValid => !Disposed && !Token.IsCancellationRequested;
         /// <summary>キャンセルハンドリング用トークン</summary>
         public CancellationToken Token => _cancellationTokenSource?.Token ?? CancellationToken.None;
 

@@ -9,6 +9,9 @@ namespace GameFramework {
         /// <summary>スコープ終了通知</summary>
         event Action ExpiredEvent;
         
+        /// <summary>スコープが有効か</summary>
+        bool IsValid { get; }
+        
         /// <summary>キャンセル用Token</summary>
         CancellationToken Token { get; }
     }

@@ -15,6 +15,8 @@ namespace GameFramework {
         public virtual bool IsActive => _activeScope != null;
         /// <summary>廃棄済みか</summary>
         public bool IsDisposed => _disposed;
+        /// <summary>スコープが有効か</summary>
+        public bool IsValid => !_disposed && !Token.IsCancellationRequested;
         /// <summary>キャンセル用トークン</summary>
         public CancellationToken Token => _cancellationTokenSource.Token;
         
