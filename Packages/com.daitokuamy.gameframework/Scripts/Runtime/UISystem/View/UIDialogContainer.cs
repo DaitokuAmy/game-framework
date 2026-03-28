@@ -58,6 +58,9 @@ namespace GameFramework.UISystem {
                 }
 
                 IsDone = true;
+                if (Dialog != null) {
+                    Dialog.SelectedIndexEvent -= OnSelectedIndex;
+                }
             }
 
             /// <summary>
@@ -313,6 +316,8 @@ namespace GameFramework.UISystem {
                 info.Screen.UnregisterHandler(info.Handler);
                 info.Handler = null;
             }
+
+            _createHandlerFunctions.Remove(key);
         }
 
         /// <summary>

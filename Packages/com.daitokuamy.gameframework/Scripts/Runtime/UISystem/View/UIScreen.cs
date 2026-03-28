@@ -367,7 +367,7 @@ namespace GameFramework.UISystem {
                 handler.Deactivate();
             }
 
-            handler.OnRegistered(this);
+            handler.OnUnregistered();
         }
 
         /// <summary>

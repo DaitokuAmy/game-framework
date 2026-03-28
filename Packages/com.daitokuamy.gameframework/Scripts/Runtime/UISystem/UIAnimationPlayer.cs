@@ -13,9 +13,9 @@ namespace GameFramework.UISystem {
         /// <summary>
         /// Animation再生制御用ハンドル
         /// </summary>
-        public struct Handle : IDisposable, IEventProcess {
+        public readonly struct Handle : IDisposable, IEventProcess {
             /// <summary>空のHandle</summary>
-            public static readonly Handle Empty = new Handle();
+            public static readonly Handle Empty = new();
 
             private readonly PlayingInfo _playingInfo;
 
@@ -141,6 +141,7 @@ namespace GameFramework.UISystem {
                 Loop = false;
                 Apply();
                 Animation = null;
+                FinishedEvent?.Invoke();
             }
 
             /// <summary>

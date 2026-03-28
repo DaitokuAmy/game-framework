@@ -53,7 +53,7 @@ namespace GameFramework.UISystem {
             /// 廃棄処理
             /// </summary>
             public void Dispose() {
-                if (IsValid && _uIManager != null) {
+                if (_assetInfo != null && _uIManager != null) {
                     _uIManager.RemoveAssetInfo(_assetInfo);
                     _assetInfo = null;
                     _uIManager = null;
@@ -78,7 +78,7 @@ namespace GameFramework.UISystem {
 
             public bool Initialized;
             public Coroutine Coroutine;
-            public Canvas[] RootCanvases;
+            public Canvas[] RootCanvases = Array.Empty<Canvas>();
 
             /// <summary>読み込み完了しているか</summary>
             public abstract bool IsDone { get; }
@@ -93,14 +93,17 @@ namespace GameFramework.UISystem {
         /// </summary>
         private class SceneInfo : AssetInfo {
             public string Key;
-            public SceneAssetHandle AssetHandle;
+            public SceneAssetHandle Handle;
 
-            public override bool IsDone => Initialized && AssetHandle.IsDone;
-            public override Exception Exception => AssetHandle.Exception;
+            public override bool IsDone => Initialized && Handle.IsDone;
+            public override Exception Exception => Handle.Exception;
 
             public override void Release() {
-                SceneManager.UnloadSceneAsync(AssetHandle.Scene);
-                AssetHandle.Release();
+                if (Handle.Scene.IsValid()) {
+                    SceneManager.UnloadSceneAsync(Handle.Scene);
+                }
+
+                Handle.Release();
             }
         }
 
@@ -109,13 +112,19 @@ namespace GameFramework.UISystem {
         /// </summary>
         private class PrefabInfo : AssetInfo {
             public string Key;
-            public AssetHandle<GameObject> AssetHandle;
+            public AssetHandle<GameObject> Handle;
+            public GameObject Instance;
 
-            public override bool IsDone => Initialized && AssetHandle.IsDone;
-            public override Exception Exception => AssetHandle.Exception;
+            public override bool IsDone => Initialized && Handle.IsDone;
+            public override Exception Exception => Handle.Exception;
 
             public override void Release() {
-                AssetHandle.Release();
+                if (Instance != null) {
+                    Object.Destroy(Instance);
+                    Instance = null;
+                }
+
+                Handle.Release();
             }
         }
 
@@ -220,7 +229,7 @@ namespace GameFramework.UISystem {
             var handle = _loader.GetSceneAssetHandle(assetKey);
             assetInfo = new SceneInfo();
             assetInfo.Key = assetKey;
-            assetInfo.AssetHandle = handle;
+            assetInfo.Handle = handle;
             _sceneInfos.Add(assetKey, assetInfo);
 
             IEnumerator Routine() {
@@ -229,6 +238,7 @@ namespace GameFramework.UISystem {
                 }
 
                 if (handle.Exception != null) {
+                    assetInfo.Initialized = true;
                     yield break;
                 }
 
@@ -285,7 +295,7 @@ namespace GameFramework.UISystem {
             var handle = _loader.GetPrefabAssetHandle(assetKey);
             assetInfo = new PrefabInfo();
             assetInfo.Key = assetKey;
-            assetInfo.AssetHandle = handle;
+            assetInfo.Handle = handle;
             _prefabInfos.Add(assetKey, assetInfo);
 
             IEnumerator Routine() {
@@ -294,11 +304,13 @@ namespace GameFramework.UISystem {
                 }
 
                 if (handle.Exception != null) {
+                    assetInfo.Initialized = true;
                     yield break;
                 }
 
                 var prefab = handle.Asset;
                 var instance = Object.Instantiate(prefab, _rootObject.transform, false);
+                assetInfo.Instance = instance;
                 var services = instance.GetComponentsInChildren<IUIService>();
                 foreach (var service in services) {
                     var serviceType = service.GetType();

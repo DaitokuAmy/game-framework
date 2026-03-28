@@ -281,7 +281,7 @@ namespace GameFramework.UISystem {
             if (childScreen.uiScreen != null) {
                 var uIScreen = childScreen.uiScreen;
                 childScreen.uiScreen = null;
-                Destroy(uIScreen);
+                Destroy(uIScreen.gameObject);
             }
 
             _cachedChildScreens.Remove(childKey);
