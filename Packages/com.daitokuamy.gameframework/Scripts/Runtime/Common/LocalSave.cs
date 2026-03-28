@@ -160,10 +160,10 @@ namespace GameFramework {
             aes.IV = _initializationVector;
 
             using var ms = new MemoryStream();
-            using var cryptoStream = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write);
-            using var writer = new StreamWriter(cryptoStream);
-            writer.Write(bytes);
-            writer.Close();
+            using (var cryptoStream = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write)) {
+                cryptoStream.Write(bytes, 0, bytes.Length);
+                cryptoStream.FlushFinalBlock();
+            }
             return ms.ToArray();
         }
 
@@ -192,7 +192,7 @@ namespace GameFramework {
             using var ms = new MemoryStream(cipherData);
             using var cryptoStream = new CryptoStream(ms, aes.CreateDecryptor(), CryptoStreamMode.Read);
             using var output = new MemoryStream();
-            output.CopyTo(cryptoStream);
+            cryptoStream.CopyTo(output);
             return output.ToArray();
         }
     }
