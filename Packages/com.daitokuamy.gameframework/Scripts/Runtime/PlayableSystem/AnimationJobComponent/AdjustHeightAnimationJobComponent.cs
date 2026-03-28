@@ -85,7 +85,9 @@ namespace GameFramework.PlayableSystem {
 
         /// <inheritdoc/>
         protected override void DisposeInternal() {
-            _properties.Dispose();
+            if (_properties.IsCreated) {
+                _properties.Dispose();
+            }
         }
     }
 }

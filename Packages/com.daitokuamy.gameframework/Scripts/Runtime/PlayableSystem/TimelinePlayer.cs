@@ -113,7 +113,7 @@ namespace GameFramework.PlayableSystem {
         public void ManualUpdate(float deltaTime) {
             if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) {
                 if (_playableDirector.state == PlayState.Playing) {
-                    _playableDirector.time += deltaTime;
+                    _playableDirector.time += deltaTime * _speed;
                     _playableDirector.Evaluate();
                 }
             }

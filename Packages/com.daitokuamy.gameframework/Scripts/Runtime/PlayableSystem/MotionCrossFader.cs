@@ -303,7 +303,7 @@ namespace GameFramework.PlayableSystem {
 
             if (_currentPlayingInfo.Playable != null) {
                 // 廃棄チェック
-                if (_currentPlayingInfo.Playable.Value.IsValid()) {
+                if (!_currentPlayingInfo.Playable.Value.IsValid()) {
                     _mixer.DisconnectInput(_currentPlayingInfo.InputPort);
                     _currentPlayingInfo.Playable = null;
                 }

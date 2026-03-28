@@ -9,14 +9,22 @@ namespace GameFramework.PlayableSystem {
     /// モーション再生のレイヤーをハンドリングするクラス
     /// </summary>
     internal sealed class MotionLayerHandler : IDisposable {
-        private readonly List<MotionCrossFader> _extensionCrossFaders = new();
+        /// <summary>
+        /// 拡張レイヤー情報
+        /// </summary>
+        private sealed class ExtensionLayerInfo {
+            public MotionCrossFader CrossFader;
+            public int InputPort;
+        }
+
+        private readonly List<ExtensionLayerInfo> _extensionLayerInfos = new();
         private readonly Animator _animator;
 
         private bool _disposed;
         private PlayableGraph _graph;
         private AnimationLayerMixerPlayable _playable;
         private MotionCrossFader _baseCrossFader;
-        private float _speed;
+        private float _speed = 1.0f;
 
         /// <summary>ベース用のモーション再生用ハンドル</summary>
         public MotionHandle BaseHandle { get; private set; }
@@ -40,11 +48,11 @@ namespace GameFramework.PlayableSystem {
             _disposed = true;
 
             BaseHandle.Dispose();
-            foreach (var fader in _extensionCrossFaders) {
-                fader.Dispose();
+            foreach (var info in _extensionLayerInfos) {
+                info.CrossFader.Dispose();
             }
 
-            _extensionCrossFaders.Clear();
+            _extensionLayerInfos.Clear();
             _baseCrossFader.Dispose();
             _baseCrossFader = null;
 
@@ -58,6 +66,7 @@ namespace GameFramework.PlayableSystem {
             _graph = graph;
             _playable = AnimationLayerMixerPlayable.Create(graph);
             _baseCrossFader = new MotionCrossFader(graph, _animator);
+            _baseCrossFader.SetSpeed(_speed);
             _playable.AddInput(_baseCrossFader.Playable, 0, 1.0f);
             BaseHandle = new MotionHandle(this, _baseCrossFader);
             return _playable;
@@ -72,8 +81,8 @@ namespace GameFramework.PlayableSystem {
             }
 
             _baseCrossFader.Update(deltaTime);
-            foreach (var fader in _extensionCrossFaders) {
-                fader.Update(deltaTime);
+            foreach (var info in _extensionLayerInfos) {
+                info.CrossFader.Update(deltaTime);
             }
         }
 
@@ -85,9 +94,10 @@ namespace GameFramework.PlayableSystem {
                 return;
             }
 
-            _baseCrossFader.SetSpeed(speed);
-            foreach (var fader in _extensionCrossFaders) {
-                fader.SetSpeed(speed);
+            _speed = Mathf.Max(0.0f, speed);
+            _baseCrossFader.SetSpeed(_speed);
+            foreach (var info in _extensionLayerInfos) {
+                info.CrossFader.SetSpeed(_speed);
             }
         }
 
@@ -103,15 +113,18 @@ namespace GameFramework.PlayableSystem {
             }
 
             var crossFader = new MotionCrossFader(_graph, _animator);
-            crossFader.SetSpeed((float)_playable.GetSpeed());
+            crossFader.SetSpeed(_speed);
 
-            var index = (uint)_playable.AddInput(crossFader.Playable, 0, weight);
-            _playable.SetLayerAdditive(index, additive);
+            var index = (int)_playable.AddInput(crossFader.Playable, 0, weight);
+            _playable.SetLayerAdditive((uint)index, additive);
             if (avatarMask != null) {
-                _playable.SetLayerMaskFromAvatarMask(index, avatarMask);
+                _playable.SetLayerMaskFromAvatarMask((uint)index, avatarMask);
             }
 
-            _extensionCrossFaders.Add(crossFader);
+            _extensionLayerInfos.Add(new ExtensionLayerInfo {
+                CrossFader = crossFader,
+                InputPort = index
+            });
 
             return new MotionHandle(this, crossFader);
         }
@@ -124,11 +137,11 @@ namespace GameFramework.PlayableSystem {
                 return default;
             }
 
-            if (index < 0 || index >= _extensionCrossFaders.Count) {
+            if (index < 0 || index >= _extensionLayerInfos.Count) {
                 return default;
             }
 
-            var crossFader = _extensionCrossFaders[index];
+            var crossFader = _extensionLayerInfos[index].CrossFader;
             return new MotionHandle(this, crossFader);
         }
 
@@ -145,23 +158,23 @@ namespace GameFramework.PlayableSystem {
                 return;
             }
 
-            var index = _extensionCrossFaders.IndexOf(handle.CrossFader);
+            var index = FindExtensionLayerIndex(handle.CrossFader);
 
             // 含まれていなければ何もしない
             if (index < 0) {
                 return;
             }
 
+            var info = _extensionLayerInfos[index];
+
             // 除外
-            _extensionCrossFaders.RemoveAt(index);
+            _extensionLayerInfos.RemoveAt(index);
 
             // 接続の解除
-            _playable.DisconnectInput(index + 1);
+            _playable.DisconnectInput(info.InputPort);
 
             // 削除したCrossFaderをDispose
-            handle.CrossFader.Dispose();
-
-            handle.Dispose();
+            info.CrossFader.Dispose();
         }
 
         /// <summary>
@@ -172,13 +185,13 @@ namespace GameFramework.PlayableSystem {
                 return;
             }
 
-            for (var i = _extensionCrossFaders.Count - 1; i >= 0; i--) {
-                var fader = _extensionCrossFaders[i];
-                _playable.DisconnectInput(i + 1);
-                fader.Dispose();
+            for (var i = _extensionLayerInfos.Count - 1; i >= 0; i--) {
+                var info = _extensionLayerInfos[i];
+                _playable.DisconnectInput(info.InputPort);
+                info.CrossFader.Dispose();
             }
 
-            _extensionCrossFaders.Clear();
+            _extensionLayerInfos.Clear();
         }
 
         /// <summary>
@@ -195,7 +208,7 @@ namespace GameFramework.PlayableSystem {
                 return;
             }
 
-            var index = _extensionCrossFaders.IndexOf(handle.CrossFader);
+            var index = FindExtensionLayerIndex(handle.CrossFader);
 
             // 含まれていなければ何もしない
             if (index < 0) {
@@ -203,7 +216,7 @@ namespace GameFramework.PlayableSystem {
             }
 
             // ウェイトの変更
-            _playable.SetInputWeight(index + 1, weight);
+            _playable.SetInputWeight(_extensionLayerInfos[index].InputPort, weight);
         }
 
         /// <summary>
@@ -219,7 +232,7 @@ namespace GameFramework.PlayableSystem {
                 return 0.0f;
             }
 
-            var index = _extensionCrossFaders.IndexOf(handle.CrossFader);
+            var index = FindExtensionLayerIndex(handle.CrossFader);
 
             // 含まれていなければ何もしない
             if (index < 0) {
@@ -227,7 +240,20 @@ namespace GameFramework.PlayableSystem {
             }
 
             // ウェイトの取得
-            return _playable.GetInputWeight(index + 1);
+            return _playable.GetInputWeight(_extensionLayerInfos[index].InputPort);
+        }
+
+        /// <summary>
+        /// 拡張レイヤーのIndexを取得
+        /// </summary>
+        private int FindExtensionLayerIndex(MotionCrossFader crossFader) {
+            for (var i = 0; i < _extensionLayerInfos.Count; i++) {
+                if (_extensionLayerInfos[i].CrossFader == crossFader) {
+                    return i;
+                }
+            }
+
+            return -1;
         }
     }
 }

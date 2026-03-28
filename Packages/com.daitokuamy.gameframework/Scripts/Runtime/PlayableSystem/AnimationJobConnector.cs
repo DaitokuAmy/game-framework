@@ -72,7 +72,7 @@ namespace GameFramework.PlayableSystem {
             // 無効なComponentがいたら削除
             for (var i = _sortedPlayingInfos.Count - 1; i >= 0; i--) {
                 var info = _sortedPlayingInfos[i];
-                if (info.Component != null && !info.Component.IsDisposed) {
+                if (info.Component != null && !info.Component.IsDisposed && info.Component.GetPlayable().IsValid()) {
                     continue;
                 }
 
@@ -108,6 +108,13 @@ namespace GameFramework.PlayableSystem {
 
             // Component初期化
             component.Initialize(_animator, _graph);
+            if (!component.IsInitialized || !component.GetPlayable().IsValid()) {
+                Debug.LogError($"Failed to initialize animation job component. {component}");
+                component.Dispose();
+                return;
+            }
+
+            component.GetPlayable().SetSpeed(_speed);
 
             // 要素の追加
             _components.Add(component);
@@ -123,11 +130,19 @@ namespace GameFramework.PlayableSystem {
         /// 再生速度の設定
         /// </summary>
         public void SetSpeed(float speed) {
+            speed = Mathf.Max(0.0f, speed);
             if (Math.Abs(speed - _speed) <= float.Epsilon) {
                 return;
             }
 
-            _speed = Mathf.Max(0.0f, speed);
+            _speed = speed;
+
+            for (var i = 0; i < _sortedPlayingInfos.Count; i++) {
+                var playable = _sortedPlayingInfos[i].Component.GetPlayable();
+                if (playable.IsValid()) {
+                    playable.SetSpeed(_speed);
+                }
+            }
         }
 
         /// <summary>

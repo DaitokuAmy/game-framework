@@ -18,17 +18,26 @@ namespace GameFramework.PlayableSystem {
 
         /// <inheritdoc/>
         void IAnimationJobComponent.Initialize(Animator animator, PlayableGraph graph) {
-            if (_initialized) {
+            if (_initialized || _disposed) {
                 return;
             }
 
-            _initialized = true;
-            _playable = CreatePlayable(animator, graph);
+            var playable = CreatePlayable(animator, graph);
+            if (!playable.IsValid()) {
+                return;
+            }
+
+            _playable = playable;
             _playable.SetInputCount(1);
+            _initialized = true;
         }
 
         /// <inheritdoc/>
         void IAnimationJobComponent.Update(float deltaTime) {
+            if (!_initialized || !_playable.IsValid()) {
+                return;
+            }
+
             UpdateInternal(_playable, deltaTime);
         }
 

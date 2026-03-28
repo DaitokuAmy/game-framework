@@ -121,6 +121,7 @@ namespace GameFramework.PlayableSystem {
         /// 再生速度の設定
         /// </summary>
         public void SetSpeed(float speed) {
+            speed = Mathf.Max(0.0f, speed);
             JobConnector.SetSpeed(speed);
             _rootLayerHandler.SetSpeed(speed);
 
@@ -128,7 +129,7 @@ namespace GameFramework.PlayableSystem {
                 return;
             }
 
-            _speed = Mathf.Max(0.0f, speed);
+            _speed = speed;
         }
 
         /// <summary>
