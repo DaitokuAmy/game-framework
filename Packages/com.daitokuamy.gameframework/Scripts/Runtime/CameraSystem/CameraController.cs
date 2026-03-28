@@ -41,18 +41,14 @@ namespace GameFramework.CameraSystem {
         /// <summary>制御に使うCameraComponent</summary>
         protected TComponent Component { get; private set; }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraHandler.Initialize(ICameraComponent component) {
             Component = component as TComponent;
 
             InitializeInternal(_scope);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             if (_scope == null || _scope.Disposed) {
                 return;
@@ -63,9 +59,7 @@ namespace GameFramework.CameraSystem {
             _scope.Dispose();
         }
 
-        /// <summary>
-        /// アクティブ化
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraHandler.Activate() {
             if (_isActive) {
                 return;
@@ -75,9 +69,7 @@ namespace GameFramework.CameraSystem {
             ActivateInternal(_activeScope);
         }
 
-        /// <summary>
-        /// 非アクティブ化
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraHandler.Deactivate() {
             if (!_isActive) {
                 return;
@@ -88,9 +80,7 @@ namespace GameFramework.CameraSystem {
             DeactivateInternal();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraHandler.Update(float deltaTime) {
             UpdateInternal(deltaTime);
         }

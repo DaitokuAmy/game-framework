@@ -8,12 +8,10 @@ namespace GameFramework.GimmickSystem {
         [SerializeField, Tooltip("読み込み時のアクティブ状態")]
         private bool _activeOnLoad;
         
-        // 現在アクティブ状態か
+        /// <summary>現在アクティブ状態か</summary>
         public bool IsActive { get; private set; }
 
-        /// <summary>
-        /// 初期化後処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void PostInitializeInternal() {
             if (_activeOnLoad) {
                 IsActive = false;

@@ -31,9 +31,7 @@ namespace GameFramework.UISystem {
         /// <summary>CanvasGroupの参照</summary>
         public CanvasGroup CanvasGroup { get; private set; }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void IUIService.Initialize() {
             if (_disposed || _initialized) {
                 return;
@@ -55,9 +53,7 @@ namespace GameFramework.UISystem {
             InitializeInternal(_scope);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             if (!_initialized || _disposed) {
                 return;
@@ -82,10 +78,7 @@ namespace GameFramework.UISystem {
             _scope.Dispose();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IUIService.Update(float deltaTime) {
             RefreshUIViews();
 
@@ -100,10 +93,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IUIService.LateUpdate(float deltaTime) {
             RefreshUIViews();
 

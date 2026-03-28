@@ -14,7 +14,7 @@ namespace GameFramework.CameraSystem {
         // 基本カメラ
         ICinemachineCamera ICameraComponent.BaseCamera => VirtualCamera;
 
-        // 制御対象の仮想カメラ
+        /// <summary>制御対象の仮想カメラ</summary>
         public CinemachineVirtualCameraBase VirtualCamera { get; }
 
         /// <summary>
@@ -25,9 +25,7 @@ namespace GameFramework.CameraSystem {
             VirtualCamera = virtualCamera;
         }
         
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraComponent.Initialize(CameraManager cameraManager) {
             // Target指定が文字列で行われていたら取り直す
             var cameraTarget = VirtualCamera.GetComponent<CameraTarget>();
@@ -41,15 +39,11 @@ namespace GameFramework.CameraSystem {
             }
         }
         
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
         }
 
-        /// <summary>
-        /// アクティブ化
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraComponent.Activate() {
             if (VirtualCamera == null) {
                 return;
@@ -62,9 +56,7 @@ namespace GameFramework.CameraSystem {
             VirtualCamera.gameObject.SetActive(true);
         }
 
-        /// <summary>
-        /// 非アクティブ化
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraComponent.Deactivate() {
             if (VirtualCamera == null) {
                 return;
@@ -77,15 +69,11 @@ namespace GameFramework.CameraSystem {
             VirtualCamera.gameObject.SetActive(false);
         }
 
-        /// <summary>
-        /// 更新
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraComponent.Update(float deltaTime) {
         }
 
-        /// <summary>
-        /// プライオリティのセット(上書き用)
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraComponent.SetPriority(int priority) {
             if (VirtualCamera == null) {
                 return;
@@ -94,9 +82,7 @@ namespace GameFramework.CameraSystem {
             VirtualCamera.Priority = priority;
         }
 
-        /// <summary>
-        /// プライオリティのリセット
-        /// </summary>
+        /// <inheritdoc/>
         void ICameraComponent.ResetPriority() {
             if (VirtualCamera == null) {
                 return;

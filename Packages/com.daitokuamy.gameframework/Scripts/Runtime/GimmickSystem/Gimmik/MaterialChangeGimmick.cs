@@ -21,35 +21,25 @@ namespace GameFramework.GimmickSystem {
         // プロパティのID
         private int _propertyId;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
             Refresh();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             DestroyMaterialInstances();
             base.DisposeInternal();
         }
 
-        /// <summary>
-        /// Validate処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnValidateInternal() {
             base.OnValidateInternal();
             Refresh();
         }
 
-        /// <summary>
-        /// 値の更新
-        /// </summary>
-        /// <param name="val">反映したい値</param>
-        /// <param name="rate">反映率</param>
+        /// <inheritdoc/>
         protected sealed override void SetValue(T val, float rate) {
             SetValue(_materialHandle, _propertyId, val, rate);
         }

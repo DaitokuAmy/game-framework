@@ -41,9 +41,7 @@ namespace GameFramework.UISystem {
             _descriptor = descriptor;
         }
 
-        /// <summary>
-        /// 時間の設定
-        /// </summary>
+        /// <inheritdoc/>
         void IUIAnimation.SetTime(float time) {
             if (_canvasGroup != null) {
                 var ratio = Duration > float.Epsilon ? time / Duration : 1.0f;
@@ -52,9 +50,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 再生開始通知
-        /// </summary>
+        /// <inheritdoc/>
         void IUIAnimation.OnPlay() {
         }
     }

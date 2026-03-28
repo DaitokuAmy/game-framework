@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Object = UnityEngine.Object;
@@ -9,7 +9,7 @@ namespace GameFramework.AssetSystem {
     /// </summary>
     public class PreloadAssetStorage<TAsset> : AssetStorage
         where TAsset : Object {
-        // 読み込み待ち情報
+        /// <summary>読み込み待ち情報</summary>
         public struct LoadHandle : IProcess<IReadOnlyList<AssetHandle<TAsset>>> {
             // 読み込み中のAssetHandleリスト
             private AssetHandle<TAsset>[] _assetHandles;
@@ -85,9 +85,7 @@ namespace GameFramework.AssetSystem {
         public PreloadAssetStorage(AssetManager assetManager) : base(assetManager) {
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void Dispose() {
             UnloadAssets();
         }

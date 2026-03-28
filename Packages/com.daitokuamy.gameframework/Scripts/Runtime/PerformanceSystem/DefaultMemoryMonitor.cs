@@ -16,10 +16,7 @@ namespace GameFramework.PerformanceSystem {
             _thresholdMemorySize = thresholdMemorySize;
         }
         
-        /// <summary>
-        /// GCを開始するかのチェック
-        /// </summary>
-        /// <returns>GCを開始するか</returns>
+        /// <inheritdoc/>
         bool IMemoryMonitor.CheckStartGC() {
             var size = Profiler.GetTotalAllocatedMemoryLong();
             return size >= _thresholdMemorySize;

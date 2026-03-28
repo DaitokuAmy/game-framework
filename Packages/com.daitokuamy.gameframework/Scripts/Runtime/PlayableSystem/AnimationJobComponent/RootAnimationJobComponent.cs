@@ -18,17 +18,13 @@ namespace GameFramework.PlayableSystem {
             [ReadOnly]
             public NativeArray<float3> VectorProperties;
 
-            /// <summary>
-            /// RootMotion更新用
-            /// </summary>
+            /// <inheritdoc/>
             void IAnimationJob.ProcessRootMotion(AnimationStream stream) {
                 stream.velocity = stream.velocity * VectorProperties[0] + VectorProperties[2];
                 stream.angularVelocity = stream.angularVelocity * VectorProperties[1] + VectorProperties[3];
             }
 
-            /// <summary>
-            /// 通常のBone更新用
-            /// </summary>
+            /// <inheritdoc/>
             void IAnimationJob.ProcessAnimation(AnimationStream stream) {
             }
         }
@@ -73,9 +69,7 @@ namespace GameFramework.PlayableSystem {
             }
         }
 
-        /// <summary>
-        /// Playableの生成
-        /// </summary>
+        /// <inheritdoc/>
         protected override AnimationScriptPlayable CreatePlayable(Animator animator, PlayableGraph graph) {
             _vectorProperties = new NativeArray<float3>(4, Allocator.Persistent);
             _vectorProperties[0] = Vector3.one;
@@ -90,17 +84,11 @@ namespace GameFramework.PlayableSystem {
             return AnimationScriptPlayable.Create(graph, job);
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="playable">Jobを保持しているPlayable</param>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         protected override void UpdateInternal(AnimationScriptPlayable playable, float deltaTime) {
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             _vectorProperties.Dispose();
         }

@@ -5,9 +5,7 @@ namespace GameFramework.GimmickSystem {
     /// MaterialのColor値を設定できるギミック基底
     /// </summary>
     public class HdrColorMaterialStateGimmick : MaterialStateGimmick<HdrColor> {
-        /// <summary>
-        /// マテリアルの値変更
-        /// </summary>
+        /// <inheritdoc/>
         protected override void SetValue(HdrColor targetValue, float ratio, MaterialHandle materialHandle, int propertyId) {
             var current = materialHandle.GetColor(propertyId);
             current = Color.Lerp(current, targetValue, ratio);

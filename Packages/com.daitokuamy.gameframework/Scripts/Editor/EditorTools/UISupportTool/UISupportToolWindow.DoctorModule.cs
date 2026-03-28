@@ -26,9 +26,7 @@ namespace GameFramework.EditorTools.Editor {
                 public Object Context;
             }
 
-            /// <summary>
-            /// GUIを描画
-            /// </summary>
+            /// <inheritdoc/>
             public override void OnGUI() {
                 EditorGUILayout.HelpBox("UI Doctor: 選択中オブジェクト配下をまとめて診断します。", MessageType.Info);
 

@@ -16,9 +16,6 @@ namespace GameFramework.PlayableSystem {
         // 廃棄済みか
         bool IAnimationJobComponent.IsDisposed => _disposed;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
         /// <inheritdoc/>
         void IAnimationJobComponent.Initialize(Animator animator, PlayableGraph graph) {
             if (_initialized) {
@@ -30,16 +27,12 @@ namespace GameFramework.PlayableSystem {
             _playable.SetInputCount(1);
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void IAnimationJobComponent.Update(float deltaTime) {
             UpdateInternal(_playable, deltaTime);
         }
 
-        /// <summary>
-        /// Playableの取得
-        /// </summary>
+        /// <inheritdoc/>
         AnimationScriptPlayable IAnimationJobComponent.GetPlayable() => _playable;
 
         /// <summary>

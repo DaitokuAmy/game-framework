@@ -14,9 +14,7 @@ namespace GameFramework.ProjectileSystem {
         [SerializeField, Tooltip("終了した瞬間にONになるObject")]
         private GameObject[] _exitObjects;
 
-        /// <summary>
-        /// 飛翔開始処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void StartInternal() {
             SetActiveObjects(_hitObjects, false);
             SetActiveObjects(_exitObjects, false);
@@ -24,19 +22,14 @@ namespace GameFramework.ProjectileSystem {
             SetActiveObjects(_baseObjects, true);
         }
 
-        /// <summary>
-        /// 飛翔終了子ルーチン処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override IEnumerator ExitRoutineInternal() {
             SetActiveObjects(_baseObjects, false);
             SetActiveObjects(_exitObjects, true);
             yield break;
         }
 
-        /// <summary>
-        /// コリジョンヒット通知
-        /// </summary>
-        /// <param name="hit">当たり結果</param>
+        /// <inheritdoc/>
         protected override void OnHitCollisionInternal(RaycastHit hit) {
             SetActiveObjects(_hitObjects, false);
             SetActiveObjects(_hitObjects, true);

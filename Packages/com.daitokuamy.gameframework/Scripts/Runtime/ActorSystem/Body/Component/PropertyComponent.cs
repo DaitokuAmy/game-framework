@@ -9,9 +9,7 @@ namespace GameFramework.ActorSystem {
     public sealed class PropertyComponent : BodyComponent {
         private readonly List<PropertyParts> _propertyPartsList = new();
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             var meshController = Body.GetBodyComponent<MeshComponent>();
             meshController.RefreshedEvent += RefreshPropertyPartsList;

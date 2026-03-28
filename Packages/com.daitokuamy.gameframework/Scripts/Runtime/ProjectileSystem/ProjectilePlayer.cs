@@ -261,9 +261,7 @@ namespace GameFramework.ProjectileSystem {
             /// <summary>飛翔情報</summary>
             public override IProjectileController ProjectileController => Projectile?.Controller;
 
-            /// <summary>
-            /// 更新処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override bool UpdateInternal(float deltaTime) {
                 var prevPos = Projectile.transform.position;
                 Projectile.Update(deltaTime);
@@ -276,9 +274,7 @@ namespace GameFramework.ProjectileSystem {
                 return Projectile.IsPlaying;
             }
 
-            /// <summary>
-            /// 開始処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void StartInternal(IProjectileController projectileController) {
                 Projectile.Start((IBulletProjectileController)projectileController);
                 
@@ -287,23 +283,17 @@ namespace GameFramework.ProjectileSystem {
                 _collisionRay = new Ray(pos, pos);
             }
 
-            /// <summary>
-            /// 当たり判定用レイの取得
-            /// </summary>
+            /// <inheritdoc/>
             protected override (Ray, float) GetCollisionRayInternal() {
                 return (_collisionRay, _collisionDistance);
             }
 
-            /// <summary>
-            /// ヒット処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void HitInternal(RaycastHit hit) {
                 Projectile.OnHitCollision(hit);
             }
 
-            /// <summary>
-            /// 停止処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void StopInternal() {
                 Projectile.Exit();
                 
@@ -313,17 +303,13 @@ namespace GameFramework.ProjectileSystem {
                 _collisionRay.direction = nextPos - _collisionRay.origin;
             }
 
-            /// <summary>
-            /// 停止処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void StoppedInternal() {
                 StoppedEvent?.Invoke(Projectile);
                 StoppedEvent = null;
             }
 
-            /// <summary>
-            /// タイムスケールの変更
-            /// </summary>
+            /// <inheritdoc/>
             protected override void ChangedTimeScaleInternal(float timeScale) {
                 Projectile.SetSpeed(timeScale);
             }
@@ -344,9 +330,7 @@ namespace GameFramework.ProjectileSystem {
             /// <summary>飛翔情報</summary>
             public override IProjectileController ProjectileController => Projectile?.Controller;
 
-            /// <summary>
-            /// 更新処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override bool UpdateInternal(float deltaTime) {
                 Projectile.Update(deltaTime);
 
@@ -359,9 +343,7 @@ namespace GameFramework.ProjectileSystem {
                 return Projectile.IsPlaying;
             }
 
-            /// <summary>
-            /// 開始処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void StartInternal(IProjectileController projectileController) {
                 var controller = (IBeamProjectileController)projectileController;
                 Projectile.Start(controller);
@@ -372,23 +354,17 @@ namespace GameFramework.ProjectileSystem {
                 _collisionDistance = controller.Distance;
             }
 
-            /// <summary>
-            /// 当たり判定用レイの取得
-            /// </summary>
+            /// <inheritdoc/>
             protected override (Ray, float) GetCollisionRayInternal() {
                 return (_collisionRay, _collisionDistance);
             }
 
-            /// <summary>
-            /// ヒット処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void HitInternal(RaycastHit hit) {
                 Projectile.OnHitCollision(hit);
             }
 
-            /// <summary>
-            /// 停止処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void StopInternal() {
                 Projectile.Exit();
 
@@ -399,17 +375,13 @@ namespace GameFramework.ProjectileSystem {
                 _collisionDistance = controller.Distance;
             }
 
-            /// <summary>
-            /// 停止処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void StoppedInternal() {
                 StoppedEvent?.Invoke(Projectile);
                 StoppedEvent = null;
             }
 
-            /// <summary>
-            /// タイムスケールの変更
-            /// </summary>
+            /// <inheritdoc/>
             protected override void ChangedTimeScaleInternal(float timeScale) {
                 Projectile.SetSpeed(timeScale);
             }

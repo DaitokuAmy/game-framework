@@ -14,9 +14,7 @@ namespace GameFramework.GimmickSystem {
         [SerializeField, Tooltip("Inactive時に流すAsset")]
         private TimelineAsset _inactiveTimelineAsset;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
@@ -24,16 +22,12 @@ namespace GameFramework.GimmickSystem {
             InitializePlayableDirector(_playableDirector);
         }
 
-        /// <summary>
-        /// 速度の変更
-        /// </summary>
+        /// <inheritdoc/>
         protected override void SetSpeedInternal(float speed) {
             SetSpeedPlayableDirector(_playableDirector, speed);
         }
 
-        /// <summary>
-        /// アクティブ化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void ActivateInternal(bool immediate) {
             _playableDirector.Play(_activeTimelineAsset);
             _playableDirector.time = 0.0f;
@@ -43,9 +37,7 @@ namespace GameFramework.GimmickSystem {
             }
         }
 
-        /// <summary>
-        /// 非アクティブ化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DeactivateInternal(bool immediate) {
             _playableDirector.Play(_inactiveTimelineAsset);
             _playableDirector.time = 0.0f;

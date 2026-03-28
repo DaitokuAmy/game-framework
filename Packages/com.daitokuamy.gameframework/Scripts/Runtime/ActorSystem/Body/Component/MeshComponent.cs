@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
@@ -57,9 +57,7 @@ namespace GameFramework.ActorSystem {
             }
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             _animator = Body.GetComponent<Animator>();
             _boneComponent = Body.GetBodyComponent<BoneComponent>();

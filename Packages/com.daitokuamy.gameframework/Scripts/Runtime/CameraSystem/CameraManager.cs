@@ -641,23 +641,17 @@ namespace GameFramework.CameraSystem {
             LayeredTime.Dispose();
         }
 
-        /// <summary>
-        /// 生成時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void AwakeInternal() {
             Initialize();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnDestroyInternal() {
             Dispose();
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal() {
             var deltaTime = LayeredTime.DeltaTime;
 

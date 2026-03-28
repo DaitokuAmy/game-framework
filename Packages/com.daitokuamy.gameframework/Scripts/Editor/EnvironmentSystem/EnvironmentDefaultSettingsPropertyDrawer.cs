@@ -145,9 +145,7 @@ namespace GameFramework.EnvironmentSystem.Editor {
         private SerializedProperty _flareStrength;
         private SerializedProperty _flareFadeSpeed;
 
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             GetProperties(property);
 
@@ -399,9 +397,7 @@ namespace GameFramework.EnvironmentSystem.Editor {
             }
         }
 
-        /// <summary>
-        /// プロパティの高さ取得
-        /// </summary>
+        /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             GetProperties(property);
 

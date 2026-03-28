@@ -12,9 +12,7 @@ namespace GameFramework.Core.Editor {
         private bool _initialized;
         private GUIContent[] _typeLabels;
 
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             Initialize();
 
@@ -45,9 +43,7 @@ namespace GameFramework.Core.Editor {
             }
         }
 
-        /// <summary>
-        /// プロパティの高さを取得
-        /// </summary>
+        /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             var useAnimationCurveProp = property.FindPropertyRelative("_useAnimationCurve");
             var lineHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;

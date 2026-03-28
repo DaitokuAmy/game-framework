@@ -57,9 +57,7 @@ namespace GameFramework.ActorSystem {
             }
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             Animator = Body.GetComponent<Animator>();
             _player = new MotionPlayer(Animator, _updateMode);
@@ -82,16 +80,12 @@ namespace GameFramework.ActorSystem {
             ApplySpeed();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             _player.Update();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             Body.LayeredTime.ChangedTimeScaleEvent -= OnChangedTimeScale;
             _player.Dispose();

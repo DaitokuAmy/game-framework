@@ -146,9 +146,7 @@ namespace GameFramework {
             }
         }
 
-        /// <summary>
-        /// 文字列変換
-        /// </summary>
+        /// <inheritdoc/>
         public override string ToString() {
             if (_renderer == null || _material == null) {
                 return "Invalid Instance";

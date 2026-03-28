@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -75,9 +75,7 @@ namespace GameFramework.ActorSystem {
             }
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             var meshController = Body.GetBodyComponent<MeshComponent>();
             meshController.RefreshedEvent += () => {

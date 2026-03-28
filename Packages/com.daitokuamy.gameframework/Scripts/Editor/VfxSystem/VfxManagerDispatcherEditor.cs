@@ -7,9 +7,7 @@ namespace GameFramework.VfxSystem.Editor {
     /// </summary>
     [CustomEditor(typeof(VfxManagerDispatcher))]
     public sealed class VfxManagerDispatcherEditor : UnityEditor.Editor {
-        /// <summary>
-        /// インスペクタ拡張
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
             

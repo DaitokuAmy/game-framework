@@ -250,9 +250,7 @@ namespace GameFramework {
             RawValue = FloatMath.RoundToInt(value * UnitValue);
         }
 
-        /// <summary>
-        /// 比較
-        /// </summary>
+        /// <inheritdoc/>
         public override bool Equals(object obj) {
             if (obj is not Percent percent) {
                 return false;
@@ -261,16 +259,12 @@ namespace GameFramework {
             return RawValue == percent.RawValue;
         }
 
-        /// <summary>
-        /// ハッシュコードの生成
-        /// </summary>
+        /// <inheritdoc/>
         public override int GetHashCode() {
             return RawValue.GetHashCode();
         }
 
-        /// <summary>
-        /// 文字列変換
-        /// </summary>
+        /// <inheritdoc/>
         public override string ToString() {
             return (RawValue / (float)UnitValue).ToString(CultureInfo.InvariantCulture);
         }

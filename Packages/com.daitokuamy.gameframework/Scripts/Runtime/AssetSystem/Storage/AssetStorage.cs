@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Object = UnityEngine.Object;
 
 namespace GameFramework.AssetSystem {

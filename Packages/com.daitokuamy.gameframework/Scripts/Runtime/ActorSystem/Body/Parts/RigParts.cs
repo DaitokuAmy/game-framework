@@ -12,14 +12,14 @@ namespace GameFramework.ActorSystem {
         private Rig _rig;
         private IRigConstraint[] _constraints;
 
-        // 制御対象のRig
+        /// <summary>制御対象のRig</summary>
         public Rig Rig {
             get {
                 Initialize();
                 return _rig;
             }
         }
-        // 制御対象のConstraintリスト
+        /// <summary>制御対象のConstraintリスト</summary>
         public IReadOnlyList<IRigConstraint> Constraints {
             get {
                 Initialize();

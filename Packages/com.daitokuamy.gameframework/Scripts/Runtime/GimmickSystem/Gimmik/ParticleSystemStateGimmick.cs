@@ -18,9 +18,7 @@ namespace GameFramework.GimmickSystem {
 
         private readonly List<ParticleSystem> _particleSystems = new();
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
             
@@ -41,9 +39,7 @@ namespace GameFramework.GimmickSystem {
             }
         }
 
-        /// <summary>
-        /// 速度の変更
-        /// </summary>
+        /// <inheritdoc/>
         protected override void SetSpeedInternal(float speed) {
             foreach (var ps in _particleSystems) {
                 var main = ps.main;
@@ -51,12 +47,7 @@ namespace GameFramework.GimmickSystem {
             }
         }
 
-        /// <summary>
-        /// ステートの変更処理
-        /// </summary>
-        /// <param name="prev">変更前のステート</param>
-        /// <param name="current">変更後のステート</param>
-        /// <param name="immediate">即時遷移するか</param>
+        /// <inheritdoc/>
         protected override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
             if (prev != null) {
                 foreach (var ps in prev.activeParticleSystems) {

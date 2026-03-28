@@ -11,9 +11,7 @@ namespace GameFramework.UISystem.Editor {
         private SerializedProperty _scrollRectProp;
         private SerializedProperty _templateInfosProp;
         
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
             

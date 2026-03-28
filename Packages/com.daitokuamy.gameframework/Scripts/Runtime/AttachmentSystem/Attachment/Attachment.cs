@@ -7,7 +7,7 @@ namespace GameFramework.AttachmentSystem {
     /// </summary>
     [ExecuteAlways]
     public abstract class Attachment : MonoBehaviour, IAttachment {
-        // 更新モード
+        /// <summary>更新モード</summary>
         public enum Mode {
             Update,
             LateUpdate,

@@ -31,9 +31,7 @@ namespace GameFramework.UISystem {
         /// <summary>現在更新中のDeltaTime</summary>
         protected float DeltaTime { get; private set; }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void IUIView.Initialize(UIService service) {
             if (_disposed || _initialized) {
                 return;
@@ -62,9 +60,7 @@ namespace GameFramework.UISystem {
             Service.RegisterView(this);
         }
 
-        /// <summary>
-        /// 開始処理
-        /// </summary>
+        /// <inheritdoc/>
         void IUIView.Start() {
             if (_disposed || _started) {
                 return;
@@ -79,9 +75,7 @@ namespace GameFramework.UISystem {
             StartInternal(_scope);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             if (!_initialized || _disposed) {
                 return;
@@ -99,10 +93,7 @@ namespace GameFramework.UISystem {
             _scope.Dispose();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IUIView.Update(float deltaTime) {
             DeltaTime = deltaTime;
             _coroutineRunner.Update();
@@ -112,10 +103,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IUIView.LateUpdate(float deltaTime) {
             if (IsActive) {
                 LateUpdateInternal(deltaTime);

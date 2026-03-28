@@ -5,7 +5,7 @@ namespace GameFramework.ActorSystem {
     /// Bodyの生成と同時に付与されるMonoBehaviour
     /// </summary>
     public sealed class BodyDispatcher : MonoBehaviour {
-        // 対象のBody
+        /// <summary>対象のBody</summary>
         public Body Body { get; private set; }
 
         /// <summary>

@@ -60,9 +60,7 @@ namespace GameFramework.ProjectileSystem {
             : this(startPoint, startRotation, endPoint, settings.gravity, settings.roll) {
         }
 
-        /// <summary>
-        /// 飛翔開始
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Start() {
             _rollRotation = Quaternion.Euler(0.0f, 0.0f, _roll);
             Position = _startPoint;
@@ -79,10 +77,7 @@ namespace GameFramework.ProjectileSystem {
             }
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         bool IProjectileController.Tick(float deltaTime) {
             if (_stopped) {
                 return false;
@@ -114,9 +109,7 @@ namespace GameFramework.ProjectileSystem {
             return _timer > 0.0f;
         }
 
-        /// <summary>
-        /// 飛翔終了
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Stop(Vector3? stopPosition) {
             if (stopPosition != null) {
                 Position = stopPosition.Value;

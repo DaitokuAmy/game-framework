@@ -81,9 +81,7 @@ namespace GameFramework.UISystem {
             ApplyRate(_currentRate);
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal(float deltaTime) {
             base.LateUpdateInternal(deltaTime);
 

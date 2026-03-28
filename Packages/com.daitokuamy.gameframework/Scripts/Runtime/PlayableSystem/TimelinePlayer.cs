@@ -44,16 +44,12 @@ namespace GameFramework.PlayableSystem {
                 _playingInfo = info;
             }
 
-            /// <summary>
-            /// 継続チェック
-            /// </summary>
+            /// <inheritdoc/>
             bool IEnumerator.MoveNext() {
                 return !((IProcess)this).IsDone;
             }
 
-            /// <summary>
-            /// 未使用
-            /// </summary>
+            /// <inheritdoc/>
             void IEnumerator.Reset() {
             }
         

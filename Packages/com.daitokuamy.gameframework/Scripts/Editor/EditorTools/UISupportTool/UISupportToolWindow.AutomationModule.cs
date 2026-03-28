@@ -28,9 +28,7 @@ namespace GameFramework.EditorTools.Editor {
             /// <summary>タブ表示名</summary>
             public override string DisplayName => "自動化";
 
-            /// <summary>
-            /// GUIを描画
-            /// </summary>
+            /// <inheritdoc/>
             public override void OnGUI() {
                 DrawNamingTools();
                 EditorGUILayout.Space(8.0f);

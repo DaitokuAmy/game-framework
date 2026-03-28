@@ -30,16 +30,12 @@ namespace GameFramework {
             _command = command;
         }
 
-        /// <summary>
-        /// 継続中か
-        /// </summary>
+        /// <inheritdoc/>
         bool IEnumerator.MoveNext() {
             return !IsDone;
         }
 
-        /// <summary>
-        /// 未対応
-        /// </summary>
+        /// <inheritdoc/>
         void IEnumerator.Reset() {}
         
         /// <summary>

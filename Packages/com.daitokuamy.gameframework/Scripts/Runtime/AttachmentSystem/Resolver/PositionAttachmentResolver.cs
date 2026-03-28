@@ -15,7 +15,7 @@ namespace GameFramework.AttachmentSystem {
             public Vector3 offsetPosition;
         }
 
-        // 設定
+        /// <summary>設定</summary>
         public ResolverSettings Settings { get; set; } = new();
 
         /// <summary>
@@ -26,9 +26,7 @@ namespace GameFramework.AttachmentSystem {
             : base(owner) {
         }
 
-        /// <summary>
-        /// Transformを反映
-        /// </summary>
+        /// <inheritdoc/>
         public override void Resolve() {
             var space = Settings.space;
             var offset = Settings.offsetPosition;
@@ -40,9 +38,7 @@ namespace GameFramework.AttachmentSystem {
             Owner.position = GetTargetPosition() + offset;
         }
 
-        /// <summary>
-        /// 自身のTransformからオフセットを設定する
-        /// </summary>
+        /// <inheritdoc/>
         public override void TransferOffset() {
             var space = Settings.space;
             // Position
@@ -55,9 +51,7 @@ namespace GameFramework.AttachmentSystem {
             Settings.offsetPosition = offsetPosition;
         }
 
-        /// <summary>
-        /// オフセットを初期化
-        /// </summary>
+        /// <inheritdoc/>
         public override void ResetOffset() {
             Settings.offsetPosition = Vector3.zero;
         }

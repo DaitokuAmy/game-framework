@@ -21,15 +21,11 @@ namespace GameFramework.PlayableSystem {
             
             public TransformStreamHandle HipsHandle;
 
-            /// <summary>
-            /// RootMotion更新用
-            /// </summary>
+            /// <inheritdoc/>
             void IAnimationJob.ProcessRootMotion(AnimationStream stream) {
             }
 
-            /// <summary>
-            /// 通常のBone更新用
-            /// </summary>
+            /// <inheritdoc/>
             void IAnimationJob.ProcessAnimation(AnimationStream stream) {
                 var rootPosition = RootHandle.GetPosition(stream);
                 var hipsPosition = HipsHandle.GetPosition(stream);
@@ -62,9 +58,7 @@ namespace GameFramework.PlayableSystem {
             _hips = hips;
         }
 
-        /// <summary>
-        /// Playableの生成
-        /// </summary>
+        /// <inheritdoc/>
         protected override AnimationScriptPlayable CreatePlayable(Animator animator, PlayableGraph graph) {
             if (_root == null || _hips == null) {
                 return default;
@@ -85,17 +79,11 @@ namespace GameFramework.PlayableSystem {
             return AnimationScriptPlayable.Create(graph, job);
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="playable">Jobを保持しているPlayable</param>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         protected override void UpdateInternal(AnimationScriptPlayable playable, float deltaTime) {
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             _properties.Dispose();
         }

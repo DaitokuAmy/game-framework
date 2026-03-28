@@ -10,19 +10,17 @@ namespace GameFramework.AttachmentSystem {
 
         private RotationAttachmentResolver _resolver;
 
-        // 制御用設定
+        /// <summary>制御用設定</summary>
         public RotationAttachmentResolver.ResolverSettings Settings {
             set {
                 _settings = value;
                 _resolver.Settings = _settings;
             }
         }
-        // Transform制御用クラス
+        /// <summary>Transform制御用クラス</summary>
         protected override AttachmentResolver Resolver => _resolver;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             _resolver = new RotationAttachmentResolver(transform);
             _resolver.Settings = _settings;

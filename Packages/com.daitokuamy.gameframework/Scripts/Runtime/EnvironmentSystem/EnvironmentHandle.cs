@@ -8,9 +8,9 @@ namespace GameFramework.EnvironmentSystem {
         // 制御情報
         private EnvironmentManager.EnvironmentInfo _environmentInfo;
 
-        // 有効なハンドルか
+        /// <summary>有効なハンドルか</summary>
         public bool IsValid => _environmentInfo != null;
-        // 完了したか
+        /// <summary>完了したか</summary>
         public bool IsDone => !IsValid || _environmentInfo.Timer <= 0.0f;
 
         /// <summary>
@@ -44,9 +44,7 @@ namespace GameFramework.EnvironmentSystem {
             _environmentInfo.Timer = Mathf.Max(0.0f, _environmentInfo.Timer);
         }
 
-        /// <summary>
-        /// ハッシュ値の取得
-        /// </summary>
+        /// <inheritdoc/>
         public override int GetHashCode() {
             return _environmentInfo != null ? _environmentInfo.GetHashCode() : 0;
         }

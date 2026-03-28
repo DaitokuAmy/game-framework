@@ -31,9 +31,7 @@ namespace GameFramework {
             ((IEnumerator)this).Reset();
         }
 
-        /// <summary>
-        /// リセット処理
-        /// </summary>
+        /// <inheritdoc/>
         void IEnumerator.Reset() {
             _stack.Clear();
             _stack.Push(_enumerator);
@@ -41,10 +39,7 @@ namespace GameFramework {
             _isDone = false;
         }
 
-        /// <summary>
-        /// IEnumeratorのコルーチン処理(更新しない)
-        /// </summary>
-        /// <returns>次の処理があるか？</returns>
+        /// <inheritdoc/>
         bool IEnumerator.MoveNext() {
             // Unity経由などでCoroutine実行されてしまう可能性があるため更新はしない
             return !IsDone;

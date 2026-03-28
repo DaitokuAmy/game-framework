@@ -15,7 +15,7 @@ namespace GameFramework.AttachmentSystem {
             public Vector3 offsetAngles = Vector3.zero;
         }
 
-        // 設定
+        /// <summary>設定</summary>
         public ResolverSettings Settings { get; set; } = new ResolverSettings();
 
         /// <summary>
@@ -26,9 +26,7 @@ namespace GameFramework.AttachmentSystem {
             : base(owner) {
         }
 
-        /// <summary>
-        /// Transformを反映
-        /// </summary>
+        /// <inheritdoc/>
         public override void Resolve() {
             var space = Settings.space;
             var offset = Quaternion.Euler(Settings.offsetAngles);
@@ -41,16 +39,12 @@ namespace GameFramework.AttachmentSystem {
             }
         }
 
-        /// <summary>
-        /// オフセットを初期化
-        /// </summary>
+        /// <inheritdoc/>
         public override void ResetOffset() {
             Settings.offsetAngles = Vector3.zero;
         }
 
-        /// <summary>
-        /// 自身のTransformからオフセットを設定する
-        /// </summary>
+        /// <inheritdoc/>
         public override void TransferOffset() {
             var space = Settings.space;
 

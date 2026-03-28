@@ -19,19 +19,14 @@ namespace GameFramework.ProjectileSystem {
         [SerializeField, Tooltip("ヒット時に再生するParticleSystemがヒット法線方向に向くか")]
         private bool _rotateNormalHitParticle = true;
 
-        /// <summary>
-        /// 再生速度の変更
-        /// </summary>
-        /// <param name="speed">1.0を基準とした速度</param>
+        /// <inheritdoc/>
         protected override void SetSpeedInternal(float speed) {
             SetSpeedParticle(_baseParticle, speed);
             SetSpeedParticle(_hitParticle, speed);
             SetSpeedParticle(_exitParticle, speed);
         }
 
-        /// <summary>
-        /// 飛翔開始処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void StartInternal() {
             StopParticle(_hitParticle);
             StopParticle(_exitParticle);
@@ -39,9 +34,7 @@ namespace GameFramework.ProjectileSystem {
             PlayParticle(_baseParticle);
         }
 
-        /// <summary>
-        /// 飛翔終了子ルーチン処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override IEnumerator ExitRoutineInternal() {
             StopParticle(_baseParticle);
             PlayParticle(_exitParticle);
@@ -57,10 +50,7 @@ namespace GameFramework.ProjectileSystem {
             }
         }
 
-        /// <summary>
-        /// コリジョンヒット通知
-        /// </summary>
-        /// <param name="hit">当たり結果</param>
+        /// <inheritdoc/>
         protected override void OnHitCollisionInternal(RaycastHit hit) {
             if (_fitHitParticle) {
                 var trans = _hitParticle.transform;

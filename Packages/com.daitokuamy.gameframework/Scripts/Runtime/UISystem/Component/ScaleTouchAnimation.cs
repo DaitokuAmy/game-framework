@@ -22,11 +22,7 @@ namespace GameFramework.UISystem {
             set => _upScale = value;
         }
 
-        /// <summary>
-        /// アニメーションの適用
-        /// </summary>
-        /// <param name="isDown">TouchDown中か</param>
-        /// <param name="ratio">補間割合</param>
+        /// <inheritdoc/>
         protected override void ApplyAnimation(bool isDown, float ratio) {
             var targetScale = isDown ? _downScale : _upScale;
             var currentScale = Target.localScale.x;

@@ -28,10 +28,7 @@ namespace GameFramework.UISystem {
         /// <summary>トータル時間</summary>
         public override float Duration => _duration;
         
-        /// <summary>
-        /// 時間の設定
-        /// </summary>
-        /// <param name="time">現在時間</param>
+        /// <inheritdoc/>
         protected override void SetTimeInternal(float time) {
             if (_canvasGroup != null) {
                 var ratio = Duration > float.Epsilon ? time / Duration : 1.0f;

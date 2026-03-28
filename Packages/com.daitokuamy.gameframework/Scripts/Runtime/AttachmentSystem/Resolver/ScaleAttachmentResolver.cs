@@ -13,7 +13,7 @@ namespace GameFramework.AttachmentSystem {
             public Vector3 offsetScale = Vector3.one;
         }
 
-        // 設定
+        /// <summary>設定</summary>
         public ResolverSettings Settings { get; set; } = new ResolverSettings();
 
         /// <summary>
@@ -24,23 +24,17 @@ namespace GameFramework.AttachmentSystem {
             : base(owner) {
         }
 
-        /// <summary>
-        /// Transformを反映
-        /// </summary>
+        /// <inheritdoc/>
         public override void Resolve() {
             Owner.localScale = Vector3.Scale(GetTargetLocalScale(), Settings.offsetScale);
         }
 
-        /// <summary>
-        /// オフセットを初期化
-        /// </summary>
+        /// <inheritdoc/>
         public override void ResetOffset() {
             Settings.offsetScale = Vector3.one;
         }
 
-        /// <summary>
-        /// 自身のTransformからオフセットを設定する
-        /// </summary>
+        /// <inheritdoc/>
         public override void TransferOffset() {
             // Scale
             var targetScale = GetTargetLocalScale();

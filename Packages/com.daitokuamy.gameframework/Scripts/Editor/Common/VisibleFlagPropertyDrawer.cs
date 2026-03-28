@@ -9,9 +9,7 @@ namespace GameFramework.Core.Editor {
     /// </summary>
     [CustomPropertyDrawer(typeof(VisibleFlagAttribute))]
     public sealed class VisibleFlagPropertyDrawer : PropertyDrawer {
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var visible = GetVisible(property);
 
@@ -20,9 +18,7 @@ namespace GameFramework.Core.Editor {
             }
         }
 
-        /// <summary>
-        /// 高さ取得
-        /// </summary>
+        /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             var visible = GetVisible(property);
 

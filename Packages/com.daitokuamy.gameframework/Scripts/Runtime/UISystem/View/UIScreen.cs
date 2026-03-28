@@ -197,9 +197,7 @@ namespace GameFramework.UISystem {
             return handle;
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             base.InitializeInternal(scope);
 
@@ -208,9 +206,7 @@ namespace GameFramework.UISystem {
             _animationScope = new DisposableScope();
         }
 
-        /// <summary>
-        /// 開始時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void StartInternal(IScope scope) {
             base.StartInternal(scope);
 
@@ -274,9 +270,7 @@ namespace GameFramework.UISystem {
         protected virtual void PostClose(TransitionDirection transitionDirection, bool immediate) {
         }
 
-        /// <summary>
-        /// 廃棄処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             Deactivate();
 
@@ -288,9 +282,7 @@ namespace GameFramework.UISystem {
             base.DisposeInternal();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             base.UpdateInternal(deltaTime);
 
@@ -299,9 +291,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 後処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal(float deltaTime) {
             base.LateUpdateInternal(deltaTime);
 

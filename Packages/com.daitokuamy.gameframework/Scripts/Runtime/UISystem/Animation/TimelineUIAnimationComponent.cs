@@ -15,9 +15,7 @@ namespace GameFramework.UISystem {
         /// <summary>トータル時間</summary>
         public override float Duration => _playableDirector != null ? (float)_playableDirector.duration : 0.0f;
         
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             if (_playableDirector != null) {
                 _playableDirector.time = 0.0;
@@ -28,10 +26,7 @@ namespace GameFramework.UISystem {
             }
         }
         
-        /// <summary>
-        /// 時間の設定
-        /// </summary>
-        /// <param name="time">現在時間</param>
+        /// <inheritdoc/>
         protected override void SetTimeInternal(float time) {
             if (_playableDirector != null) {
                 _playableDirector.time = time;
@@ -39,9 +34,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 再生開始通知
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnPlayInternal() {
             if (_playableDirector != null) {
                 _playableDirector.Play(_timelineAsset);

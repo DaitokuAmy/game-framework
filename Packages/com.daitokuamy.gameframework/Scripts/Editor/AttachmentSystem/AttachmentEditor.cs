@@ -15,9 +15,7 @@ namespace GameFramework.AttachmentSystem.Editor {
         private SerializedProperty _sourcesProp;
         private SerializedProperty _settingsProp;
 
-        /// <summary>
-        /// インスペクタGUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             serializedObject.Update();
 

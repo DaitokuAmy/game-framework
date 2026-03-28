@@ -23,16 +23,12 @@ namespace GameFramework.UISystem {
             _animationStatus = animationStatus;
         }
 
-        /// <summary>
-        /// IEnumerator用
-        /// </summary>
+        /// <inheritdoc/>
         bool IEnumerator.MoveNext() {
             return !IsDone;
         }
 
-        /// <summary>
-        /// IEnumerator用
-        /// </summary>
+        /// <inheritdoc/>
         void IEnumerator.Reset() {
         }
     }

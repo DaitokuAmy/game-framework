@@ -13,9 +13,7 @@ namespace GameFramework.EditorTools.Editor {
             /// <summary>タブ表示名</summary>
             public override string DisplayName => "変形";
 
-            /// <summary>
-            /// GUIを描画
-            /// </summary>
+            /// <inheritdoc/>
             public override void OnGUI() {
                 EditorGUI.BeginChangeCheck();
                 Window.User.EnableArrowNudge = EditorGUILayout.ToggleLeft("矢印キーで移動", Window.User.EnableArrowNudge);
@@ -63,9 +61,7 @@ namespace GameFramework.EditorTools.Editor {
                 }
             }
 
-            /// <summary>
-            /// SceneView GUIを描画
-            /// </summary>
+            /// <inheritdoc/>
             public override void OnSceneGUI(SceneView sceneView) {
                 if (!Window.User.EnableArrowNudge) {
                     return;

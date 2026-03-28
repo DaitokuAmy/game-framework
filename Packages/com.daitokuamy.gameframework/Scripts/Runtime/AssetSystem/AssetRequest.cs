@@ -6,9 +6,9 @@ namespace GameFramework.AssetSystem {
     /// </summary>
     public abstract class AssetRequest<TAsset>
         where TAsset : Object {
-        // 読み込み用のAddress
+        /// <summary>読み込み用のAddress</summary>
         public abstract string Address { get; }
-        // 読み込みに使用するProviderのIndex配列（順番にフォールバック）
+        /// <summary>読み込みに使用するProviderのIndex配列（順番にフォールバック）</summary>
         public abstract int[] ProviderIndices { get; }
 
         /// <summary>

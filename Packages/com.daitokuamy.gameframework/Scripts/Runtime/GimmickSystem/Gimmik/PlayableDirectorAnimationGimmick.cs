@@ -9,14 +9,12 @@ namespace GameFramework.GimmickSystem {
         [SerializeField, Tooltip("再生させるPlayableDirector")]
         private PlayableDirector _playableDirector;
 
-        // トータル時間
+        /// <summary>トータル時間</summary>
         public override float Duration => _playableDirector != null ? (float)_playableDirector.duration : 0.0f;
-        // ループ再生するか
+        /// <summary>ループ再生するか</summary>
         public override bool IsLooping => _playableDirector != null && _playableDirector.extrapolationMode == DirectorWrapMode.Loop;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
@@ -30,9 +28,7 @@ namespace GameFramework.GimmickSystem {
             }
         }
 
-        /// <summary>
-        /// 再生状態の反映
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Evaluate(float time) {
             if (_playableDirector != null) {
                 _playableDirector.time = time;

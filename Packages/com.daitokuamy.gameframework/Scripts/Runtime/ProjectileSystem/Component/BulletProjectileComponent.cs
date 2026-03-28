@@ -45,48 +45,33 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>使用中のProjectile</summary>
         protected IBulletProjectileController ProjectileController { get; private set; }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             DisposeInternal();
         }
 
-        /// <summary>
-        /// 再生速度の変更
-        /// </summary>
-        /// <param name="speed">1.0を基準とした速度</param>
+        /// <inheritdoc/>
         void IBulletProjectileComponent.SetSpeed(float speed) {
             SetSpeedInternal(speed);
         }
 
-        /// <summary>
-        /// 飛翔開始処理
-        /// </summary>
+        /// <inheritdoc/>
         void IBulletProjectileComponent.Start(IBulletProjectileController projectileController) {
             ProjectileController = projectileController;
             StartInternal();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IBulletProjectileComponent.Update(float deltaTime) {
             UpdateInternal(deltaTime);
         }
 
-        /// <summary>
-        /// 飛翔終了処理
-        /// </summary>
+        /// <inheritdoc/>
         IEnumerator IBulletProjectileComponent.ExitRoutine() {
             yield return ExitRoutineInternal();
         }
 
-        /// <summary>
-        /// コリジョンヒット時通知
-        /// </summary>
-        /// <param name="hit">当たり結果</param>
+        /// <inheritdoc/>
         void IBulletProjectileComponent.OnHitCollision(RaycastHit hit) {
             OnHitCollisionInternal(hit);
         }

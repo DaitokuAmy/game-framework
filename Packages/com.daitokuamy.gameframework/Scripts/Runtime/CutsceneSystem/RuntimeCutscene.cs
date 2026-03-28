@@ -27,9 +27,7 @@ namespace GameFramework.CutsceneSystem {
             _playableDirector = playableDirector;
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICutscene.Initialize(bool updateGameTime) {
             if (_playableDirector == null) {
                 return;
@@ -45,9 +43,7 @@ namespace GameFramework.CutsceneSystem {
             _playableDirector.playOnAwake = false;
         }
 
-        /// <summary>
-        /// 廃棄処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             if (_playableDirector == null) {
                 return;
@@ -60,9 +56,7 @@ namespace GameFramework.CutsceneSystem {
             _playableDirector = null;
         }
 
-        /// <summary>
-        /// Poolに戻る際の処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICutscene.OnReturn() {
             if (_playableDirector == null) {
                 return;
@@ -79,9 +73,7 @@ namespace GameFramework.CutsceneSystem {
             _bindingTrackKeys.Clear();
         }
 
-        /// <summary>
-        /// 再生処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICutscene.Play() {
             if (_playableDirector == null) {
                 return;
@@ -102,9 +94,7 @@ namespace GameFramework.CutsceneSystem {
             _isPlaying = true;
         }
 
-        /// <summary>
-        /// 停止処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICutscene.Stop() {
             if (_playableDirector == null) {
                 return;
@@ -118,10 +108,7 @@ namespace GameFramework.CutsceneSystem {
             _playableDirector.gameObject.SetActive(false);
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void ICutscene.Update(float deltaTime) {
             if (_playableDirector == null) {
                 return;
@@ -149,10 +136,7 @@ namespace GameFramework.CutsceneSystem {
             }
         }
 
-        /// <summary>
-        /// 再生速度の設定
-        /// </summary>
-        /// <param name="speed">再生速度</param>
+        /// <inheritdoc/>
         void ICutscene.SetSpeed(float speed) {
             if (_playableDirector == null) {
                 return;
@@ -164,10 +148,7 @@ namespace GameFramework.CutsceneSystem {
             }
         }
 
-        /// <summary>
-        /// 再生位置のシーク
-        /// </summary>
-        /// <param name="time">シーク時間</param>
+        /// <inheritdoc/>
         void ICutscene.Seek(float time) {
             if (_playableDirector == null) {
                 return;

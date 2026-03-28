@@ -9,9 +9,7 @@ namespace GameFramework.Editor {
     /// </summary>
     [CustomPropertyDrawer(typeof(NullableEnum<>))]
     public sealed class NullableEnumPropertyDrawer : PropertyDrawer {
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var type = fieldInfo.FieldType;
             var enumType = type.GetGenericArguments()[0];

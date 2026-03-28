@@ -7,10 +7,10 @@ namespace GameFramework.AttachmentSystem {
     public class LookAtRuntimeAttachment : RuntimeAttachment {
         private LookAtAttachmentResolver _resolver;
 
-        // Transform制御用インスタンス
+        /// <summary>Transform制御用インスタンス</summary>
         protected override AttachmentResolver Resolver => _resolver;
 
-        // 追従設定
+        /// <summary>追従設定</summary>
         public LookAtAttachmentResolver.ResolverSettings Settings {
             get => _resolver.Settings;
             set => _resolver.Settings = value;

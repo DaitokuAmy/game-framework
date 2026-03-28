@@ -7,9 +7,7 @@ namespace GameFramework.UISystem.Editor {
     /// </summary>
     [CustomPropertyDrawer(typeof(UIAnimationComponent))]
     public sealed class UIAnimationComponentPropertyDrawer : PropertyDrawer {
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var leftRect = position;
             var rightRect = position;

@@ -9,23 +9,17 @@ namespace GameFramework {
         /// <summary>制御対象のスクリーン</summary>
         protected TScreen Screen { get; private set; }
 
-        /// <summary>
-        /// 登録時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.OnRegistered(UIScreen screen) {
             Screen = screen as TScreen;
         }
 
-        /// <summary>
-        /// 登録解除時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.OnUnregistered() {
             Screen = null;
         }
 
-        /// <summary>
-        /// 開く前
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.PreOpen() {
             if (IsDisposed) {
                 return;
@@ -34,9 +28,7 @@ namespace GameFramework {
             PreOpenInternal();
         }
 
-        /// <summary>
-        /// 開いた後
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.PostOpen() {
             if (IsDisposed) {
                 return;
@@ -45,37 +37,27 @@ namespace GameFramework {
             PostOpenInternal();
         }
 
-        /// <summary>
-        /// アクティブ時
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.Activate() {
             Activate();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.Update(float deltaTime) {
             // 使わない
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.LateUpdate(float deltaTime) {
             // 使わない
         }
 
-        /// <summary>
-        /// 非アクティブ時
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.Deactivate() {
             Deactivate();
         }
 
-        /// <summary>
-        /// 閉じる前
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.PreClose() {
             if (IsDisposed) {
                 return;
@@ -84,9 +66,7 @@ namespace GameFramework {
             PreCloseInternal();
         }
 
-        /// <summary>
-        /// 閉じた後
-        /// </summary>
+        /// <inheritdoc/>
         void IUIScreenHandler.PostClose() {
             if (IsDisposed) {
                 return;

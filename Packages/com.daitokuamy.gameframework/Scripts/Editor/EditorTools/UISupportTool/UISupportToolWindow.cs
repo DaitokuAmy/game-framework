@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -18,9 +18,7 @@ namespace GameFramework.EditorTools.Editor {
             window.Show();
         }
 
-        /// <summary>
-        /// モジュール一覧を生成
-        /// </summary>
+        /// <inheritdoc/>
         protected override IEnumerable<EditorToolModule<UISupportToolWindow, ConfigData, UserData>> CreateModules() {
             yield return new TransformModule();
             yield return new BindingModule();

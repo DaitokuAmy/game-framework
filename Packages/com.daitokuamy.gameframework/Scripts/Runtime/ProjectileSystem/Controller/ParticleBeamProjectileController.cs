@@ -102,9 +102,7 @@ namespace GameFramework.ProjectileSystem {
                 settings.tilt) {
         }
 
-        /// <summary>
-        /// 飛翔開始
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Start() {
             _stopped = false;
             _headDistance = 0.0f;
@@ -116,10 +114,7 @@ namespace GameFramework.ProjectileSystem {
             Rotation = CalcBeamRotation();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         bool IProjectileController.Tick(float deltaTime) {
             // 照射距離更新
             if (_stopped) {
@@ -184,9 +179,7 @@ namespace GameFramework.ProjectileSystem {
             return true;
         }
 
-        /// <summary>
-        /// 飛翔終了
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Stop(Vector3? stopPosition) {
             _stopped = true;
         }

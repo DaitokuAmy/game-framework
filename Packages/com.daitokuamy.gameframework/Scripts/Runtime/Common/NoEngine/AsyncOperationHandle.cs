@@ -31,13 +31,13 @@ namespace GameFramework {
     /// }
     /// </example>
     public class AsyncOperator {
-        // 正常終了か
+        /// <summary>正常終了か</summary>
         public bool IsCompleted { get; private set; }
-        // エラー内容
+        /// <summary>エラー内容</summary>
         public Exception Exception { get; private set; }
-        // エラー終了か
+        /// <summary>エラー終了か</summary>
         public bool IsError => Exception != null;
-        // 完了しているか
+        /// <summary>完了しているか</summary>
         public bool IsDone => IsCompleted || IsError;
 
         /// <summary>完了通知イベント</summary>
@@ -210,11 +210,11 @@ namespace GameFramework {
         private readonly AsyncOperator _asyncOperator;
         private readonly Exception _exception;
 
-        // 完了しているか
+        /// <summary>完了しているか</summary>
         public bool IsDone => _asyncOperator == null || _asyncOperator.IsDone || IsError;
-        // エラー終了か
+        /// <summary>エラー終了か</summary>
         public bool IsError => Exception != null;
-        // キャンセル時のエラー
+        /// <summary>キャンセル時のエラー</summary>
         public Exception Exception => _asyncOperator?.Exception ?? _exception;
 
         /// <inheritdoc/>
@@ -288,13 +288,13 @@ namespace GameFramework {
         private readonly AsyncOperator<T> _asyncOperator;
         private readonly Exception _exception;
 
-        // 結果
+        /// <summary>結果</summary>
         public T Result => _asyncOperator != null ? _asyncOperator.Result : default;
-        // 完了しているか
+        /// <summary>完了しているか</summary>
         public bool IsDone => _asyncOperator == null || _asyncOperator.IsDone || IsError;
-        // エラー終了か
+        /// <summary>エラー終了か</summary>
         public bool IsError => Exception != null;
-        // キャンセル時のエラー
+        /// <summary>キャンセル時のエラー</summary>
         public Exception Exception => _asyncOperator?.Exception ?? _exception;
 
         /// <inheritdoc/>

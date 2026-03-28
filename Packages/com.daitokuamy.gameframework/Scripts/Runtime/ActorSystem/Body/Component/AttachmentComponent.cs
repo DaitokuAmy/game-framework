@@ -12,7 +12,7 @@ namespace GameFramework.ActorSystem {
         // 外部から追加されたAttachmentリスト
         private readonly List<IAttachment> _customAttachments = new List<IAttachment>();
 
-        // 実行優先度
+        /// <summary>実行優先度</summary>
         public override int ExecutionOrder => 16;
 
         /// <summary>
@@ -29,9 +29,7 @@ namespace GameFramework.ActorSystem {
             _customAttachments.Remove(attachment);
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             var meshController = Body.GetBodyComponent<MeshComponent>();
 
@@ -42,9 +40,7 @@ namespace GameFramework.ActorSystem {
             RefreshAttachments();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal(float deltaTime) {
             // 各種Transform更新
             foreach (var attachment in _attachments) {

@@ -12,12 +12,12 @@ namespace GameFramework {
         [Tooltip("Rendererに保持されているMaterialのIndex")]
         public int materialIndex;
 
-        // 有効なRendererMaterialか
+        /// <summary>有効なRendererMaterialか</summary>
         public bool IsValid =>
             renderer != null && materialIndex >= 0 && materialIndex < renderer.sharedMaterials.Length;
-        // CloneしたMaterial
+        /// <summary>CloneしたMaterial</summary>
         public Material Material => IsValid ? renderer.materials[materialIndex] : null;
-        // CloneしないMaterial
+        /// <summary>CloneしないMaterial</summary>
         public Material SharedMaterial => IsValid ? renderer.sharedMaterials[materialIndex] : null;
     }
 }

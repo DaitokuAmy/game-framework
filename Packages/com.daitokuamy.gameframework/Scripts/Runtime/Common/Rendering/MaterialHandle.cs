@@ -10,7 +10,7 @@ namespace GameFramework {
     public struct MaterialHandle {
         private MaterialInstance[] _instances;
 
-        // 有効なハンドルか
+        /// <summary>有効なハンドルか</summary>
         public bool IsValid => _instances != null && _instances.Length > 0;
 
         /// <summary>

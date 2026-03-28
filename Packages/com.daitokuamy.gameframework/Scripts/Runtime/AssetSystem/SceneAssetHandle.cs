@@ -7,19 +7,19 @@ namespace GameFramework.AssetSystem {
     /// シーンアセットリクエスト用ハンドル
     /// </summary>
     public struct SceneAssetHandle : IProcess<Scene> {
-        // 無効なSceneAssetHandle
+        /// <summary>無効なSceneAssetHandle</summary>
         public static readonly SceneAssetHandle Empty = new SceneAssetHandle();
 
         // 読み込み情報
         private ISceneAssetInfo _info;
 
-        // 読み込み完了しているか
+        /// <summary>読み込み完了しているか</summary>
         public bool IsDone => _info == null || _info.IsDone;
-        // シーン
+        /// <summary>シーン</summary>
         public Scene Scene => _info?.Scene ?? new Scene();
-        // エラー
+        /// <summary>エラー</summary>
         public Exception Exception => _info?.Exception ?? null;
-        // 有効なハンドルか
+        /// <summary>有効なハンドルか</summary>
         public bool IsValid => _info != null;
         // 結果
         Scene IProcess<Scene>.Result => Scene;

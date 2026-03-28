@@ -7,9 +7,7 @@ namespace GameFramework.CutsceneSystem.Editor {
     /// </summary>
     [CustomEditor(typeof(CutsceneManagerDispatcher))]
     public sealed class CutsceneManagerDispatcherEditor : UnityEditor.Editor {
-        /// <summary>
-        /// インスペクタ拡張
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             var dispatcher = target as CutsceneManagerDispatcher;
             var cutsceneManger = dispatcher != null ? dispatcher.Manager : null;

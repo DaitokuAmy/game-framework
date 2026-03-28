@@ -15,50 +15,48 @@ namespace GameFramework.CameraSystem {
         [SerializeField, Tooltip("Y軸回転"), Range(0.0f, 360.0f)]
         private float _angleY;
 
-        // FOV
+        /// <summary>FOV</summary>
         public float Fov {
             get => VirtualCamera.Lens.FieldOfView;
             set => VirtualCamera.Lens.FieldOfView = value;
         }
-        // 距離
+        /// <summary>距離</summary>
         public float Distance {
             get => _distance;
             set => _distance = Mathf.Max(0.01f, value);
         }
-        // X角度
+        /// <summary>X角度</summary>
         public float AngleX {
             get => _angleX;
             set => _angleX = Mathf.Clamp(value, -89.9f, 89.9f);
         }
-        // Y角度
+        /// <summary>Y角度</summary>
         public float AngleY {
             get => _angleY;
             set => _angleY = Mathf.Repeat(value, 360.0f);
         }
-        // 注視対象
+        /// <summary>注視対象</summary>
         public Transform LookAt {
             get => VirtualCamera.LookAt;
             set => VirtualCamera.LookAt = value;
         }
-        // 注視点オフセット
+        /// <summary>注視点オフセット</summary>
         public Vector3 LookAtOffset {
             get => _lookAtOffset;
             set => _lookAtOffset = value;
         }
-        // ニアクリップ
+        /// <summary>ニアクリップ</summary>
         public float NearClip {
             get => VirtualCamera.Lens.NearClipPlane;
             set => VirtualCamera.Lens.NearClipPlane = Mathf.Clamp(value, 0.01f, FarClip);
         }
-        // ファークリップ
+        /// <summary>ファークリップ</summary>
         public float FarClip {
             get => VirtualCamera.Lens.FarClipPlane;
             set => VirtualCamera.Lens.FarClipPlane = Mathf.Clamp(value, NearClip, float.MaxValue);
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             // 基本的なコンポーネントは削除する
             var bodyComponent = VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body);
@@ -72,9 +70,7 @@ namespace GameFramework.CameraSystem {
             }
         }
 
-        /// <summary>
-        /// カメラ更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             // 相対位置計算
             var relativePosition = CalcRelativePosition();

@@ -14,9 +14,7 @@ namespace GameFramework.Editor {
             GetWindow<StateMonitorWindow>(ObjectNames.NicifyVariableName(nameof(StateMonitorWindow)));
         }
 
-        /// <summary>
-        /// アクティブ時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnEnableInternal() {
             AddPanel(new ContainerPanel());
             AddPanel(new RouterPanel());

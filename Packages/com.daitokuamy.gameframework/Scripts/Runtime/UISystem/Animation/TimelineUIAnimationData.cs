@@ -14,9 +14,7 @@ namespace GameFramework.UISystem {
         public new class Animation : UIAnimationData<TimelineUIAnimationData, Animation>.Animation {
             private PlayableDirector _playableDirector;
             
-            /// <summary>
-            /// 初期化処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void InitializeInternal() {
                 _playableDirector = RootObject.GetComponent<PlayableDirector>();
 
@@ -29,9 +27,7 @@ namespace GameFramework.UISystem {
                 }
             }
 
-            /// <summary>
-            /// 時間の設定
-            /// </summary>
+            /// <inheritdoc/>
             protected override void SetTimeInternal(float time) {
                 if (_playableDirector != null) {
                     _playableDirector.time = time;
@@ -39,9 +35,7 @@ namespace GameFramework.UISystem {
                 }
             }
 
-            /// <summary>
-            /// 再生開始通知
-            /// </summary>
+            /// <inheritdoc/>
             protected override void OnPlayInternal() {
                 if (_playableDirector != null) {
                     _playableDirector.playableAsset = Data.timelineAsset;

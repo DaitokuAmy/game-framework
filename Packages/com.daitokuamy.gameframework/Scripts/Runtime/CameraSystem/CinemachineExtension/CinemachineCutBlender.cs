@@ -21,9 +21,7 @@ namespace GameFramework.CameraSystem {
         private float _currentTime;
         private Vector3? _fromPosition;
 
-        /// <summary>
-        /// 有効になった時の処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnEnable() {
             base.OnEnable();
 
@@ -32,9 +30,7 @@ namespace GameFramework.CameraSystem {
             _fromPosition = brain != null ? brain.transform.position : null;
         }
 
-        /// <summary>
-        /// 処理の上書き
-        /// </summary>
+        /// <inheritdoc/>
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime) {
             if (stage != m_Stage) {
                 return;

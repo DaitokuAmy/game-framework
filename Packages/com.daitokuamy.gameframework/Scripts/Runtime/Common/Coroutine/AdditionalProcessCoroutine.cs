@@ -24,17 +24,12 @@ namespace GameFramework {
             _additionalFunc = additionalFunc;
         }
 
-        /// <summary>
-        /// リセット処理
-        /// </summary>
+        /// <inheritdoc/>
         void IEnumerator.Reset() {
             ((IEnumerator)_baseCoroutine).Reset();
         }
 
-        /// <summary>
-        /// コルーチン進行
-        /// </summary>
-        /// <returns>次の処理があるか？</returns>
+        /// <inheritdoc/>
         bool IEnumerator.MoveNext() {
             if (_baseCoroutine.MoveNext()) {
                 _additionalFunc?.Invoke();

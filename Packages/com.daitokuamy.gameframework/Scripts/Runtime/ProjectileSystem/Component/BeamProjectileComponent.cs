@@ -46,48 +46,33 @@ namespace GameFramework.ProjectileSystem {
         /// <summary>使用中のProjectile</summary>
         protected IBeamProjectileController ProjectileController { get; private set; }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             DisposeInternal();
         }
 
-        /// <summary>
-        /// 再生速度の変更
-        /// </summary>
-        /// <param name="speed">1.0を基準とした速度</param>
+        /// <inheritdoc/>
         void IBeamProjectileComponent.SetSpeed(float speed) {
             SetSpeedInternal(speed);
         }
 
-        /// <summary>
-        /// 飛翔開始処理
-        /// </summary>
+        /// <inheritdoc/>
         void IBeamProjectileComponent.Start(IBeamProjectileController projectileController) {
             ProjectileController = projectileController;
             StartInternal();
         }
 
-        /// <summary>
-        /// Projectileの更新
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IBeamProjectileComponent.Tick(float deltaTime) {
             TickInternal(deltaTime);
         }
 
-        /// <summary>
-        /// 飛翔終了処理
-        /// </summary>
+        /// <inheritdoc/>
         IEnumerator IBeamProjectileComponent.ExitRoutine() {
             yield return ExitRoutineInternal();
         }
 
-        /// <summary>
-        /// コリジョンヒット時通知
-        /// </summary>
-        /// <param name="hit">当たり結果</param>
+        /// <inheritdoc/>
         void IBeamProjectileComponent.OnHitCollision(RaycastHit hit) {
             OnHitCollisionInternal(hit);
         }

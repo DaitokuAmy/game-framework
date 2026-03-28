@@ -8,9 +8,7 @@ namespace GameFramework.GimmickSystem {
         [SerializeField, Tooltip("再生対象リスト")]
         private MonoBehaviour[] _targets;
 
-        /// <summary>
-        /// 実行処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InvokeInternal() {
             foreach (var target in _targets) {
                 if (target == null) {

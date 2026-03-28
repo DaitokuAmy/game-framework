@@ -209,9 +209,7 @@ namespace GameFramework {
             return result;
         }
 
-        /// <summary>
-        /// 文字列化
-        /// </summary>
+        /// <inheritdoc/>
         public override string ToString() {
             if (_bitFlags == null) {
                 return "0";
@@ -226,9 +224,7 @@ namespace GameFramework {
             return builder.ToString();
         }
 
-        /// <summary>
-        /// Hash計算
-        /// </summary>
+        /// <inheritdoc/>
         public override int GetHashCode() {
             if (_bitFlags == null) {
                 return 0;
@@ -242,9 +238,7 @@ namespace GameFramework {
             return (int)hash;
         }
 
-        /// <summary>
-        /// 比較
-        /// </summary>
+        /// <inheritdoc/>
         public override bool Equals(object obj) {
             return obj is LayeredFlag other && Equals(other);
         }

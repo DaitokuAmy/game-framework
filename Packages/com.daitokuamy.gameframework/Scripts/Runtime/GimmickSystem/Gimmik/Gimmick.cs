@@ -36,9 +36,7 @@ namespace GameFramework.GimmickSystem {
         private bool _initialized;
         private bool _disposed;
         
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void IGimmick.Initialize() {
             if (_initialized) {
                 return;
@@ -49,9 +47,7 @@ namespace GameFramework.GimmickSystem {
             PostInitializeInternal();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             if (_disposed) {
                 return;
@@ -61,26 +57,17 @@ namespace GameFramework.GimmickSystem {
             DisposeInternal();
         }
 
-        /// <summary>
-        /// 速度の設定
-        /// </summary>
-        /// <param name="speed">1.0を基準とした速度</param>
+        /// <inheritdoc/>
         void IGimmick.SetSpeed(float speed) {
             SetSpeedInternal(speed);
         }
         
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IGimmick.UpdateGimmick(float deltaTime) {
             UpdateInternal(deltaTime);
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IGimmick.LateUpdateGimmick(float deltaTime) {
             LateUpdateInternal(deltaTime);
         }

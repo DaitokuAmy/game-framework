@@ -8,9 +8,7 @@ namespace GameFramework.Editor {
     /// </summary>
     [CustomEditor(typeof(ScriptableTableData<,>), true)]
     public sealed class ScriptableTableDataEditor : UnityEditor.Editor {
-        /// <summary>
-        /// インスペクタ拡張
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
 

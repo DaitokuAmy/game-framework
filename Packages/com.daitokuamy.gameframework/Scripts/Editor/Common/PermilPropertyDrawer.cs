@@ -7,9 +7,7 @@ namespace GameFramework.Editor {
     /// </summary>
     [CustomPropertyDrawer(typeof(Permil))]
     public sealed class PermilPropertyDrawer : PropertyDrawer {
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var valueProp = property.FindPropertyRelative("RawValue");
             var current = valueProp.intValue / (float)Permil.One;

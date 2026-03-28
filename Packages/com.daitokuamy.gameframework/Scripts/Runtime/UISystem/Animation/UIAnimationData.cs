@@ -35,16 +35,12 @@ namespace GameFramework.UISystem {
                 InitializeInternal();
             }
 
-            /// <summary>
-            /// 時間の設定
-            /// </summary>
+            /// <inheritdoc/>
             void IUIAnimation.SetTime(float time) {
                 SetTimeInternal(time);
             }
 
-            /// <summary>
-            /// 再生開始通知
-            /// </summary>
+            /// <inheritdoc/>
             void IUIAnimation.OnPlay() {
                 OnPlayInternal();
             }

@@ -18,9 +18,7 @@ namespace GameFramework.CameraSystem.Editor {
         // 出力先のPrefabから見た出力CameraGroupの相対Path
         private string _exportRootPath;
 
-        /// <summary>
-        /// インスペクタ描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
 

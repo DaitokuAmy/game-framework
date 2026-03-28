@@ -28,11 +28,7 @@ namespace GameFramework.GimmickSystem {
         /// <summary>ステート一覧</summary>
         protected IReadOnlyList<T> StateInfos => _stateInfos;
 
-        /// <summary>
-        /// ステートの変更
-        /// </summary>
-        /// <param name="stateName">ステート名</param>
-        /// <param name="immediate">即時遷移するか</param>
+        /// <inheritdoc/>
         public sealed override void Change(string stateName, bool immediate = false) {
             if (stateName == CurrentStateName) {
                 return;
@@ -44,9 +40,7 @@ namespace GameFramework.GimmickSystem {
             SetCurrentStateName(stateName);
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
 

@@ -33,9 +33,7 @@ namespace GameFramework.UISystem {
         /// <summary>フリック通知(正規化された向きベクトル)</summary>
         public event Action<Vector2> FlickEvent;
 
-        /// <summary>
-        /// タッチダウン通知
-        /// </summary>
+        /// <inheritdoc/>
         void IPointerDownHandler.OnPointerDown(PointerEventData eventData) {
             _startPosition = eventData.position;
             _recordTime = 0.0f;
@@ -43,9 +41,7 @@ namespace GameFramework.UISystem {
             _recordInfos.Clear();
         }
 
-        /// <summary>
-        /// タッチアップ通知
-        /// </summary>
+        /// <inheritdoc/>
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData) {
             var currentTime = Time.realtimeSinceStartup;
             var deltaTime = currentTime - _prevTime;
@@ -59,9 +55,7 @@ namespace GameFramework.UISystem {
             _recordInfos.Clear();
         }
 
-        /// <summary>
-        /// ドラッグ通知
-        /// </summary>
+        /// <inheritdoc/>
         void IDragHandler.OnDrag(PointerEventData eventData) {
             var currentTime = Time.realtimeSinceStartup;
             var deltaTime = currentTime - _prevTime;

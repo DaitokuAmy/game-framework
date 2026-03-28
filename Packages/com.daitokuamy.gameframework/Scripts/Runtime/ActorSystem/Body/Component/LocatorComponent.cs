@@ -10,7 +10,7 @@ namespace GameFramework.ActorSystem {
         // ロケーター管理クラスのリスト
         private List<LocatorParts> _locatorPartsList = new List<LocatorParts>();
 
-        // Locator取得用アクセサ
+        /// <summary>Locator取得用アクセサ</summary>
         public Transform this[string key] {
             get {
                 for (var i = 0; i < _locatorPartsList.Count; i++) {
@@ -31,9 +31,7 @@ namespace GameFramework.ActorSystem {
             return _locatorPartsList.SelectMany(x => x.Keys).Distinct().ToArray();
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             var meshController = Body.GetBodyComponent<MeshComponent>();
             meshController.RefreshedEvent += RefreshLocatorPartsList;

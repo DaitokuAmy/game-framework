@@ -12,16 +12,12 @@ namespace GameFramework.UISystem {
         public new class Animation : UIAnimationData<CanvasGroupUIAnimationData, Animation>.Animation {
             private CanvasGroup _canvasGroup;
             
-            /// <summary>
-            /// 初期化処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void InitializeInternal() {
                 _canvasGroup = RootObject.GetComponent<CanvasGroup>();
             }
 
-            /// <summary>
-            /// 時間の設定
-            /// </summary>
+            /// <inheritdoc/>
             protected override void SetTimeInternal(float time) {
                 if (_canvasGroup != null) {
                     var ratio = Duration > float.Epsilon ? time / Duration : 1.0f;

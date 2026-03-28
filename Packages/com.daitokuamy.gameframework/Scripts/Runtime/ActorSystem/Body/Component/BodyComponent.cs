@@ -19,9 +19,7 @@ namespace GameFramework.ActorSystem {
         /// <summary>有効か</summary>
         public bool IsValid => Body != null;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void IBodyComponent.Initialize(Body body) {
             _updateSampler = CustomSampler.Create($"BodyComponent.{GetType().Name}.Update()");
             _lateUpdateSampler = CustomSampler.Create($"BodyComponent.{GetType().Name}.LateUpdate()");
@@ -31,9 +29,7 @@ namespace GameFramework.ActorSystem {
             InitializeInternal(_scope);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             if (_disposed) {
                 return;
@@ -71,19 +67,14 @@ namespace GameFramework.ActorSystem {
         protected virtual void LateUpdateInternal(float deltaTime) {
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void IBodyComponent.Update(float deltaTime) {
             _updateSampler.Begin();
             UpdateInternal(deltaTime);
             _updateSampler.End();
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IBodyComponent.LateUpdate(float deltaTime) {
             _lateUpdateSampler.Begin();
             LateUpdateInternal(deltaTime);

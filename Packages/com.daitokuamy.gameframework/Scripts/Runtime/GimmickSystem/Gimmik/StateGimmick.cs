@@ -13,9 +13,7 @@ namespace GameFramework.GimmickSystem {
         /// <summary>現在のステート名</summary>
         public string CurrentStateName { get; private set; } = "";
 
-        /// <summary>
-        /// 初期化後処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void PostInitializeInternal() {
             Change(_defaultState, true);
         }

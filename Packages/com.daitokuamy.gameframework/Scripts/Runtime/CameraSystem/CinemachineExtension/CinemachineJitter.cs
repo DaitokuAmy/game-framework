@@ -33,9 +33,7 @@ namespace GameFramework.CameraSystem {
         private float _timeRotation;
         private Vector2[] _noiseVectors;
 
-        /// <summary>
-        /// 有効になった時の処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnEnable() {
             base.OnEnable();
 
@@ -49,9 +47,7 @@ namespace GameFramework.CameraSystem {
             }
         }
 
-        /// <summary>
-        /// 処理の上書き
-        /// </summary>
+        /// <inheritdoc/>
         protected override void PostPipelineStageCallback(CinemachineVirtualCameraBase vcam, CinemachineCore.Stage stage, ref CameraState state, float deltaTime) {
             if (stage != CinemachineCore.Stage.Aim) {
                 return;

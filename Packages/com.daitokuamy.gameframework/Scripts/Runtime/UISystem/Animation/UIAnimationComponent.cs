@@ -18,10 +18,7 @@ namespace GameFramework.UISystem {
         /// <summary>表示名</summary>
         public string Label => _label;
 
-        /// <summary>
-        /// 時間の設定
-        /// </summary>
-        /// <param name="time">現在時間</param>
+        /// <inheritdoc/>
         void IUIAnimation.SetTime(float time) {
             Initialize();
             if (_reverse) {
@@ -31,9 +28,7 @@ namespace GameFramework.UISystem {
             SetTimeInternal(time);
         }
 
-        /// <summary>
-        /// 再生開始通知
-        /// </summary>
+        /// <inheritdoc/>
         void IUIAnimation.OnPlay() {
             Initialize();
             OnPlayInternal();

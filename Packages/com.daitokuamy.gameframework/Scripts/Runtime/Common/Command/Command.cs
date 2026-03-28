@@ -26,9 +26,7 @@ namespace GameFramework {
         /// <summary>例外</summary>
         public Exception Exception { get; private set; }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICommand.Initialize() {
             if (_currentState != CommandState.Invalid) {
                 return;
@@ -39,9 +37,7 @@ namespace GameFramework {
             InitializeInternal(_initializeScope);
         }
 
-        /// <summary>
-        /// 再利用処理
-        /// </summary>
+        /// <inheritdoc/>
         bool ICommand.Recycle() {
             // 既に再利用可能
             if (_currentState == CommandState.Invalid) {
@@ -58,10 +54,7 @@ namespace GameFramework {
             return true;
         }
 
-        /// <summary>
-        /// 開始処理
-        /// </summary>
-        /// <returns>trueを返すと実行開始</returns>
+        /// <inheritdoc/>
         bool ICommand.Start() {
             if (_currentState != CommandState.Standby) {
                 return false;
@@ -77,10 +70,7 @@ namespace GameFramework {
             return true;
         }
 
-        /// <summary>
-        /// 待機中更新
-        /// </summary>
-        /// <returns>trueを返すと継続</returns>
+        /// <inheritdoc/>
         bool ICommand.StandbyUpdate() {
             if (_currentState != CommandState.Standby) {
                 return false;
@@ -89,10 +79,7 @@ namespace GameFramework {
             return StandbyUpdateInternal();
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <returns>trueを返すと継続</returns>
+        /// <inheritdoc/>
         bool ICommand.Update() {
             if (_currentState != CommandState.Executing) {
                 return false;
@@ -101,9 +88,7 @@ namespace GameFramework {
             return UpdateInternal();
         }
 
-        /// <summary>
-        /// 終了処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICommand.Finish() {
             if (_currentState >= CommandState.Finished) {
                 return;
@@ -118,9 +103,7 @@ namespace GameFramework {
             _currentState = CommandState.Finished;
         }
 
-        /// <summary>
-        /// 廃棄処理
-        /// </summary>
+        /// <inheritdoc/>
         void ICommand.Destroy() {
             if (_currentState >= CommandState.Destroyed) {
                 return;

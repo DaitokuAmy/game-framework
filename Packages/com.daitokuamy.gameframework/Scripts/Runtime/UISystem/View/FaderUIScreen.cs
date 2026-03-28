@@ -24,9 +24,7 @@ namespace GameFramework.UISystem {
         private Dictionary<string, FaderUIView> _faders;
         private FaderUIView _currentFader;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             base.InitializeInternal(scope);
 

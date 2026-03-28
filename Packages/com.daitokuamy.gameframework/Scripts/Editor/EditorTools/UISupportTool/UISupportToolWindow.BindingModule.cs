@@ -30,9 +30,7 @@ namespace GameFramework.EditorTools.Editor {
                 public string Message => $"{Component.GetType().Name}.{FieldName} ({FieldType.Name}) is null.";
             }
 
-            /// <summary>
-            /// GUIを描画
-            /// </summary>
+            /// <inheritdoc/>
             public override void OnGUI() {
                 EditorGUILayout.HelpBox("選択中オブジェクト配下のMonoBehaviourを対象にします。", MessageType.Info);
 

@@ -7,9 +7,7 @@ namespace GameFramework.ProjectileSystem.Editor {
     /// </summary>
     [CustomEditor(typeof(ProjectileManagerDispatcher))]
     public sealed class ProjectileManagerDispatcherEditor : UnityEditor.Editor {
-        /// <summary>
-        /// インスペクタ拡張
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
             

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
@@ -23,9 +23,7 @@ namespace GameFramework.AssetSystem {
         public SimpleAssetStorage(AssetManager assetManager) : base(assetManager) {
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void Dispose() {
             UnloadAssets();
         }

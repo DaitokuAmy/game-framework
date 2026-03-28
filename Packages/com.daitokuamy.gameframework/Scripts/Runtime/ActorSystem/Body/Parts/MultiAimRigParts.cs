@@ -9,7 +9,7 @@ namespace GameFramework.ActorSystem {
         [SerializeField, Tooltip("ターゲットにするGameObjectのリスト")]
         private GameObject[] _sourceObjects;
 
-        // ターゲットの総数
+        /// <summary>ターゲットの総数</summary>
         public int TargetCount => _sourceObjects.Length;
 
         /// <summary>

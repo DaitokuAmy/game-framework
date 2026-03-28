@@ -95,9 +95,7 @@ namespace GameFramework.UISystem {
                 _selectedAction = null;
             }
 
-            /// <summary>
-            /// 選択時処理
-            /// </summary>
+            /// <inheritdoc/>
             protected override void OnSelectedIndex(int index) {
                 base.OnSelectedIndex(index);
 

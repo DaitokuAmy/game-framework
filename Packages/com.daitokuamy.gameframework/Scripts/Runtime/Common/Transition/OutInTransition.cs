@@ -22,11 +22,7 @@ namespace GameFramework {
             _backgroundThreadPriority = backgroundThreadPriority;
         }
         
-        /// <summary>
-        /// 遷移処理
-        /// </summary>
-        /// <param name="resolver">遷移処理解決者</param>
-        /// <param name="immediate">即時遷移か</param>
+        /// <inheritdoc/>
         IEnumerator ITransition.TransitionRoutine(ITransitionResolver resolver, bool immediate) {
             resolver.Start();
 

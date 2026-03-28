@@ -18,11 +18,11 @@ namespace GameFramework.AttachmentSystem {
 
         // ターゲット情報
         private class TargetInfo {
-            // ターゲットの元情報
+            /// <summary>ターゲットの元情報</summary>
             public TargetSource source = new TargetSource();
-            // 参照するTarget
+            /// <summary>参照するTarget</summary>
             public Transform target;
-            // 正規化済みのWeight
+            /// <summary>正規化済みのWeight</summary>
             public float normalizedWeight;
         }
 
@@ -33,9 +33,9 @@ namespace GameFramework.AttachmentSystem {
         // Weightが正規化済みか
         private bool _normalized = false;
 
-        // 制御対象
+        /// <summary>制御対象</summary>
         public Transform Owner { get; private set; }
-        // ターゲットリスト
+        /// <summary>ターゲットリスト</summary>
         public TargetSource[] Sources {
             set {
                 _sources = value;

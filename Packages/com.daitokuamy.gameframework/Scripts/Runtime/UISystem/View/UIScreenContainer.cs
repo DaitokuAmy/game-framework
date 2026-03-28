@@ -151,19 +151,14 @@ namespace GameFramework.UISystem {
             _transitionInfo.SendFinish();
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             base.InitializeInternal(scope);
 
             _cachedChildScreens = _childScreens.ToDictionary(x => x.key, x => x);
         }
 
-        /// <summary>
-        /// 開始処理
-        /// </summary>
-        /// <param name="scope"></param>
+        /// <inheritdoc/>
         protected override void StartInternal(IScope scope) {
             base.StartInternal(scope);
 
@@ -172,9 +167,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             base.UpdateInternal(deltaTime);
 
@@ -187,9 +180,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 開く処理（後処理）
-        /// </summary>
+        /// <inheritdoc/>
         protected override IEnumerator OpenRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
             yield return base.OpenRoutine(transitionDirection, cancelScope);
 
@@ -198,9 +189,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 開く処理（後処理）
-        /// </summary>
+        /// <inheritdoc/>
         protected override void PostOpen(TransitionDirection transitionDirection, bool immediate) {
             base.PostOpen(transitionDirection, immediate);
 
@@ -209,9 +198,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 閉じる処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override IEnumerator CloseRoutine(TransitionDirection transitionDirection, IScope cancelScope) {
             yield return base.CloseRoutine(transitionDirection, cancelScope);
 
@@ -220,9 +207,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 閉じる処理（後処理）
-        /// </summary>
+        /// <inheritdoc/>
         protected override void PostClose(TransitionDirection transitionDirection, bool immediate) {
             base.PostClose(transitionDirection, immediate);
 

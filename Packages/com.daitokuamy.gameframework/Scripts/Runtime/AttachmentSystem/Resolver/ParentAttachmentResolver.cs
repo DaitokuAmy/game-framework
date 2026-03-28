@@ -13,12 +13,12 @@ namespace GameFramework.AttachmentSystem {
             public Vector3 offsetPosition = Vector3.zero;
             public Vector3 offsetAngles = Vector3.zero;
             public Vector3 offsetScale = Vector3.one;
-            public AxisMasks positionMasks = KinematicsDefinitions.AxisMasksAll;
-            public AxisMasks angleMasks = KinematicsDefinitions.AxisMasksAll;
+            public AxisMasks positionMasks = Definitions.AxisMasksAll;
+            public AxisMasks angleMasks = Definitions.AxisMasksAll;
             public AxisMasks scaleMasks = 0;
         }
 
-        // 設定
+        /// <summary>設定</summary>
         public ResolverSettings Settings { get; set; } = new ResolverSettings();
 
         /// <summary>
@@ -29,9 +29,7 @@ namespace GameFramework.AttachmentSystem {
             : base(owner) {
         }
 
-        /// <summary>
-        /// Transformを反映
-        /// </summary>
+        /// <inheritdoc/>
         public override void Resolve() {
             var space = Settings.space;
             var offsetPosition = Settings.offsetPosition;
@@ -86,18 +84,14 @@ namespace GameFramework.AttachmentSystem {
             Owner.localScale = scale;
         }
 
-        /// <summary>
-        /// オフセットを初期化
-        /// </summary>
+        /// <inheritdoc/>
         public override void ResetOffset() {
             Settings.offsetPosition = Vector3.zero;
             Settings.offsetAngles = Vector3.zero;
             Settings.offsetScale = Vector3.one;
         }
 
-        /// <summary>
-        /// 自身のTransformからオフセットを設定する
-        /// </summary>
+        /// <inheritdoc/>
         public override void TransferOffset() {
             var space = Settings.space;
             // Position

@@ -6,11 +6,11 @@ namespace GameFramework.AssetSystem {
     /// シーンアセット読み込みリクエスト
     /// </summary>
     public abstract class SceneAssetRequest {
-        // 読み込みモード
+        /// <summary>読み込みモード</summary>
         public abstract LoadSceneMode Mode { get; }
-        // 読み込み用のAddress
+        /// <summary>読み込み用のAddress</summary>
         public abstract string Address { get; }
-        // 読み込みに使用するProviderのIndex配列（順番にフォールバック）
+        /// <summary>読み込みに使用するProviderのIndex配列（順番にフォールバック）</summary>
         public abstract int[] ProviderIndices { get; }
 
         /// <summary>

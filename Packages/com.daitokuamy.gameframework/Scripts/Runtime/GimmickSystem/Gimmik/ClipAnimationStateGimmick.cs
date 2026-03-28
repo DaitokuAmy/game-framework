@@ -41,9 +41,7 @@ namespace GameFramework.GimmickSystem {
         private float _blendTimer = -1.0f;
         private int _currentIndex = -1;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
@@ -78,9 +76,7 @@ namespace GameFramework.GimmickSystem {
             _graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             if (_graph.IsValid()) {
                 _graph.Destroy();
@@ -89,12 +85,7 @@ namespace GameFramework.GimmickSystem {
             base.DisposeInternal();
         }
 
-        /// <summary>
-        /// ステートの変更処理
-        /// </summary>
-        /// <param name="prev">変更前のステート</param>
-        /// <param name="current">変更後のステート</param>
-        /// <param name="immediate">即時遷移するか</param>
+        /// <inheritdoc/>
         protected override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
             _blendTimer = !immediate && _currentIndex >= 0 ? _blendDuration : 0.0f;
 
@@ -109,18 +100,14 @@ namespace GameFramework.GimmickSystem {
             }
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void UpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.Update) {
                 UpdateAnimation(deltaTime);
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void LateUpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.LateUpdate) {
                 UpdateAnimation(deltaTime);

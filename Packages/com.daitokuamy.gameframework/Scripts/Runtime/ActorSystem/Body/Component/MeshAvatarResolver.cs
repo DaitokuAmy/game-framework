@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
@@ -25,9 +25,7 @@ namespace GameFramework.ActorSystem {
             _parentLocatorName = parentLocatorName;
         }
 
-        /// <summary>
-        /// パーツ適用時処理
-        /// </summary>
+        /// <inheritdoc/>
         void AvatarComponent.IResolver.Setup(Body owner) {
             if (_prefab == null) {
                 return;
@@ -38,9 +36,7 @@ namespace GameFramework.ActorSystem {
             meshController.MergeMeshes(_partObject, _key, string.IsNullOrEmpty(_parentLocatorName) ? null : owner.Locators[_parentLocatorName]);
         }
 
-        /// <summary>
-        /// パーツ適用解除処理
-        /// </summary>
+        /// <inheritdoc/>
         void AvatarComponent.IResolver.Cleanup(Body owner) {
             if (_partObject == null) {
                 return;

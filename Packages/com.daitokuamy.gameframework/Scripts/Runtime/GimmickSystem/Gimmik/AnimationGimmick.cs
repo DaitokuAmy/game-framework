@@ -21,9 +21,9 @@ namespace GameFramework.GimmickSystem {
         // 逆再生状態か
         private bool _reverse;
 
-        // トータル時間
+        /// <summary>トータル時間</summary>
         public abstract float Duration { get; }
-        // ループ再生するか
+        /// <summary>ループ再生するか</summary>
         public abstract bool IsLooping { get; }
 
         /// <summary>
@@ -46,18 +46,14 @@ namespace GameFramework.GimmickSystem {
             _reverse = reverse;
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void UpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.Update) {
                 UpdateAnimation(deltaTime);
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void LateUpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.LateUpdate) {
                 UpdateAnimation(deltaTime);

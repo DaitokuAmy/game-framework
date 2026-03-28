@@ -101,16 +101,12 @@ namespace GameFramework.UISystem {
                 _playingInfo = playingInfo;
             }
 
-            /// <summary>
-            /// IEnumerator用
-            /// </summary>
+            /// <inheritdoc/>
             bool IEnumerator.MoveNext() {
                 return !((IProcess)this).IsDone;
             }
 
-            /// <summary>
-            /// 未使用
-            /// </summary>
+            /// <inheritdoc/>
             void IEnumerator.Reset() {
             }
         }

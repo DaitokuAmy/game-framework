@@ -144,23 +144,17 @@ namespace GameFramework {
             return scale.Value;
         }
 
-        /// <summary>
-        /// 文字列化
-        /// </summary>
+        /// <inheritdoc/>
         public override string ToString() {
             return Value.ToString("0.00");
         }
 
-        /// <summary>
-        /// Hash計算
-        /// </summary>
+        /// <inheritdoc/>
         public override int GetHashCode() {
             return Value.GetHashCode();
         }
 
-        /// <summary>
-        /// 等価判定
-        /// </summary>
+        /// <inheritdoc/>
         public override bool Equals(object obj) {
             return obj is LayeredScale other && Equals(other);
         }

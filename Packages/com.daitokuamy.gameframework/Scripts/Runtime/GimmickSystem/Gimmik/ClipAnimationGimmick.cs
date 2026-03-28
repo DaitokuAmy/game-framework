@@ -19,14 +19,12 @@ namespace GameFramework.GimmickSystem {
         private AnimationLayerMixerPlayable _layerMixerPlayable;
         private AnimationClipPlayable _animationClipPlayable;
 
-        // トータル時間
+        /// <summary>トータル時間</summary>
         public override float Duration => _animationClip != null ? _animationClip.length : 0.0f;
-        // ループ再生するか
+        /// <summary>ループ再生するか</summary>
         public override bool IsLooping => _animationClip != null && _animationClip.isLooping;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
@@ -47,9 +45,7 @@ namespace GameFramework.GimmickSystem {
             _graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             if (_graph.IsValid()) {
                 _graph.Destroy();
@@ -58,9 +54,7 @@ namespace GameFramework.GimmickSystem {
             base.DisposeInternal();
         }
 
-        /// <summary>
-        /// 再生状態の反映
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Evaluate(float time) {
             _animationClipPlayable.SetTime(time);
             _graph.Evaluate(0.0f);

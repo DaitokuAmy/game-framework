@@ -12,14 +12,12 @@ namespace GameFramework.ActorSystem {
         private DisposableScope _scope;
         private bool _disposed;
 
-        // 実行優先度
+        /// <summary>実行優先度</summary>
         public virtual int ExecutionOrder => 0;
-        // 制御対象のBody
+        /// <summary>制御対象のBody</summary>
         public Body Body { get; private set; }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         void IBodyComponent.Initialize(Body body) {
             _updateSampler = CustomSampler.Create($"BodyController.{GetType().Name}.Update()");
             _lateUpdateSampler = CustomSampler.Create($"BodyController.{GetType().Name}.LateUpdate()");
@@ -29,9 +27,7 @@ namespace GameFramework.ActorSystem {
             InitializeInternal(_scope);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         void IDisposable.Dispose() {
             if (_disposed) {
                 return;
@@ -55,9 +51,7 @@ namespace GameFramework.ActorSystem {
         protected virtual void InitializeInternal(IScope scope) {
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         void IBodyComponent.Update(float deltaTime) {
             _updateSampler.Begin();
             UpdateInternal(deltaTime);
@@ -71,10 +65,7 @@ namespace GameFramework.ActorSystem {
         protected virtual void UpdateInternal(float deltaTime) {
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         void IBodyComponent.LateUpdate(float deltaTime) {
             _lateUpdateSampler.Begin();
             LateUpdateInternal(deltaTime);

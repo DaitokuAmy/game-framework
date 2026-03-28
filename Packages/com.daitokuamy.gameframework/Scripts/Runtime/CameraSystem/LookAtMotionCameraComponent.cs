@@ -118,9 +118,7 @@ namespace GameFramework.CameraSystem {
             Setup(new Context { clip = animationClip }, 0, 0.0f, parent, relativePosition, relativeRotation, layeredTime);
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
@@ -154,9 +152,7 @@ namespace GameFramework.CameraSystem {
             }
         }
 
-        /// <summary>
-        /// カメラ更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             base.UpdateInternal(deltaTime);
 

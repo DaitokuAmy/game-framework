@@ -7,10 +7,10 @@ namespace GameFramework.AttachmentSystem {
     public class ParentRuntimeAttachment : RuntimeAttachment {
         private ParentAttachmentResolver _resolver;
 
-        // Transform制御用インスタンス
+        /// <summary>Transform制御用インスタンス</summary>
         protected override AttachmentResolver Resolver => _resolver;
 
-        // 追従設定
+        /// <summary>追従設定</summary>
         public ParentAttachmentResolver.ResolverSettings Settings {
             get => _resolver.Settings;
             set => _resolver.Settings = value;

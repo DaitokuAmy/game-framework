@@ -29,18 +29,14 @@ namespace GameFramework.GimmickSystem {
             _timer = duration;
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void UpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.Update) {
                 UpdateValue(deltaTime);
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void LateUpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.LateUpdate) {
                 UpdateValue(deltaTime);

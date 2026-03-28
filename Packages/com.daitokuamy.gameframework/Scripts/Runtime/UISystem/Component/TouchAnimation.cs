@@ -51,9 +51,7 @@ namespace GameFramework.UISystem {
             set => _updateType = value;
         }
         
-        /// <summary>
-        /// TouchDown通知
-        /// </summary>
+        /// <inheritdoc/>
         void IPointerDownHandler.OnPointerDown(PointerEventData eventData) {
             _timer = _downDuration;
             _isDown = true;
@@ -62,9 +60,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// TouchUp通知
-        /// </summary>
+        /// <inheritdoc/>
         void IPointerUpHandler.OnPointerUp(PointerEventData eventData) {
             _timer = _upDuration;
             _isDown = false;

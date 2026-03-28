@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
@@ -24,15 +24,11 @@ namespace GameFramework.ActorSystem {
             [ReadOnly]
             public NativeArray<TransformStreamHandle> destinationTransformHandles;
 
-            /// <summary>
-            /// RootMotion更新用
-            /// </summary>
+            /// <inheritdoc/>
             void IAnimationJob.ProcessRootMotion(AnimationStream stream) {
             }
 
-            /// <summary>
-            /// 通常のBone更新用
-            /// </summary>
+            /// <inheritdoc/>
             void IAnimationJob.ProcessAnimation(AnimationStream stream) {
                 for (var i = 0; i < sourceTransformHandles.Length; i++) {
                     var masks = constraintMasksList[i];
@@ -88,7 +84,7 @@ namespace GameFramework.ActorSystem {
         /// <summary>高さ調整用の腰骨</summary>
         public Transform Hips => _hips;
 
-        // 実行優先度
+        /// <summary>実行優先度</summary>
         public override int ExecutionOrder => 15;
         
         /// <summary>
@@ -290,9 +286,7 @@ namespace GameFramework.ActorSystem {
             _mergedBones.Remove(target);
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             _animator = Body.GetComponent<Animator>();
             _meshComponent = Body.GetBodyComponent<MeshComponent>();
@@ -303,9 +297,7 @@ namespace GameFramework.ActorSystem {
             }
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             ClearGraph();
         }

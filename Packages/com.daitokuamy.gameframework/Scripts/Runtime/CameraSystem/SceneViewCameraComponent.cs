@@ -9,9 +9,7 @@ namespace GameFramework.CameraSystem {
     /// シーンビューと同期するカメラコンポーネント
     /// </summary>
     public class SceneViewCameraComponent : SerializedCameraComponent<CinemachineCamera> {
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             // 基本的なコンポーネントは削除する
             var bodyComponent = VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body);
@@ -25,9 +23,7 @@ namespace GameFramework.CameraSystem {
             }
         }
 
-        /// <summary>
-        /// カメラ更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
 #if UNITY_EDITOR
             var sceneView = SceneView.lastActiveSceneView;

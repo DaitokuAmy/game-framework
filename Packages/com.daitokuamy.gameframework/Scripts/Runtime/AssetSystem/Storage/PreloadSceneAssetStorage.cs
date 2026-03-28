@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
@@ -86,9 +86,7 @@ namespace GameFramework.AssetSystem {
         public PreloadSceneAssetStorage(AssetManager assetManager) : base(assetManager) {
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void Dispose() {
             UnloadAssets();
         }

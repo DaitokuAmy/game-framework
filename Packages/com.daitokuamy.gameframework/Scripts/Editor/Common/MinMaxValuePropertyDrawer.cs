@@ -12,9 +12,7 @@ namespace GameFramework.Editor {
         private static readonly float LineSpace = EditorGUIUtility.standardVerticalSpacing;
         private static readonly float Indent = 15.0f;
 
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var lineRect = position;
             lineRect.height = LineHeight;
@@ -56,9 +54,7 @@ namespace GameFramework.Editor {
             }
         }
 
-        /// <summary>
-        /// 高さ計算
-        /// </summary>
+        /// <inheritdoc/>
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
             // 乱数使用時は2行 + 1行
             var useRandomProp = property.FindPropertyRelative("useRandom");

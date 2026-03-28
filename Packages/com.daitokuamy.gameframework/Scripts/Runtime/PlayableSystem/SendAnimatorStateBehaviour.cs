@@ -9,9 +9,7 @@ namespace GameFramework.PlayableSystem {
     public sealed class SendAnimatorStateBehaviour : StateMachineBehaviour {
         private readonly Dictionary<Animator, AnimatorStateDispatcher> _dispatchers = new();
         
-        /// <summary>
-        /// State入った時の処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnStateEnter(
             Animator animator,
             AnimatorStateInfo stateInfo,
@@ -25,9 +23,7 @@ namespace GameFramework.PlayableSystem {
             dispatcher.SendAnimatorStateEnter(stateInfo, layerIndex, playable);
         }
 
-        /// <summary>
-        /// State抜けた時の処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnStateExit(
             Animator animator,
             AnimatorStateInfo stateInfo,
@@ -41,9 +37,7 @@ namespace GameFramework.PlayableSystem {
             dispatcher.SendAnimatorStateExit(stateInfo, layerIndex, playable);
         }
 
-        /// <summary>
-        /// StateMachine入った時の処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnStateMachineEnter(
             Animator animator,
             int stateMachinePathHash,
@@ -56,9 +50,7 @@ namespace GameFramework.PlayableSystem {
             dispatcher.SendAnimatorStateMachineEnter(stateMachinePathHash, playable);
         }
 
-        /// <summary>
-        /// StateMachine抜けた時の処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnStateMachineExit(
             Animator animator,
             int stateMachinePathHash,

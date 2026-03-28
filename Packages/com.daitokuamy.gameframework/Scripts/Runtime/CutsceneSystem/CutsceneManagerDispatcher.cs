@@ -5,7 +5,7 @@ namespace GameFramework.CutsceneSystem {
     /// CutsceneManagerに生成されるRootにつけるDispatcher
     /// </summary>
     public class CutsceneManagerDispatcher : MonoBehaviour {
-        // 参照先のCutsceneManager
+        /// <summary>参照先のCutsceneManager</summary>
         public CutsceneManager Manager { get; private set; }
 
         /// <summary>

@@ -47,12 +47,12 @@ namespace GameFramework.ProjectileSystem {
         private float _distance;
         private float _timer;
 
-        // 座標
+        /// <summary>座標</summary>
         public Vector3 Position { get; private set; }
-        // 姿勢
+        /// <summary>姿勢</summary>
         public Quaternion Rotation { get; private set; }
 
-        // 終端座標
+        /// <summary>終端座標</summary>
         public Vector3 EndPoint {
             get => _endPoint;
             set => _endPoint = value;
@@ -100,9 +100,7 @@ namespace GameFramework.ProjectileSystem {
                 settings.duration, settings.homingStartTiming, settings.durationBaseMeter, settings.autoExit) {
         }
 
-        /// <summary>
-        /// 飛翔開始
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Start() {
             Position = _startPoint;
             _velocity = Rotation * Vector3.forward * _startSpeed;
@@ -111,10 +109,7 @@ namespace GameFramework.ProjectileSystem {
             _stopped = false;
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         bool IProjectileController.Tick(float deltaTime) {
             if (_stopped) {
                 return false;
@@ -171,9 +166,7 @@ namespace GameFramework.ProjectileSystem {
             return _distance < _maxDistance;
         }
 
-        /// <summary>
-        /// 飛翔終了
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Stop(Vector3? stopPosition) {
             if (stopPosition != null) {
                 Position = stopPosition.Value;

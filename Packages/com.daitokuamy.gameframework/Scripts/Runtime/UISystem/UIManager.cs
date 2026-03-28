@@ -60,16 +60,12 @@ namespace GameFramework.UISystem {
                 }
             }
 
-            /// <summary>
-            /// IEnumerator用
-            /// </summary>
+            /// <inheritdoc/>
             bool IEnumerator.MoveNext() {
                 return !IsDone;
             }
 
-            /// <summary>
-            /// IEnumerator用 - 未使用
-            /// </summary>
+            /// <inheritdoc/>
             void IEnumerator.Reset() {
             }
         }
@@ -154,9 +150,7 @@ namespace GameFramework.UISystem {
         // Prefabインスタンス格納用Root
         private GameObject _rootObject;
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             foreach (var info in _sceneInfos.Values.ToArray()) {
                 RemoveAssetInfo(info);
@@ -178,9 +172,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal() {
             var deltaTime = _layeredTime?.DeltaTime ?? Time.deltaTime;
 
@@ -191,9 +183,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal() {
             var deltaTime = _layeredTime?.DeltaTime ?? Time.deltaTime;
             foreach (var service in _services.Values) {

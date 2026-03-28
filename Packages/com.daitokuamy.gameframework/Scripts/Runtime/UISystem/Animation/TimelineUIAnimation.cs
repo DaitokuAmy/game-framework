@@ -28,9 +28,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 時間の設定
-        /// </summary>
+        /// <inheritdoc/>
         void IUIAnimation.SetTime(float time) {
             if (_playableDirector != null) {
                 _playableDirector.time = time;
@@ -38,9 +36,7 @@ namespace GameFramework.UISystem {
             }
         }
 
-        /// <summary>
-        /// 再生開始通知
-        /// </summary>
+        /// <inheritdoc/>
         void IUIAnimation.OnPlay() {
             if (_playableDirector != null) {
                 _playableDirector.Play(_timelineAsset);

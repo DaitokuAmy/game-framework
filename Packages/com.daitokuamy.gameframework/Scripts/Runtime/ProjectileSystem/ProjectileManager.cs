@@ -220,16 +220,12 @@ namespace GameFramework.ProjectileSystem {
             _beamPool.ClearAll();
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal() {
             _projectilePlayer.Update();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             _projectilePlayer.Dispose();
 

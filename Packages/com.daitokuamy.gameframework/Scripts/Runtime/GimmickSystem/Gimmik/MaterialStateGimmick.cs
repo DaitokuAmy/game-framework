@@ -37,36 +37,25 @@ namespace GameFramework.GimmickSystem {
         // ターゲット値
         private T _targetValue;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
             Refresh();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             DestroyMaterialInstances();
             base.DisposeInternal();
         }
 
-        /// <summary>
-        /// Validate処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnValidateInternal() {
             base.OnValidateInternal();
             Refresh();
         }
 
-        /// <summary>
-        /// ステートの変更処理
-        /// </summary>
-        /// <param name="prev">変更前のステート</param>
-        /// <param name="current">変更後のステート</param>
-        /// <param name="immediate">即時遷移するか</param>
+        /// <inheritdoc/>
         protected sealed override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
             if (current != null) {
                 _targetValue = current.materialValue;

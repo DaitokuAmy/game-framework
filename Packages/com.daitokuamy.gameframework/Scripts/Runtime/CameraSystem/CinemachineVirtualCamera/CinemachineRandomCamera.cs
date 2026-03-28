@@ -68,9 +68,7 @@ namespace GameFramework.CameraSystem {
         /// <summary>現在再生中の子カメラ</summary>
         public ICinemachineCamera LiveChild { get; set; }
 
-        /// <summary>
-        /// アクティブ時の処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnEnable() {
             base.OnEnable();
             LiveChild = null;
@@ -92,9 +90,7 @@ namespace GameFramework.CameraSystem {
             return vcam == LiveChild;
         }
 
-        /// <summary>
-        /// ターゲットオブジェクトのワープ検知
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnTargetObjectWarped(Transform target, Vector3 positionDelta) {
             foreach (var info in m_CameraInfos) {
                 var vcam = info.m_VirtualCamera;
@@ -108,9 +104,7 @@ namespace GameFramework.CameraSystem {
             base.OnTargetObjectWarped(target, positionDelta);
         }
 
-        /// <summary>
-        /// 強制Transform更新
-        /// </summary>
+        /// <inheritdoc/>
         public override void ForceCameraPosition(Vector3 pos, Quaternion rot) {
             foreach (var info in m_CameraInfos) {
                 var vcam = info.m_VirtualCamera;
@@ -124,9 +118,7 @@ namespace GameFramework.CameraSystem {
             base.ForceCameraPosition(pos, rot);
         }
 
-        /// <summary>
-        /// カメラがアクティブになる際の通知
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnTransitionFromCamera(
             ICinemachineCamera fromCam, Vector3 worldUp, float deltaTime) {
             base.OnTransitionFromCamera(fromCam, worldUp, deltaTime);
@@ -140,9 +132,7 @@ namespace GameFramework.CameraSystem {
             InternalUpdateCameraState(worldUp, deltaTime);
         }
 
-        /// <summary>
-        /// カメラステートの更新処理
-        /// </summary>
+        /// <inheritdoc/>
         public override void InternalUpdateCameraState(Vector3 worldUp, float deltaTime) {
             // 子カメラの情報をCameraStateに反映
             if (LiveChild != null) {

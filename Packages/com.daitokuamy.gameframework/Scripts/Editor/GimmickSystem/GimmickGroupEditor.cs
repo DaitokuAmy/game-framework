@@ -19,9 +19,7 @@ namespace GameFramework.GimmickSystem.Editor {
         // 出力先のPrefab
         private GameObject _exportPrefab;
 
-        /// <summary>
-        /// インスペクタ描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             serializedObject.Update();
 

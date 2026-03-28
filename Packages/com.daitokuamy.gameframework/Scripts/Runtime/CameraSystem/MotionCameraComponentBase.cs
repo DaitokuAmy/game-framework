@@ -42,9 +42,7 @@ namespace GameFramework.CameraSystem {
             SetupPlayable(animationClip);
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             // Graphの構築
             _graph = PlayableGraph.Create($"[{nameof(LookAtMotionCameraComponent)}]");
@@ -52,9 +50,7 @@ namespace GameFramework.CameraSystem {
             _output = AnimationPlayableOutput.Create(_graph, "output", _animator);
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             if (_playable.IsValid()) {
                 _playable.Destroy();
@@ -65,9 +61,7 @@ namespace GameFramework.CameraSystem {
             }
         }
 
-        /// <summary>
-        /// カメラ更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             UpdateGraph(deltaTime);
             ApplyRootTransform();

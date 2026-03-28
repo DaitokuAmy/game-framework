@@ -11,11 +11,7 @@ namespace GameFramework.UISystem {
         [SerializeField, Tooltip("TouchUp時のAnchoredPosition値")]
         private Vector2 _upAnchoredPosition = new(0, 0);
 
-        /// <summary>
-        /// アニメーションの適用
-        /// </summary>
-        /// <param name="isDown">TouchDown中か</param>
-        /// <param name="ratio">補間割合</param>
+        /// <inheritdoc/>
         protected override void ApplyAnimation(bool isDown, float ratio) {
             var targetPos = isDown ? _downAnchoredPosition : _upAnchoredPosition;
             var currentPos = Target.anchoredPosition;

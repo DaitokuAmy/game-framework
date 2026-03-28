@@ -13,9 +13,7 @@ namespace GameFramework.CameraSystem.Editor {
         private SerializedProperty _followTargetNameProp;
         private SerializedProperty _lookAtTargetNameProp;
 
-        /// <summary>
-        /// インスペクタ描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnInspectorGUI() {
             // 専用TargetGUI描画（失敗したら通常）
             if (!DrawTargetGUI()) {

@@ -1,4 +1,4 @@
-﻿using GameFramework.GimmickSystem;
+using GameFramework.GimmickSystem;
 
 namespace GameFramework.ActorSystem {
     /// <summary>
@@ -33,9 +33,7 @@ namespace GameFramework.ActorSystem {
             return _gimmickPlayer.GetGimmicks<T>(key);
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             _gimmickPlayer = new GimmickPlayer();
             var meshController = Body.GetBodyComponent<MeshComponent>();
@@ -45,16 +43,12 @@ namespace GameFramework.ActorSystem {
             SetSpeed(Body.LayeredTime.TimeScale);
         }
 
-        /// <summary>
-        /// ギミックの更新
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             _gimmickPlayer.Update(deltaTime);
         }
 
-        /// <summary>
-        /// ギミックの更新
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal(float deltaTime) {
             _gimmickPlayer.LateUpdate(deltaTime);
         }

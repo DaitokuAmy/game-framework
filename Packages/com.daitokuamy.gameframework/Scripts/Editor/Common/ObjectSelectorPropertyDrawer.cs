@@ -7,9 +7,7 @@ namespace GameFramework.Editor {
     /// </summary>
     [CustomPropertyDrawer(typeof(ObjectSelectorAttribute))]
     public sealed class ObjectSelectorPropertyDrawerPropertyDrawer : PropertyDrawer {
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             if (property.propertyType != SerializedPropertyType.ObjectReference) {
                 EditorGUI.PropertyField(position, property, label);

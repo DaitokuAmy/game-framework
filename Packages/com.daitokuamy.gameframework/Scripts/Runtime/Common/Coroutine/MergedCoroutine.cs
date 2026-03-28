@@ -9,9 +9,9 @@ namespace GameFramework {
     public class MergedCoroutine : IEnumerator {
         private readonly Coroutine[] _coroutines;
 
-        // 現在の位置(未使用)
+        /// <summary>現在の位置(未使用)</summary>
         public object Current => null;
-        // 完了しているか
+        /// <summary>完了しているか</summary>
         public bool IsDone { get; private set; }
 
         /// <summary>

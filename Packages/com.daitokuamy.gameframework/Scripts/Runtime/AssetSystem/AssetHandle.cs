@@ -8,7 +8,7 @@ namespace GameFramework.AssetSystem {
     /// </summary>
     public struct AssetHandle<T> : IProcess<T>
         where T : Object {
-        // 無効なAssetHandle
+        /// <summary>無効なAssetHandle</summary>
         public static readonly AssetHandle<T> Empty = new AssetHandle<T>();
         // IEnumerator用
         object IEnumerator.Current => null;
@@ -16,13 +16,13 @@ namespace GameFramework.AssetSystem {
         // 読み込みリクエスト情報
         private IAssetInfo<T> _info;
 
-        // 読み込み完了しているか
+        /// <summary>読み込み完了しているか</summary>
         public bool IsDone => _info == null || _info.IsDone;
-        // 読み込んだアセット
+        /// <summary>読み込んだアセット</summary>
         public T Asset => _info?.Asset;
-        // エラー
+        /// <summary>エラー</summary>
         public Exception Exception => _info?.Exception;
-        // 有効なハンドルか
+        /// <summary>有効なハンドルか</summary>
         public bool IsValid => _info != null;
         // 結果
         T IProcess<T>.Result => Asset;

@@ -1,4 +1,4 @@
-﻿#if USE_ANIMATION_RIGGING
+#if USE_ANIMATION_RIGGING
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,10 +16,10 @@ namespace GameFramework.ActorSystem {
         // RigのRebuildリクエスト
         private bool _rigDirty;
 
-        // リグ名一覧
+        /// <summary>リグ名一覧</summary>
         public string[] RigNames => _rigParts.Keys.ToArray();
 
-        // 実行優先度
+        /// <summary>実行優先度</summary>
         public override int ExecutionOrder => 16;
 
         /// <summary>
@@ -82,9 +82,7 @@ namespace GameFramework.ActorSystem {
             return (TData)constraint.data;
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal(IScope scope) {
             _rigBuilder = Body.GetComponent<RigBuilder>();
             
@@ -95,9 +93,7 @@ namespace GameFramework.ActorSystem {
             _rigDirty = true;
         }
 
-        /// <summary>
-        /// 更新時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             if (_rigDirty) {
                 _rigDirty = false;

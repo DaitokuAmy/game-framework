@@ -74,9 +74,7 @@ namespace GameFramework {
             _globalShortcutNodes.Clear();
         }
 
-        /// <summary>
-        /// モニタリング用の詳細情報取得
-        /// </summary>
+        /// <inheritdoc/>
         void IMonitoredStateRouter.GetDetails(List<(string label, string text)> lines) {
             void AddNodeLine(StateTreeNode<TKey> node, StringBuilder indent, string label = "") {
                 var key = node.Key != null ? node.Key.ToString() : "Root";

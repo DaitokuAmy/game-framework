@@ -7,9 +7,7 @@ namespace GameFramework.Editor {
     /// </summary>
     [CustomPropertyDrawer(typeof(ComponentSelectorAttribute))]
     public sealed class ComponentSelectorPropertyDrawer : PropertyDrawer {
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var leftRect = position;
             var rightRect = position;

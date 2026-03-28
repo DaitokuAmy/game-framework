@@ -7,9 +7,7 @@ namespace GameFramework.Editor {
     /// </summary>
     [CustomPropertyDrawer(typeof(InterfaceReferenceBase), true)]
     public sealed class InterfaceReferencePropertyDrawer : PropertyDrawer {
-        /// <summary>
-        /// GUI描画
-        /// </summary>
+        /// <inheritdoc/>
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label) {
             var targetProp = property.FindPropertyRelative("_target");
 

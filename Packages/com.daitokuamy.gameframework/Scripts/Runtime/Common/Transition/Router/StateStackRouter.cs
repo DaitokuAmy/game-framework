@@ -58,9 +58,7 @@ namespace GameFramework {
             _stack.Clear();
         }
 
-        /// <summary>
-        /// モニタリング用の詳細情報取得
-        /// </summary>
+        /// <inheritdoc/>
         void IMonitoredStateRouter.GetDetails(List<(string label, string text)> lines) {
             // Stack情報の返却
             for (var i = 0; i < _stack.Count; i++) {

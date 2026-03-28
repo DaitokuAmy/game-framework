@@ -135,9 +135,7 @@ namespace GameFramework.ActorSystem {
             RefreshComponents();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             if (_disposed) {
                 return;
@@ -156,9 +154,7 @@ namespace GameFramework.ActorSystem {
             GameObject = null;
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal() {
             base.UpdateInternal();
 
@@ -171,9 +167,7 @@ namespace GameFramework.ActorSystem {
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal() {
             base.LateUpdateInternal();
 

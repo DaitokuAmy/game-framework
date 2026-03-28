@@ -19,29 +19,23 @@ namespace GameFramework.GimmickSystem {
         // 再生中か
         private bool _playing;
 
-        // トータル時間
+        /// <summary>トータル時間</summary>
         public abstract float Duration { get; }
 
-        /// <summary>
-        /// 実行処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void InvokeInternal() {
             _playing = true;
             _time = 0.0f;
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void UpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.Update) {
                 UpdateAnimation(deltaTime);
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected sealed override void LateUpdateInternal(float deltaTime) {
             if (_updateMode == UpdateMode.LateUpdate) {
                 UpdateAnimation(deltaTime);

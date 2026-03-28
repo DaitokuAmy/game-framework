@@ -19,9 +19,7 @@ namespace GameFramework.GimmickSystem {
 
         private GameObject[] _allTargets;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
 
@@ -40,12 +38,7 @@ namespace GameFramework.GimmickSystem {
             _allTargets = allTargets.ToArray();
         }
 
-        /// <summary>
-        /// ステートの変更処理
-        /// </summary>
-        /// <param name="prev">変更前のステート</param>
-        /// <param name="current">変更後のステート</param>
-        /// <param name="immediate">即時遷移するか</param>
+        /// <inheritdoc/>
         protected override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
             foreach (var target in _allTargets) {
                 target.SetActive(current != null && current.activeTargets.Contains(target));

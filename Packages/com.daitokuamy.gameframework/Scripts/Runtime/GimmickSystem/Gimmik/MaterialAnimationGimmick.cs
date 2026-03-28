@@ -26,38 +26,30 @@ namespace GameFramework.GimmickSystem {
         // プロパティのID
         private int _propertyId;
 
-        // トータル時間
+        /// <summary>トータル時間</summary>
         public override float Duration => _duration;
-        // ループ再生するか
+        /// <summary>ループ再生するか</summary>
         public override bool IsLooping => _looping;
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             base.InitializeInternal();
             Refresh();
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             DestroyMaterialInstances();
             base.DisposeInternal();
         }
 
-        /// <summary>
-        /// 再生状態の反映
-        /// </summary>
+        /// <inheritdoc/>
         protected override void Evaluate(float time) {
             var ratio = Duration > float.Epsilon ? Mathf.Clamp01(time / Duration) : 1.0f;
             SetValue(_materialHandle, Shader.PropertyToID(_propertyName), ratio);
         }
 
-        /// <summary>
-        /// Validate処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void OnValidateInternal() {
             base.OnValidateInternal();
             Refresh();

@@ -6,14 +6,14 @@ namespace GameFramework.AttachmentSystem {
     /// </summary>
     [ExecuteAlways]
     public abstract class RuntimeAttachment : IAttachment {
-        // 制御対象
+        /// <summary>制御対象</summary>
         public Transform Owner => Resolver.Owner;
 
-        // ターゲットリスト
+        /// <summary>ターゲットリスト</summary>
         public AttachmentResolver.TargetSource[] Sources {
             set => Resolver.Sources = value;
         }
-        // Transform制御用インスタンス
+        /// <summary>Transform制御用インスタンス</summary>
         protected abstract AttachmentResolver Resolver { get; }
 
         /// <summary>

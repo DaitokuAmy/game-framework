@@ -41,9 +41,7 @@ namespace GameFramework.PerformanceSystem {
             _memoryMonitor = monitor;
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             if (_coroutine != null) {
                 _coroutineRunner.StopCoroutine(_coroutine);
@@ -78,9 +76,7 @@ namespace GameFramework.PerformanceSystem {
             }
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal() {
             // Monitorチェック
             if (_memoryMonitor != null) {

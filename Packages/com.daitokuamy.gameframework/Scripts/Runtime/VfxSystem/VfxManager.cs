@@ -100,16 +100,12 @@ namespace GameFramework.VfxSystem {
                 _playingInfo = null;
             }
 
-            /// <summary>
-            /// 継続実行するか
-            /// </summary>
+            /// <inheritdoc/>
             bool IEnumerator.MoveNext() {
                 return IsPlaying;
             }
 
-            /// <summary>
-            /// 未使用
-            /// </summary>
+            /// <inheritdoc/>
             void IEnumerator.Reset() {
             }
 
@@ -551,9 +547,7 @@ namespace GameFramework.VfxSystem {
             });
         }
 
-        /// <summary>
-        /// 廃棄時処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void DisposeInternal() {
             Clear();
 
@@ -563,9 +557,7 @@ namespace GameFramework.VfxSystem {
             }
         }
 
-        /// <summary>
-        /// 後更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void LateUpdateInternal() {
             // 再生中情報の更新
             for (var i = _playingInfos.Count - 1; i >= 0; i--) {

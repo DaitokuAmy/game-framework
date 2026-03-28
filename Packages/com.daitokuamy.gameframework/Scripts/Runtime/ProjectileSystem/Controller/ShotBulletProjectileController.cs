@@ -36,10 +36,10 @@ namespace GameFramework.ProjectileSystem {
         private float _distance;
         private Quaternion _rollRotation;
 
-        // 座標
+        /// <summary>座標</summary>
         public Vector3 Position { get; private set; }
 
-        // 姿勢
+        /// <summary>姿勢</summary>
         public Quaternion Rotation { get; private set; }
 
         /// <summary>
@@ -75,9 +75,7 @@ namespace GameFramework.ProjectileSystem {
             : this(startPoint, startRotation, settings.startSpeed, settings.acceleration, settings.gravity, settings.maxDistance, settings.roll) {
         }
 
-        /// <summary>
-        /// 飛翔開始
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Start() {
             _rollRotation = Quaternion.Euler(0.0f, 0.0f, _roll);
             Position = _startPoint;
@@ -87,10 +85,7 @@ namespace GameFramework.ProjectileSystem {
             _stopped = false;
         }
 
-        /// <summary>
-        /// 更新処理
-        /// </summary>
-        /// <param name="deltaTime">変位時間</param>
+        /// <inheritdoc/>
         bool IProjectileController.Tick(float deltaTime) {
             if (_stopped) {
                 return false;
@@ -122,9 +117,7 @@ namespace GameFramework.ProjectileSystem {
             return _distance < _maxDistance;
         }
 
-        /// <summary>
-        /// 飛翔終了
-        /// </summary>
+        /// <inheritdoc/>
         void IProjectileController.Stop(Vector3? stopPosition) {
             if (stopPosition != null) {
                 Position = stopPosition.Value;

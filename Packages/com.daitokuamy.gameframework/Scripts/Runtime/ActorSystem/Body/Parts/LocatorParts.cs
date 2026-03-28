@@ -21,7 +21,7 @@ namespace GameFramework.ActorSystem {
         // ロケーター情報
         private Dictionary<string, Transform> _locators;
 
-        // Locatorキー一覧
+        /// <summary>Locatorキー一覧</summary>
         public string[] Keys {
             get {
                 Initialize();
@@ -30,7 +30,7 @@ namespace GameFramework.ActorSystem {
             }
         }
 
-        // ロケーター情報のアクセサ
+        /// <summary>ロケーター情報のアクセサ</summary>
         public Transform this[string key] {
             get {
                 Initialize();

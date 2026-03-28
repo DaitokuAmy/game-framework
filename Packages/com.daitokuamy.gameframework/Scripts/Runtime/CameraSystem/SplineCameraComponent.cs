@@ -52,9 +52,7 @@ namespace GameFramework.CameraSystem {
             ApplyCameraTransform();
         }
 
-        /// <summary>
-        /// 初期化処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void InitializeInternal() {
             // Body制御用のStageを持ったコンポーネントを削除
             var bodyStageComponent = VirtualCamera.GetCinemachineComponent(CinemachineCore.Stage.Body);
@@ -63,9 +61,7 @@ namespace GameFramework.CameraSystem {
             }
         }
 
-        /// <summary>
-        /// カメラ更新処理
-        /// </summary>
+        /// <inheritdoc/>
         protected override void UpdateInternal(float deltaTime) {
             var dt = _layeredTime?.DeltaTime ?? deltaTime;
             _currentTime += dt;
