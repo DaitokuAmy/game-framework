@@ -59,7 +59,7 @@ namespace GameFramework.NavigationSystem {
         void INavNode.Setup(int nodeId, INavNode parent, IObjectResolver parentObjectResolver) {
 #else
         /// <inheritdoc/>
-        void INavNode.SetParent(int nodeId, INavNode parent) {
+        void INavNode.Setup(int nodeId, INavNode parent) {
 #endif
             _nodeId = nodeId;
             
@@ -88,7 +88,9 @@ namespace GameFramework.NavigationSystem {
         void INavNode.Standby(NavigationEngine engine) {
             _standbyScope = new DisposableScope();
             Engine = engine;
+#if USE_VCONTAINER
             ObjectResolver.Inject(this);
+#endif
             Standby(_standbyScope);
         }
 
@@ -139,8 +141,10 @@ namespace GameFramework.NavigationSystem {
         /// <inheritdoc/>
         void INavNode.Release() {
             Release();
+#if USE_VCONTAINER
             ObjectResolver?.Dispose();
             ObjectResolver = null;
+#endif
             Engine = null;
             _standbyScope?.Dispose();
             _standbyScope = null;

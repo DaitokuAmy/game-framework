@@ -52,7 +52,7 @@ namespace GameFramework.NavigationSystem {
         /// </summary>
         /// <param name="nodeId">登録された識別Id</param>
         /// <param name="parent">親要素にあたるNode</param>
-        void SetParent(int nodeId, INavNode parent);
+        void Setup(int nodeId, INavNode parent);
 #endif
 
         /// <summary>

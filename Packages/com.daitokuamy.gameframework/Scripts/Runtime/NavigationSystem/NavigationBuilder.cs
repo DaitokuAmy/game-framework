@@ -107,10 +107,26 @@ namespace GameFramework.NavigationSystem {
                 throw new InvalidOperationException($"Node id <{_nodeId}:{_sessionNode.GetType()}> is already registered.");
             }
 
+#if USE_VCONTAINER
             _sessionNode.Setup(_nodeId, parentNode, parentNode.ObjectResolver);
+#else
+            _sessionNode.Setup(_nodeId, parentNode);
+#endif
             foreach (var child in _childBuilders) {
                 child.Build(_sessionNode, nodeMap);
             }
+        }
+
+        /// <summary>
+        /// SessionNodeの追加
+        /// </summary>
+        /// <param name="nodeId">登録するNode識別用Id</param>
+        /// <param name="buildAction">子要素を追加するためのアクション</param>
+        public SessionNodeBuilder AddSession<TNode>(int nodeId, Action<SessionNodeBuilder> buildAction = null)
+            where TNode : ISessionNode, new() {
+            var child = new SessionNodeBuilder(nodeId, new TNode(), buildAction);
+            _childBuilders.Add(child);
+            return this;
         }
 
         /// <summary>
@@ -152,7 +168,12 @@ namespace GameFramework.NavigationSystem {
                 throw new InvalidOperationException($"Node id <{_nodeId}:{_screenNode.GetType()}> is already registered.");
             }
 
+#if USE_VCONTAINER
             _screenNode.Setup(_nodeId, parentNode, parentNode.ObjectResolver);
+#else
+            _screenNode.Setup(_nodeId, parentNode);
+
+#endif
             foreach (var child in _childBuilders) {
                 child.Build(_screenNode, nodeMap);
             }
@@ -176,7 +197,7 @@ namespace GameFramework.NavigationSystem {
     /// </summary>
     public sealed class NavigationEngineBuilder {
         private readonly Dictionary<int, INavNode> _nodeMap = new();
-        
+
         private RootNodeBuilder _rootNodeBuilder;
         private Func<NavNodeTree, INavNodeStateRouter> _createRouterFunc;
 
