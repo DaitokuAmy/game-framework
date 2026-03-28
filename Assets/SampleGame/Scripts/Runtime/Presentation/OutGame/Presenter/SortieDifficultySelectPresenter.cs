@@ -22,6 +22,12 @@ namespace SampleGame.Presentation.OutGame {
                             break;
                     }
                 });
+
+            Screen.ClickedCloseButtonSubject
+                .TakeUntil(scope)
+                .Subscribe(_ => {
+                    _appNavigator.Back();
+                });
         }
     }
 }

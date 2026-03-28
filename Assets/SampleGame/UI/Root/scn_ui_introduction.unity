@@ -132,17 +132,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 8708353823729116492, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
-      propertyPath: m_AdditionalShaderChannelsFlag
-      value: 25
-      objectReference: {fileID: 0}
     - target: {fileID: 8708353823729116496, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
       propertyPath: m_Name
       value: pfb_ui_canvas_default
-      objectReference: {fileID: 0}
-    - target: {fileID: 8708353823729116496, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8708353823729116499, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
       propertyPath: m_Pivot.x
@@ -150,10 +142,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8708353823729116499, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
       propertyPath: m_Pivot.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8708353823729116499, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
-      propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8708353823729116499, guid: 67cc8103e71c012458ff1c9c40cdd1ef, type: 3}
@@ -249,6 +237,38 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1988215630}
     m_Modifications:
+    - target: {fileID: 1695592609059583555, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695592609059583555, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695592609059583555, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1695592609059583555, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1720157878408935563, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1720157878408935563, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1720157878408935563, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1720157878408935563, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6991263394736825539, guid: 2ccdc37d044540c4b833dc0cdb67f22b, type: 3}
       propertyPath: m_Name
       value: pfb_ui_introduction_service

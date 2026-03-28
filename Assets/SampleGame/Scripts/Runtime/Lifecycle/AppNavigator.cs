@@ -61,39 +61,15 @@ namespace SampleGame.Lifecycle {
             _engine = NavigationEngineBuilder.Create()
                 .CreateLifecycle<RootNode>(Id.Root, root => {
                     root
-                        .AddSession<IntroductionSessionNode>(Id.Introduction, introduction => {
-                            introduction.AddScreen<TitleTopScreenNode>(Id.TitleTop)
-                                .AddScreen<TitleOptionScreenNode>(Id.TitleOption);
-                        })
-                        .AddSession<OutGameSessionNode>(Id.OutGame, outGame => {
-                            outGame.AddScreen<SortieScreenNode>(Id.Sortie, sortie => {
-                                sortie.AddScreen<SortieTopScreenNode>(Id.SortieTop)
-                                    .AddScreen<SortieRoleSelectScreenNode>(Id.SortieRoleSelectTop, sortieRoleSelect => {
-                                        sortieRoleSelect.AddScreen<SortieRoleInformationScreenNode>(Id.SortieRoleInformation);
-                                    })
-                                    .AddScreen<SortieMissionSelectScreenNode>(Id.SortieMissionSelect, sortieMissionSelect => {
-                                        sortieMissionSelect.AddScreen<SortieDifficultySelectScreenNode>(Id.SortieDifficultySelect);
-                                    });
-                            });
+                        .AddSession<IntroductionSessionNode>(Id.Introduction, SetupIntroductionLifecycle)
+                        .AddSession<GameSessionNode>(Id.Game, game => {
+                            game.AddSession<OutGameSessionNode>(Id.OutGame, SetupOutGameLifecycle);
+                                //.AddSession<BattleSessionNode>(Id.Battle, SetupBattleLifecycle);
                         });
                 })
                 .CreateRouter(container => {
                     return NavNodeTreeRouterBuilder.Create()
-                        .AddRoot(Id.TitleTop, titleTop => {
-                            titleTop.Connect(Id.TitleOption)
-                                .Connect(Id.SortieTop, sortieTop => {
-                                    sortieTop.Connect(Id.SortieRoleSelectTop, sortieRoleSelect => {
-                                            sortieRoleSelect.Connect(Id.SortieRoleInformation);
-                                        })
-                                        .Connect(Id.SortieMissionSelect, sortieMissionSelect => {
-                                            sortieMissionSelect.Connect(Id.SortieDifficultySelect, sortieDifficultySelect => {
-                                                //sortieDifficultySelect.Connect(Id.BattleHud);
-                                            });
-                                        })
-                                        .SetGlobalShortcut();
-                                })
-                                .SetGlobalShortcut();
-                        })
+                        .AddRoot(Id.TitleTop, ConnectIntroductionTitleTopTreeNode)
                         .Build(container);
                 })
                 .Build(globalResolver)

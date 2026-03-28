@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using GameFramework.NavigationSystem;
 using SampleGame.Application;
 
 namespace SampleGame.Lifecycle {
@@ -34,6 +35,37 @@ namespace SampleGame.Lifecycle {
         async UniTask IAppNavigator.TransitionToSortieDifficultySelect() {
             var (transition, effects) = GetDefaultTransitionInfo<OutGameSessionNode>();
             await _engine.TransitionTo(Id.SortieDifficultySelect, transition, effects);
+        }
+
+        /// <summary>
+        /// OutGameのLifecycle構築
+        /// </summary>
+        private void SetupOutGameLifecycle(SessionNodeBuilder outGame) {
+            outGame.AddScreen<SortieScreenNode>(Id.Sortie, sortie => {
+                sortie.AddScreen<SortieTopScreenNode>(Id.SortieTop)
+                    .AddScreen<SortieRoleSelectScreenNode>(Id.SortieRoleSelectTop, sortieRoleSelect => {
+                        sortieRoleSelect.AddScreen<SortieRoleInformationScreenNode>(Id.SortieRoleInformation);
+                    })
+                    .AddScreen<SortieMissionSelectScreenNode>(Id.SortieMissionSelect, sortieMissionSelect => {
+                        sortieMissionSelect.AddScreen<SortieDifficultySelectScreenNode>(Id.SortieDifficultySelect);
+                    });
+            });
+        }
+
+        /// <summary>
+        /// OutGameの出撃Top画面以降の遷移ツリー
+        /// </summary>
+        /// <param name="sortieTop"></param>
+        private void ConnectOutGameSortieTopTreeNode(NavNodeTreeRouterNodeBuilder sortieTop) {
+            sortieTop.Connect(Id.SortieRoleSelectTop, sortieRoleSelect => {
+                    sortieRoleSelect.Connect(Id.SortieRoleInformation);
+                })
+                .Connect(Id.SortieMissionSelect, sortieMissionSelect => {
+                    sortieMissionSelect.Connect(Id.SortieDifficultySelect, sortieDifficultySelect => {
+                        //sortieDifficultySelect.Connect(Id.BattleHud);
+                    });
+                })
+                .SetGlobalShortcut();
         }
     }
 }

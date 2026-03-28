@@ -18,6 +18,7 @@ namespace SampleGame.Lifecycle {
             public const int Invalid = NavigationEngine.InvalidNodeId;
             
             public const int Root = 1;
+            public const int Game = 2;
             
             public const int Introduction = 100;
             public const int TitleTop = 101;

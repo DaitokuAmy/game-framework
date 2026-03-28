@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
-using GameFramework.ActorSystem;
-using GameFramework;
 using GameFramework.NavigationSystem;
 using GameFramework.UISystem;
 using SampleGame.Domain;

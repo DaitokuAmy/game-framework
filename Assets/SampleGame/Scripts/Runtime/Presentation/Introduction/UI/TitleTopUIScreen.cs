@@ -17,14 +17,6 @@ namespace SampleGame.Presentation.Introduction {
         [SerializeField, Tooltip("UITestボタン")]
         private ButtonUIView _uiTestButtonView;
 
-        [SerializeField]
-        private Transform _testIcon;
-        [SerializeField]
-        private Transform[] _points;
-        
-        public Transform TestIcon => _testIcon;
-        public Transform[] Points => _points;
-
         /// <summary>開始ボタン押下時通知</summary>
         public Observable<Unit> ClickedStartButtonSubject => _startButtonView.ClickedSubject;
         /// <summary>オプションボタン押下通知</summary>
