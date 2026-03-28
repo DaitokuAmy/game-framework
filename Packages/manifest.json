@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.cysharp.memorypack": "1.21.4",
     "com.cysharp.r3": "1.3.0",
     "com.cysharp.unitask": "2.5.10",
     "com.daitokuamy.actionsequencer": "https://github.com/DaitokuAmy/action-sequencer.git?path=/Packages/com.daitokuamy.actionsequencer",
@@ -7,6 +8,7 @@
     "com.daitokuamy.unitydebugmenu": "https://github.com/DaitokuAmy/unity-debug-menu.git?path=/Packages/com.daitokuamy.unitydebugmenu",
     "com.daitokuamy.unityrenametool": "https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Packages/com.daitokuamy.unityrenametool",
     "com.daitokuamy.unitytweenplayables": "https://github.com/DaitokuAmy/unity-tween-playables.git?path=/Packages/com.daitokuamy.unitytweenplayables",
+    "com.github-glitchenzo.nugetforunity": "4.5.0",
     "com.harumak.unitydebugsheet": "https://github.com/Haruma-K/UnityDebugSheet.git?path=/Assets/UnityDebugSheet",
     "com.needle.compilation-visualizer": "1.8.4",
     "com.unity.2d.sprite": "1.0.0",
@@ -89,7 +91,8 @@
         "com.needle.compilation-visualizer",
         "com.cysharp",
         "org.nuget",
-        "jp.hadashikick.vcontainer"
+        "jp.hadashikick.vcontainer",
+        "com.github-glitchenzo.nugetforunity"
       ]
     }
   ]

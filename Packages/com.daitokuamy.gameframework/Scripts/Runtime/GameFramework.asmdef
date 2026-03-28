@@ -21,7 +21,8 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "R3.dll"
+        "R3.dll",
+        "MemoryPack.Core.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],
@@ -65,6 +66,11 @@
             "name": "com.daitokuamy.actionsequencer",
             "expression": "",
             "define": "USE_ACTION_SEQUENCER"
+        },
+        {
+            "name": "com.cysharp.memorypack",
+            "expression": "",
+            "define": "USE_MEMORY_PACK"
         }
     ],
     "noEngineReferences": false

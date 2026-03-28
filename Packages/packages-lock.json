@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.cysharp.memorypack": {
+      "version": "1.21.4",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.cysharp.r3": {
       "version": "1.3.0",
       "depth": 0,
@@ -56,6 +63,13 @@
       "source": "git",
       "dependencies": {},
       "hash": "43d82cb520c60e4ef9fe67cbb38251fd2109c4eb"
+    },
+    "com.github-glitchenzo.nugetforunity": {
+      "version": "4.5.0",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
     },
     "com.harumak.unitydebugsheet": {
       "version": "https://github.com/Haruma-K/UnityDebugSheet.git?path=/Assets/UnityDebugSheet",

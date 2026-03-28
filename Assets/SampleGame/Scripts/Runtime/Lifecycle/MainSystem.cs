@@ -3,8 +3,6 @@ using System.Collections;
 using GameFramework;
 using GameFramework.AssetSystem;
 using GameFramework.BootSystem;
-using GameFramework;
-using GameFramework.EnvironmentSystem;
 using GameFramework.NavigationSystem;
 using GameFramework.UISystem;
 using SampleGame.Application;
@@ -50,12 +48,6 @@ namespace SampleGame.Lifecycle {
             _updateScheduler = new UpdateScheduler().RegisterTo(_globalScope);
             builder.RegisterInstance(_updateScheduler);
             UpdatableUtility.Initialize(_updateScheduler);
-
-            builder.Register(_ => {
-                var environmentManager = new EnvironmentManager(new EnvironmentResolver());
-                environmentManager.RegisterLateUpdatable(LateUpdateOrder.Vfx);
-                return environmentManager;
-            }, Lifetime.Singleton);
 
             builder.Register(_ => {
                 var assetManager = new AssetManager();
