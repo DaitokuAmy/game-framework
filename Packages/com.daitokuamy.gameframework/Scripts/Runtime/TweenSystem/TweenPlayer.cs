@@ -6,6 +6,12 @@ namespace GameFramework.TweenSystem {
     /// Tween再生を管理（MonoBehaviour不要/Tick駆動/Pool内蔵）
     /// </summary>
     public sealed class TweenPlayer : IDisposable {
+        private enum TerminalState {
+            None,
+            Completed,
+            Killed,
+        }
+
         /// <summary>
         /// 再生管理用エントリ
         /// </summary>
@@ -16,6 +22,10 @@ namespace GameFramework.TweenSystem {
             public bool Alive;
             /// <summary>対象Tween</summary>
             public Tween Tween;
+            /// <summary>最後に終了した世代</summary>
+            public int LastTerminalVersion;
+            /// <summary>最後の終了状態</summary>
+            public TerminalState LastTerminalState;
         }
 
         private readonly TweenPoolRegistry _registry = new();
@@ -84,6 +94,10 @@ namespace GameFramework.TweenSystem {
                 throw new InvalidOperationException("Tween is already active.");
             }
 
+            if (tween.HasSequenceOwnerInternal) {
+                throw new InvalidOperationException("Tween is already owned by a sequence.");
+            }
+
             tween.BeginInternal();
 
             var id = AllocateEntry(tween);
@@ -123,9 +137,8 @@ namespace GameFramework.TweenSystem {
                 }
 
                 if (tween.IsComplete) {
-                    _playingIds.RemoveAt(i);
-
                     if (tween.AutoKill) {
+                        _playingIds.RemoveAt(i);
                         CleanupEntry(id);
                     }
                 }
@@ -148,11 +161,16 @@ namespace GameFramework.TweenSystem {
         /// 指定Handleが完了しているかを判定
         /// </summary>
         public bool IsCompleted(int id, int version) {
-            if (!IsHandleValid(id, version)) {
-                return true;
+            if ((uint)id >= (uint)_entries.Count) {
+                return false;
             }
 
-            return _entries[id].Tween.IsComplete;
+            var entry = _entries[id];
+            if (entry.Alive && entry.Version == version && entry.Tween != null) {
+                return entry.Tween.IsComplete;
+            }
+
+            return entry.LastTerminalVersion == version && entry.LastTerminalState == TerminalState.Completed;
         }
 
         /// <summary>
@@ -164,6 +182,8 @@ namespace GameFramework.TweenSystem {
             }
 
             _entries[id].Tween.Kill();
+            RemovePlayingId(id);
+            CleanupEntry(id);
         }
 
         /// <summary>
@@ -174,7 +194,12 @@ namespace GameFramework.TweenSystem {
                 return;
             }
 
-            _entries[id].Tween.ForceComplete();
+            var tween = _entries[id].Tween;
+            tween.ForceComplete();
+            if (tween.IsKilled || (tween.IsComplete && tween.AutoKill)) {
+                RemovePlayingId(id);
+                CleanupEntry(id);
+            }
         }
 
         /// <summary>
@@ -209,9 +234,8 @@ namespace GameFramework.TweenSystem {
 
                 var tween = entry.Tween;
                 tween.ForceComplete();
-                _playingIds.RemoveAt(i);
-
                 if (tween.AutoKill || tween.IsKilled) {
+                    _playingIds.RemoveAt(i);
                     CleanupEntry(id);
                 }
             }
@@ -261,17 +285,36 @@ namespace GameFramework.TweenSystem {
         }
 
         /// <summary>
+        /// 再生中 ID 一覧から指定エントリを削除
+        /// </summary>
+        private void RemovePlayingId(int id) {
+            for (var i = _playingIds.Count - 1; i >= 0; i--) {
+                if (_playingIds[i] == id) {
+                    _playingIds.RemoveAt(i);
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
         /// 再生エントリを回収し、TweenをPoolに返却
         /// </summary>
         private void CleanupEntry(int id) {
-            var tween = _entries[id].Tween;
+            var entry = _entries[id];
+            if (!entry.Alive || entry.Tween == null) {
+                return;
+            }
+
+            var tween = entry.Tween;
+            entry.LastTerminalVersion = entry.Version;
+            entry.LastTerminalState = tween.IsComplete ? TerminalState.Completed :
+                tween.IsKilled ? TerminalState.Killed : TerminalState.None;
 
             ReturnTween(tween);
 
-            var e = _entries[id];
-            e.Alive = false;
-            e.Tween = null!;
-            _entries[id] = e;
+            entry.Alive = false;
+            entry.Tween = null!;
+            _entries[id] = entry;
 
             _freeIds.Push(id);
         }

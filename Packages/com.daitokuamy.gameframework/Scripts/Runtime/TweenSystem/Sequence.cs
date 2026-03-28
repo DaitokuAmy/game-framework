@@ -88,6 +88,10 @@ namespace GameFramework.TweenSystem {
 
         /// <inheritdoc/>
         protected override void OnReset() {
+            for (var i = 0; i < _itemsCount; i++) {
+                _items[i].Tween?.ClearSequenceOwnerInternal(this);
+            }
+
             _owner = null!;
             _time = 0.0f;
             _duration = 0.0f;
@@ -123,12 +127,14 @@ namespace GameFramework.TweenSystem {
         /// 直列に追加（末尾に積む）
         /// </summary>
         public Sequence Append(Tween tween) {
+            ValidateCanModify(tween);
             EnsureCapacity(_itemsCount + 1);
 
             var start = _cursor;
             var end = start + tween.Duration;
 
             _items[_itemsCount++] = new Item { Tween = tween, Start = start, End = end };
+            tween.SetSequenceOwnerInternal(this);
 
             _lastAppendStart = start;
             _groupEnd = Mathf.Max(_groupEnd, end);
@@ -143,12 +149,14 @@ namespace GameFramework.TweenSystem {
         /// 直前のAppend開始時刻に並列追加
         /// </summary>
         public Sequence Join(Tween tween) {
+            ValidateCanModify(tween);
             EnsureCapacity(_itemsCount + 1);
 
             var start = _lastAppendStart;
             var end = start + tween.Duration;
 
             _items[_itemsCount++] = new Item { Tween = tween, Start = start, End = end };
+            tween.SetSequenceOwnerInternal(this);
 
             _groupEnd = Mathf.Max(_groupEnd, end);
 
@@ -162,12 +170,14 @@ namespace GameFramework.TweenSystem {
         /// 指定時刻に挿入（任意時刻開始）
         /// </summary>
         public Sequence Insert(float at, Tween tween) {
+            ValidateCanModify(tween);
             EnsureCapacity(_itemsCount + 1);
 
             var start = Mathf.Max(0.0f, at);
             var end = start + tween.Duration;
 
             _items[_itemsCount++] = new Item { Tween = tween, Start = start, End = end };
+            tween.SetSequenceOwnerInternal(this);
 
             _duration = Mathf.Max(_duration, end);
 
@@ -178,6 +188,7 @@ namespace GameFramework.TweenSystem {
         /// インターバル（Delay）をAppend
         /// </summary>
         public Sequence AppendInterval(float seconds) {
+            ValidateCanModify();
             var delay = _owner.CreateTweener<DelayTweener>();
             delay.Setup(seconds);
             return Append(delay);
@@ -223,6 +234,38 @@ namespace GameFramework.TweenSystem {
 
             _items = newArr;
             _itemsCapacity = newCapacity;
+        }
+
+        /// <summary>
+        /// 再生開始後に Sequence を変更しないことを検証
+        /// </summary>
+        private void ValidateCanModify() {
+            if (!IsIdleInternal) {
+                throw new InvalidOperationException("Cannot modify a sequence after playback has started.");
+            }
+        }
+
+        /// <summary>
+        /// 追加対象の Tween が Sequence に組み込める状態かを検証
+        /// </summary>
+        private void ValidateCanModify(Tween tween) {
+            if (tween == null) {
+                throw new ArgumentNullException(nameof(tween));
+            }
+
+            ValidateCanModify();
+
+            if (ReferenceEquals(tween, this)) {
+                throw new InvalidOperationException("A sequence cannot contain itself.");
+            }
+
+            if (!tween.IsIdleInternal) {
+                throw new InvalidOperationException("Tween must be idle before adding to a sequence.");
+            }
+
+            if (tween.HasSequenceOwnerInternal) {
+                throw new InvalidOperationException("Tween is already owned by a sequence.");
+            }
         }
     }
 }

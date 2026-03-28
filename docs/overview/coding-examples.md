@@ -65,7 +65,7 @@ namespace Project.Sample {
             s_globalCounter = 0;
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         void ISampleUseCase.Execute() {
             OnValueChanged();
         }
@@ -77,7 +77,7 @@ namespace Project.Sample {
             ApplyValue();
         }
 
-        /// <inheritdoc />
+        /// <inheritdoc/>
         public override string ToString() {
             return _currentValue.ToString();
         }

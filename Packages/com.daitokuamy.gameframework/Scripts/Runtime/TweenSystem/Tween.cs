@@ -28,8 +28,12 @@ namespace GameFramework.TweenSystem {
         private TweenState _state = TweenState.Idle;
         private Action _complateAction;
         private Action _killAction;
+        private Sequence _sequenceOwner;
 
+        /// <summary>Sequence へ追加可能な初期状態かどうか</summary>
         internal bool IsIdleInternal => _state == TweenState.Idle;
+        /// <summary>Sequence に所有されているかどうか</summary>
+        internal bool HasSequenceOwnerInternal => _sequenceOwner != null;
         
         /// <summary>完了済みかどうか</summary>
         public bool IsComplete => _state == TweenState.Completed;
@@ -180,7 +184,24 @@ namespace GameFramework.TweenSystem {
             AutoKill = true;
             _complateAction = null;
             _killAction = null;
+            _sequenceOwner = null;
             OnReset();
+        }
+
+        /// <summary>
+        /// Sequence 所有者を設定
+        /// </summary>
+        internal void SetSequenceOwnerInternal(Sequence owner) {
+            _sequenceOwner = owner;
+        }
+
+        /// <summary>
+        /// 指定した Sequence が所有者の場合のみ関連付けを解除
+        /// </summary>
+        internal void ClearSequenceOwnerInternal(Sequence owner) {
+            if (_sequenceOwner == owner) {
+                _sequenceOwner = null;
+            }
         }
 
         /// <summary>

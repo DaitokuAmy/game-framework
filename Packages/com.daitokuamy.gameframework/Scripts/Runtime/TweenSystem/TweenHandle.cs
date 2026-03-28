@@ -11,7 +11,7 @@ namespace GameFramework.TweenSystem {
         public bool IsValid => _owner != null && _owner.IsHandleValid(_id, _version);
 
         /// <summary>完了済みかどうか</summary>
-        public bool IsCompleted => !IsValid || _owner.IsCompleted(_id, _version);
+        public bool IsCompleted => _owner != null && _owner.IsCompleted(_id, _version);
 
         /// <summary>
         /// コンストラクタ（Playerからのみ生成）

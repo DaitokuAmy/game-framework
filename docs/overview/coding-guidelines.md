@@ -28,7 +28,7 @@
 - コメント方針（`summary` / `param` / `inheritdoc`）は `docs/overview/coding-examples.md` に準拠する。
 - XML コメントは言い切りで記述し、`です` / `ます` を使用しない。
 - XML コメントの末尾に `。` を付けない。
-- `summary` は公開 API や意図が読み取りにくい要素に付与する。
+- `summary` は、`class` / `struct` / `interface` / `enum` / `delegate` などの型定義、コンストラクタ、プロパティ、`event`、メソッド、定数、公開フィールドに原則として付与する。
 - interface 実装などで重複説明になる場合は `inheritdoc` を優先する。
 - メンバーフィールドに行コメントを書く場合は、フィールドの直前に `// コメント` の形式で記述する。
 - `private` メンバーフィールドは、基本的にコメントを付けない。
