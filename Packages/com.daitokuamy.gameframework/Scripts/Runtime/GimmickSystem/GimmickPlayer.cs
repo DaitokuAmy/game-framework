@@ -10,7 +10,7 @@ namespace GameFramework.GimmickSystem {
         // キャッシュ用のGimmick情報
         private readonly Dictionary<string, List<IGimmick>> _gimmicks = new();
         // 型ごとのGimmick取得キャッシュ
-        private readonly Dictionary<string, Dictionary<Type, Array>> _typedGimmicks = new();
+        private readonly Dictionary<string, Dictionary<Type, object>> _typedGimmicks = new();
 
         /// <summary>
         /// ギミックのキー一覧を取得
@@ -35,24 +35,24 @@ namespace GameFramework.GimmickSystem {
         /// </summary>
         /// <param name="key">取得用のキー</param>
         /// <typeparam name="T">ギミックの型</typeparam>
-        public T[] GetGimmicks<T>(string key)
+        public IReadOnlyList<T> GetGimmicks<T>(string key)
             where T : Gimmick {
             if (!_gimmicks.TryGetValue(key, out var list)) {
                 return Array.Empty<T>();
             }
 
             if (!_typedGimmicks.TryGetValue(key, out var typeDict)) {
-                typeDict = new Dictionary<Type, Array>();
+                typeDict = new Dictionary<Type, object>();
                 _typedGimmicks[key] = typeDict;
             }
 
             var type = typeof(T);
             if (!typeDict.TryGetValue(type, out var cached)) {
-                cached = list.OfType<T>().ToArray();
+                cached = Array.AsReadOnly(list.OfType<T>().ToArray());
                 typeDict[type] = cached;
             }
 
-            return (T[])cached;
+            return (IReadOnlyList<T>)cached;
         }
 
         /// <summary>

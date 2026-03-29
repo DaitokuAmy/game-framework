@@ -1,4 +1,5 @@
 using GameFramework.GimmickSystem;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SampleGameEngine {
@@ -19,7 +20,7 @@ namespace SampleGameEngine {
         /// <summary>
         /// ギミック実行時処理
         /// </summary>
-        protected override void OnInvokeInternal(BodyStateGimmickSingleEvent sequenceEvent, StateGimmick[] gimmicks) {
+        protected override void OnInvokeInternal(BodyStateGimmickSingleEvent sequenceEvent, IReadOnlyList<StateGimmick> gimmicks) {
             gimmicks.Change(sequenceEvent.stateName, sequenceEvent.immediate);
         }
     }

@@ -1,4 +1,5 @@
 using GameFramework.GimmickSystem;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SampleGameEngine {
@@ -23,14 +24,14 @@ namespace SampleGameEngine {
         /// <summary>
         /// 入り処理
         /// </summary>
-        protected override void OnEnterInternal(BodyStateGimmickRangeEvent sequenceEvent, StateGimmick[] gimmicks) {
+        protected override void OnEnterInternal(BodyStateGimmickRangeEvent sequenceEvent, IReadOnlyList<StateGimmick> gimmicks) {
             gimmicks.Change(sequenceEvent.enterStateName, sequenceEvent.enterImmediate);
         }
         
         /// <summary>
         /// 抜け処理
         /// </summary>
-        protected override void OnExitInternal(BodyStateGimmickRangeEvent sequenceEvent, StateGimmick[] gimmicks) {
+        protected override void OnExitInternal(BodyStateGimmickRangeEvent sequenceEvent, IReadOnlyList<StateGimmick> gimmicks) {
             gimmicks.Change(sequenceEvent.exitStateName, sequenceEvent.exitImmediate);
         }
     }

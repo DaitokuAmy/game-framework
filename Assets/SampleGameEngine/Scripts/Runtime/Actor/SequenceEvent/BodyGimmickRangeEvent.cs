@@ -1,4 +1,5 @@
 using ActionSequencer;
+using System.Collections.Generic;
 using GameFramework.GimmickSystem;
 using GameFramework.ActorSystem;
 using UnityEngine;
@@ -69,16 +70,16 @@ namespace SampleGameEngine {
         /// <summary>
         /// 入り処理
         /// </summary>
-        protected virtual void OnEnterInternal(TEvent sequenceEvent, TGimmick[] gimmicks) {}
+        protected virtual void OnEnterInternal(TEvent sequenceEvent, IReadOnlyList<TGimmick> gimmicks) {}
 
         /// <summary>
         /// 更新処理
         /// </summary>
-        protected virtual void OnUpdateInternal(TEvent sequenceEvent, float elapsedTime, TGimmick[] gimmicks) {}
+        protected virtual void OnUpdateInternal(TEvent sequenceEvent, float elapsedTime, IReadOnlyList<TGimmick> gimmicks) {}
 
         /// <summary>
         /// 更新処理
         /// </summary>
-        protected virtual void OnExitInternal(TEvent sequenceEvent, TGimmick[] gimmicks) {}
+        protected virtual void OnExitInternal(TEvent sequenceEvent, IReadOnlyList<TGimmick> gimmicks) {}
     }
 }

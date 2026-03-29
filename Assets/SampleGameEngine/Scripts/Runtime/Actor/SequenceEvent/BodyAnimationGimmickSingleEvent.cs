@@ -1,4 +1,5 @@
 using GameFramework.GimmickSystem;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SampleGameEngine {
@@ -26,7 +27,7 @@ namespace SampleGameEngine {
         /// <summary>
         /// ギミック実行時処理
         /// </summary>
-        protected override void OnInvokeInternal(BodyAnimationGimmickSingleEvent sequenceEvent, AnimationGimmick[] gimmicks) {
+        protected override void OnInvokeInternal(BodyAnimationGimmickSingleEvent sequenceEvent, IReadOnlyList<AnimationGimmick> gimmicks) {
             switch (sequenceEvent.playType) {
                 case BodyAnimationGimmickSingleEvent.PlayType.Play:
                     gimmicks.Play(sequenceEvent.reverse, sequenceEvent.immediate);

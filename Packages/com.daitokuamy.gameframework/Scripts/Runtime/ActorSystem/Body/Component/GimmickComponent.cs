@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameFramework.GimmickSystem;
 
 namespace GameFramework.ActorSystem {
@@ -28,7 +29,7 @@ namespace GameFramework.ActorSystem {
         /// </summary>
         /// <param name="key">取得用のキー</param>
         /// <typeparam name="T">ギミックの型</typeparam>
-        public T[] GetGimmicks<T>(string key)
+        public IReadOnlyList<T> GetGimmicks<T>(string key)
             where T : Gimmick {
             return _gimmickPlayer.GetGimmicks<T>(key);
         }

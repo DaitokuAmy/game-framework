@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameFramework.PlayableSystem;
 using UnityEngine;
 using UnityEngine.Timeline;
@@ -43,7 +44,7 @@ namespace GameFramework.ActorSystem {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static ActiveGimmick[] GetActiveGimmicks(this GimmickComponent source, string key) {
+        public static IReadOnlyList<ActiveGimmick> GetActiveGimmicks(this GimmickComponent source, string key) {
             return source.GetGimmicks<ActiveGimmick>(key);
         }
 
@@ -52,7 +53,7 @@ namespace GameFramework.ActorSystem {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static AnimationGimmick[] GetAnimationGimmicks(this GimmickComponent source, string key) {
+        public static IReadOnlyList<AnimationGimmick> GetAnimationGimmicks(this GimmickComponent source, string key) {
             return source.GetGimmicks<AnimationGimmick>(key);
         }
 
@@ -61,7 +62,7 @@ namespace GameFramework.ActorSystem {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static InvokeGimmick[] GetInvokeGimmicks(this GimmickComponent source, string key) {
+        public static IReadOnlyList<InvokeGimmick> GetInvokeGimmicks(this GimmickComponent source, string key) {
             return source.GetGimmicks<InvokeGimmick>(key);
         }
 
@@ -70,7 +71,7 @@ namespace GameFramework.ActorSystem {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static ChangeGimmick<T>[] GetChangeGimmicks<T>(this GimmickComponent source, string key) {
+        public static IReadOnlyList<ChangeGimmick<T>> GetChangeGimmicks<T>(this GimmickComponent source, string key) {
             return source.GetGimmicks<ChangeGimmick<T>>(key);
         }
 
@@ -79,7 +80,7 @@ namespace GameFramework.ActorSystem {
         /// </summary>
         /// <param name="source">操作対象</param>
         /// <param name="key">取得用のキー</param>
-        public static StateGimmick[] GetStateGimmicks(this GimmickComponent source, string key) {
+        public static IReadOnlyList<StateGimmick> GetStateGimmicks(this GimmickComponent source, string key) {
             return source.GetGimmicks<StateGimmick>(key);
         }
     }

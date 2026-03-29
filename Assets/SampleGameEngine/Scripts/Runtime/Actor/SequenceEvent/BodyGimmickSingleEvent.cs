@@ -1,4 +1,5 @@
 using ActionSequencer;
+using System.Collections.Generic;
 using GameFramework.ActorSystem;
 using GameFramework.GimmickSystem;
 using UnityEngine;
@@ -42,6 +43,6 @@ namespace SampleGameEngine {
         /// <summary>
         /// ギミック実行時処理
         /// </summary>
-        protected abstract void OnInvokeInternal(TEvent sequenceEvent, TGimmick[] gimmicks);
+        protected abstract void OnInvokeInternal(TEvent sequenceEvent, IReadOnlyList<TGimmick> gimmicks);
     }
 }

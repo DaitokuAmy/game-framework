@@ -1,4 +1,5 @@
 using GameFramework.GimmickSystem;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SampleGameEngine {
@@ -22,7 +23,7 @@ namespace SampleGameEngine {
         /// <summary>
         /// 入り処理
         /// </summary>
-        protected override void OnEnterInternal(BodyActiveGimmickRangeEvent sequenceEvent, ActiveGimmick[] gimmicks) {
+        protected override void OnEnterInternal(BodyActiveGimmickRangeEvent sequenceEvent, IReadOnlyList<ActiveGimmick> gimmicks) {
             if (sequenceEvent.activeType == BodyActiveGimmickRangeEvent.ActiveType.ActiveToInactive) {
                 gimmicks.Activate();
             }
@@ -34,7 +35,7 @@ namespace SampleGameEngine {
         /// <summary>
         /// 抜け処理
         /// </summary>
-        protected override void OnExitInternal(BodyActiveGimmickRangeEvent sequenceEvent, ActiveGimmick[] gimmicks) {
+        protected override void OnExitInternal(BodyActiveGimmickRangeEvent sequenceEvent, IReadOnlyList<ActiveGimmick> gimmicks) {
             if (sequenceEvent.activeType == BodyActiveGimmickRangeEvent.ActiveType.ActiveToInactive) {
                 gimmicks.Deactivate();
             }

@@ -1,4 +1,5 @@
 using GameFramework.GimmickSystem;
+using System.Collections.Generic;
 
 namespace SampleGameEngine {
     /// <summary>
@@ -14,7 +15,7 @@ namespace SampleGameEngine {
         /// <summary>
         /// ギミック実行時処理
         /// </summary>
-        protected override void OnInvokeInternal(BodyInvokeGimmickSingleEvent sequenceEvent, InvokeGimmick[] gimmicks) {
+        protected override void OnInvokeInternal(BodyInvokeGimmickSingleEvent sequenceEvent, IReadOnlyList<InvokeGimmick> gimmicks) {
             gimmicks.Invoke();
         }
     }

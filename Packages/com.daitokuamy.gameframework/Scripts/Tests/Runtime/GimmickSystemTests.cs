@@ -57,7 +57,7 @@ namespace GameFramework.Tests {
         /// 同じ型・キーの取得結果がキャッシュされて再利用されることを検証
         /// </summary>
         [Test]
-        public void GimmickPlayer_GetGimmicks_ReusesTypedArrayCache() {
+        public void GimmickPlayer_GetGimmicks_ReusesReadOnlyListCache() {
             var groupObject = CreateGameObject("GimmickSystemTests.CacheGroup");
             var group = groupObject.AddComponent<GimmickGroup>();
 
@@ -87,7 +87,9 @@ namespace GameFramework.Tests {
             var secondResult = player.GetGimmicks<TestInitializeGimmick>("Cache");
 
             Assert.That(secondResult, Is.SameAs(firstResult));
-            Assert.That(firstResult, Has.Length.EqualTo(2));
+            Assert.That(firstResult, Has.Count.EqualTo(2));
+            Assert.That(firstResult, Is.AssignableTo<IReadOnlyList<TestInitializeGimmick>>());
+            Assert.That(firstResult, Is.Not.InstanceOf<TestInitializeGimmick[]>());
         }
 
         /// <summary>
@@ -134,6 +136,11 @@ namespace GameFramework.Tests {
                 typeof(StateGimmick),
                 "_defaultState",
                 "Off");
+            SetPrivateField(
+                gimmick,
+                typeof(MaterialStateGimmick<float>),
+                "_blendDuration",
+                0.5f);
             SetPrivateField(
                 gimmick,
                 typeof(StateGimmickBase<MaterialStateGimmick<float>.StateInfo>),

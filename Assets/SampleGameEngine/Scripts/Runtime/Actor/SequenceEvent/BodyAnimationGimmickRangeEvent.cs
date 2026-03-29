@@ -1,4 +1,5 @@
 using GameFramework.GimmickSystem;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace SampleGameEngine {
@@ -28,7 +29,7 @@ namespace SampleGameEngine {
         /// <summary>
         /// 入り処理
         /// </summary>
-        protected override void OnEnterInternal(BodyAnimationGimmickRangeEvent sequenceEvent, AnimationGimmick[] gimmicks) {
+        protected override void OnEnterInternal(BodyAnimationGimmickRangeEvent sequenceEvent, IReadOnlyList<AnimationGimmick> gimmicks) {
             switch (sequenceEvent.playType) {
                 case BodyAnimationGimmickRangeEvent.PlayType.Play:
                     gimmicks.Play(sequenceEvent.reverse, sequenceEvent.enterImmediate);
@@ -47,7 +48,7 @@ namespace SampleGameEngine {
         /// <summary>
         /// 抜け処理
         /// </summary>
-        protected override void OnExitInternal(BodyAnimationGimmickRangeEvent sequenceEvent, AnimationGimmick[] gimmicks) {
+        protected override void OnExitInternal(BodyAnimationGimmickRangeEvent sequenceEvent, IReadOnlyList<AnimationGimmick> gimmicks) {
             switch (sequenceEvent.playType) {
                 case BodyAnimationGimmickRangeEvent.PlayType.Play:
                     gimmicks.Play(!sequenceEvent.reverse, sequenceEvent.exitImmediate);
