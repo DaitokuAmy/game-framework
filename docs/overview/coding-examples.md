@@ -12,6 +12,9 @@ namespace Project.Sample {
     /// 命名、修飾子、コメント配置の例をまとめたもの
     /// </summary>
     public sealed class SampleInteractor : IDisposable, ISampleUseCase {
+        /// <summary>変更通知デリゲート</summary>
+        public delegate void ValueChangedHandler(int value);
+
         /// <summary>既定容量</summary>
         private const int DefaultCapacity = 8;
 
@@ -22,7 +25,9 @@ namespace Project.Sample {
         /// 内部状態
         /// </summary>
         private enum State {
+            /// <summary>待機中</summary>
             Idle,
+            /// <summary>実行中</summary>
             Running,
         }
 
@@ -34,6 +39,8 @@ namespace Project.Sample {
 
         private static int s_globalCounter;
 
+        private readonly InternalHelper _helper = new();
+
         [SerializeField, Tooltip("設定値")]
         private int _settingValue;
 
@@ -42,9 +49,13 @@ namespace Project.Sample {
 
         /// <summary>現在値</summary>
         public int CurrentValue => _currentValue;
+        /// <summary>直前値</summary>
+        public int PreviousValue => _previousValue;
 
         /// <summary>値変更時に発火されるイベント</summary>
         public event Action Changed;
+        /// <summary>値変更時に発火されるデリゲートイベント</summary>
+        public event ValueChangedHandler ValueChanged;
 
         /// <summary>
         /// コンストラクタ
@@ -93,6 +104,7 @@ namespace Project.Sample {
 
             if (raiseEvent) {
                 Changed?.Invoke();
+                ValueChanged?.Invoke(_currentValue);
             }
         }
 
@@ -115,3 +127,7 @@ namespace Project.Sample {
     }
 }
 ```
+
+同じブロックに属する宣言は空行を挟まず連続で配置します。  
+別ブロックの宣言をまたぐ場合だけ空行を入れます。  
+例: `const` と `static readonly`、`private readonly` フィールドと `private` フィールド、`[SerializeField] private` フィールドと通常の `private` フィールド、プロパティと `event` は別ブロックです。

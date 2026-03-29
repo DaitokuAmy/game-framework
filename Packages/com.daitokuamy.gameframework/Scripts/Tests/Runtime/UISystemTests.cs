@@ -6,6 +6,7 @@ using GameFramework.AssetSystem;
 using GameFramework.UISystem;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
 
@@ -45,8 +46,8 @@ namespace GameFramework.Tests {
         [Test]
         public void LoadPrefabAsync_FailedHandle_ShouldCompleteAndAllowRetry() {
             var loader = new TestUIAssetLoader();
-            loader.EnqueuePrefabInfo(new TestPrefabAssetInfo(isDone: true, asset: null, exception: new Exception("first failure")));
-            loader.EnqueuePrefabInfo(new TestPrefabAssetInfo(isDone: true, asset: null, exception: new Exception("second failure")));
+            loader.EnqueuePrefabInfo(new TestPrefabProcess(isDone: true, asset: null, exception: new Exception("first failure")));
+            loader.EnqueuePrefabInfo(new TestPrefabProcess(isDone: true, asset: null, exception: new Exception("second failure")));
 
             _uiManager = new UIManager();
             _uiManager.Initialize(loader);
@@ -74,7 +75,7 @@ namespace GameFramework.Tests {
             var prefab = new GameObject("UiPrefab", typeof(RectTransform), typeof(Canvas));
             try {
                 var loader = new TestUIAssetLoader();
-                loader.EnqueuePrefabInfo(new TestPrefabAssetInfo(isDone: true, asset: prefab));
+                loader.EnqueuePrefabInfo(new TestPrefabProcess(isDone: true, asset: prefab));
 
                 _uiManager = new UIManager();
                 _uiManager.Initialize(loader);
@@ -320,44 +321,73 @@ namespace GameFramework.Tests {
         /// テスト用 UIAssetLoader
         /// </summary>
         private sealed class TestUIAssetLoader : IUIAssetLoader {
-            private readonly Queue<TestPrefabAssetInfo> _prefabInfos = new();
+            private readonly Queue<TestPrefabProcess> _prefabProcesses = new();
 
             public int PrefabLoadCount { get; private set; }
 
-            public void EnqueuePrefabInfo(TestPrefabAssetInfo info) {
-                _prefabInfos.Enqueue(info);
+            public void EnqueuePrefabInfo(TestPrefabProcess process) {
+                _prefabProcesses.Enqueue(process);
             }
 
-            public SceneAssetHandle GetSceneAssetHandle(string key) {
-                return SceneAssetHandle.Empty;
+            public ISceneProcess LoadSceneAsync(string key) {
+                return new TestSceneProcess();
             }
 
-            public GameFramework.AssetSystem.AssetHandle<GameObject> GetPrefabAssetHandle(string key) {
+            public IProcess<GameObject> LoadPrefabAsync(string key) {
                 PrefabLoadCount++;
-                return new GameFramework.AssetSystem.AssetHandle<GameObject>(_prefabInfos.Dequeue());
+                return _prefabProcesses.Dequeue();
+            }
+
+            public void UnloadScene(string key) {
+            }
+
+            public void UnloadPrefab(string key) {
             }
         }
 
         /// <summary>
-        /// テスト用 Prefab AssetInfo
+        /// テスト用 PrefabProcess
         /// </summary>
-        private sealed class TestPrefabAssetInfo : IAssetInfo<GameObject> {
+        private sealed class TestPrefabProcess : IProcess<GameObject> {
             public bool IsDone { get; set; }
-
-            public GameObject Asset { get; }
-
+            public GameObject Result { get; }
             public Exception Exception { get; }
+            public object Current => null;
 
-            public bool IsDisposed { get; private set; }
-
-            public TestPrefabAssetInfo(bool isDone, GameObject asset, Exception exception = null) {
+            public TestPrefabProcess(bool isDone, GameObject asset, Exception exception = null) {
                 IsDone = isDone;
-                Asset = asset;
+                Result = asset;
                 Exception = exception;
             }
 
-            public void Dispose() {
-                IsDisposed = true;
+            public bool MoveNext() {
+                return !IsDone;
+            }
+
+            public void Reset() {
+            }
+        }
+
+        /// <summary>
+        /// テスト用 SceneProcess
+        /// </summary>
+        private sealed class TestSceneProcess : ISceneProcess {
+            public bool IsDone => true;
+            public Exception Exception => null;
+            public Scene Scene => default;
+            public bool IsValid => true;
+            public Scene Result => Scene;
+            public object Current => null;
+
+            public AsyncOperationHandle ActivateAsync() {
+                return AsyncOperationHandle.CompletedHandle;
+            }
+
+            public bool MoveNext() {
+                return false;
+            }
+
+            public void Reset() {
             }
         }
 

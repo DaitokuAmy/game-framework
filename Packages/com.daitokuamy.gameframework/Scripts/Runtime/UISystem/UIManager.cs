@@ -93,13 +93,14 @@ namespace GameFramework.UISystem {
         /// </summary>
         private class SceneInfo : AssetInfo {
             public string Key;
-            public SceneAssetHandle Handle;
+            public IUIAssetLoader Loader;
+            public ISceneProcess Process;
 
-            public override bool IsDone => Initialized && Handle.IsDone;
-            public override Exception Exception => Handle.Exception;
+            public override bool IsDone => Initialized && Process.IsDone;
+            public override Exception Exception => Process.Exception;
 
             public override void Release() {
-                Handle.Release();
+                Loader?.UnloadScene(Key);
             }
         }
 
@@ -108,11 +109,12 @@ namespace GameFramework.UISystem {
         /// </summary>
         private class PrefabInfo : AssetInfo {
             public string Key;
-            public AssetHandle<GameObject> Handle;
+            public IUIAssetLoader Loader;
+            public IProcess<GameObject> Process;
             public GameObject Instance;
 
-            public override bool IsDone => Initialized && Handle.IsDone;
-            public override Exception Exception => Handle.Exception;
+            public override bool IsDone => Initialized && Process.IsDone;
+            public override Exception Exception => Process.Exception;
 
             public override void Release() {
                 if (Instance != null) {
@@ -120,7 +122,7 @@ namespace GameFramework.UISystem {
                     Instance = null;
                 }
 
-                Handle.Release();
+                Loader?.UnloadPrefab(Key);
             }
         }
 
@@ -222,25 +224,26 @@ namespace GameFramework.UISystem {
             }
 
             // 読み込み処理
-            var handle = _loader.GetSceneAssetHandle(assetKey);
+            var process = _loader.LoadSceneAsync(assetKey);
             assetInfo = new SceneInfo();
             assetInfo.Key = assetKey;
-            assetInfo.Handle = handle;
+            assetInfo.Loader = _loader;
+            assetInfo.Process = process;
             _sceneInfos.Add(assetKey, assetInfo);
 
             IEnumerator Routine() {
-                while (!handle.IsDone) {
+                while (!process.IsDone) {
                     yield return null;
                 }
 
-                if (handle.Exception != null) {
+                if (process.Exception != null) {
                     assetInfo.Initialized = true;
                     yield break;
                 }
 
-                yield return handle.ActivateAsync();
+                yield return process.ActivateAsync();
 
-                var scene = handle.Scene;
+                var scene = process.Scene;
                 var rootCanvases = new List<Canvas>();
                 foreach (var obj in scene.GetRootGameObjects()) {
                     var canvas = obj.GetComponent<Canvas>();
@@ -288,23 +291,24 @@ namespace GameFramework.UISystem {
             }
 
             // 読み込み処理
-            var handle = _loader.GetPrefabAssetHandle(assetKey);
+            var process = _loader.LoadPrefabAsync(assetKey);
             assetInfo = new PrefabInfo();
             assetInfo.Key = assetKey;
-            assetInfo.Handle = handle;
+            assetInfo.Loader = _loader;
+            assetInfo.Process = process;
             _prefabInfos.Add(assetKey, assetInfo);
 
             IEnumerator Routine() {
-                while (!handle.IsDone) {
+                while (!process.IsDone) {
                     yield return null;
                 }
 
-                if (handle.Exception != null) {
+                if (process.Exception != null) {
                     assetInfo.Initialized = true;
                     yield break;
                 }
 
-                var prefab = handle.Asset;
+                var prefab = process.Result;
                 var instance = Object.Instantiate(prefab, _rootObject.transform, false);
                 assetInfo.Instance = instance;
                 var services = instance.GetComponentsInChildren<IUIService>();

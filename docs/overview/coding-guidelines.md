@@ -46,6 +46,9 @@
 ## クラス構成
 - クラス内の定義順、アクセス修飾子の順序は `docs/overview/coding-examples.md` に準拠する。
 - private インスタンスフィールドは連続で記述し、フィールド同士の間に空行を入れない。
+- 同じブロックに属する宣言同士の間には空行を入れない。
+- ここでいうブロックとは、同じ配置ルールが適用される宣言群を指す。
+- 例: `const` と `static readonly`、`public` フィールドと `protected` フィールド、プロパティと `event`、`private readonly` フィールドと `private` フィールド、`[SerializeField] private` フィールドと通常の `private` フィールドは別ブロックとして扱う。
 
 ### 定義順の補足（簡易ルール）
 - 迷った場合は次の順で配置する: `const` / `static readonly` / ネスト型 / フィールド / プロパティ・event / コンストラクタ / メソッド。

@@ -7,13 +7,23 @@ namespace GameFramework.UISystem {
     /// </summary>
     public interface IUIAssetLoader {
         /// <summary>
-        /// 読み込み用のキーからScene読み込み用のAssetHandleを取得する
+        /// 読み込み用のキーからScene読み込み結果を取得する
         /// </summary>
-        SceneAssetHandle GetSceneAssetHandle(string key);
+        ISceneProcess LoadSceneAsync(string key);
 
         /// <summary>
-        /// 読み込み用のキーからPrefab読み込み用のAssetHandleを取得する
+        /// 読み込み用のキーからPrefab読み込み結果を取得する
         /// </summary>
-        AssetHandle<GameObject> GetPrefabAssetHandle(string key);
+        IProcess<GameObject> LoadPrefabAsync(string key);
+
+        /// <summary>
+        /// 読み込み用のキーからSceneをアンロードする
+        /// </summary>
+        void UnloadScene(string key);
+
+        /// <summary>
+        /// 読み込み用のキーからPrefabをアンロードする
+        /// </summary>
+        void UnloadPrefab(string key);
     }
 }
