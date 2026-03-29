@@ -13,8 +13,7 @@ namespace GameFramework {
         public int materialIndex;
 
         /// <summary>有効なRendererMaterialか</summary>
-        public bool IsValid =>
-            renderer != null && materialIndex >= 0 && materialIndex < renderer.sharedMaterials.Length;
+        public bool IsValid => renderer != null && materialIndex >= 0 && materialIndex < renderer.sharedMaterials.Length;
         /// <summary>CloneしたMaterial</summary>
         public Material Material => IsValid ? renderer.materials[materialIndex] : null;
         /// <summary>CloneしないMaterial</summary>

@@ -7,8 +7,8 @@ namespace GameFramework {
     /// <summary>
     /// マテリアル制御ハンドル
     /// </summary>
-    public struct MaterialHandle {
-        private MaterialInstance[] _instances;
+    public readonly struct MaterialHandle {
+        private readonly MaterialInstance[] _instances;
 
         /// <summary>有効なハンドルか</summary>
         public bool IsValid => _instances != null && _instances.Length > 0;

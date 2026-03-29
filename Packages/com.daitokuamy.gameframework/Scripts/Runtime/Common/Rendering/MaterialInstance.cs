@@ -18,7 +18,7 @@ namespace GameFramework {
                 public List<Material> Materials;
             }
 
-            private static readonly Dictionary<Renderer, CacheInfo> s_cacheInfos = new();
+            private static Dictionary<Renderer, CacheInfo> s_cacheInfos = new();
 
             /// <summary>
             /// CloneMaterialの取得
