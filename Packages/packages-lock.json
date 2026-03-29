@@ -28,14 +28,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "6043a793d1221c43b09313cad1a7e0cf8abbf78c"
+      "hash": "24f35bcbade27a77368f71376e6901cfc0bc8131"
     },
     "com.daitokuamy.gameaibehaviour": {
       "version": "https://github.com/DaitokuAmy/game-ai-behaviour.git?path=/Packages/com.daitokuamy.gameaibehaviour",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "c5e56f4bbc69c190c0a3dba1a9f5a84d8090b4b8"
+      "hash": "0fe0fa3d0fc8afc347fba5cc004cc9ce442ec28e"
     },
     "com.daitokuamy.gameframework": {
       "version": "file:com.daitokuamy.gameframework",
@@ -48,21 +48,21 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "e209076f3de2b99772b3c8308e7fbd8d1a969e25"
+      "hash": "1211ebf4ce753314b74fd81159dae042c92bb823"
     },
     "com.daitokuamy.unityrenametool": {
       "version": "https://github.com/DaitokuAmy/unity-rename-tool.git?path=/Packages/com.daitokuamy.unityrenametool",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "e95b80aec4e200d003e468e00118085b76db9d99"
+      "hash": "9e1906cf76bc994cc9e76ae904d44b29663351ba"
     },
     "com.daitokuamy.unitytweenplayables": {
       "version": "https://github.com/DaitokuAmy/unity-tween-playables.git?path=/Packages/com.daitokuamy.unitytweenplayables",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "43d82cb520c60e4ef9fe67cbb38251fd2109c4eb"
+      "hash": "2f3ff57646a568af651008f23f953ad75541f2f6"
     },
     "com.github-glitchenzo.nugetforunity": {
       "version": "4.5.0",
