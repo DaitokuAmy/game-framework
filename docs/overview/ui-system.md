@@ -1,204 +1,302 @@
 # UISystem Overview
 
-`UISystem` は、UI をシーンまたはプレハブ単位で読み込み、`UIService` ごとに更新しながら、`UIScreen` と `UIDialog` の開閉や切り替えを扱うための仕組みです。  
-このドキュメントでは、現在の実装での責務分担と、使うときの見取り図を整理します。
+`UISystem` は、ゲーム内 UI を「読み込む」「更新する」「画面を切り替える」「ダイアログの結果を受け取る」ための package です。  
+このドキュメントは、Package 導入者が最初に使い方を把握するための入口としてまとめています。
 
-## 何を担当するか
+## まず何ができるか
+
+`UISystem` で主に扱えるのは次の 4 つです。
+
+- UI プレハブや UI シーンの読み込み
+- UI ルートごとの更新管理
+- 画面の open / close と画面切り替え
+- ダイアログの表示と結果受け取り
+
+細かいクラスは多いですが、最初に覚えるべきものは多くありません。
 
 - `UIManager`
-  - UI シーン / プレハブ / 既存 `GameObject` を登録する
-  - 読み込まれた `IUIService` を収集し、`Update` / `LateUpdate` を流す
-  - アセットの寿命を `AssetHandle` で管理する
+  - UI 全体の入口
 - `UIService`
-  - ひとまとまりの UI ルートを表す `MonoBehaviour`
-  - 子の `IUIView` を初期化して、独自コルーチンと更新順を管理する
-  - `TimeScale` を使って配下 UI の更新速度をまとめて調整する
-- `UIView`
-  - `UIService` 配下で動く基本ビュー
-  - `Initialize` / `Start` / `Dispose` と独自コルーチンの土台を持つ
-  - 動的生成時は `InstantiateView` や `ManualInitialize` で service 配下へ編入する
+  - ひとまとまりの UI ルート
 - `UIScreen`
-  - 開閉アニメーションとアクティブ状態を持つ画面単位
-  - `OpenAsync` / `CloseAsync`、`PreOpen` / `PostOpen` などのフックを提供する
-  - `IUIScreenHandler` を差し込んで画面固有ロジックを外付けできる
+  - 開閉できる画面
 - `UIScreenContainer`
-  - 複数の `UIScreen` をキー付きで保持し、1 画面ずつ遷移させる
-  - `Transition` / `Clear` で子画面の切り替えを行う
+  - 子画面の切り替え
 - `UIDialogContainer`
-  - ダイアログをスタック管理する
-  - テンプレートから画面をプール生成し、閉じたら再利用する
-  - `OpenDialog` と `BackDialog` で結果付きダイアログ操作を行う
-- `UIAnimationPlayer`
-  - `IUIAnimation` を時間付きで再生する
-  - `AnimatableUIScreen` などから開閉アニメーション再生に使う
-- `Component`
-  - `RecyclableScrollList`、`ScrollSnapper`、`SafeAreaPanel`、`TouchAnimation` など
-  - 画面部品として再利用する補助コンポーネント群
+  - ダイアログの表示と結果取得
 
-## 全体の構造
+## どう使い始めるか
 
-`UISystem` の中心は `UIManager` です。  
-`UIManager` 自体は `MonoBehaviour` ではなく、外側の更新ループから `Update` / `LateUpdate` される前提です。  
-その配下に、ロード済み UI ルートごとの `UIService`、さらにその子として `UIView` / `UIScreen` が並びます。
+基本的な流れは次のとおりです。
 
-概念上の関係は次のとおりです。
+1. `IUIAssetLoader` を実装する
+2. `UIManager` を生成して `Initialize()` する
+3. `UIManager` を毎フレーム更新する
+4. UI プレハブまたは UI シーンを読み込む
+5. 読み込まれた `UIService` を取得して使う
 
-```text
-UIManager
-  -> UIService
-    -> UIView
-    -> UIScreen
-      -> UIScreenContainer
-      -> UIDialogContainer
-      -> UIDialog
+最小構成のイメージは次のようになります。
+
+```csharp
+using GameFramework;
+using GameFramework.UISystem;
+using UnityEngine;
+
+public sealed class ExampleUiBootstrap : MonoBehaviour
+{
+    private UIManager _uiManager;
+    private UpdateScheduler _updateScheduler;
+
+    private void Awake()
+    {
+        _updateScheduler = new UpdateScheduler();
+
+        _uiManager = new UIManager();
+        _uiManager.Initialize(new ExampleUIAssetLoader());
+        _updateScheduler.RegisterUpdatable(_uiManager, 0);
+    }
+
+    private void Update()
+    {
+        _updateScheduler.Update();
+    }
+
+    private void LateUpdate()
+    {
+        _updateScheduler.LateUpdate();
+    }
+
+    private void OnDestroy()
+    {
+        _uiManager?.Dispose();
+        _updateScheduler?.Dispose();
+    }
+}
 ```
 
-`UIManager` はロード対象ごとに `AssetInfo` を持ち、どの `UIService` がそのアセットに属しているかを記録します。  
-`AssetHandle.Dispose()` を呼ぶと、そのアセット由来の service をまとめて `Dispose` し、必要に応じてシーンのアンロードやプレハブの破棄まで行います。
+`UIManager` は `MonoBehaviour` ではありません。  
+そのため、`UpdateScheduler` などを使って自分で更新を流す必要があります。
 
-## 読み込みと初期化
+## 画面側はどう作るか
 
-`UIManager` に UI を登録する入口は 3 つあります。
+Package 導入後に作ることが多いのは、次の 3 種類です。
 
-- `LoadSceneAsync(string assetKey)`
-  - UI 配置済みシーンをロードして有効化する
-- `LoadPrefabAsync(string assetKey)`
-  - UI プレハブを `UIManager_Root` 配下にインスタンス化する
-- `AddGameObject(GameObject gameObject)`
-  - 既存オブジェクトをそのまま管理下に追加する
+### `UIService`
 
-いずれの場合も、登録されたルート配下から `IUIService` を集めて `Initialize()` します。  
-`UIService.Initialize()` では、さらに子の `IUIView` を走査して `Initialize(this)` を流します。
+UI 全体のまとまりを表すルートです。  
+たとえば「タイトル UI 一式」「バトル UI 一式」のように、機能単位で 1 つ作る想定です。
 
-この初期化チェーンにより、各ビューは自分が属する `UIService` を知ったうえで動作します。  
-動的に `UIView` を増やす場合も、単純に `Instantiate` するだけでは不十分で、`InstantiateView` または `ManualInitialize` によって service 配下へ編入する必要があります。
+```csharp
+using GameFramework.UISystem;
+using UnityEngine;
 
-## 更新モデル
+public sealed class TitleUIService : UIService
+{
+    [SerializeField]
+    private UIScreenContainer _screenContainer;
 
-毎フレームの更新責務は次のように分かれています。
+    public void ShowTop()
+    {
+        _screenContainer.Transition("Top");
+    }
 
-- `UIManager`
-  - `LayeredTime` があればその `DeltaTime` を使う
-  - 全 `IUIService` に `Update` / `LateUpdate` を流す
-- `UIService`
-  - `TimeScale` を反映して配下の時間を調整する
-  - service 自身の `UpdateInternal` / `LateUpdateInternal` を呼ぶ
-  - 登録済み `IUIView` を順番に更新する
-- `UIView`
-  - 独自コルーチンを更新する
-  - `IsActive` なときだけ `UpdateInternal` / `LateUpdateInternal` を呼ぶ
+    public void ShowConfig()
+    {
+        _screenContainer.Transition("Config");
+    }
+}
+```
 
-つまり時間の入口は `UIManager`、ビュー群の更新の束ね役は `UIService`、個別表示の振る舞いは `UIView` 側にあります。
+呼び出し側は `UIManager.GetService<TitleUIService>()` で取得して、この service 経由で画面操作を行います。  
+Package 利用者は、外側から直接 `UIScreen` を触り回すより、service に用途別メソッドを生やす形にすると使いやすくなります。
 
-## `UIScreen` の役割
+### `UIScreen`
 
-`UIScreen` は `UIView` に「開閉状態」と「アクティブ状態」を追加したクラスです。
+1 枚の画面を表します。  
+`OpenAsync()` と `CloseAsync()` を持ち、必要なら開閉時の処理をオーバーライドできます。
 
-- `OpenAsync(...)`
-  - 画面を開く
-  - `PreOpen` -> `OpenRoutine` -> `PostOpen` の順に処理する
-- `CloseAsync(...)`
-  - 画面を閉じる
-  - `PreClose` -> `CloseRoutine` -> `PostClose` の順に処理する
-- `ActivateInternal(IScope scope)`
-  - 開き終わって操作可能になったタイミングの処理
-- `DeactivateInternal()`
-  - 閉じ始めるときの解除処理
+```csharp
+using GameFramework.UISystem;
 
-`CurrentOpenStatus` は `Opening` / `Opened` / `Closing` / `Closed` を持ち、重複した open / close 要求を吸収します。  
-`immediate` を指定すると、コルーチン部分をスキップして状態だけ即時反映できます。
+public sealed class TitleTopScreen : UIScreen
+{
+}
+```
 
-また、`IUIScreenHandler` を登録すると、画面の open / close / activate / deactivate に追従する外付けロジックを持たせられます。  
-画面の見た目を prefab 側、画面固有の制御を handler 側に分離したいときの拡張ポイントです。
+最初は空の `UIScreen` 派生だけでも問題ありません。  
+アニメーションや特殊処理が必要になった時点で `PreOpen`、`OpenRoutine`、`PostClose` などを追加すれば十分です。
 
-## `UIScreenContainer` の役割
+### `UIDialog`
 
-`UIScreenContainer` は、複数の子 `UIScreen` をキーで管理するコンテナです。  
-自分自身も `UIScreen` なので、コンテナごと開閉できます。
+選択結果を返すダイアログです。  
+`UIDialogContainer` から開いて使います。
 
-主な役割は次のとおりです。
+```csharp
+using GameFramework.UISystem;
 
-- `Transition(key, ...)`
-  - 現在の子画面から別の子画面へ遷移する
-- `Clear(...)`
-  - 現在画面を閉じて空状態にする
-- `Add(key, screen)`
-  - 実行時に子画面を追加する
-- `Remove(key)`
-  - 子画面の `GameObject` ごと破棄する
+public sealed class ConfirmDialog : UIDialog
+{
+    public void OnClickOk()
+    {
+        SelectIndex(0);
+    }
 
-遷移中は `TransitionInfo` で `Prev` / `Next` / `Direction` / `Effects` を保持し、`ITransition` 実装に処理を委ねます。  
-デフォルトは `CrossTransition`、同一画面の再初期化には `OutInTransition` を使います。
+    public void OnClickCancel()
+    {
+        SelectIndex(1);
+    }
+}
+```
 
-## `UIDialogContainer` の役割
+## 画面を切り替えたいとき
 
-`UIDialogContainer` は、`UIScreenContainer` のような画面切り替えではなく、ダイアログの積み上げに特化したコンテナです。
+複数の子画面を 1 つずつ切り替えたい場合は `UIScreenContainer` を使います。
 
-挙動の要点は次のとおりです。
+使い方の考え方は単純です。
 
-- ダイアログは `key` ごとのテンプレートから生成する
-- 生成には `UIViewPool<UIScreen>` を使い、閉じたダイアログは破棄せず再利用する
-- 新しいダイアログを開くと、直前のダイアログはいったん閉じる
-- 結果が返ると、そのダイアログを閉じ、1 つ下のダイアログを再度開く
-- `BackDialog()` は一番上のダイアログに `Cancel()` を送る
+- 親に `UIScreenContainer` を置く
+- 子に複数の `UIScreen` をぶら下げる
+- それぞれに文字列キーを割り当てる
+- `Transition("キー")` を呼んで切り替える
 
-`OpenDialog<TScreen>()` は選択 index を返し、`OpenDialog<TScreen, TResult>()` は `IDialog<TResult>` 経由で型付き結果を返します。  
-戻り値は `DialogHandle` なので、コルーチンの `yield return` と `await` の両方で扱えます。
+呼び出し側のイメージは次のとおりです。
 
-## アニメーションと派生画面
+```csharp
+_screenContainer.Transition("Top");
+_screenContainer.Transition("Config");
+_screenContainer.Clear();
+```
 
-画面の開閉をそのまま使うだけでなく、アニメーション付きの派生も用意されています。
+「今どの画面を見せるか」を管理したいなら、まず `UIScreenContainer` を使うと考えて大丈夫です。
+
+## ダイアログを出したいとき
+
+ダイアログ表示には `UIDialogContainer` を使います。  
+これは `UIScreenContainer` と違って、ダイアログをスタックして扱うためのクラスです。
+
+基本の流れは次のとおりです。
+
+- `UIDialogContainer` にテンプレートを登録する
+- `OpenDialog<TDialog>()` で開く
+- 返ってきた `DialogHandle` を `await` または `yield return` で待つ
+
+```csharp
+var handle = _dialogContainer.OpenDialog<ConfirmDialog>("Confirm");
+var result = await handle;
+```
+
+選択 index ではなく型付きの結果を返したい場合は `IDialog<TResult>` を実装して、`OpenDialog<TDialog, TResult>()` を使います。
+
+```csharp
+var result = await _dialogContainer.OpenDialog<ItemSelectDialog, ItemId>("ItemSelect");
+```
+
+`UIDialogContainer` は、上に新しいダイアログを積んで、閉じたら 1 つ下へ戻る使い方に向いています。  
+複数ダイアログを横並びで常時見せる用途には向いていません。
+
+## UI をロードしたいとき
+
+`UIManager` には 3 つの登録方法があります。
+
+- `LoadSceneAsync(assetKey)`
+  - UI 配置済みシーンを読み込む
+- `LoadPrefabAsync(assetKey)`
+  - UI プレハブを読み込んでインスタンス化する
+- `AddGameObject(gameObject)`
+  - すでに存在している `GameObject` を管理下に入れる
+
+最初に使うことが多いのは `LoadPrefabAsync()` です。
+
+```csharp
+var handle = _uiManager.LoadPrefabAsync("TitleUI");
+yield return handle;
+
+if (handle.Exception != null)
+{
+    Debug.LogException(handle.Exception);
+    yield break;
+}
+
+var service = _uiManager.GetService<TitleUIService>();
+service.ShowTop();
+```
+
+ここで返る `AssetHandle` は、ロード完了待ちにも、寿命管理にも使います。  
+その UI 一式が不要になったら `Dispose()` してください。
+
+```csharp
+handle.Dispose();
+```
+
+これにより、そのアセット由来の `UIService` や生成済みプレハブもまとめて解放されます。
+
+## `UIView` はいつ使うか
+
+`UIView` は `UIScreen` ほど大きくない UI 部品を作るときに使います。  
+たとえば、一覧アイテム、共通パネル、ステータス表示などです。
+
+```csharp
+using GameFramework.UISystem;
+
+public sealed class RewardItemView : UIView
+{
+}
+```
+
+`UIView` 自体には画面切り替え機能はありません。  
+開閉や遷移を持たせたいなら `UIScreen`、単なる部品なら `UIView` と考えると整理しやすいです。
+
+## 動的にビューを増やしたいとき
+
+動的生成した `UIView` を `UISystem` の管理下に入れたい場合は、普通の `Instantiate` だけでは足りません。  
+`UIView` 側の `InstantiateView()` か `ManualInitialize()` を使って初期化してください。
+
+```csharp
+var itemView = InstantiateView(_template, _contentRoot);
+```
+
+これを通さないと、生成した view に `UIService` が渡らず、`Initialize` や更新が正しく動きません。
+
+## 便利な補助機能
+
+使い始めの段階では必須ではありませんが、次の機能も用意されています。
 
 - `AnimatableUIScreen`
-  - `UIAnimationPlayer` を内包する
-  - `OpenRoutine` / `CloseRoutine` で `UIAnimationComponent` を再生する
-- `AnimatableUIDialog`
-  - `AnimatableUIScreen` ベースのダイアログ版
-- `FaderUIScreen`
-  - 複数の `FaderUIView` をラベル付きで管理し、フェードイン / フェードアウトを切り替える
+  - 開閉に `UIAnimationComponent` を使いたいとき
+- `UIAnimationPlayer`
+  - `IUIAnimation` を個別再生したいとき
+- `UIViewPool<TView>`
+  - view を使い回したいとき
+- `RecyclableScrollList`
+  - 仮想化されたスクロールリストを作りたいとき
+- `SafeAreaPanel`
+  - 端末の safe area に追従したいとき
+- `TouchAnimation`
+  - ボタン押下時の簡易アニメーションを付けたいとき
 
-`UIAnimationPlayer` 自体は `IUIAnimation` の `Duration` と `SetTime` を基準に進みます。  
-1 つのアニメーションに対して重複再生が来た場合は既存再生を止め、`Handle.Skip()` で即時完了にもできます。
+最初から全部を使う必要はありません。  
+まずは `UIService`、`UIScreenContainer`、`UIDialogContainer` の 3 つを軸に組み立てるのがおすすめです。
 
-## サンプルでの使い分け
+## 最初に迷ったときの選び方
 
-`Assets/SampleGame` では、`UIService` を用途ごとに分けて使っています。
-
-- `ResidentUIService`
-  - `UIScreenContainer` を使ってローディング画面を切り替える
-  - ブロック画面、通知、フェーダーなど常駐 UI を束ねる
-- `DialogUIService`
-  - `UIDialogContainer` を使って共通ダイアログを開く
-- `UITestDialogUIService`
-  - ダイアログごとの handler を設定して、外部ロジックを差し込む
-
-この構成にすると、呼び出し側は `UIManager.GetService<TUIService>()` で service を取得し、そこから「画面を切り替える」「ダイアログを開く」といった用途別 API を呼ぶだけで済みます。
-
-## ざっくりした使い分け
-
-- まず UI 一式を読み込みたい
+- UI 全体の入口が欲しい
   - `UIManager`
-- UI ルート単位で状態や依存をまとめたい
+- UI ルート単位で API をまとめたい
   - `UIService`
-- 単純な表示部品を作りたい
-  - `UIView`
-- 開閉を持つ画面を作りたい
+- 1 枚の画面を作りたい
   - `UIScreen`
-- 1 画面ずつ切り替える画面群を作りたい
+- 複数画面を切り替えたい
   - `UIScreenContainer`
-- モーダルを積み重ねて結果を受け取りたい
+- ダイアログを開いて結果を受け取りたい
   - `UIDialogContainer`
-- 画面ロジックを view から分離したい
-  - `IUIScreenHandler`
-- UI 部品を再利用したい
-  - `UIViewPool<TView>`
+- 画面ではない UI 部品を作りたい
+  - `UIView`
 
-## 実装上の注意
+## 注意点
 
-- `UIManager` は `MonoBehaviour` ではないので、外側の更新ループに登録しないと動かない
-- `AssetHandle` を破棄すると、そのアセット由来の `UIService` もまとめて解放される
-- 動的生成した `UIView` は service 配下へ初期化登録しないと更新されない
-- `UIDialogContainer` はダイアログを積む仕組みで、複数ダイアログを同時表示し続ける用途には向かない
-- `UIScreenContainer.Remove` は対象 `GameObject` を破棄する
+- `UIManager` は自動では更新されない
+- `AssetHandle` を破棄すると、その UI 一式も解放される
+- 動的生成した `UIView` は `InstantiateView()` などで初期化が必要
+- `UIScreenContainer.Remove()` は対象 `GameObject` を破棄する
 
-コードを読むときは、まず `UIManager` を入口にして、次に `UIService`、`UIView`、`UIScreen`、最後に `UIScreenContainer` / `UIDialogContainer` の順で追うと把握しやすいです。
+実装を読む順番に迷ったら、まず `UIManager`、次に `UIService`、その後に `UIScreen`、`UIScreenContainer`、`UIDialogContainer` の順で追うと理解しやすいです。

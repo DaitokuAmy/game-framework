@@ -1,195 +1,262 @@
 # AssetSystem 概要
 
 ## 対象
-本ドキュメントは `Packages/com.daitokuamy.gameframework/Scripts/Runtime/AssetSystem` に含まれる `AssetSystem` の概要をまとめる。
+本ドキュメントは `Packages/com.daitokuamy.gameframework/Scripts/Runtime/AssetSystem` に含まれる `AssetSystem` を、Package 利用者向けに説明する。
 
-## 役割
-`AssetSystem` は、アセットと Scene の読み込み口を統一しつつ、backend ごとの差異とキャッシュ戦略を分離するための仕組みである。
+## これは何か
+`AssetSystem` は、アセットや Scene の読み込み方法を 1 つの形にそろえるための仕組みである。
 
-このシステムは次の責務を持つ。
+たとえば、プロジェクトによって次のように読み込み元が異なることがある。
 
-- `AssetRequest<TAsset>` / `SceneRequest` で読み込み要求を値として表現する
-- `IAssetLoader` / `ISceneLoader` で backend ごとの読み込み境界を分離する
-- `AssetStorage` / `SceneStorage` で loader 選択とキャッシュ戦略を管理する
-- アセットと Scene の寿命管理を consumer 単位の storage に閉じる
-- Scene の手動アクティブ化を `ISceneProcess` 経由で扱えるようにする
+- `Resources`
+- `Addressables`
+- `AssetDatabase` での Editor 実行
 
-## 設計の考え方
+`AssetSystem` を使うと、呼び出し側は「どこから読むか」の違いをできるだけ意識せずに、`LoadAsync(...)` と `Unload(...)` を中心に扱える。
 
-### Request は軽く保つ
-Request は「何を読みたいか」を表す値オブジェクトであり、backend 選択やキャッシュ戦略は持たない。
+## 最初に覚えること
+Package 利用者が最初に覚えるのは、次の 3 つだけでよい。
 
-`AssetRequest<TAsset>` は `Address` を持つ最小構成で、文字列から暗黙変換できる。
+- `Loader`
+  - どこから読むかを担当する
+- `Storage`
+  - 読み込みとキャッシュをまとめて管理する
+- `Request`
+  - 何を読みたいかを表す
 
-`SceneRequest` は `Address` と `ActivateOnLoad` を持ち、Additive 読み込み専用として扱う。
+普段使うときは、まず `Storage` を作り、そこへ `Request` を渡して読み込む。
 
-### Loader は単一 backend の境界
-`IAssetLoader` と `ISceneLoader` の責務は、基本的に次の 2 つに絞られている。
+ただし、`Storage` は通常「読み込みのたびに毎回 new するもの」ではない。  
+多くの場合は、ある機能や service が `Storage` を保持し、その寿命の中で複数回 `LoadAsync(...)` を呼ぶ。
 
-- その request を読み込めるか判定する
-- 実際の読み込みを開始する
+## まず何を選べばよいか
 
-backend の解放方法は handle 側に閉じ込め、呼び出し側には直接露出しない。
-
-### Storage に戦略を寄せる
-複数 loader の並び順、fallback、キャッシュ保持期間、明示解放か自動退避かといった戦略は storage 側で扱う。
-
-このため、利用側は「どの loader を使うか」よりも「どの storage を所有するか」を意識すればよい。
-
-## 主要な構成
-
-### `AssetRequest<TAsset>` / `IAssetRequest<TAsset>`
-アセット読み込み要求を表す型である。標準では `Address` だけを持つが、SampleGame のように独自 request struct を追加して、アドレス組み立てを request 側へ寄せる使い方もできる。
-
-### `SceneRequest` / `ISceneRequest`
-Scene 読み込み要求を表す型である。`ActivateOnLoad` を持つため、読み込み完了とアクティブ化を分けて扱える。
-
-### `IAssetLoader` / `ISceneLoader`
-各 backend ごとの実装境界である。現在は次の loader が用意されている。
+### 1. どの Loader を使うか
+用途ごとの目安は次の通りである。
 
 - `ResourcesAssetLoader`
+  - `Resources` フォルダから読み込みたい
 - `AddressablesAssetLoader`
+  - Addressables を使ってアセットを読み込みたい
 - `AssetDatabaseAssetLoader`
+  - Editor 実行中に AssetDatabase から直接読みたい
 - `AddressablesSceneLoader`
+  - Addressables で Scene を読み込みたい
 - `AssetDatabaseSceneLoader`
+  - Editor 実行中に Scene を直接読みたい
 
-どの loader を優先するかは固定ではなく、storage に渡した配列順で決まる。
+複数の loader を storage に渡すこともできる。その場合は、渡した順に「読めるか」が判定され、最初に使える loader が選ばれる。
 
-### `IAssetLoadHandle<TAsset>` / `ISceneLoadHandle`
-loader が返す backend 依存の生ハンドルである。storage 内部ではこれを保持してキャッシュし、解放時に `Release()` を呼ぶ。
+### 2. どの Storage を使うか
+storage の選び方は次の理解で十分である。
 
-### `AssetStorage`
-アセット読み込みの基底 storage である。request を検証し、渡された loader 群の先頭から `CanLoad(...)` を評価して、最初に読める loader へ委譲する。
+- `SimpleAssetStorage` / `SimpleSceneStorage`
+  - 自分で `Unload(...)` するまで保持したい
+- `LruAssetStorage` / `LruSceneStorage`
+  - 上限数を決めて、古いものから自動で外したい
 
-public API は大きく次の 2 系統を持つ。
+迷ったら、まずは `SimpleAssetStorage` または `SimpleSceneStorage` から始めると分かりやすい。
 
-- `LoadAsync<TAsset>(AssetRequest<TAsset> request)`
-- `LoadAsync<TAsset, TRequest>(TRequest request)`
+## 一番簡単な使い方
 
-`Unload(...)` と `Clear()` も同様に用意されており、storage が保持しているハンドルをまとめて解放できる。
+### アセットを読む
+`Resources` から prefab を読む例を、`Storage` を所有する class も含めて示す。
 
-### `SceneStorage`
-Scene 読み込みの基底 storage である。構造は `AssetStorage` と近いが、戻り値は `ISceneProcess` になる。
-
-これは Scene だけが `ActivateAsync()` を外に見せる必要があるためである。
-
-### `SimpleAssetStorage`
-明示的に `Unload` するまで保持する単純なキャッシュ storage である。
-
-- 同じ request では同じキャッシュを再利用する
-- 参照カウントは持たない
-- 読み込み済みなら `TryGet(...)` / `GetAsset(...)` で同期取得できる
-
-### `LruAssetStorage`
-上限数を超えたとき、もっとも古く使われていないアセットから解放する storage である。
-
-- 使用順を内部で追跡する
-- キャッシュヒット時に LRU 順を更新する
-- `Unload(...)` と `Clear()` による明示解放もできる
-
-### `SimpleSceneStorage`
-Scene を明示的に `Unload` するまで保持する storage である。
-
-- 同じ address の request では同じ Scene を再利用する
-- 先に `ActivateOnLoad = false` で保持していても、後続 request が `true` なら `ActivateAsync()` を呼ぶ
-
-### `LruSceneStorage`
-Scene 用の LRU storage である。Scene でもアドレス単位で使用順を管理し、上限超過時に古い Scene から解放する。
-
-## データの流れ
-
-### アセット読み込み
-アセット読み込みは次の流れで進む。
-
-1. 利用側が `AssetRequest<TAsset>` または独自 request struct を作る
-2. `AssetStorage.LoadAsync(...)` が request の妥当性を確認する
-3. 渡された loader 群を順に見て、`CanLoad(...)` が true の loader を選ぶ
-4. loader が `IAssetLoadHandle<TAsset>` を返す
-5. storage がその handle をキャッシュし、`IProcess<TAsset>` として利用側へ返す
-
-利用側は backend を直接意識せず、storage に対して `LoadAsync(...)` と `Unload(...)` を呼ぶだけでよい。
-
-### Scene 読み込み
-Scene 読み込みも概ね同じだが、戻り値は `ISceneProcess` になる。
-
-1. `SceneRequest` または独自 `ISceneRequest` 実装を作る
-2. `SceneStorage.LoadAsync(...)` が読み込み可能な loader を選ぶ
-3. loader が `ISceneLoadHandle` を返す
-4. storage が handle を保持し、`ISceneProcess` を返す
-5. `ActivateOnLoad = false` の場合は、必要なタイミングで `ActivateAsync()` を呼ぶ
-
-Scene は Additive 読み込み前提であり、`LoadSceneMode.Single` による遷移はこのシステムの責務外である。
-
-## SampleGame での組み立て
-SampleGame では `Assets/SampleGame/Scripts/Runtime/Infrastructure/Common/AssetUtility.cs` で loader 群を構築している。
-
-現在の組み立て順は次の通りである。
-
-- Asset: `AssetDatabaseAssetLoader` → `AddressablesAssetLoader` → `ResourcesAssetLoader`
-- Scene: `AssetDatabaseSceneLoader` → `AddressablesSceneLoader`
-
-この順序により、Editor 上ではまず `AssetDatabase` を優先し、実運用では Addressables や Resources に自然に流れる構成にしている。
-
-また、SampleGame では UI やテーブル、キャラ prefab、フィールド scene ごとに独自 request struct を用意し、呼び出し側が生のアドレス文字列を組み立てなくても済むようにしている。
-
-## 利用イメージ
-
-### 文字列 request をそのまま使う場合
 ```csharp
-using var storage = new SimpleAssetStorage(AssetUtility.CreateAssetLoaders());
-var process = storage.LoadAsync<GameObject>("Assets/SampleGame/UI/Root/pfb_ui_title.prefab");
-yield return process;
+using GameFramework.AssetSystem;
+using UnityEngine;
 
-var prefab = process.Result;
-storage.Unload<GameObject>("Assets/SampleGame/UI/Root/pfb_ui_title.prefab");
+public sealed class TitlePrefabRepository : System.IDisposable {
+    private readonly SimpleAssetStorage _storage;
+
+    public TitlePrefabRepository() {
+        _storage = new SimpleAssetStorage(new ResourcesAssetLoader());
+    }
+
+    public IEnumerator LoadAsync() {
+        var process = _storage.LoadAsync<GameObject>("UI/pfb_title");
+        yield return process;
+
+        var prefab = process.Result;
+    }
+
+    public void Unload() {
+        _storage.Unload<GameObject>("UI/pfb_title");
+    }
+
+    public void Dispose() {
+        _storage.Dispose();
+    }
+}
 ```
 
-### 独自 request struct を使う場合
-```csharp
-using var storage = new SimpleAssetStorage(AssetUtility.CreateAssetLoaders());
-var process = storage.LoadAsync<GameObject, UIPrefabAssetRequest>(new UIPrefabAssetRequest("title"));
-yield return process;
+ここで大事なのは次の流れである。
 
-var prefab = process.Result;
+1. owner class が `Storage` を保持する
+2. 必要なタイミングで `LoadAsync(...)` する
+3. `yield return process` で完了を待つ
+4. `process.Result` で結果を受け取る
+5. 不要になったら `Unload(...)` または owner ごと `Dispose()` する
+
+### Scene を読む
+Scene の読み込みもほぼ同じである。
+
+```csharp
+using GameFramework.AssetSystem;
+
+public sealed class FieldSceneLoader : System.IDisposable {
+    private readonly SimpleSceneStorage _storage = new SimpleSceneStorage(new AddressablesSceneLoader());
+
+    public IEnumerator LoadAsync() {
+        var process = _storage.LoadAsync(new SceneRequest("scn_field_a"));
+        yield return process;
+
+        var scene = process.Scene;
+    }
+
+    public void Unload() {
+        _storage.Unload(new SceneRequest("scn_field_a"));
+    }
+
+    public void Dispose() {
+        _storage.Dispose();
+    }
+}
 ```
 
-### Scene を手動アクティブ化したい場合
-```csharp
-using var storage = new SimpleSceneStorage(AssetUtility.CreateSceneLoaders());
-var process = storage.LoadAsync(new UISceneRequest("title"));
-yield return process;
+Scene は Additive 読み込み前提である。`Single` でのシーン遷移は `AssetSystem` の責務ではない。
 
-yield return process.ActivateAsync();
+## Scene をあとから表示したいとき
+Scene は `ActivateOnLoad = false` を使うと、読み込み完了と表示開始を分けられる。
+
+```csharp
+using GameFramework.AssetSystem;
+
+public sealed class BossScenePreloader : System.IDisposable {
+    private readonly SimpleSceneStorage _storage = new SimpleSceneStorage(new AddressablesSceneLoader());
+
+    public IEnumerator PreloadAsync() {
+        var process = _storage.LoadAsync(new SceneRequest("scn_boss", activateOnLoad: false));
+        yield return process;
+
+        // 必要になったタイミングで表示開始
+        yield return process.ActivateAsync();
+    }
+
+    public void Unload() {
+        _storage.Unload(new SceneRequest("scn_boss", activateOnLoad: false));
+    }
+
+    public void Dispose() {
+        _storage.Dispose();
+    }
+}
 ```
 
-## 実装時の注意点
+「先に読み込んでおき、見せるタイミングだけ後ろにずらしたい」場合はこの形を使う。
 
-### storage が寿命管理を持つ
-利用側が backend の生 handle を握る設計ではないため、解放は `Unload(...)`、`Clear()`、`Dispose()` を通して行う。
+## Loader を複数使いたいとき
+Editor では `AssetDatabase` を優先し、ビルドでは Addressables を使いたい、といった構成もできる。
 
-consumer ごとに storage を所有すると、どこで解放責務を持つかが明確になる。
+```csharp
+using GameFramework.AssetSystem;
 
-### request が同じなら同じキャッシュを再利用する
-`SimpleAssetStorage` と `SimpleSceneStorage` は、同じ request に対して同じ保持済みハンドルを返す。
+AssetStorage CreateStorage() {
+    return new SimpleAssetStorage(
+#if UNITY_EDITOR
+        new AssetDatabaseAssetLoader(),
+#endif
+#if USE_ADDRESSABLES
+        new AddressablesAssetLoader(),
+#endif
+        new ResourcesAssetLoader()
+    );
+}
+```
 
-そのため、同じアドレスを複数箇所で個別に寿命管理したい場合は、storage 自体を分ける設計が向いている。
+このときのポイントは、storage に渡した順がそのまま優先順になることだけである。
 
-### `ActivateOnLoad = false` は「読み込み完了」と「表示可能」を分ける
-特に `AssetDatabaseSceneLoader` では、アクティブ化前でも `IsDone` が true になりうる。
+## `Simple` と `LRU` の使い分け
 
-「ロード完了後に任意のタイミングで見せたい」Scene ではこの挙動を前提に、必要なところで `ActivateAsync()` を呼ぶ。
+### `Simple`
+`SimpleAssetStorage` と `SimpleSceneStorage` は、明示的に外すまで保持する。
 
-### loader の優先順が挙動を決める
-どの backend を使うかは request ではなく、storage に渡す loader 順で決まる。
+次のようなケースに向いている。
 
-Editor と実機で期待する backend が異なる場合は、`AssetUtility` のような組み立てポイントで順序を統一しておくと把握しやすい。
+- 画面や機能ごとに読み込んだものを自分で管理したい
+- どこで解放するかを明確にしたい
+- まずは分かりやすく使い始めたい
+
+### `LRU`
+`LruAssetStorage` と `LruSceneStorage` は、上限を超えたときに古いものから自動で外す。
+
+次のようなケースに向いている。
+
+- キャッシュ数を制限したい
+- 古いものは自動で外れてよい
+- 明示的な保持期間よりもメモリ上限を優先したい
+
+## よくある設計
+Package 利用者としては、storage を「1 個だけ全体共有する」より、「その機能が責任を持てる単位で所有する」方が扱いやすいことが多い。
+
+たとえば次のような単位で持つと、解放タイミングを決めやすい。
+
+- ある UI 機能専用の storage
+- ある repository 専用の storage
+- あるシーン管理クラス専用の storage
+
+storage を破棄すると、内部で保持していたハンドルもまとめて解放される。
+
+逆に、`LoadAsync(...)` を呼ぶたびに毎回 `Storage` を new すると、キャッシュの意味が薄くなり、どこで解放するかも追いにくくなる。  
+まずは「owner が 1 つの storage を持つ」と考えるのが分かりやすい。
+
+## Request について
+最初は文字列 request だけで十分である。
+
+```csharp
+var process = storage.LoadAsync<Texture2D>("Icons/icn_sword");
+```
+
+ただし、アドレスの組み立てを毎回書きたくない場合は、独自 request struct を作ることもできる。
+
+```csharp
+using GameFramework.AssetSystem;
+using UnityEngine;
+
+public readonly struct IconRequest : IAssetRequest<Sprite> {
+    public string Address { get; }
+    public bool IsValid => !string.IsNullOrEmpty(Address);
+
+    public IconRequest(string iconName) {
+        Address = $"Icons/{iconName}";
+    }
+}
+```
+
+これを使うと、呼び出し側は「どういう命名規則で保存されているか」を知らずに済む。
+
+## 実装上の注意点
+
+### 解放は storage 経由で行う
+利用側は loader の生ハンドルを直接扱わない。基本的には次のどちらかで解放する。
+
+- `Unload(...)`
+- `Dispose()` / `Clear()`
+
+### 同じ request は同じキャッシュを再利用する
+`SimpleAssetStorage` と `SimpleSceneStorage` では、同じ request を渡すと保持済みの結果を再利用する。
+
+同じアドレスでも別々の寿命で管理したい場合は、storage 自体を分ける方が分かりやすい。
+
+### Scene は Additive 専用
+`SceneRequest` は Additive 読み込み専用である。画面遷移全体の制御までは担当しない。
 
 ## まとめ
-`AssetSystem` は、request を軽く、loader を薄く、storage を戦略の中心に置くことで、複数 backend にまたがる読み込みを統一的に扱うシステムである。
+`AssetSystem` は、「読み込み元の違い」を `Loader` に閉じ込め、「使い方の窓口」を `Storage` にそろえるための仕組みである。
 
-使い分けの基準は次の通りである。
+使い始めるときは、次の順で考えると迷いにくい。
 
-- 読み込んだものを明示的に保持したいなら `SimpleAssetStorage` / `SimpleSceneStorage`
-- 上限付きキャッシュで自動退避したいなら `LruAssetStorage` / `LruSceneStorage`
-- backend 固有処理を増やしたいなら `IAssetLoader` / `ISceneLoader` の実装追加
-- 呼び出し側から文字列アドレスを隠したいなら独自 request struct の追加
+1. 読み込み元に合った loader を選ぶ
+2. `Simple` か `LRU` の storage を選ぶ
+3. `LoadAsync(...)` して `Result` を受け取る
+4. 使い終わったら `Unload(...)` または `Dispose()` する

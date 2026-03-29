@@ -2,43 +2,26 @@
 
 ## 目的
 
-`NavigationSystem` は、アプリ内の画面遷移を `RootNode` / `SessionNode` / `ScreenNode` の階層として管理する仕組みです。
+`NavigationSystem` は、画面遷移を `RootNode` / `SessionNode` / `ScreenNode` の階層で管理する仕組みです。
 
-- どの画面がどのスコープに属するかを `Lifecycle` として定義する
-- 実際にどの順序で遷移できるかを `Router` として定義する
-- ノードのロード、初期化、表示、終了、破棄の順序を `NavigationEngine` が統一的に制御する
+利用者は主に次の 3 つを定義します。
 
-単に「次の画面へ飛ぶ」だけではなく、画面の所属関係、戻り先、シーン切り替え、プリロードをまとめて扱えるのが特徴です。
+- どんな画面構造にするか
+- どこからどこへ遷移できるか
+- 各画面で何を読み込み、いつ解放するか
 
-## 基本構成
+## まず押さえること
 
-主要な構成要素は次のとおりです。
-
-- `NavigationEngine`
-  - 外部から利用する中心 API
-  - `TransitionTo`, `Back`, `Reset`, `PreLoad`, `Update` などを提供する
-- `NavNodeTree`
-  - `Lifecycle` と現在の実行状態を保持する
-  - 共通親を見つけて、閉じるノードと開くノードを決定する
-- `INavNodeStateRouter`
-  - 戻る操作やショートカットを含む遷移ルールを管理する
-  - 実装として `NavNodeStackRouter` と `NavNodeTreeRouter` がある
-- `NavNode`
-  - すべてのノードの基底クラス
-  - 各フェーズのフックをオーバーライドして振る舞いを実装する
-
-## ノード階層
-
-`NavigationSystem` は、ノードを次の役割で分けます。
+### Node の役割
 
 - `RootNode`
   - アプリ全体のルート
 - `SessionNode`
-  - シーン単位、大きな機能単位、まとまった遷移単位
+  - 大きな機能単位やシーン単位
 - `ScreenNode`
-  - 実際の画面やダイアログに相当する単位
+  - 実際の画面やダイアログ
 
-典型的な構造は次のようになります。
+典型的には次のような構造になります。
 
 ```text
 RootNode
@@ -48,256 +31,369 @@ RootNode
       └─ ScreenNode
 ```
 
-`SessionNode` は `RootNode` 直下に置き、`ScreenNode` は `SessionNode` または別の `ScreenNode` の子として配置します。
+### Lifecycle と Router は別物
 
-## Lifecycle と Router の分担
+- `Lifecycle`
+  - Node の親子関係を定義する
+- `Router`
+  - 実際の遷移ルールを定義する
 
-`NavigationSystem` を理解するうえで重要なのが、`Lifecycle` と `Router` を分けて考えることです。
+「どこに属する画面か」と「どこへ遷移できるか」は分けて考えるのが基本です。
 
-### Lifecycle
+## 基本的な使い方
 
-`Lifecycle` は、ノードの親子関係を定義します。
+### 1. Lifecycle を定義する
 
 ```csharp
-var engine = NavigationEngineBuilder.Create()
+var builder = NavigationEngineBuilder.Create()
     .CreateLifecycle<AppRootNode>(Id.Root, root => {
-        root.AddSession<IntroductionSessionNode>(Id.Introduction, introduction => {
-            introduction.AddScreen<TitleTopScreenNode>(Id.TitleTop)
-                .AddScreen<TitleOptionScreenNode>(Id.TitleOption);
-        });
-
-        root.AddSession<OutGameSessionNode>(Id.OutGame, outGame => {
-            outGame.AddScreen<SortieScreenNode>(Id.Sortie, sortie => {
-                sortie.AddScreen<SortieTopScreenNode>(Id.SortieTop);
-            });
+        root.AddSession<MainSessionNode>(Id.Main, session => {
+            session.AddScreen<HomeScreenNode>(Id.Home)
+                .AddScreen<SettingsScreenNode>(Id.Settings);
         });
     });
 ```
 
-この段階で決まるのは「どのノードがどの親に属するか」までです。  
-まだ「どこからどこへ遷移できるか」は決まりません。
+ここで定義するのは構造だけです。  
+この時点では、まだ遷移ルールは決まりません。
 
-### Router
-
-`Router` は、`Lifecycle` 上のノードに対して実際の遷移ルートを定義します。
+### 2. 必要なら Router を定義する
 
 ```csharp
-.CreateRouter(container =>
+builder = builder.CreateRouter(container =>
     NavNodeTreeRouterBuilder.Create()
-        .AddRoot(Id.TitleTop, titleTop => {
-            titleTop.Connect(Id.TitleOption)
-                .Connect(Id.SortieTop)
-                .SetGlobalShortcut();
+        .AddRoot(Id.Home, home => {
+            home.Connect(Id.Settings);
         })
-        .Build(container))
+        .Build(container));
 ```
 
-ここでは、たとえば次のような情報を持たせられます。
+`Router` を作ると、`Back()` や遷移履歴を使った制御ができます。  
+`Router` を使わない場合は、`TransitionTo(...)` を直接呼ぶ形が中心になります。
 
-- どの画面からどの画面へ進めるか
-- `Back()` したときにどこへ戻るか
-- 特定のスコープ内だけで有効なショートカット
-- どこからでも飛べるグローバルショートカット
+### 3. Engine を生成する
 
-`Lifecycle` が「所属関係」、`Router` が「遷移ルール」です。
+```csharp
+var engine = builder.Build();
+```
 
-## ノードのライフサイクル
+VContainer を使う場合は、親 resolver を渡して build できます。
 
-`NavNode` には、生成時、遷移時、破棄時にそれぞれフックがあります。
+```csharp
+var engine = builder.Build(globalResolver);
+```
 
-### エンジン生成時に 1 回呼ばれるもの
-
-- `Standby`
-  - `NavigationEngine` の参照や DI 解決結果を受け取る初期待機
-
-### 通常の遷移で使われるもの
-
-- 開く側
-  - `LoadRoutine`
-  - `InitializeRoutine`
-  - `PreOpen`
-  - `OpenRoutine`
-  - `PostOpen`
-  - `Activate`
-- 閉じる側
-  - `Deactivate`
-  - `PreClose`
-  - `CloseRoutine`
-  - `PostClose`
-  - `Terminate`
-  - `Unload`
-
-用途の目安は次のとおりです。
-
-- `LoadRoutine`
-  - アセットやシーンの読み込み
-- `InitializeRoutine`
-  - 読み込み後の初期化
-- `OpenRoutine` / `CloseRoutine`
-  - 画面アニメーション
-- `Activate` / `Deactivate`
-  - 実行開始、実行停止
-- `Terminate` / `Unload`
-  - 終了処理とリソース解放
-
-`ScreenNode` だけが `PreOpen` / `OpenRoutine` / `PostOpen` と `PreClose` / `CloseRoutine` / `PostClose` を持ち、表示演出を担当します。
-
-なお、実際の呼び順は `ITransition` 実装に依存します。
-
-- `OutInTransition`
-  - 閉じる処理を終えてから次を開く
-- `CrossTransition`
-  - 読み込みや開閉演出を並行気味に進める
-
-### エンジン破棄時に呼ばれるもの
-
-- `Shutdown`
-  - 強制終了時の後始末
-- `Release`
-  - `Standby` で確保した状態や DI スコープの解放
-
-## 遷移時の挙動
-
-`NavNodeTree` は、現在ノードと遷移先ノードの共通親を探し、そこを境に閉じるノード列と開くノード列を組み立てます。  
-そのため、同じ `SessionNode` 配下の画面切り替えでは差分だけが処理され、別セッションへ移るときは親側も含めて再構築されます。
-
-`TransitionOption` には `Refresh` フラグがあります。
-
-- `Refresh == false`
-  - 共通親を活かして差分遷移する
-- `Refresh == true`
-  - 共通親を使わず、ルート側から開き直す
-
-アプリの再起動に近い画面復帰や、同じノードを完全に作り直したいときは `refresh: true` を使います。
-
-## NavigationEngine の主要 API
+## `NavigationEngine` の主な API
 
 - `TransitionTo<TScreen>(nodeId, ...)`
-  - 指定ノードへ遷移する
-  - 遷移前に `setupAction` で遷移先ノードを設定できる
-- `Back(depth, ...)`
-  - `Router` が持つ履歴を使って戻る
+  - 指定した画面へ遷移する
+- `Back(...)`
+  - Router の履歴を使って戻る
 - `Reset(...)`
-  - 現在のノード階層を閉じて同じ階層を再構築する
-- `GetCurrentNode()`
-  - 現在のノードを取得する
-- `GetNodeInParent<TNode>()`
-  - 現在ノードの親階層から特定型を探す
-- `GetBackNodeInParent<TNode>()`
-  - 戻り先の親階層から特定型を探す
-- `TryGetChildNodeId<TNode>(out nodeId)`
-  - 現在ノード配下から特定型のノード ID を探す
-- `PreLoad(nodeId)` / `UnPreLoad(nodeId)`
-  - 遷移前にロードだけ先行しておく
+  - 現在の path を閉じて同じ path を開き直す
+- `PreLoad(nodeId)`
+  - 遷移前に対象画面のロードを先行する
+- `UnPreLoad(nodeId)`
+  - 先行ロード状態を解除する
+- `Update()`
+  - 毎フレーム呼ぶ
 
-`Back()` は Router 前提の API なので、Router を構築しない場合は使えません。
+`Back(...)` は Router を構築している場合に使います。
 
-## シーン遷移向けの SessionNode
+## 自前の Node を作る
 
-`SessionNode` にはシーン切り替え用の派生基底が用意されています。
+利用者が最も触るのは `RootNode` / `SessionNode` / `ScreenNode` の実装です。  
+最初は「Root は全体」「Session はまとまり」「Screen は実画面」と分けて考えると分かりやすくなります。
 
-- `SceneSessionNode`
-  - 指定シーンを `LoadSceneMode.Single` で読み込む
-  - 必ず `OutInTransition` を使う
-- `AdditiveSceneSessionNode`
-  - 指定シーンを `LoadSceneMode.Additive` で読み込む
-  - こちらも `OutInTransition` を使う
-
-シーンをまたぐ大きな遷移を `SessionNode` として表し、その内部の画面差分を `ScreenNode` で表現するのが基本パターンです。
-
-## VContainer 利用時の挙動
-
-VContainer が導入されている場合、各 `NavNode` が `IObjectResolver` を持ち、親ノードから子ノードへ DI スコープが連鎖します。
-
-### エンジン構築時
-
-`NavigationEngineBuilder.Build()` は、VContainer 利用時に親 `IObjectResolver` を受け取れます。
+### 最小構成の例
 
 ```csharp
-_engine = NavigationEngineBuilder.Create()
-    .CreateLifecycle<AppRootNode>(Id.Root, SetupLifecycle)
-    .CreateRouter(container => SetupRouter(container))
-    .Build(globalResolver);
+public static class ScreenIds {
+    public const int Root = 1;
+    public const int MainSession = 100;
+    public const int Home = 1000;
+    public const int Settings = 1001;
+}
+
+public sealed class AppRootNode : RootNode {
+}
+
+public sealed class MainSessionNode : SessionNode {
+}
+
+public sealed class HomeScreenNode : ScreenNode {
+}
+
+public sealed class SettingsScreenNode : ScreenNode {
+}
 ```
 
-このときのスコープ生成は次のようになります。
+これを Lifecycle に登録します。
 
-- `RootNode`
-  - `Build(globalResolver)` で渡した `globalResolver` を親として `CreateScope(Configure)` する
-- `SessionNode` / `ScreenNode`
-  - 親ノードの `ObjectResolver` を親として `CreateScope(Configure)` する
+```csharp
+var engine = NavigationEngineBuilder.Create()
+    .CreateLifecycle<AppRootNode>(ScreenIds.Root, root => {
+        root.AddSession<MainSessionNode>(ScreenIds.MainSession, session => {
+            session.AddScreen<HomeScreenNode>(ScreenIds.Home)
+                .AddScreen<SettingsScreenNode>(ScreenIds.Settings);
+        });
+    })
+    .Build();
+```
 
-つまり、ノード階層と同じ形で VContainer の子スコープが作られます。
+### `ScreenNode` の基本実装例
 
-### `Configure` の役割
+利用者が最もよく書くのは `ScreenNode` です。  
+最初の 1 画面は次のような形で実装すると整理しやすくなります。
 
-`NavNode` では `Configure(IContainerBuilder builder)` をオーバーライドして、そのノード専用の登録を追加できます。
+```csharp
+public sealed class HomeScreenNode : ScreenNode {
+    private HomeScreenView _view;
+
+    protected override IEnumerator LoadRoutine(TransitionHandle<INavNode> handle, IScope scope) {
+        _view = HomeScreenView.Create();
+        _view.SetVisible(false);
+        yield break;
+    }
+
+    protected override IEnumerator InitializeRoutine(TransitionHandle<INavNode> handle, IScope scope) {
+        _view.Initialize();
+        yield break;
+    }
+
+    protected override void Activate(TransitionHandle<INavNode> handle, IScope scope) {
+        _view.OnClickSettings += OnClickSettings;
+    }
+
+    protected override void Deactivate(TransitionHandle<INavNode> handle, IScope scope) {
+        _view.OnClickSettings -= OnClickSettings;
+    }
+
+    protected override IEnumerator OpenRoutine(TransitionHandle<INavNode> handle, IScope scope) {
+        _view.SetVisible(true);
+        yield return _view.PlayOpenAnimation();
+    }
+
+    protected override IEnumerator CloseRoutine(TransitionHandle<INavNode> handle, IScope scope) {
+        yield return _view.PlayCloseAnimation();
+        _view.SetVisible(false);
+    }
+
+    protected override void Unload(TransitionHandle<INavNode> handle, IScope scope) {
+        _view.Dispose();
+        _view = null;
+    }
+
+    private void OnClickSettings() {
+        // 遷移用のサービスやナビゲータを呼ぶ
+    }
+}
+```
+
+この例では次の分担になっています。
+
+- `LoadRoutine(...)`
+  - View やアセットを用意する
+- `InitializeRoutine(...)`
+  - 用意したものを初期化する
+- `Activate(...)`
+  - イベント購読を開始する
+- `Deactivate(...)`
+  - イベント購読を解除する
+- `OpenRoutine(...)` / `CloseRoutine(...)`
+  - 表示演出を行う
+- `Unload(...)`
+  - `LoadRoutine(...)` で作ったものを解放する
+
+### `SessionNode` の基本実装例
+
+`SessionNode` には、そのセッション配下で共有したい前提を置きます。
+
+```csharp
+public sealed class MainSessionNode : SessionNode {
+    private MainSessionContext _context;
+
+    protected override IEnumerator LoadRoutine(TransitionHandle<INavNode> handle, IScope scope) {
+        _context = new MainSessionContext();
+        yield break;
+    }
+
+    protected override IEnumerator InitializeRoutine(TransitionHandle<INavNode> handle, IScope scope) {
+        _context.Initialize();
+        yield break;
+    }
+
+    protected override void Unload(TransitionHandle<INavNode> handle, IScope scope) {
+        _context.Dispose();
+        _context = null;
+    }
+}
+```
+
+複数の `ScreenNode` で共有する前提があるなら、`ScreenNode` ごとに重複実装せず `SessionNode` 側へ寄せると扱いやすくなります。
+
+### `RootNode` の基本実装例
+
+`RootNode` は必須ですが、特別な処理がなければ空実装でも問題ありません。
+
+```csharp
+public sealed class AppRootNode : RootNode {
+}
+```
+
+アプリ全体で共有する仕組みを置きたい場合だけ、`RootNode` に処理を追加します。
+
+## 何をどこに書くべきか
+
+### よく使うフック
+
+- `LoadRoutine(...)`
+  - アセット、Prefab、データなどの読み込み
+- `InitializeRoutine(...)`
+  - 読み込み後の初期化
+- `Activate(...)`
+  - 画面を使い始めるタイミングの処理
+- `Deactivate(...)`
+  - 画面を使い終えるタイミングの処理
+- `Unload(...)`
+  - `LoadRoutine(...)` で確保したものの解放
+- `Release()`
+  - `Standby(...)` で立ち上がった runtime context の解放
+
+`ScreenNode` では、さらに次の表示演出用フックを使えます。
+
+- `PreOpen(...)`
+- `OpenRoutine(...)`
+- `PostOpen(...)`
+- `PreClose(...)`
+- `CloseRoutine(...)`
+- `PostClose(...)`
+
+### 実装時の目安
+
+- `LoadRoutine(...)`
+  - その Node 自身で完結する読み込み
+- `InitializeRoutine(...)`
+  - 親 Node の構築結果に依存する初期化
+- `Activate(...)`
+  - 購読開始、入力受付開始、表示中だけ必要な処理
+- `Deactivate(...)`
+  - 購読解除、入力停止
+- `Unload(...)`
+  - 読み込んだリソースの解放
+
+特に重要なのは、親 Node の構築に依存する処理を `LoadRoutine(...)` に書かないことです。  
+そうした処理は `InitializeRoutine(...)` に寄せてください。
+
+## runtime の寿命
+
+### Node インスタンスは常駐する
+
+Node 自体は `Build()` 時に生成され、`NavigationEngine` の寿命中は常駐します。
+
+### runtime context は利用時に作られる
+
+現在の設計では、runtime context は利用時に `Standby(...)` で立ち上がります。
+
+- `Build()` しただけでは `Standby(...)` されない
+- 遷移時や `PreLoad` 時に、必要な path が `Standby(...)` される
+- 不要になった Node は `Release()` で runtime context が破棄される
+
+このため、Node の寿命と、DI や注入済み依存の寿命は同じではありません。
+
+## VContainer 利用時
+
+### `Configure(...)` の役割
+
+VContainer を使う場合、各 Node は `Configure(IContainerBuilder builder)` で、その Node 用の依存を登録できます。
 
 ```csharp
 protected override void Configure(IContainerBuilder builder) {
     base.Configure(builder);
-
-    builder.Register<ModelViewerDomainService>(Lifetime.Singleton);
-    builder.Register<ModelViewerAppService>(Lifetime.Singleton);
+    builder.Register<InventoryService>(Lifetime.Singleton);
 }
 ```
 
-この登録は、そのノード自身と子孫ノードから参照できます。  
-`ModelViewerSessionNode` のように、セッション単位で Application / Domain / Infrastructure をまとめて登録する使い方が基本になります。
+登録した依存は、その Node と子孫 Node から参照できます。
 
-### `Inject` と `Standby` のタイミング
+### いつ生成されるか
 
-各ノードでは、スコープ生成後に `Standby(engine)` が呼ばれます。  
-VContainer 利用時は、この `Standby` の直前に `ObjectResolver.Inject(this)` が実行されます。
+resolver は `Build()` 時には作られず、その Node が `Standby(...)` される時点で生成されます。
 
-そのため、次のようなフィールドインジェクションを使えます。
+- `RootNode`
+  - `Build(parentResolver)` で渡した親 resolver を親にする
+- `SessionNode` / `ScreenNode`
+  - 親 Node の resolver を親にする
 
-```csharp
-[Inject]
-private ModelViewerAppService _appService;
-```
+### いつ注入されるか
 
-以降、`Standby`, `LoadRoutine`, `InitializeRoutine` などでは注入済みの依存を利用できます。
+`Inject(this)` は resolver 生成後、`Standby(...)` の前に実行されます。  
+そのため、`Standby(...)`、`LoadRoutine(...)`、`InitializeRoutine(...)` では注入済み依存を利用できます。
 
-### 利用時の見方
+### いつ破棄されるか
 
-- アプリ全体の共有依存
-  - `Build(globalResolver)` に渡す親コンテナに登録する
-- 特定セッションだけで使う依存
-  - その `SessionNode.Configure()` に登録する
-- 特定画面だけで使う依存
-  - その `ScreenNode.Configure()` に登録する
+resolver は `Release()` で破棄されます。  
+つまり、`Configure(...)` で登録した依存の寿命は「その Node が使われている runtime 期間」です。
 
-この分け方にすると、ノードのライフサイクルと DI の寿命が一致しやすくなります。
+## `PreLoad` の考え方
 
-### 破棄時
+`PreLoad` は便利ですが、通常の画面実装より少し応用的な機能です。  
+まずは通常遷移を正しく実装し、そのあと必要になったら使うのがおすすめです。
 
-ノード破棄時の `Release()` 内で、そのノードの `ObjectResolver` も `Dispose()` されます。  
-そのため、ノードスコープに閉じた依存はノード終了と一緒に解放されます。
+### `PreLoad` がやること
 
-## サンプル実装との対応
+`PreLoad(target)` は、target 単体の先読みではなく、target までの path を利用可能状態にしてから target の `LoadRoutine(...)` を先に実行します。
 
-`Assets/SampleGame/Scripts/Runtime/Lifecycle/AppNavigator.cs` では、`NavigationEngineBuilder` を使って `Lifecycle` と `Router` を組み立てています。
+保証されるのは次の内容です。
 
-- `SetupIntroductionLifecycle`
-  - Introduction 配下のノード構造を定義する
-- `SetupOutGameLifecycle`
-  - OutGame 配下のノード構造を定義する
-- `ConnectIntroductionTitleTopTreeNode`
-  - Title 系画面からの遷移ルールを定義する
-- `ConnectOutGameSortieTopTreeNode`
-  - Sortie 系画面からの遷移ルールを定義する
+- target までの path が `Standby(...)` 済み
+- target の `LoadRoutine(...)` が実行済み
 
-また、`GetDefaultTransitionInfo()` では現在の `SessionNode` と遷移先の `SessionNode` を比較し、同一セッション内なら `CrossTransition`、別セッションなら `OutInTransition + LoadingEffect` に切り替えています。  
-このように、`NavigationEngine` の補助ロジックをアプリ側のナビゲータにまとめると、UI からは用途別メソッドだけを呼べる構成にしやすくなります。
+### `PreLoad` が保証しないこと
 
-## 運用の目安
+次は保証しません。
 
-- ノード型は責務ごとに別ファイルへ分ける
-- ノード ID は集中管理する
+- 親 Node の `LoadRoutine(...)` 完了
+- 親 Node の `InitializeRoutine(...)` 完了
+- 親の scene / UI / manager の構築完了
+
+そのため、`PreLoad` は「今すぐ表示できる状態を作る」APIではなく、「事前に読めるものだけを読む」APIとして使うのが安全です。
+
+### `UnPreLoad`
+
+`UnPreLoad(target)` は preload 状態を解除します。  
+ただし、その Node や親 path がまだ使用中なら、すぐには解放されません。
+
+## 自前の Node を実装するときの注意点
+
 - `Lifecycle` と `Router` の責務を混ぜない
-- 画面演出は `ScreenNode` に寄せる
-- シーン単位の切り替えは `SessionNode` に寄せる
-- 画面から直接 `NavigationEngine` を散発的に触らず、`AppNavigator` のような窓口を置く
+- `LoadRoutine(...)` に親依存の初期化を書かない
+- 表示中だけ必要な購読やハンドラは `Activate(...)` / `Deactivate(...)` に寄せる
+- `LoadRoutine(...)` で確保したものは `Unload(...)` で解放する
+- `Configure(...)` には、その Node 配下で共有したい依存だけを置く
+- Node ID は一箇所で管理する
+- `NavigationEngine` をアプリ全体で直接散発的に触るより、用途別の窓口クラスを 1 つ用意したほうが扱いやすい
 
-この方針にすると、画面構造の把握、戻る動作の制御、再利用可能な遷移ロジックの共有がしやすくなります。
+## どの Node を選ぶか
+
+- アプリ全体で 1 つだけ持つまとまり
+  - `RootNode`
+- 大きな画面グループ、シーン単位のまとまり
+  - `SessionNode`
+- 実際の画面、ダイアログ、子画面
+  - `ScreenNode`
+
+シーン切り替えを伴うセッションには、`SceneSessionNode` や `AdditiveSceneSessionNode` も利用できます。
+
+## まとめ
+
+`NavigationSystem` は、「画面遷移」だけでなく「画面の所属構造」「ロード順序」「解放順序」をまとめて扱うための仕組みです。
+
+利用時は次の考え方を基準にすると扱いやすくなります。
+
+- 構造は `Lifecycle`
+- 遷移ルールは `Router`
+- 読み込みは `LoadRoutine(...)`
+- 親依存の初期化は `InitializeRoutine(...)`
+- 利用時の runtime 開始は `Standby(...)`
+- 未使用化時の runtime 解放は `Release()`
