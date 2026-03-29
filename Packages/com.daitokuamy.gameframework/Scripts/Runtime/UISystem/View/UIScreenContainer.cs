@@ -30,6 +30,7 @@ namespace GameFramework.UISystem {
 
             public TransitionDirection Direction { get; set; }
             public TransitionState State { get; set; }
+            public Exception Exception { get; set; }
             public UIScreen Prev { get; set; }
             public UIScreen Next { get; set; }
             public Coroutine Coroutine { get; set; }

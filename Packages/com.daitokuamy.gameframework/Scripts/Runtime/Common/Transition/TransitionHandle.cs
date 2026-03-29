@@ -11,6 +11,8 @@ namespace GameFramework {
         TransitionDirection Direction { get; }
         /// <summary>遷移状態</summary>
         TransitionState State { get; }
+        /// <summary>遷移失敗時の例外</summary>
+        Exception Exception { get; }
         /// <summary>遷移前のState</summary>
         TState Prev { get; }
         /// <summary>遷移後のState</summary>
@@ -55,7 +57,7 @@ namespace GameFramework {
         public bool IsDone => !IsValid || TransitionState == TransitionState.Completed ||
                               TransitionState == TransitionState.Canceled;
         /// <summary>例外</summary>
-        public Exception Exception { get; private set; }
+        public Exception Exception => _transitionInfo?.Exception ?? _exception;
         /// <summary>遷移前のState</summary>
         public TState Prev => _transitionInfo?.Prev;
         /// <summary>遷移後のState</summary>
@@ -67,12 +69,14 @@ namespace GameFramework {
         /// <summary>遷移状態</summary>
         public TransitionState TransitionState => _transitionInfo?.State ?? TransitionState.Invalid;
 
+        private readonly Exception _exception;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public TransitionHandle(ITransitionInfo<TState> info) {
             _transitionInfo = info;
-            Exception = null;
+            _exception = null;
         }
 
         /// <summary>
@@ -80,7 +84,7 @@ namespace GameFramework {
         /// </summary>
         public TransitionHandle(Exception exception) {
             _transitionInfo = null;
-            Exception = exception;
+            _exception = exception;
         }
 
         /// <inheritdoc/>

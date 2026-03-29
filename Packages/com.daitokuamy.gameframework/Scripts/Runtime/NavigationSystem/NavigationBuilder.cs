@@ -108,7 +108,7 @@ namespace GameFramework.NavigationSystem {
             }
 
 #if USE_VCONTAINER
-            _sessionNode.Setup(_nodeId, parentNode, parentNode.ObjectResolver);
+            _sessionNode.Setup(_nodeId, parentNode, null);
 #else
             _sessionNode.Setup(_nodeId, parentNode);
 #endif
@@ -169,7 +169,7 @@ namespace GameFramework.NavigationSystem {
             }
 
 #if USE_VCONTAINER
-            _screenNode.Setup(_nodeId, parentNode, parentNode.ObjectResolver);
+            _screenNode.Setup(_nodeId, parentNode, null);
 #else
             _screenNode.Setup(_nodeId, parentNode);
 

@@ -113,7 +113,7 @@ namespace GameFramework.NavigationSystem {
         void Release();
 
         /// <summary>
-        /// 強制終了処理
+        /// Release 状態になるまで安全に強制終了する
         /// </summary>
         /// <param name="handle">遷移ハンドル</param>
         void Shutdown(TransitionHandle<INavNode> handle);

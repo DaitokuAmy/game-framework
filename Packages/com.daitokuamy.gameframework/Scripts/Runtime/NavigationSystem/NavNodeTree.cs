@@ -56,6 +56,8 @@ namespace GameFramework.NavigationSystem {
             /// <inheritdoc/>
             public TransitionState State { get; set; }
             /// <inheritdoc/>
+            public Exception Exception { get; set; }
+            /// <inheritdoc/>
             public INavNode Prev => PrevNodes.FirstOrDefault();
             /// <inheritdoc/>
             public INavNode Next => NextNodes.LastOrDefault();
@@ -86,6 +88,7 @@ namespace GameFramework.NavigationSystem {
         private readonly IReadOnlyDictionary<int, INavNode> _nodeMap;
         private readonly List<INavNode> _runningNodes = new();
         private readonly Dictionary<INavNode, PreLoadInfo> _preLoadInfos = new();
+        private readonly NavigationEngine _engine;
 
         private TransitionInfo _transitionInfo;
         private CoroutineRunner _coroutineRunner;
@@ -103,47 +106,38 @@ namespace GameFramework.NavigationSystem {
         /// <param name="engine">Navigation制御用エンジン</param>
         public NavNodeTree(IRootNode rootNode, IReadOnlyDictionary<int, INavNode> nodeMap, NavigationEngine engine) {
             _coroutineRunner = new();
+            _engine = engine;
             _rootNode = rootNode;
             _nodeMap = nodeMap;
-            foreach (var node in _nodeMap.Values) {
-                node.Standby(engine);
-            }
         }
 
         /// <summary>
         /// 廃棄時処理
         /// </summary>
         public void Dispose() {
+            if (_transitionInfo != null && _transitionInfo.State != TransitionState.Completed && _transitionInfo.State != TransitionState.Canceled) {
+                _transitionInfo.State = TransitionState.Canceled;
+                _transitionInfo.Exception = new OperationCanceledException();
+                _transitionInfo.SendFinish();
+                _transitionInfo = null;
+            }
+
             // 非同期処理停止
             _coroutineRunner.StopAllCoroutines();
             _coroutineRunner.Dispose();
             _coroutineRunner = null;
 
-            var emptyHandle = TransitionHandle<INavNode>.Empty;
-
-            // PreLoad分をUnload
             var preLoadInfos = _preLoadInfos.Values.ToArray();
             _preLoadInfos.Clear();
             foreach (var info in preLoadInfos) {
                 if (!info.AsyncOperator.IsDone) {
                     info.AsyncOperator.Aborted(new OperationCanceledException());
                 }
-
-                if (_runningNodes.Contains(info.Node)) {
-                    continue;
-                }
-
-                info.Node.Unload(emptyHandle);
             }
 
-            // 有効なNodeを廃棄
-            for (var i = _runningNodes.Count - 1; i >= 0; i--) {
-                var node = _runningNodes[i];
+            var emptyHandle = TransitionHandle<INavNode>.Empty;
+            foreach (var node in _nodeMap.Values.OrderByDescending(GetNodeDepth)) {
                 node.Shutdown(emptyHandle);
-            }
-
-            foreach (var node in _nodeMap.Values) {
-                node.Release();
             }
         }
 
@@ -190,6 +184,10 @@ namespace GameFramework.NavigationSystem {
         /// <inheritdoc/>
         IEnumerator ITransitionResolver.LoadNextRoutine() {
             _transitionInfo.State = TransitionState.Initializing;
+
+            for (var i = 0; i < _transitionInfo.NextNodes.Count; i++) {
+                _transitionInfo.NextNodes[i].Standby(_engine);
+            }
 
             var handle = new TransitionHandle<INavNode>(_transitionInfo);
             var routines = new List<IEnumerator>();
@@ -321,6 +319,7 @@ namespace GameFramework.NavigationSystem {
                 }
 
                 _transitionInfo.PrevNodes[i].Unload(handle);
+                ReleaseIfUnused(node);
             }
         }
 
@@ -420,11 +419,14 @@ namespace GameFramework.NavigationSystem {
                 State = TransitionState.Standby,
                 Effects = effects
             };
+            var transitionInfo = _transitionInfo;
 
             // コルーチンの登録
             void FinishTransition() {
-                var transitionInfo = _transitionInfo;
-                _transitionInfo = null;
+                if (ReferenceEquals(_transitionInfo, transitionInfo)) {
+                    _transitionInfo = null;
+                }
+
                 transitionInfo.SendFinish();
             }
 
@@ -475,14 +477,17 @@ namespace GameFramework.NavigationSystem {
                 State = TransitionState.Standby,
                 Effects = effects
             };
+            var transitionInfo = _transitionInfo;
 
             // 初期化通知
             setupAction?.Invoke(Current);
 
             // コルーチンの登録
             void FinishTransition() {
-                var transitionInfo = _transitionInfo;
-                _transitionInfo = null;
+                if (ReferenceEquals(_transitionInfo, transitionInfo)) {
+                    _transitionInfo = null;
+                }
+
                 transitionInfo.SendFinish();
             }
 
@@ -661,12 +666,15 @@ namespace GameFramework.NavigationSystem {
             }
 
             preLoadInfo.Node.Unload(TransitionHandle<INavNode>.Empty);
+            ReleaseUnusedPath(preLoadInfo.Node);
         }
 
         /// <summary>
         /// 遷移ルーチン
         /// </summary>
         private IEnumerator TransitionRoutine(INavNode nextNode, Action<INavNode> setupAction, ITransition transition) {
+            StandbyPath(nextNode);
+
             // アクティブなNodeの更新
             _runningNodes.Clear();
             {
@@ -692,8 +700,91 @@ namespace GameFramework.NavigationSystem {
             }
 
             preLoadInfo.State = PreLoadState.PreLoading;
+            StandbyPath(preLoadInfo.Node);
             yield return preLoadInfo.Node.LoadRoutine(TransitionHandle<INavNode>.Empty);
             preLoadInfo.State = PreLoadState.PreLoaded;
+        }
+
+        /// <summary>
+        /// 指定ノードまでのパスを standby 状態にする
+        /// </summary>
+        private void StandbyPath(INavNode node) {
+            if (node == null) {
+                return;
+            }
+
+            var path = new List<INavNode>();
+            var current = node;
+            while (current != null) {
+                path.Add(current);
+                current = current.Parent;
+            }
+
+            for (var i = path.Count - 1; i >= 0; i--) {
+                path[i].Standby(_engine);
+            }
+        }
+
+        /// <summary>
+        /// 指定ノードから親方向へ不要な runtime を解放する
+        /// </summary>
+        private void ReleaseUnusedPath(INavNode node) {
+            var current = node;
+            while (current != null) {
+                ReleaseIfUnused(current);
+                current = current.Parent;
+            }
+        }
+
+        /// <summary>
+        /// 未使用なら node の runtime を解放する
+        /// </summary>
+        private void ReleaseIfUnused(INavNode node) {
+            if (IsNodeRequired(node)) {
+                return;
+            }
+
+            node.Release();
+        }
+
+        /// <summary>
+        /// node がまだ必要かどうか
+        /// </summary>
+        private bool IsNodeRequired(INavNode node) {
+            if (_runningNodes.Contains(node)) {
+                return true;
+            }
+
+            foreach (var info in _preLoadInfos.Values) {
+                if (info.ReferenceCount <= 0) {
+                    continue;
+                }
+
+                var current = info.Node;
+                while (current != null) {
+                    if (current == node) {
+                        return true;
+                    }
+
+                    current = current.Parent;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// ノードの深さを取得する
+        /// </summary>
+        private static int GetNodeDepth(INavNode node) {
+            var depth = 0;
+            var current = node;
+            while (current != null) {
+                depth++;
+                current = current.Parent;
+            }
+
+            return depth;
         }
     }
 }

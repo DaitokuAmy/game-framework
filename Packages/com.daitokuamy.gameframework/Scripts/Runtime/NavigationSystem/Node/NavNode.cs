@@ -19,6 +19,10 @@ namespace GameFramework.NavigationSystem {
         private int _nodeId;
         private INavNode _parent;
 
+#if USE_VCONTAINER
+        private IObjectResolver _parentObjectResolver;
+#endif
+
         /// <inheritdoc/>
         bool INavNode.IsParallelLoading => IsParallelLoading;
         /// <inheritdoc/>
@@ -70,24 +74,36 @@ namespace GameFramework.NavigationSystem {
             }
 
 #if USE_VCONTAINER
-            if (parentObjectResolver != null) {
-                ObjectResolver = parentObjectResolver.CreateScope(Configure);
-            }
-            else {
-                var builder = new ContainerBuilder();
-                Configure(builder);
-                ObjectResolver = builder.Build();
-            }
+            _parentObjectResolver = parentObjectResolver;
 #endif
         }
 
         /// <inheritdoc/>
         void INavNode.Standby(NavigationEngine engine) {
-            _standbyScope = new DisposableScope();
             Engine = engine;
+            if (_standbyScope != null) {
+                return;
+            }
+
 #if USE_VCONTAINER
+            if (ObjectResolver == null) {
+                if (_parent?.ObjectResolver != null) {
+                    ObjectResolver = _parent.ObjectResolver.CreateScope(Configure);
+                }
+                else if (_parentObjectResolver != null) {
+                    ObjectResolver = _parentObjectResolver.CreateScope(Configure);
+                }
+                else {
+                    var builder = new ContainerBuilder();
+                    Configure(builder);
+                    ObjectResolver = builder.Build();
+                }
+            }
+
             ObjectResolver.Inject(this);
 #endif
+
+            _standbyScope = new DisposableScope();
             Standby(_standbyScope);
         }
 
@@ -267,7 +283,7 @@ namespace GameFramework.NavigationSystem {
         protected virtual void Release() { }
 
         /// <summary>
-        /// 強制終了処理
+        /// Release 状態になるまで安全に強制終了する
         /// </summary>
         protected virtual void Shutdown(TransitionHandle<INavNode> handle) { }
     }
