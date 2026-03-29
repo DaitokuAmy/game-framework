@@ -1,50 +1,36 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.AssetSystem;
 using GameFramework;
+using GameFramework.AssetSystem;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using VContainer;
 
 namespace SampleGame.Infrastructure {
     /// <summary>
     /// 背景シーンアセット用のリポジトリ
     /// </summary>
-    public class EnvironmentSceneRepository : IDisposable {
-        private readonly DisposableScope _scope;
-
-        private IObjectResolver _objectResolver;
-        private SimpleSceneAssetStorage _environmentSceneAssetStorage;
+    public class EnvironmentSceneRepository : System.IDisposable {
+        private readonly SimpleSceneStorage _environmentSceneStorage;
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public EnvironmentSceneRepository() {
-            _scope = new DisposableScope();
+            _environmentSceneStorage = new SimpleSceneStorage(AssetUtility.CreateSceneLoaders());
         }
 
         /// <summary>
-        /// 廃棄時処理
+        /// 破棄処理
         /// </summary>
         public void Dispose() {
-            _scope.Dispose();
-        }
-
-        /// <summary>
-        /// サービスのDI
-        /// </summary>
-        [Inject]
-        private void Construct(IObjectResolver objectResolver, AssetManager assetManager) {
-            _objectResolver = objectResolver;
-            _environmentSceneAssetStorage = new SimpleSceneAssetStorage(assetManager).RegisterTo(_scope);
+            _environmentSceneStorage.Dispose();
         }
 
         /// <summary>
         /// フィールドシーンの読み込み
         /// </summary>
         public UniTask<Scene> LoadFieldSceneAsync(string assetKey, CancellationToken ct) {
-            var request = new FieldSceneAssetRequest(assetKey);
+            var request = new FieldSceneRequest(assetKey, activateOnLoad: false);
             return LoadSceneAsyncInternal(request, ct);
         }
 
@@ -52,32 +38,32 @@ namespace SampleGame.Infrastructure {
         /// フィールドシーンのアンロード
         /// </summary>
         public void UnloadFieldScene(string assetKey) {
-            var request = new FieldSceneAssetRequest(assetKey);
+            var request = new FieldSceneRequest(assetKey, activateOnLoad: false);
             UnloadSceneInternal(request);
         }
 
         /// <summary>
         /// シーンの読み込み
         /// </summary>
-        private async UniTask<Scene> LoadSceneAsyncInternal(EnvironmentSceneAssetRequest request, CancellationToken ct) {
-            var handle = _environmentSceneAssetStorage.LoadAssetAsync(request);
-            await handle.ToUniTask(cancellationToken: ct);
+        private async UniTask<Scene> LoadSceneAsyncInternal(FieldSceneRequest request, CancellationToken ct) {
+            var process = _environmentSceneStorage.LoadAsync(request);
+            await process.ToUniTask(cancellationToken: ct);
 
-            if (handle.Exception != null) {
-                Debug.LogException(handle.Exception);
+            if (process.Exception != null) {
+                Debug.LogException(process.Exception);
                 return default;
             }
 
-            await handle.ActivateAsync().ToUniTask(cancellationToken: ct);
+            await process.ActivateAsync().ToUniTask(cancellationToken: ct);
 
-            return handle.Scene;
+            return process.Scene;
         }
 
         /// <summary>
         /// シーンのアンロード
         /// </summary>
-        private void UnloadSceneInternal(EnvironmentSceneAssetRequest request) {
-            _environmentSceneAssetStorage.UnloadAsset(request);
+        private void UnloadSceneInternal(FieldSceneRequest request) {
+            _environmentSceneStorage.Unload(request);
         }
     }
 }

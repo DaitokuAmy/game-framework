@@ -33,8 +33,7 @@ namespace GameFramework.PlayableSystem {
         /// <param name="animator">Outputを反映させるAnimator</param>
         /// <param name="updateMode">更新モード</param>
         /// <param name="outputSortingOrder">Outputの出力オーダー</param>
-        public MotionPlayer(Animator animator, DirectorUpdateMode updateMode = DirectorUpdateMode.GameTime,
-            ushort outputSortingOrder = 0) {
+        public MotionPlayer(Animator animator, DirectorUpdateMode updateMode = DirectorUpdateMode.GameTime, ushort outputSortingOrder = 0) {
             Animator = animator;
             
             _graph = PlayableGraph.Create($"{nameof(MotionPlayer)}({animator.name})");
@@ -101,7 +100,7 @@ namespace GameFramework.PlayableSystem {
             // レイヤーの更新
             _rootLayerHandler.Update(deltaTime);
 
-            // JobProvider更新
+            // JobConnector更新
             JobConnector.Update(deltaTime);
 
             // Manualモードの場合、ここで骨の更新を行う
@@ -122,14 +121,14 @@ namespace GameFramework.PlayableSystem {
         /// </summary>
         public void SetSpeed(float speed) {
             speed = Mathf.Max(0.0f, speed);
-            JobConnector.SetSpeed(speed);
-            _rootLayerHandler.SetSpeed(speed);
 
-            if (Math.Abs(speed - _speed) <= float.Epsilon) {
+            if (Mathf.Abs(speed - _speed) <= float.Epsilon) {
                 return;
             }
-
+            
             _speed = speed;
+            JobConnector.SetSpeed(speed);
+            _rootLayerHandler.SetSpeed(speed);
         }
 
         /// <summary>

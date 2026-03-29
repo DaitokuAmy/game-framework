@@ -2,21 +2,17 @@ using System;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using GameFramework.AssetSystem;
 using GameFramework;
+using GameFramework.AssetSystem;
 using SampleGame.Domain.ModelViewer;
-using VContainer;
 using Object = UnityEngine.Object;
 
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
     /// モデルビューアー用テーブルデータ管理クラス
     /// </summary>
-    public partial class ModelViewerTableRepository : IDisposable, IModelViewerTableRepository {
-        private DisposableScope _scope;
-
-        [Inject]
-        private AssetManager _assetManager;
+    public partial class ModelViewerTableRepository : IModelViewerTableRepository, IDisposable {
+        private readonly SimpleAssetStorage _assetStorage;
 
         private ModelViewerActorTableData _modelViewerActorTableData;
         private ModelViewerEnvironmentTableData _modelViewerEnvironmentTableData;
@@ -25,15 +21,14 @@ namespace SampleGame.Infrastructure.ModelViewer {
         /// コンストラクタ
         /// </summary>
         public ModelViewerTableRepository() {
-            _scope = new DisposableScope();
+            _assetStorage = new SimpleAssetStorage(AssetUtility.CreateAssetLoaders());
         }
 
         /// <summary>
-        /// 廃棄時処理
+        /// 破棄処理
         /// </summary>
         public void Dispose() {
-            _scope?.Dispose();
-            _scope = null;
+            _assetStorage.Dispose();
         }
 
         /// <inheritdoc/>
@@ -71,7 +66,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
         /// </summary>
         private UniTask<T> LoadTableAsync<T>(string assetKey, CancellationToken ct)
             where T : Object {
-            return new TableDataRequest<T>(assetKey).LoadAsync(_assetManager, _scope, cancellationToken: ct);
+            return _assetStorage.LoadAsync<T, TableDataRequest<T>>(new TableDataRequest<T>(assetKey)).ToUniTask<T>(cancellationToken: ct);
         }
     }
 }

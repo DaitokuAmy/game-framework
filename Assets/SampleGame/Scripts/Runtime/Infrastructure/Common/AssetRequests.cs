@@ -1,172 +1,59 @@
-using System.Collections.Generic;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using GameFramework.AssetSystem;
-using GameFramework;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace SampleGame.Infrastructure {
     /// <summary>
-    /// Sample用のAssetRequest基底
+    /// UIプレファブの読み込み要求
     /// </summary>
-    public abstract class AssetRequest<T> : GameFramework.AssetSystem.AssetRequest<T> where T : Object {
-#if UNITY_EDITOR
-        public override string[] ProviderKeys => new[] { AssetProviderType.AssetDatabase.ToString(), AssetProviderType.Addressables.ToString() };
-#else
-        public override string[] ProviderKeys => new[] { AssetProviderType.Addressables.ToString() };
-#endif
-
-        /// <summary>
-        /// アセットの読み込み
-        /// </summary>
-        /// <param name="assetManager">アセット管理クラス</param>
-        /// <param name="unloadScope">解放スコープ</param>
-        /// <param name="ct">読み込みキャンセル用</param>
-        public async UniTask<T> LoadAsync(AssetManager assetManager, IScope unloadScope, CancellationToken ct) {
-            ct.ThrowIfCancellationRequested();
-
-            var handle = LoadAsync(assetManager, unloadScope);
-            await handle.ToUniTask(cancellationToken: ct);
-            if (!handle.IsValid) {
-                Debug.LogException(new KeyNotFoundException($"Load failed. {Address}"));
-                return null;
-            }
-
-            return handle.Asset;
-        }
-
-        /// <summary>
-        /// Projectフォルダ相対パスを絶対パスにする
-        /// </summary>
-        protected virtual string GetPath(string relativePath) {
-            return $"Assets/SampleGame/{relativePath}";
-        }
-    }
-
-    /// <summary>
-    /// Sample用のSceneAssetRequest基底
-    /// </summary>
-    public abstract class SceneAssetRequest : GameFramework.AssetSystem.SceneAssetRequest {
-        private LoadSceneMode _mode;
-
-        public override LoadSceneMode Mode => _mode;
-#if UNITY_EDITOR
-        public override string[] ProviderKeys => new[] { AssetProviderType.AssetDatabase.ToString(), AssetProviderType.Addressables.ToString() };
-#else
-        public override string[] ProviderKeys => new[] { AssetProviderType.Addressables.ToString() };
-#endif
+    public readonly struct UIPrefabAssetRequest : IAssetRequest<GameObject> {
+        /// <inheritdoc/>
+        public string Address { get; }
+        /// <inheritdoc/>
+        public bool IsValid => !string.IsNullOrEmpty(Address);
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="mode">Sceneの読み込みモード</param>
-        public SceneAssetRequest(LoadSceneMode mode) {
-            _mode = mode;
-        }
-
-        /// <summary>
-        /// アセットの読み込み
-        /// </summary>
-        /// <param name="assetManager">アセット管理クラス</param>
-        /// <param name="activate">アクティブ化するか</param>
-        /// <param name="unloadScope">解放スコープ</param>
-        /// <param name="ct">Taskキャンセル用Token</param>
-        public async UniTask<Scene> LoadAsync(AssetManager assetManager, bool activate, IScope unloadScope, CancellationToken ct) {
-            ct.ThrowIfCancellationRequested();
-
-            var handle = LoadAsync(assetManager, unloadScope);
-            if (!handle.IsValid) {
-                Debug.LogException(new KeyNotFoundException($"Load failed. {Address}"));
-                return default;
-            }
-
-            await handle.ToUniTask(cancellationToken: ct);
-
-            if (handle.Exception != null) {
-                Debug.LogException(handle.Exception);
-                return default;
-            }
-
-            var holder = handle.Scene;
-            if (activate) {
-                await handle.ActivateAsync().ToUniTask(cancellationToken: ct);
-            }
-
-            return holder;
-        }
-
-        /// <summary>
-        /// Projectフォルダ相対パスを絶対パスにする
-        /// </summary>
-        protected virtual string GetPath(string relativePath) {
-            return $"Assets/SampleGame/{relativePath}";
-        }
-    }
-    
-    /// <summary>
-    /// SystemAsset用のRequest基底
-    /// </summary>
-    public abstract class SystemAssetRequest<T> : AssetRequest<T> where T : Object {
-        public override string Address { get; }
-
-        public SystemAssetRequest(string relativePath) {
-            Address = base.GetPath($"System/{relativePath}");
-        }
-    }
-
-    /// <summary>
-    /// UI用のAssetRequest基底
-    /// </summary>
-    public abstract class UIAssetRequest<T> : AssetRequest<T>
-        where T : Object {
-        public override string Address { get; }
-
-        protected UIAssetRequest(string relativePath) {
-            Address = base.GetPath($"UI/{relativePath}");
-        }
-    }
-
-    /// <summary>
-    /// UIプレファブ用のAssetRequest
-    /// </summary>
-    public sealed class UIPrefabAssetRequest : AssetRequest<GameObject> {
-        public override string Address { get; }
-
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        /// <param name="assetKey">battle</param>
         public UIPrefabAssetRequest(string assetKey) {
-            Address = GetPath($"UI/Root/pfb_ui_{assetKey}.prefab");
+            Address = $"Assets/SampleGame/UI/Root/pfb_ui_{assetKey}.prefab";
         }
     }
 
     /// <summary>
-    /// UIシーン用のAssetRequest
+    /// UIシーンの読み込み要求
     /// </summary>
-    public sealed class UISceneAssetRequest : SceneAssetRequest {
-        public override string Address { get; }
+    public readonly struct UISceneRequest : ISceneRequest {
+        /// <inheritdoc/>
+        public string Address { get; }
+        /// <inheritdoc/>
+        public bool ActivateOnLoad => false;
+        /// <inheritdoc/>
+        public bool IsValid => !string.IsNullOrEmpty(Address);
 
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="assetKey">battle</param>
-        public UISceneAssetRequest(string assetKey) : base(LoadSceneMode.Additive) {
-            Address = GetPath($"UI/Root/scn_ui_{assetKey}.unity");
+        public UISceneRequest(string assetKey) {
+            Address = $"Assets/SampleGame/UI/Root/scn_ui_{assetKey}.unity";
         }
     }
 
     /// <summary>
-    /// TableData用のAssetRequest
+    /// テーブルデータの読み込み要求
     /// </summary>
-    public class TableDataRequest<T> : SystemAssetRequest<T>
-        where T : Object {
+    public readonly struct TableDataRequest<TAsset> : IAssetRequest<TAsset>
+        where TAsset : Object {
+        /// <inheritdoc/>
+        public string Address { get; }
+        /// <inheritdoc/>
+        public bool IsValid => !string.IsNullOrEmpty(Address);
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public TableDataRequest(string assetKey) : base($"Table/dat_{assetKey}_table.asset") {
+        public TableDataRequest(string assetKey) {
+            Address = $"Assets/SampleGame/System/Table/dat_{assetKey}_table.asset";
         }
     }
 }

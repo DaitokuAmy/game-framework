@@ -106,6 +106,10 @@ Storage の public API には次の 2 系統を持たせる。
 - `Unload<TAsset, TRequest>(TRequest request)`
 - `Clear()`
 
+SampleGame 側では `MainSystem` が Loader や Storage を共有しない。
+Repository や Loader などの consumer が `AssetUtility` 経由で必要な Loader 群を生成し、自身の Storage を所有する。
+これにより `Unload` と `Dispose` の責務を consumer 単位で閉じる。
+
 ### SceneStorage
 `SceneStorage` の基底 API は次を基本とする。
 - `LoadAsync(SceneRequest request)`

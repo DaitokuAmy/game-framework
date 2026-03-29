@@ -8,7 +8,7 @@ namespace SampleGame.Infrastructure.ModelViewer {
     /// モデルビューア用設定データ
     /// </summary>
     [CreateAssetMenu(fileName = "dat_model_viewer_config.asset", menuName = "Sample Game/Model Viewer/Config Data")]
-    public class ModelViewerConfigData : ScriptableObject {
+    public class ModelViewerConfigData : ScriptableObject, IModelViewerConfig {
         /// <summary>
         /// カメラ設定
         /// </summary>
@@ -37,8 +37,11 @@ namespace SampleGame.Infrastructure.ModelViewer {
             float3 IPreviewCameraMaster.StartAngles => startAngles;
             float IPreviewCameraMaster.StartDistance => startDistance;
         }
-        
+
         [Tooltip("カメラ")]
         public CameraInfo camera;
+
+        /// <inheritdoc/>
+        IPreviewCameraMaster IModelViewerConfig.Camera => camera;
     }
 }

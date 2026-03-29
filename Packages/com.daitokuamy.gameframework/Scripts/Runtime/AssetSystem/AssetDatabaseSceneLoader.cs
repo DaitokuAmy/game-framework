@@ -32,7 +32,7 @@ namespace GameFramework.AssetSystem {
             private bool _isUnloadStarted;
 
             /// <inheritdoc/>
-            public bool IsDone => _isReleased || _asyncOperation == null || _asyncOperation.isDone;
+            public bool IsDone => _isReleased || _asyncOperation == null || _asyncOperation.isDone || (!_activateOnLoad && _asyncOperation.progress >= 0.9f);
             /// <inheritdoc/>
             public Scene Scene {
                 get {

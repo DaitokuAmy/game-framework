@@ -171,6 +171,8 @@ namespace GameFramework.UISystem {
                 RemoveAssetInfo(info);
             }
 
+            (_loader as IDisposable)?.Dispose();
+            _loader = null;
             _coroutineRunner.Dispose();
 
             if (_rootObject != null) {

@@ -1,25 +1,31 @@
+using GameFramework.AssetSystem;
 using SampleGameEngine;
 
 namespace SampleGame.Infrastructure.ModelViewer {
     /// <summary>
-    /// ModelViewerConfigData用のAssetRequest
+    /// ModelViewerConfigDataの読み込み要求
     /// </summary>
-    public class ModelViewerConfigDataRequest : SystemAssetRequest<ModelViewerConfigData> {
-        /// <summary>
-        /// コンストラクタ
-        /// </summary>
-        public ModelViewerConfigDataRequest() : base("ModelViewer/Settings/dat_model_viewer_config.asset") {
-        }
+    public readonly struct ModelViewerConfigDataRequest : IAssetRequest<ModelViewerConfigData> {
+        /// <summary>読み込み対象アドレス</summary>
+        public string Address => "Assets/SampleGame/System/ModelViewer/Settings/dat_model_viewer_config.asset";
+        /// <summary>有効な要求か</summary>
+        public bool IsValid => true;
     }
-    
+
     /// <summary>
-    /// PreviewActorの初期化データ読み込みリクエスト
+    /// PreviewActorDataの読み込み要求
     /// </summary>
-    public class PreviewActorDataRequest : ActorAssetRequest<PreviewActorData> {
+    public readonly struct PreviewActorDataRequest : IAssetRequest<PreviewActorData> {
+        /// <summary>読み込み対象アドレス</summary>
+        public string Address { get; }
+        /// <summary>有効な要求か</summary>
+        public bool IsValid => !string.IsNullOrEmpty(Address);
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        public PreviewActorDataRequest(string assetKey) : base($"PreviewActor/dat_act_preview_{assetKey}.asset") {
+        public PreviewActorDataRequest(string assetKey) {
+            Address = $"Assets/SampleGame/RemoteAssets/Actor/PreviewActor/dat_act_preview_{assetKey}.asset";
         }
     }
 }

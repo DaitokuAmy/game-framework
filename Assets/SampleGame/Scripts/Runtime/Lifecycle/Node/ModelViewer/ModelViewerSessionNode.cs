@@ -2,16 +2,12 @@ using System.Collections;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameFramework;
-using GameFramework.AssetSystem;
-using GameFramework.CameraSystem;
-using GameFramework;
 using GameFramework.NavigationSystem;
 using SampleGame.Application.ModelViewer;
 using SampleGame.Domain;
 using SampleGame.Domain.ModelViewer;
 using SampleGame.Infrastructure;
 using SampleGame.Infrastructure.ModelViewer;
-using SampleGameEngine;
 using VContainer;
 
 namespace SampleGame.Lifecycle {
@@ -19,12 +15,12 @@ namespace SampleGame.Lifecycle {
     /// モデルビューア用のSessionNode
     /// </summary>
     public class ModelViewerSessionNode : SceneSessionNode {
-        private ModelViewerConfigData _configData;
-        private ModelViewerAppService _appService;
-        private ModelViewerDomainService _domainService;
-        
         [Inject]
-        private AssetManager _assetManager;
+        private ModelViewerAppService _appService;
+        [Inject]
+        private ModelViewerDomainService _domainService;
+        [Inject]
+        private ConfigRepository _configRepository;
 
         /// <inheritdoc/>
         protected override string ScenePath => "Assets/SampleGame/Scenes/Develop/model_viewer.unity";
@@ -45,13 +41,7 @@ namespace SampleGame.Lifecycle {
             yield return base.LoadRoutine(handle, scope);
 
             async UniTask LoadAsync(CancellationToken ct) {
-                // Config読み込み
-                await new ModelViewerConfigDataRequest()
-                    .LoadAsync(_assetManager, scope, cancellationToken: ct)
-                    .ContinueWith(x => {
-                        _configData = x;
-                        //ServiceContainer.RegisterInstance(x).RegisterTo(scope);
-                    });
+                await _configRepository.LoadConfigAsync(ct);
             }
 
             yield return LoadAsync(scope.Token).ToCoroutine();
@@ -66,7 +56,7 @@ namespace SampleGame.Lifecycle {
 
             // // カメラ操作用Controllerの設定
             // var cameraManager = ObjectResolver.Resolve<CameraManager>();
-            // cameraManager.SetCameraHandler("Default", new PreviewCameraHandler(_configData.camera));
+            // cameraManager.SetCameraHandler("Default", new PreviewCameraHandler(_configRepository.Config.Camera));
             //
             // // Recorderのセットアップ
             // var recorder = ObjectResolver.Resolve<ModelRecorder>();
@@ -82,6 +72,7 @@ namespace SampleGame.Lifecycle {
         private void SetupInfrastructures(IContainerBuilder builder) {
             builder.Register<IModelRepository, ModelRepository>(Lifetime.Singleton);
             builder.Register<IModelViewerTableRepository, ModelViewerTableRepository>(Lifetime.Singleton);
+            builder.Register<ConfigRepository>(Lifetime.Singleton);
             builder.Register<ModelViewerAssetRepository>(Lifetime.Singleton);
             builder.Register<EnvironmentSceneRepository>(Lifetime.Singleton);
         }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using GameFramework;
-using GameFramework.AssetSystem;
 using GameFramework.BootSystem;
 using GameFramework.NavigationSystem;
 using GameFramework.UISystem;
@@ -50,14 +49,8 @@ namespace SampleGame.Lifecycle {
             UpdatableUtility.Initialize(_updateScheduler);
 
             builder.Register(_ => {
-                var assetManager = new AssetManager();
-                assetManager.Initialize(new AddressablesAssetProvider(), new ResourcesAssetProvider(), new AssetDatabaseAssetProvider());
-                return assetManager;
-            }, Lifetime.Singleton);
-
-            builder.Register(resolver => {
                 var uiManager = new UIManager();
-                uiManager.Initialize(new UIAssetLoader(resolver.Resolve<AssetManager>()));
+                uiManager.Initialize(new UIAssetLoader());
                 uiManager.RegisterUpdatable(UpdateOrder.UI);
                 uiManager.RegisterLateUpdatable(LateUpdateOrder.UI);
                 ResidentUIUtility.Initialize(uiManager);
