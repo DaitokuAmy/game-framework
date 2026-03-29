@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace GameFramework.AssetSystem {
@@ -8,6 +10,17 @@ namespace GameFramework.AssetSystem {
     /// プリロード用アセットストレージ
     /// </summary>
     public class PreloadSceneAssetStorage : SceneAssetStorage {
+        // キャッシュキー
+        private readonly struct CacheKey {
+            public readonly string Address;
+            public readonly LoadSceneMode Mode;
+
+            public CacheKey(string address, LoadSceneMode mode) {
+                Address = address;
+                Mode = mode;
+            }
+        }
+
         /// <summary>
         /// 読み込み待ち情報
         /// </summary>
@@ -77,7 +90,7 @@ namespace GameFramework.AssetSystem {
         }
         
         // キャッシュ
-        private readonly Dictionary<string, CacheInfo> _cacheInfos = new();
+        private readonly Dictionary<CacheKey, CacheInfo> _cacheInfos = new();
 
         /// <summary>
         /// コンストラクタ
@@ -98,18 +111,23 @@ namespace GameFramework.AssetSystem {
             var handles = new List<SceneAssetHandle>();
             
             foreach (var request in requests) {
-                var address = request.Address;
+                var cacheKey = new CacheKey(request.Address, request.Mode);
 
-                if (_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                    handles.Add(cacheInfo.handle);
+                if (_cacheInfos.TryGetValue(cacheKey, out var cacheInfo)) {
+                    handles.Add(cacheInfo.handle.Acquire());
                 }
                 else {
                     // ハンドルを取得してキャッシュ
                     var handle = LoadAssetAsyncInternal(request);
-                    _cacheInfos[address] = new CacheInfo {
-                        handle = handle
-                    };
-                    handles.Add(handle);
+                    if (handle.IsValid) {
+                        _cacheInfos[cacheKey] = new CacheInfo {
+                            handle = handle
+                        };
+                        handles.Add(handle.Acquire());
+                    }
+                    else {
+                        handles.Add(handle);
+                    }
                 }
             }
             
@@ -121,18 +139,23 @@ namespace GameFramework.AssetSystem {
         /// </summary>
         public LoadHandle LoadAssetAsync(SceneAssetRequest request) {
             var handles = new SceneAssetHandle[1];
-            var address = request.Address;
+            var cacheKey = new CacheKey(request.Address, request.Mode);
             
-            if (_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                handles[0] = cacheInfo.handle;
+            if (_cacheInfos.TryGetValue(cacheKey, out var cacheInfo)) {
+                handles[0] = cacheInfo.handle.Acquire();
             }
             else {
                 // ハンドルを取得してキャッシュ
                 var handle = LoadAssetAsyncInternal(request);
-                _cacheInfos[address] = new CacheInfo {
-                    handle = handle
-                };
-                handles[0] = handle;
+                if (handle.IsValid) {
+                    _cacheInfos[cacheKey] = new CacheInfo {
+                        handle = handle
+                    };
+                    handles[0] = handle.Acquire();
+                }
+                else {
+                    handles[0] = handle;
+                }
             }
             
             return new LoadHandle(handles);
@@ -142,11 +165,34 @@ namespace GameFramework.AssetSystem {
         /// 読み込み済みアセットの取得
         /// </summary>
         public Scene GetAsset(string address) {
-            if (!_cacheInfos.TryGetValue(address, out var cacheInfo)) {
+            var matches = _cacheInfos.Where(pair => pair.Key.Address == address).ToArray();
+            if (matches.Length > 1) {
+                Debug.unityLogger.LogError(GetType().Name, $"Multiple cache infos were found. Specify request with mode. {address}");
                 return new Scene();
             }
 
-            return cacheInfo.handle.Scene;
+            foreach (var pair in matches) {
+                return pair.Value.handle.Scene;
+            }
+
+            return new Scene();
+        }
+
+        /// <summary>
+        /// 解放処理
+        /// </summary>
+        public void UnloadAsset(SceneAssetRequest request) {
+            var cacheKey = new CacheKey(request.Address, request.Mode);
+            if (!_cacheInfos.TryGetValue(cacheKey, out var cacheInfo)) {
+                Debug.unityLogger.LogError(GetType().Name, $"Not found cache info. {request.Address}");
+                return;
+            }
+
+            if (cacheInfo.handle.IsValid) {
+                cacheInfo.handle.Release();
+            }
+
+            _cacheInfos.Remove(cacheKey);
         }
 
 
@@ -154,7 +200,12 @@ namespace GameFramework.AssetSystem {
         /// 読み込み済みアセットの取得
         /// </summary>
         public Scene GetAsset(SceneAssetRequest request) {
-            return GetAsset(request.Address);
+            var cacheKey = new CacheKey(request.Address, request.Mode);
+            if (!_cacheInfos.TryGetValue(cacheKey, out var cacheInfo)) {
+                return new Scene();
+            }
+
+            return cacheInfo.handle.Scene;
         }
 
         /// <summary>

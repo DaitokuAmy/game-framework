@@ -99,10 +99,6 @@ namespace GameFramework.UISystem {
             public override Exception Exception => Handle.Exception;
 
             public override void Release() {
-                if (Handle.Scene.IsValid()) {
-                    SceneManager.UnloadSceneAsync(Handle.Scene);
-                }
-
                 Handle.Release();
             }
         }

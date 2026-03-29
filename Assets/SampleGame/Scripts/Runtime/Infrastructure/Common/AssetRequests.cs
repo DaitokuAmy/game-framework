@@ -13,9 +13,9 @@ namespace SampleGame.Infrastructure {
     /// </summary>
     public abstract class AssetRequest<T> : GameFramework.AssetSystem.AssetRequest<T> where T : Object {
 #if UNITY_EDITOR
-        public override int[] ProviderIndices => new[] { (int)AssetProviderType.AssetDatabase, (int)AssetProviderType.Addressables };
+        public override string[] ProviderKeys => new[] { AssetProviderType.AssetDatabase.ToString(), AssetProviderType.Addressables.ToString() };
 #else
-        public override int[] ProviderIndices => new[] { (int)AssetProviderType.Addressables };
+        public override string[] ProviderKeys => new[] { AssetProviderType.Addressables.ToString() };
 #endif
 
         /// <summary>
@@ -50,13 +50,12 @@ namespace SampleGame.Infrastructure {
     /// </summary>
     public abstract class SceneAssetRequest : GameFramework.AssetSystem.SceneAssetRequest {
         private LoadSceneMode _mode;
-        private string _address;
 
         public override LoadSceneMode Mode => _mode;
 #if UNITY_EDITOR
-        public override int[] ProviderIndices => new[] { (int)AssetProviderType.AssetDatabase, (int)AssetProviderType.Addressables };
+        public override string[] ProviderKeys => new[] { AssetProviderType.AssetDatabase.ToString(), AssetProviderType.Addressables.ToString() };
 #else
-        public override int[] ProviderIndices => new[] { (int)AssetProviderType.Addressables };
+        public override string[] ProviderKeys => new[] { AssetProviderType.Addressables.ToString() };
 #endif
 
         /// <summary>
@@ -93,11 +92,6 @@ namespace SampleGame.Infrastructure {
             var holder = handle.Scene;
             if (activate) {
                 await handle.ActivateAsync().ToUniTask(cancellationToken: ct);
-                if (unloadScope != null) {
-                    unloadScope.ExpiredEvent += () => {
-                        SceneManager.UnloadSceneAsync(handle.Scene);
-                    };
-                }
             }
 
             return holder;

@@ -8,8 +8,8 @@ namespace GameFramework.AssetSystem {
         where TAsset : Object {
         /// <summary>読み込み用のAddress</summary>
         public abstract string Address { get; }
-        /// <summary>読み込みに使用するProviderのIndex配列（順番にフォールバック）</summary>
-        public abstract int[] ProviderIndices { get; }
+        /// <summary>読み込みに使用するProviderのキー配列（順番にフォールバック）</summary>
+        public abstract string[] ProviderKeys { get; }
 
         /// <summary>
         /// アセットの読み込み
@@ -21,22 +21,29 @@ namespace GameFramework.AssetSystem {
             var handle = AssetHandle<TAsset>.Empty;
 
             // 読み込みに使用できるProviderを探し、それを使って読み込みを開始する
-            for (var i = 0; i < ProviderIndices.Length; i++) {
-                var provider = assetManager.GetProvider(ProviderIndices[i]);
+            for (var i = 0; i < ProviderKeys.Length; i++) {
+                var provider = assetManager.GetProvider(ProviderKeys[i]);
                 if (provider == null) {
                     continue;
                 }
 
-                if (!provider.Contains<TAsset>(address)) {
+                var nextHandle = provider.LoadAsync<TAsset>(address);
+                if (!nextHandle.IsValid) {
                     continue;
                 }
 
-                handle = provider.LoadAsync<TAsset>(address);
+                handle = nextHandle;
                 break;
             }
 
             if (handle.IsValid) {
                 if (unloadScope != null) {
+                    if (!unloadScope.IsValid) {
+                        handle.Release();
+                        Debug.LogError($"Unload scope is already invalid. [{address}]");
+                        return AssetHandle<TAsset>.Empty;
+                    }
+
                     // 解放処理を仕込む
                     unloadScope.ExpiredEvent += () => handle.Release();
                 }

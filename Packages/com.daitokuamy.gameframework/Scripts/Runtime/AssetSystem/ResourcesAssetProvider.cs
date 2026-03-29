@@ -9,11 +9,15 @@ namespace GameFramework.AssetSystem {
     /// Resourcesを使ったアセット提供用クラス
     /// </summary>
     public sealed class ResourcesAssetProvider : IAssetProvider {
+        /// <summary>Providerキー</summary>
+        public const string ProviderKey = "Resources";
+
         /// <summary>
         /// アセット情報
         /// </summary>
         private class AssetInfo<T> : IAssetInfo<T>
             where T : Object {
+            private readonly string _address;
             private ResourceRequest _request;
 
             /// <inheritdoc/>
@@ -21,9 +25,12 @@ namespace GameFramework.AssetSystem {
             /// <inheritdoc/>
             T IAssetInfo<T>.Asset => (T)_request?.asset;
             /// <inheritdoc/>
-            Exception IAssetInfo<T>.Exception => null;
+            Exception IAssetInfo<T>.Exception => _request != null && _request.isDone && _request.asset == null
+                ? new FileNotFoundException($"Not found asset. [{_address}]")
+                : null;
 
-            public AssetInfo(ResourceRequest request) {
+            public AssetInfo(string address, ResourceRequest request) {
+                _address = address;
                 _request = request;
             }
 
@@ -62,30 +69,24 @@ namespace GameFramework.AssetSystem {
         }
 
         /// <inheritdoc/>
+        string IAssetProvider.Key => ProviderKey;
+
+        /// <inheritdoc/>
         AssetHandle<T> IAssetProvider.LoadAsync<T>(string address) {
+            if (string.IsNullOrEmpty(address)) {
+                return AssetHandle<T>.Empty;
+            }
+
             var resourcesPath = GetResourcesPath(address);
             // 読み込み開始
             var request = Resources.LoadAsync<T>(resourcesPath);
-            var info = new AssetInfo<T>(request);
+            var info = new AssetInfo<T>(address, request);
             return new AssetHandle<T>(info);
         }
 
         /// <inheritdoc/>
-        bool IAssetProvider.Contains<T>(string address) {
-            // Resourcesフォルダ以下にあれば含まれている扱いにする
-            return address.Contains("/Resources/");
-        }
-
-        /// <inheritdoc/>
         SceneAssetHandle IAssetProvider.LoadSceneAsync(string address, LoadSceneMode mode) {
-            var info = new SceneAssetInfo();
-            return new SceneAssetHandle(info);
-        }
-
-        /// <inheritdoc/>
-        bool IAssetProvider.ContainsScene(string address) {
-            // 常に失敗
-            return false;
+            return SceneAssetHandle.Empty;
         }
 
         /// <summary>
@@ -101,7 +102,7 @@ namespace GameFramework.AssetSystem {
             // 拡張子を削除
             var extension = Path.GetExtension(address);
             if (!string.IsNullOrEmpty(extension)) {
-                address = address.Replace(extension, "");
+                address = address.Substring(0, address.Length - extension.Length);
             }
 
             return address;

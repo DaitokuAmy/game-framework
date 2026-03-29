@@ -36,14 +36,18 @@ namespace GameFramework.AssetSystem {
 
             // 既にキャッシュがある場合、キャッシュ経由で読み込みを待つ
             if (_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                return cacheInfo.handle;
+                return cacheInfo.handle.Acquire();
             }
 
             // キャッシュがない場合、読み込んでキャッシュ管理
             cacheInfo = new CacheInfo();
             cacheInfo.handle = LoadAssetAsyncInternal(request);
+            if (!cacheInfo.handle.IsValid) {
+                return cacheInfo.handle;
+            }
+
             _cacheInfos[address] = cacheInfo;
-            return cacheInfo.handle;
+            return cacheInfo.handle.Acquire();
         }
 
         /// <summary>
@@ -66,8 +70,6 @@ namespace GameFramework.AssetSystem {
         /// 解放処理
         /// </summary>
         public void UnloadAssets() {
-            var keys = _cacheInfos.Keys.ToArray();
-
             foreach (var pair in _cacheInfos) {
                 var cacheInfo = pair.Value;
                 if (cacheInfo.handle.IsValid) {

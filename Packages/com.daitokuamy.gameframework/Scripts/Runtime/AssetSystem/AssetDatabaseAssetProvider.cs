@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -17,6 +18,9 @@ namespace GameFramework.AssetSystem {
     /// AssetDatabaseを使ったアセット提供用クラス
     /// </summary>
     public sealed class AssetDatabaseAssetProvider : IAssetProvider {
+        /// <summary>Providerキー</summary>
+        public const string ProviderKey = "AssetDatabase";
+
         /// <summary>
         /// アセット情報
         /// </summary>
@@ -49,6 +53,8 @@ namespace GameFramework.AssetSystem {
             private AsyncOperation _asyncOperation;
             private Scene _scene;
             private Exception _exception;
+            private bool _isDisposed;
+            private bool _isUnloadStarted;
 
             /// <inheritdoc/>
             bool ISceneAssetInfo.IsDone => _asyncOperation == null || _asyncOperation.isDone;
@@ -77,27 +83,59 @@ namespace GameFramework.AssetSystem {
             public SceneAssetInfo(string path, AsyncOperation asyncOperation) {
                 _path = path;
                 _asyncOperation = asyncOperation;
+                if (_asyncOperation != null) {
+                    _asyncOperation.completed += _ => {
+                        if (_isDisposed) {
+                            TryUnloadScene();
+                        }
+                    };
+                }
             }
 
             /// <inheritdoc/>
             public void Dispose() {
-                // Unloadはしない
+                _isDisposed = true;
+                TryUnloadScene();
             }
 
             /// <inheritdoc/>
             AsyncOperation ISceneAssetInfo.ActivateAsync() {
                 return null;
             }
+
+            private void TryUnloadScene() {
+                if (_isUnloadStarted || (_asyncOperation != null && !_asyncOperation.isDone)) {
+                    return;
+                }
+
+                var scene = ((ISceneAssetInfo)this).Scene;
+                if (!scene.IsValid() || !scene.isLoaded) {
+                    return;
+                }
+
+                _isUnloadStarted = true;
+                SceneManager.UnloadSceneAsync(scene);
+            }
         }
+
+        /// <inheritdoc/>
+        string IAssetProvider.Key => ProviderKey;
 
         /// <inheritdoc/>
         AssetHandle<T> IAssetProvider.LoadAsync<T>(string address) {
 #if UNITY_EDITOR
             // Address > Path変換
             var path = GetAssetPath<T>(address);
+            if (string.IsNullOrEmpty(path)) {
+                return AssetHandle<T>.Empty;
+            }
 
             // 読み込み処理
             var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+            if (asset == null) {
+                return AssetHandle<T>.Empty;
+            }
+
             var info = new AssetInfo<T>(asset);
             return new AssetHandle<T>(info);
 #else
@@ -106,35 +144,22 @@ namespace GameFramework.AssetSystem {
         }
 
         /// <inheritdoc/>
-        bool IAssetProvider.Contains<T>(string address) {
-#if UNITY_EDITOR
-            // GUIDが存在しなければない扱い
-            var guid = AssetDatabase.AssetPathToGUID(address);
-            return !string.IsNullOrEmpty(guid);
-#else
-            return false;
-#endif
-        }
-
-        /// <inheritdoc/>
         SceneAssetHandle IAssetProvider.LoadSceneAsync(string address, LoadSceneMode mode) {
 #if UNITY_EDITOR
-            var asyncOperation = EditorSceneManager.LoadSceneAsyncInPlayMode(address, new LoadSceneParameters(mode));
-            var info = new SceneAssetInfo(address, asyncOperation);
+            var path = GetScenePath(address);
+            if (string.IsNullOrEmpty(path)) {
+                return SceneAssetHandle.Empty;
+            }
+
+            var asyncOperation = EditorSceneManager.LoadSceneAsyncInPlayMode(path, new LoadSceneParameters(mode));
+            if (asyncOperation == null) {
+                return SceneAssetHandle.Empty;
+            }
+
+            var info = new SceneAssetInfo(path, asyncOperation);
             return new SceneAssetHandle(info);
 #else
             return SceneAssetHandle.Empty;
-#endif
-        }
-
-        /// <inheritdoc/>
-        bool IAssetProvider.ContainsScene(string address) {
-#if UNITY_EDITOR
-            // GUIDが存在しなければない扱い
-            var guid = AssetDatabase.AssetPathToGUID(address);
-            return !string.IsNullOrEmpty(guid);
-#else
-            return false;
 #endif
         }
 
@@ -145,6 +170,20 @@ namespace GameFramework.AssetSystem {
 #if USE_ADDRESSABLES && UNITY_EDITOR
             foreach (var locator in Addressables.ResourceLocators) {
                 if (locator.Locate(address, typeof(T), out var list)) {
+                    return list[0].InternalId;
+                }
+            }
+#endif
+            return address;
+        }
+
+        /// <summary>
+        /// シーン用のAddressをPathに変換
+        /// </summary>
+        private string GetScenePath(string address) {
+#if USE_ADDRESSABLES && UNITY_EDITOR
+            foreach (var locator in Addressables.ResourceLocators) {
+                if (locator.Locate(address, typeof(SceneAsset), out var list)) {
                     return list[0].InternalId;
                 }
             }

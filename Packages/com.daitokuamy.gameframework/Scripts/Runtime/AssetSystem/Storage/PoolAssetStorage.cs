@@ -46,21 +46,28 @@ namespace GameFramework.AssetSystem {
         /// 読み込み処理
         /// </summary>
         public AssetHandle<TAsset> LoadAssetAsync(AssetRequest<TAsset> request) {
-            var address = request.Address;
+            if (Amount == 0) {
+                return LoadAssetAsyncInternal(request);
+            }
 
-            // Addressのフェッチ
-            FetchAddress(address);
+            var address = request.Address;
 
             // 既にキャッシュがある場合、キャッシュ経由で読み込みを待つ
             if (_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                return cacheInfo.handle;
+                FetchAddress(address);
+                return cacheInfo.handle.Acquire();
             }
 
             // キャッシュがない場合、読み込んでキャッシュ管理
             cacheInfo = new CacheInfo();
             cacheInfo.handle = LoadAssetAsyncInternal(request);
+            if (!cacheInfo.handle.IsValid) {
+                return cacheInfo.handle;
+            }
+
             _cacheInfos[address] = cacheInfo;
-            return cacheInfo.handle;
+            FetchAddress(address);
+            return cacheInfo.handle.Acquire();
         }
 
         /// <summary>

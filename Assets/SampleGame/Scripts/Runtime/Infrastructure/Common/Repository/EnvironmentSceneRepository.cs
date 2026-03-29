@@ -77,9 +77,7 @@ namespace SampleGame.Infrastructure {
         /// シーンのアンロード
         /// </summary>
         private void UnloadSceneInternal(EnvironmentSceneAssetRequest request) {
-            var scene = _environmentSceneAssetStorage.GetAsset(request);
-            SceneManager.UnloadSceneAsync(scene);
-            _environmentSceneAssetStorage.UnloadAsset(request.Address);
+            _environmentSceneAssetStorage.UnloadAsset(request);
         }
     }
 }

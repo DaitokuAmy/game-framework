@@ -10,8 +10,8 @@ namespace GameFramework.AssetSystem {
         public abstract LoadSceneMode Mode { get; }
         /// <summary>読み込み用のAddress</summary>
         public abstract string Address { get; }
-        /// <summary>読み込みに使用するProviderのIndex配列（順番にフォールバック）</summary>
-        public abstract int[] ProviderIndices { get; }
+        /// <summary>読み込みに使用するProviderのキー配列（順番にフォールバック）</summary>
+        public abstract string[] ProviderKeys { get; }
 
         /// <summary>
         /// アセットの読み込み
@@ -23,22 +23,29 @@ namespace GameFramework.AssetSystem {
             var handle = SceneAssetHandle.Empty;
 
             // 読み込みに使用できるProviderを探し、それを使って読み込みを開始する
-            for (var i = 0; i < ProviderIndices.Length; i++) {
-                var provider = assetManager.GetProvider(ProviderIndices[i]);
+            for (var i = 0; i < ProviderKeys.Length; i++) {
+                var provider = assetManager.GetProvider(ProviderKeys[i]);
                 if (provider == null) {
                     continue;
                 }
 
-                if (!provider.ContainsScene(address)) {
+                var nextHandle = provider.LoadSceneAsync(address, Mode);
+                if (!nextHandle.IsValid) {
                     continue;
                 }
 
-                handle = provider.LoadSceneAsync(address, Mode);
+                handle = nextHandle;
                 break;
             }
 
             if (handle.IsValid) {
                 if (unloadScope != null) {
+                    if (!unloadScope.IsValid) {
+                        handle.Release();
+                        Debug.LogError($"Unload scope is already invalid. [{address}]");
+                        return SceneAssetHandle.Empty;
+                    }
+
                     // 解放処理を仕込む
                     unloadScope.ExpiredEvent += () => handle.Release();
                 }

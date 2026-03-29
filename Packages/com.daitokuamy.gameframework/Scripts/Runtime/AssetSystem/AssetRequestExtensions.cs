@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
@@ -12,6 +13,14 @@ namespace GameFramework.AssetSystem {
     /// </summary>
     public static class AssetRequestExtensions {
 #if USE_UNI_TASK
+        private static void ThrowIfScopeIsMissing(IScope unloadScope, string address) {
+            if (unloadScope != null) {
+                return;
+            }
+
+            throw new InvalidOperationException($"Unload scope is required when returning loaded assets directly. [{address}]");
+        }
+
         /// <summary>
         /// AssetRequestを使ってUniTaskで読み込み
         /// </summary>
@@ -21,8 +30,9 @@ namespace GameFramework.AssetSystem {
         /// <param name="timing">更新タイミング</param>
         /// <param name="cancellationToken">Taskキャンセル用Token</param>
         public static async UniTask<T> LoadAsync<T>(this AssetRequest<T> source, AssetManager assetManager, IScope unloadScope, PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellationToken = default)
-            where T : Object {
+            where T : UnityEngine.Object {
             cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfScopeIsMissing(unloadScope, source.Address);
 
             var handle = source.LoadAsync(assetManager, unloadScope);
             if (!handle.IsValid) {
@@ -30,7 +40,12 @@ namespace GameFramework.AssetSystem {
                 return default;
             }
 
-            await handle.ToUniTask(cancellationToken: cancellationToken);
+            try {
+                await handle.ToUniTask(cancellationToken: cancellationToken);
+            }
+            catch {
+                throw;
+            }
 
             if (handle.Exception != null) {
                 Debug.LogException(handle.Exception);
@@ -51,6 +66,7 @@ namespace GameFramework.AssetSystem {
         /// <param name="cancellationToken">Taskキャンセル用Token</param>
         public static async UniTask<Scene> LoadAsync(this SceneAssetRequest source, AssetManager assetManager, bool activate, IScope unloadScope, PlayerLoopTiming timing = PlayerLoopTiming.Update, CancellationToken cancellationToken = default) {
             cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfScopeIsMissing(unloadScope, source.Address);
 
             var handle = source.LoadAsync(assetManager, unloadScope);
             if (!handle.IsValid) {
@@ -58,20 +74,25 @@ namespace GameFramework.AssetSystem {
                 return default;
             }
 
-            await handle.ToUniTask(cancellationToken: cancellationToken);
+            try {
+                await handle.ToUniTask(cancellationToken: cancellationToken);
 
-            if (handle.Exception != null) {
-                Debug.LogException(handle.Exception);
-                return default;
+                if (handle.Exception != null) {
+                    Debug.LogException(handle.Exception);
+                    return default;
+                }
+
+                var scene = handle.Scene;
+                if (activate) {
+                    await handle.ActivateAsync()
+                        .ToUniTask(cancellationToken: cancellationToken);
+                }
+
+                return scene;
             }
-
-            var scene = handle.Scene;
-            if (activate) {
-                await handle.ActivateAsync()
-                    .ToUniTask(cancellationToken: cancellationToken);
+            catch {
+                throw;
             }
-
-            return scene;
         }
 #endif
     }

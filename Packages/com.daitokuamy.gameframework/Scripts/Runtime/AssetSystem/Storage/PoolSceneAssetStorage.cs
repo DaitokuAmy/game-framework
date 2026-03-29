@@ -8,15 +8,26 @@ namespace GameFramework.AssetSystem {
     /// プール管理用アセットストレージ
     /// </summary>
     public class PoolSceneAssetStorage : SceneAssetStorage {
+        // キャッシュキー
+        private readonly struct CacheKey {
+            public readonly string Address;
+            public readonly LoadSceneMode Mode;
+
+            public CacheKey(string address, LoadSceneMode mode) {
+                Address = address;
+                Mode = mode;
+            }
+        }
+
         // キャッシュ情報
         private class CacheInfo {
             public SceneAssetHandle handle;
         }
 
         // キャッシュ
-        private readonly Dictionary<string, CacheInfo> _cacheInfos = new();
+        private readonly Dictionary<CacheKey, CacheInfo> _cacheInfos = new();
         // 読み込み順番管理
-        private readonly List<string> _fetchAddresses = new();
+        private readonly List<CacheKey> _fetchKeys = new();
 
         // 同時キャッシュ数
         private int _amount = 3;
@@ -46,28 +57,53 @@ namespace GameFramework.AssetSystem {
         /// 読み込み処理
         /// </summary>
         public SceneAssetHandle LoadAssetAsync(SceneAssetRequest request) {
-            var address = request.Address;
+            if (Amount == 0) {
+                return LoadAssetAsyncInternal(request);
+            }
 
-            // Addressのフェッチ
-            FetchAddress(address);
+            var cacheKey = new CacheKey(request.Address, request.Mode);
 
             // 既にキャッシュがある場合、キャッシュ経由で読み込みを待つ
-            if (_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                return cacheInfo.handle;
+            if (_cacheInfos.TryGetValue(cacheKey, out var cacheInfo)) {
+                FetchAddress(cacheKey);
+                return cacheInfo.handle.Acquire();
             }
 
             // キャッシュがない場合、LoadingStatusObserverを使って読み込み
             cacheInfo = new CacheInfo();
             cacheInfo.handle = LoadAssetAsyncInternal(request);
-            _cacheInfos[address] = cacheInfo;
-            return cacheInfo.handle;
+            if (!cacheInfo.handle.IsValid) {
+                return cacheInfo.handle;
+            }
+
+            _cacheInfos[cacheKey] = cacheInfo;
+            FetchAddress(cacheKey);
+            return cacheInfo.handle.Acquire();
         }
 
         /// <summary>
         /// 読み込み済みアセットの取得
         /// </summary>
         public Scene GetAsset(string address) {
-            if (!_cacheInfos.TryGetValue(address, out var cacheInfo)) {
+            var matches = _cacheInfos.Where(pair => pair.Key.Address == address).ToArray();
+            if (matches.Length > 1) {
+                Debug.unityLogger.LogError(GetType().Name, $"Multiple cache infos were found. Specify request with mode. {address}");
+                return new Scene();
+            }
+
+            foreach (var pair in matches) {
+                return pair.Value.handle.Scene;
+            }
+
+            return new Scene();
+        }
+
+        /// <summary>
+        /// 読み込み済みアセットの取得
+        /// </summary>
+        public Scene GetAsset(SceneAssetRequest request) {
+            var cacheKey = new CacheKey(request.Address, request.Mode);
+            if (!_cacheInfos.TryGetValue(cacheKey, out var cacheInfo)) {
                 return new Scene();
             }
 
@@ -75,10 +111,10 @@ namespace GameFramework.AssetSystem {
         }
 
         /// <summary>
-        /// 読み込み済みアセットの取得
+        /// 解放処理
         /// </summary>
-        public Scene GetAsset(SceneAssetRequest request) {
-            return GetAsset(request.Address);
+        public void UnloadAsset(SceneAssetRequest request) {
+            RemoveCache(new CacheKey(request.Address, request.Mode));
         }
 
         /// <summary>
@@ -95,24 +131,24 @@ namespace GameFramework.AssetSystem {
         /// <summary>
         /// アドレスのフェッチ（最大数を超えたアセットは自動でアンロード）
         /// </summary>
-        private void FetchAddress(string address = null) {
-            if (!string.IsNullOrEmpty(address)) {
-                _fetchAddresses.Remove(address);
-                _fetchAddresses.Add(address);
+        private void FetchAddress(CacheKey? cacheKey = null) {
+            if (cacheKey.HasValue) {
+                _fetchKeys.Remove(cacheKey.Value);
+                _fetchKeys.Add(cacheKey.Value);
             }
 
-            while (_fetchAddresses.Count > Amount) {
+            while (_fetchKeys.Count > Amount) {
                 // 古い物は削除
-                RemoveCache(_fetchAddresses[0]);
+                RemoveCache(_fetchKeys[0]);
             }
         }
 
         /// <summary>
         /// キャッシュの解放
         /// </summary>
-        private void RemoveCache(string address) {
-            if (!_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                Debug.unityLogger.LogError(GetType().Name, $"Not found cache info. {address}");
+        private void RemoveCache(CacheKey cacheKey) {
+            if (!_cacheInfos.TryGetValue(cacheKey, out var cacheInfo)) {
+                Debug.unityLogger.LogError(GetType().Name, $"Not found cache info. {cacheKey.Address}");
                 return;
             }
 
@@ -120,8 +156,8 @@ namespace GameFramework.AssetSystem {
                 cacheInfo.handle.Release();
             }
 
-            _cacheInfos.Remove(address);
-            _fetchAddresses.Remove(address);
+            _cacheInfos.Remove(cacheKey);
+            _fetchKeys.Remove(cacheKey);
         }
     }
 }

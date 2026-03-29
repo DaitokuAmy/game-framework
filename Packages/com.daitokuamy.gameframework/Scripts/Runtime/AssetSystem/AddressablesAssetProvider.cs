@@ -3,8 +3,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.AddressableAssets.ResourceLocators;
 using UnityEngine.ResourceManagement.ResourceProviders;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
@@ -13,6 +13,9 @@ namespace GameFramework.AssetSystem {
     /// Addressablesを使ったアセット提供用クラス
     /// </summary>
     public sealed class AddressablesAssetProvider : IAssetProvider {
+        /// <summary>Providerキー</summary>
+        public const string ProviderKey = "Addressables";
+
         /// <summary>
         /// アセット情報
         /// </summary>
@@ -46,6 +49,8 @@ namespace GameFramework.AssetSystem {
         /// </summary>
         private class SceneAssetInfo : ISceneAssetInfo {
             private UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SceneInstance> _handle;
+            private bool _isDisposed;
+            private bool _isUnloadStarted;
 
             /// <inheritdoc/>
             bool ISceneAssetInfo.IsDone => _handle.IsDone;
@@ -56,15 +61,13 @@ namespace GameFramework.AssetSystem {
 
             public SceneAssetInfo(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SceneInstance> handle) {
                 _handle = handle;
+                _handle.Completed += OnCompleted;
             }
 
             /// <inheritdoc/>
             public void Dispose() {
-                if (!_handle.IsValid()) {
-                    return;
-                }
-
-                Addressables.Release(_handle);
+                _isDisposed = true;
+                TryReleaseOrUnload();
             }
 
             /// <inheritdoc/>
@@ -75,7 +78,30 @@ namespace GameFramework.AssetSystem {
 
                 return _handle.Result.ActivateAsync();
             }
+
+            private void OnCompleted(UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<SceneInstance> handle) {
+                if (_isDisposed) {
+                    TryReleaseOrUnload();
+                }
+            }
+
+            private void TryReleaseOrUnload() {
+                if (_isUnloadStarted || !_handle.IsValid() || !_handle.IsDone) {
+                    return;
+                }
+
+                _isUnloadStarted = true;
+                if (_handle.Status == AsyncOperationStatus.Succeeded) {
+                    Addressables.UnloadSceneAsync(_handle, true);
+                }
+                else {
+                    Addressables.Release(_handle);
+                }
+            }
         }
+
+        /// <inheritdoc/>
+        string IAssetProvider.Key => ProviderKey;
 
         /// <inheritdoc/>
         AssetHandle<T> IAssetProvider.LoadAsync<T>(string address) {
@@ -85,46 +111,10 @@ namespace GameFramework.AssetSystem {
         }
 
         /// <inheritdoc/>
-        bool IAssetProvider.Contains<T>(string address) {
-            foreach (var locator in Addressables.ResourceLocators) {
-                if (locator is ResourceLocationMap map) {
-                    if (map.Locations.ContainsKey(address)) {
-                        return true;
-                    }
-                }
-                else {
-                    if (locator.Locate(address, typeof(T), out var _)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        /// <inheritdoc/>
         SceneAssetHandle IAssetProvider.LoadSceneAsync(string address, LoadSceneMode mode) {
             var operationHandle = Addressables.LoadSceneAsync(address, mode, false);
             var assetInfo = new SceneAssetInfo(operationHandle);
             return new SceneAssetHandle(assetInfo);
-        }
-
-        /// <inheritdoc/>
-        bool IAssetProvider.ContainsScene(string address) {
-            foreach (var locator in Addressables.ResourceLocators) {
-                if (locator is ResourceLocationMap map) {
-                    if (map.Locations.ContainsKey(address)) {
-                        return true;
-                    }
-                }
-                else {
-                    if (locator.Locate(address, typeof(SceneInstance), out var _)) {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
     }
 }

@@ -7,7 +7,8 @@ namespace GameFramework.AssetSystem {
     /// アセット管理クラス
     /// </summary>
     public class AssetManager {
-        private List<IAssetProvider> _providers = new List<IAssetProvider>();
+        private readonly List<IAssetProvider> _providers = new();
+        private readonly Dictionary<string, IAssetProvider> _providersByKey = new(StringComparer.Ordinal);
 
         /// <summary>
         /// 初期化処理
@@ -15,7 +16,21 @@ namespace GameFramework.AssetSystem {
         /// <param name="providers">読み込みに使用するAssetProviderのリスト</param>
         public void Initialize(params IAssetProvider[] providers) {
             _providers.Clear();
+            _providersByKey.Clear();
             _providers.AddRange(providers);
+
+            foreach (var provider in providers) {
+                if (provider == null) {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(provider.Key)) {
+                    Debug.LogError($"Provider key is null or empty. [{provider.GetType().Name}]");
+                    continue;
+                }
+
+                _providersByKey[provider.Key] = provider;
+            }
         }
 
         /// <summary>
@@ -34,10 +49,28 @@ namespace GameFramework.AssetSystem {
         /// <summary>
         /// Providerの取得
         /// </summary>
-        /// <param name="index">列挙型のProviderタイプ</param>
-        public IAssetProvider GetProvider<T>(T index)
+        /// <param name="key">Providerのキー</param>
+        public IAssetProvider GetProvider(string key) {
+            if (string.IsNullOrEmpty(key)) {
+                Debug.LogError("Provider key is null or empty.");
+                return null;
+            }
+
+            if (_providersByKey.TryGetValue(key, out var provider)) {
+                return provider;
+            }
+
+            Debug.LogError($"Not found provider. [{key}]");
+            return null;
+        }
+
+        /// <summary>
+        /// Providerの取得
+        /// </summary>
+        /// <param name="key">列挙型のProviderキー</param>
+        public IAssetProvider GetProvider<T>(T key)
             where T : Enum {
-            return GetProvider(Convert.ToInt32(index));
+            return GetProvider(key.ToString());
         }
     }
 }

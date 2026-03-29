@@ -100,15 +100,20 @@ namespace GameFramework.AssetSystem {
                 var address = request.Address;
 
                 if (_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                    handles.Add(cacheInfo.handle);
+                    handles.Add(cacheInfo.handle.Acquire());
                 }
                 else {
                     // ハンドルを取得してキャッシュ
                     var handle = LoadAssetAsyncInternal(request);
-                    _cacheInfos[address] = new CacheInfo {
-                        handle = handle
-                    };
-                    handles.Add(handle);
+                    if (handle.IsValid) {
+                        _cacheInfos[address] = new CacheInfo {
+                            handle = handle
+                        };
+                        handles.Add(handle.Acquire());
+                    }
+                    else {
+                        handles.Add(handle);
+                    }
                 }
             }
             
@@ -123,15 +128,20 @@ namespace GameFramework.AssetSystem {
             var address = request.Address;
             
             if (_cacheInfos.TryGetValue(address, out var cacheInfo)) {
-                handles[0] = cacheInfo.handle;
+                handles[0] = cacheInfo.handle.Acquire();
             }
             else {
                 // ハンドルを取得してキャッシュ
                 var handle = LoadAssetAsyncInternal(request);
-                _cacheInfos[address] = new CacheInfo {
-                    handle = handle
-                };
-                handles[0] = handle;
+                if (handle.IsValid) {
+                    _cacheInfos[address] = new CacheInfo {
+                        handle = handle
+                    };
+                    handles[0] = handle.Acquire();
+                }
+                else {
+                    handles[0] = handle;
+                }
             }
             
             return new LoadHandle(handles);
