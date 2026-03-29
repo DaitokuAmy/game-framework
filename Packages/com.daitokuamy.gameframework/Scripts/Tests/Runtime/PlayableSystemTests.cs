@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Reflection;
 using GameFramework.PlayableSystem;
 using NUnit.Framework;
@@ -78,38 +77,85 @@ namespace GameFramework.Tests {
             using var player = new MotionPlayer(_animator, DirectorUpdateMode.Manual);
             var firstClip = new AnimationClip();
             var secondClip = new AnimationClip();
+            var graph = GetGraph(player);
 
-            var crossFader = GetCrossFader(player.Handle);
             var firstPlayable = player.Handle.Change(firstClip, 0.0f, false);
-
-            UpdateCrossFader(crossFader, 0.3f);
+            graph.Evaluate(0.3f);
 
             player.Handle.Change(secondClip, 0.2f, false);
-            UpdateCrossFader(crossFader, 0.1f);
-
-            var preservedTime = GetOutPlayableTime(crossFader, 0);
+            var preservedTime = firstPlayable.GetTime();
+            graph.Evaluate(0.1f);
             player.Handle.Change((Playable)firstPlayable, 0.2f, false);
+            graph.Evaluate(0.1f);
 
-            Assert.That(GetCurrentPlayableTime(crossFader), Is.EqualTo(preservedTime).Within(0.0001f));
+            Assert.That(firstPlayable.GetTime(), Is.GreaterThan(preservedTime));
         }
 
         /// <summary>
-        /// DSPClock 使用時に DSP 時刻差分で再生時間が進むことを検証
+        /// DSPClock 使用時に DSP 時刻差分で経過時間が算出されることを検証
         /// </summary>
         [Test]
-        public void MotionPlayer_UpdateWithDspClock_UsesDspElapsedTime() {
+        public void MotionPlayer_GetElapsedTimeWithDspClock_UsesDspElapsedTime() {
             using var player = new MotionPlayer(_animator, DirectorUpdateMode.DSPClock);
+            var currentDspTime = AudioSettings.dspTime;
+
+            SetClockTimeSample(player, currentDspTime - 0.25, true);
+            var elapsedTime = GetElapsedTime(player, DirectorUpdateMode.DSPClock);
+
+            Assert.That(elapsedTime, Is.EqualTo(0.25f).Within(0.05f));
+        }
+
+        /// <summary>
+        /// 更新モード切り替え時に未反映時間が先に flush されることを検証
+        /// </summary>
+        [Test]
+        public void MotionPlayer_SetUpdateMode_FlushesPendingTimeBeforeSwitch() {
+            using var player = new MotionPlayer(_animator, DirectorUpdateMode.Manual);
             var clip = new AnimationClip();
-            var dspTime = 10.0;
+            var playable = player.Handle.Change(clip, 0.0f, false);
 
-            SetDspTimeProvider(player, () => dspTime);
-            player.Handle.Change(clip, 0.0f, false);
+            SetPendingDeltas(player, 0.25f, 0.25f);
+            player.SetUpdateMode(DirectorUpdateMode.GameTime);
 
-            player.Update();
-            dspTime = 10.25;
-            player.Update();
+            Assert.That(playable.GetTime(), Is.EqualTo(0.25).Within(0.0001));
+        }
 
-            Assert.That(GetCurrentPlayableTime(GetCrossFader(player.Handle)), Is.EqualTo(0.25f).Within(0.0001f));
+        /// <summary>
+        /// 未反映時間の flush 時に speed が二重適用されないことを検証
+        /// </summary>
+        [Test]
+        public void MotionPlayer_SetUpdateMode_FlushesPendingTimeWithoutDoubleApplyingSpeed() {
+            using var expectedPlayer = new MotionPlayer(_animator, DirectorUpdateMode.Manual);
+            using var actualPlayer = new MotionPlayer(_animator, DirectorUpdateMode.Manual);
+            var clip = new AnimationClip();
+
+            expectedPlayer.SetSpeed(2.0f);
+            actualPlayer.SetSpeed(2.0f);
+
+            var expectedPlayable = expectedPlayer.Handle.Change(clip, 0.0f, false);
+            var expectedGraph = GetGraph(expectedPlayer);
+            expectedGraph.Evaluate(0.25f);
+
+            var actualPlayable = actualPlayer.Handle.Change(clip, 0.0f, false);
+            SetPendingDeltas(actualPlayer, 0.5f, 0.25f);
+            actualPlayer.SetUpdateMode(DirectorUpdateMode.GameTime);
+
+            Assert.That(actualPlayable.GetTime(), Is.EqualTo(expectedPlayable.GetTime()).Within(0.0001));
+        }
+
+        /// <summary>
+        /// Speed 変更時に未反映時間が旧 speed のまま flush されることを検証
+        /// </summary>
+        [Test]
+        public void MotionPlayer_SetSpeed_FlushesPendingTimeBeforeChangingSpeed() {
+            using var player = new MotionPlayer(_animator, DirectorUpdateMode.Manual);
+            var clip = new AnimationClip();
+            var playable = player.Handle.Change(clip, 0.0f, false);
+
+            SetPendingDeltas(player, 0.25f, 0.25f);
+            player.SetSpeed(2.0f);
+
+            Assert.That(playable.GetTime(), Is.EqualTo(0.25).Within(0.0001));
         }
 
         /// <summary>
@@ -222,57 +268,47 @@ namespace GameFramework.Tests {
         }
 
         /// <summary>
-        /// 現在再生中の Playable の経過時間を取得
+        /// MotionPlayer の Graph を取得
         /// </summary>
-        private static float GetCurrentPlayableTime(object crossFader) {
-            var currentInfoField = crossFader.GetType().GetField("_currentPlayingInfo", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.That(currentInfoField, Is.Not.Null);
-
-            var currentInfo = currentInfoField.GetValue(crossFader);
-            Assert.That(currentInfo, Is.Not.Null);
-
-            var timeField = currentInfo.GetType().GetField("Time", BindingFlags.Instance | BindingFlags.Public);
-            Assert.That(timeField, Is.Not.Null);
-
-            return (float)timeField.GetValue(currentInfo);
+        private static PlayableGraph GetGraph(MotionPlayer player) {
+            var graphField = typeof(MotionPlayer).GetField("_graph", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(graphField, Is.Not.Null);
+            return (PlayableGraph)graphField.GetValue(player);
         }
 
         /// <summary>
-        /// フェードアウト中の Playable の経過時間を取得
+        /// DSPClock 用サンプル状態を設定
         /// </summary>
-        private static float GetOutPlayableTime(object crossFader, int index) {
-            var outInfosField = crossFader.GetType().GetField("_outPlayingInfos", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.That(outInfosField, Is.Not.Null);
+        private static void SetClockTimeSample(MotionPlayer player, double previousClockTime, bool hasClockTimeSample) {
+            var previousClockTimeField = typeof(MotionPlayer).GetField("_previousClockTime", BindingFlags.Instance | BindingFlags.NonPublic);
+            var hasClockTimeSampleField = typeof(MotionPlayer).GetField("_hasClockTimeSample", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(previousClockTimeField, Is.Not.Null);
+            Assert.That(hasClockTimeSampleField, Is.Not.Null);
 
-            var outInfos = outInfosField.GetValue(crossFader) as IList;
-            Assert.That(outInfos, Is.Not.Null);
-            Assert.That(outInfos.Count, Is.GreaterThan(index));
-
-            var outInfo = outInfos[index];
-            var timeField = outInfo.GetType().GetField("Time", BindingFlags.Instance | BindingFlags.Public);
-            Assert.That(timeField, Is.Not.Null);
-
-            return (float)timeField.GetValue(outInfo);
+            previousClockTimeField.SetValue(player, previousClockTime);
+            hasClockTimeSampleField.SetValue(player, hasClockTimeSample);
         }
 
         /// <summary>
-        /// MotionCrossFader の更新を直接実行
+        /// 蓄積済みの時間を設定
         /// </summary>
-        private static void UpdateCrossFader(object crossFader, float deltaTime) {
-            var updateMethod = crossFader.GetType().GetMethod("Update", BindingFlags.Instance | BindingFlags.Public);
-            Assert.That(updateMethod, Is.Not.Null);
+        private static void SetPendingDeltas(MotionPlayer player, float pendingSimulationDelta, float pendingEvaluateDelta) {
+            var pendingSimulationDeltaField = typeof(MotionPlayer).GetField("_pendingSimulationDelta", BindingFlags.Instance | BindingFlags.NonPublic);
+            var pendingEvaluateDeltaField = typeof(MotionPlayer).GetField("_pendingEvaluateDelta", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(pendingSimulationDeltaField, Is.Not.Null);
+            Assert.That(pendingEvaluateDeltaField, Is.Not.Null);
 
-            updateMethod.Invoke(crossFader, new object[] { deltaTime });
+            pendingSimulationDeltaField.SetValue(player, pendingSimulationDelta);
+            pendingEvaluateDeltaField.SetValue(player, pendingEvaluateDelta);
         }
 
         /// <summary>
-        /// テスト用に DSP 時刻取得処理を差し替え
+        /// 経過時間の取得を直接実行
         /// </summary>
-        private static void SetDspTimeProvider(MotionPlayer player, System.Func<double> provider) {
-            var providerField = typeof(MotionPlayer).GetField("_dspTimeProvider", BindingFlags.Instance | BindingFlags.NonPublic);
-            Assert.That(providerField, Is.Not.Null);
-
-            providerField.SetValue(player, provider);
+        private static float GetElapsedTime(MotionPlayer player, DirectorUpdateMode updateMode) {
+            var getElapsedTimeMethod = typeof(MotionPlayer).GetMethod("GetElapsedTime", BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.That(getElapsedTimeMethod, Is.Not.Null);
+            return (float)getElapsedTimeMethod.Invoke(player, new object[] { updateMode });
         }
 
         /// <summary>

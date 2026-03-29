@@ -15,7 +15,6 @@ namespace GameFramework.PlayableSystem {
         private struct PlayingInfo {
             public Playable? Playable;
             public int InputPort;
-            public float Time;
             public float BlendTimer;
             public bool AutoDispose;
 
@@ -46,12 +45,6 @@ namespace GameFramework.PlayableSystem {
 
         // カレントな再生中情報
         private PlayingInfo _currentPlayingInfo;
-
-        // 再生に使う時間情報
-        private float _blendDuration;
-        private float _blendTime;
-        private float _prevTime;
-        private float _currentTime;
 
         /// <summary>有効か</summary>
         public bool IsValid => Playable.IsValid();
@@ -150,7 +143,6 @@ namespace GameFramework.PlayableSystem {
 
             // 現在Playable情報を更新
             _currentPlayingInfo.Playable = playable;
-            _currentPlayingInfo.Time = 0.0f;
             _currentPlayingInfo.BlendTimer = blendDuration;
             _currentPlayingInfo.AutoDispose = autoDispose;
             _currentPlayingInfo.InputPort = -1;
@@ -258,22 +250,6 @@ namespace GameFramework.PlayableSystem {
                     _mixer.SetInputWeight(info.InputPort, weight);
                 }
 
-                // Time
-                info.Time += deltaTime;
-            }
-
-            // Playableの更新
-            void UpdatePlayable(Playable? playable, float time) {
-                if (playable == null) {
-                    return;
-                }
-
-                var playableValue = playable.Value;
-                if (!playableValue.IsValid()) {
-                    return;
-                }
-
-                playableValue.SetTime(time);
             }
 
             // 再生情報の更新
@@ -312,13 +288,6 @@ namespace GameFramework.PlayableSystem {
                     UpdatePlayingInfo(ref _currentPlayingInfo, true);
                 }
             }
-
-            // Playable更新
-            for (var i = 0; i < _outPlayingInfos.Count; i++) {
-                UpdatePlayable(_outPlayingInfos[i].Playable, _outPlayingInfos[i].Time);
-            }
-
-            UpdatePlayable(_currentPlayingInfo.Playable, _currentPlayingInfo.Time);
         }
     }
 }

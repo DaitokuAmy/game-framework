@@ -76,6 +76,7 @@ namespace GameFramework.PlayableSystem {
                     continue;
                 }
 
+                info.Component?.Dispose();
                 _components.Remove(info.Component);
                 _sortedPlayingInfos.RemoveAt(i);
                 _dirtyGraph = true;

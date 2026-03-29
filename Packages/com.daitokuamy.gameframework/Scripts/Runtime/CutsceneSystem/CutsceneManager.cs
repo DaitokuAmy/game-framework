@@ -17,10 +17,11 @@ namespace GameFramework.CutsceneSystem {
         /// 再生管理用ハンドル
         /// </summary>
         public struct Handle : IDisposable, IEventProcess {
-            private PlayingInfo _playingInfo;
+            private CutsceneManager _manager;
+            private int _handleId;
 
             /// <summary>再生中か</summary>
-            public bool IsPlaying => _playingInfo != null && _playingInfo.IsPlaying();
+            public bool IsPlaying => TryGetPlayingInfo(out var playingInfo) && playingInfo.Initialized && playingInfo.IsPlaying();
 
             /// <summary>完了しているか</summary>
             public bool IsDone => !IsPlaying;
@@ -34,26 +35,27 @@ namespace GameFramework.CutsceneSystem {
             /// <summary>終了通知</summary>
             event Action IEventProcess.ExitEvent {
                 add {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return;
                     }
 
-                    _playingInfo.OneshotStopEvent += value;
+                    playingInfo.OneshotStopEvent += value;
                 }
                 remove {
-                    if (_playingInfo == null) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                         return;
                     }
 
-                    _playingInfo.OneshotStopEvent -= value;
+                    playingInfo.OneshotStopEvent -= value;
                 }
             }
 
             /// <summary>
             /// コンストラクタ
             /// </summary>
-            internal Handle(PlayingInfo playingInfo) {
-                _playingInfo = playingInfo;
+            internal Handle(CutsceneManager manager, int handleId) {
+                _manager = manager;
+                _handleId = handleId;
             }
 
             /// <inheritdoc/>
@@ -66,56 +68,56 @@ namespace GameFramework.CutsceneSystem {
             /// </summary>
             public void Play<T>(Action<T> onSetup)
                 where T : ICutscene {
-                if (_playingInfo == null) {
+                if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                     return;
                 }
 
-                _playingInfo.Play(onSetup);
+                playingInfo.Play(onSetup);
             }
 
             /// <summary>
             /// 再生
             /// </summary>
             public void Play() {
-                if (_playingInfo == null) {
+                if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                     return;
                 }
 
-                _playingInfo.Play<ICutscene>(null);
+                playingInfo.Play<ICutscene>(null);
             }
 
             /// <summary>
             /// 停止
             /// </summary>
             public void Stop(bool autoDispose = false) {
-                if (_playingInfo == null) {
+                if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                     return;
                 }
 
-                _playingInfo.Stop(autoDispose);
+                playingInfo.Stop(autoDispose);
             }
 
             /// <summary>
             /// 時間の設定
             /// </summary>
             public void SetTime(float time) {
-                if (_playingInfo == null) {
+                if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
                     return;
                 }
 
-                _playingInfo.SetTime(time);
+                playingInfo.SetTime(time);
             }
 
             /// <summary>
             /// 廃棄時処理
             /// </summary>
             public void Dispose() {
-                if (_playingInfo == null) {
-                    return;
+                if (_manager != null) {
+                    _manager.DisposeHandle(_handleId);
                 }
 
-                _playingInfo.Cleanup();
-                _playingInfo = null;
+                _manager = null;
+                _handleId = 0;
             }
 
             /// <inheritdoc/>
@@ -126,6 +128,18 @@ namespace GameFramework.CutsceneSystem {
             /// <inheritdoc/>
             void IEnumerator.Reset() {
             }
+
+            /// <summary>
+            /// 再生中情報の取得
+            /// </summary>
+            private bool TryGetPlayingInfo(out PlayingInfo playingInfo) {
+                if (_manager == null) {
+                    playingInfo = null;
+                    return false;
+                }
+
+                return _manager.TryGetPlayingInfo(_handleId, out playingInfo);
+            }
         }
 
         /// <summary>
@@ -134,7 +148,9 @@ namespace GameFramework.CutsceneSystem {
         internal class PlayingInfo {
             private LayeredTime _layeredTime;
             private bool _autoDispose;
-            private bool _initialized;
+            private bool _pendingRelease;
+            private bool _hasPendingStartTime;
+            private float _pendingStartTime;
 
             /// <summary>再生通知</summary>
             public event Action PlayEvent;
@@ -145,21 +161,29 @@ namespace GameFramework.CutsceneSystem {
             /// <summary>停止通知(1回)</summary>
             public event Action OneshotStopEvent;
 
+            /// <summary>ハンドル識別子</summary>
+            public int HandleId { get; private set; }
+
+            /// <summary>初期化済みか</summary>
+            public bool Initialized { get; private set; }
+
             /// <summary>制御対象</summary>
             public CutsceneInfo CutsceneInfo { get; private set; }
 
             /// <summary>
             /// 初期化処理
             /// </summary>
-            public void Setup(CutsceneInfo cutsceneInfo, LayeredTime layeredTime, bool autoDispose) {
-                if (_initialized) {
-                    return;
-                }
+            public void Setup(CutsceneInfo cutsceneInfo, LayeredTime layeredTime, int handleId, bool autoDispose) {
+                Cleanup();
 
-                _initialized = true;
+                Initialized = true;
+                HandleId = handleId;
                 CutsceneInfo = cutsceneInfo;
                 _layeredTime = layeredTime;
                 _autoDispose = autoDispose;
+                _pendingRelease = false;
+                _hasPendingStartTime = false;
+                _pendingStartTime = 0.0f;
 
                 if (layeredTime != null) {
                     layeredTime.ChangedTimeScaleEvent += OnChangedTimeScale;
@@ -174,23 +198,61 @@ namespace GameFramework.CutsceneSystem {
             /// クリーン処理
             /// </summary>
             public void Cleanup() {
-                if (!_initialized) {
+                if (!Initialized) {
                     return;
                 }
 
-                Stop(true);
+                if (IsCutsceneAlive()) {
+                    Stop(true);
+                }
+
                 if (_layeredTime != null) {
                     _layeredTime.ChangedTimeScaleEvent -= OnChangedTimeScale;
                 }
 
-                _initialized = false;
+                Initialized = false;
+            }
+
+            /// <summary>返却待ちか</summary>
+            public bool PendingRelease => _pendingRelease;
+
+            /// <summary>
+            /// 即時返却待ちフラグを立てる
+            /// </summary>
+            public void MarkPendingRelease() {
+                _pendingRelease = true;
+            }
+
+            /// <summary>
+            /// Pool返却前の後始末
+            /// </summary>
+            public CutsceneInfo ReleaseCutsceneInfo() {
+                var cutsceneInfo = CutsceneInfo;
+
+                HandleId = 0;
+                CutsceneInfo = null;
+                _layeredTime = null;
+                _autoDispose = false;
+                _pendingRelease = false;
+                _hasPendingStartTime = false;
+                _pendingStartTime = 0.0f;
+                PlayEvent = null;
+                StopEvent = null;
+                OneshotStopEvent = null;
+
+                return cutsceneInfo;
             }
 
             /// <summary>
             /// 更新処理
             /// </summary>
             public bool Update() {
-                if (!_initialized) {
+                if (!Initialized) {
+                    return false;
+                }
+
+                if (!IsCutsceneAlive()) {
+                    Cleanup();
                     return false;
                 }
 
@@ -216,7 +278,7 @@ namespace GameFramework.CutsceneSystem {
                 }
 
                 // Cleanupされていなければ true
-                return _initialized;
+                return Initialized;
             }
 
             /// <summary>
@@ -224,11 +286,11 @@ namespace GameFramework.CutsceneSystem {
             /// </summary>
             public void Play<T>(Action<T> onSetup)
                 where T : ICutscene {
-                if (!_initialized) {
+                if (!Initialized) {
                     return;
                 }
 
-                if (CutsceneInfo.Cutscene == null) {
+                if (!IsCutsceneAlive()) {
                     return;
                 }
 
@@ -242,6 +304,8 @@ namespace GameFramework.CutsceneSystem {
                     onSetup.Invoke(cutscene);
                 }
 
+                CutsceneInfo.Cutscene.Seek(_hasPendingStartTime ? _pendingStartTime : 0.0f);
+                _hasPendingStartTime = false;
                 CutsceneInfo.Cutscene.Play();
 
                 PlayEvent?.Invoke();
@@ -251,14 +315,14 @@ namespace GameFramework.CutsceneSystem {
             /// 停止処理
             /// </summary>
             public void Stop(bool autoDispose) {
-                if (!_initialized) {
+                if (!Initialized) {
                     return;
                 }
 
                 // 停止時にAutoDisposeが指定されたら上書きする
                 _autoDispose |= autoDispose;
 
-                if (CutsceneInfo.Cutscene == null) {
+                if (!IsCutsceneAlive()) {
                     return;
                 }
 
@@ -276,12 +340,17 @@ namespace GameFramework.CutsceneSystem {
             /// 時間の設定
             /// </summary>
             public void SetTime(float time) {
-                if (!_initialized) {
+                if (!Initialized) {
                     return;
                 }
 
-                if (CutsceneInfo.Cutscene == null) {
+                if (!IsCutsceneAlive()) {
                     return;
+                }
+
+                if (!CutsceneInfo.Cutscene.IsPlaying) {
+                    _pendingStartTime = time;
+                    _hasPendingStartTime = true;
                 }
 
                 CutsceneInfo.Cutscene.Seek(time);
@@ -291,11 +360,11 @@ namespace GameFramework.CutsceneSystem {
             /// 再生中か
             /// </summary>
             public bool IsPlaying() {
-                if (!_initialized) {
+                if (!Initialized) {
                     return false;
                 }
 
-                if (CutsceneInfo.Cutscene != null) {
+                if (IsCutsceneAlive()) {
                     return CutsceneInfo.Cutscene.IsPlaying;
                 }
 
@@ -309,6 +378,21 @@ namespace GameFramework.CutsceneSystem {
                 if (CutsceneInfo?.Cutscene != null) {
                     CutsceneInfo.Cutscene.SetSpeed(timeScale);
                 }
+            }
+
+            /// <summary>
+            /// 制御対象が有効か
+            /// </summary>
+            private bool IsCutsceneAlive() {
+                if (CutsceneInfo == null || CutsceneInfo.Cutscene == null || CutsceneInfo.Root == null) {
+                    return false;
+                }
+
+                if (CutsceneInfo.Cutscene is Object unityObject && unityObject == null) {
+                    return false;
+                }
+
+                return true;
             }
         }
 
@@ -328,8 +412,11 @@ namespace GameFramework.CutsceneSystem {
         private readonly KeyedObjectPool<GameObject, CutsceneInfo> _prefabBaseCutscenePools;
         private readonly Dictionary<Scene, CutsceneInfo> _sceneBaseCutsceneInfos = new();
         private readonly List<PlayingInfo> _playingInfos = new();
+        private readonly Dictionary<int, PlayingInfo> _playingInfoMap = new();
         private readonly ObjectPool<PlayingInfo> _playingInfoPool;
 
+        private bool _isLateUpdating;
+        private int _nextHandleId = 1;
         private Transform _rootTransform;
 
         /// <summary>
@@ -396,16 +483,22 @@ namespace GameFramework.CutsceneSystem {
 
         /// <inheritdoc/>
         protected override void LateUpdateInternal() {
-            // 再生中情報の更新
-            for (var i = _playingInfos.Count - 1; i >= 0; i--) {
-                var info = _playingInfos[i];
+            _isLateUpdating = true;
+            try {
+                // 再生中情報の更新
+                for (var i = _playingInfos.Count - 1; i >= 0; i--) {
+                    var info = _playingInfos[i];
 
-                // 更新処理
-                if (!info.Update()) {
-                    // 廃棄対象ならPoolに戻す
-                    ReleasePlayingInfo(info);
-                    ReturnCutsceneInfo(info.CutsceneInfo);
+                    // 更新処理
+                    if (!info.Update() || info.PendingRelease) {
+                        // 廃棄対象ならPoolに戻す
+                        _playingInfos.RemoveAt(i);
+                        ReleasePlayingInfo(info);
+                    }
                 }
+            }
+            finally {
+                _isLateUpdating = false;
             }
         }
 
@@ -429,7 +522,7 @@ namespace GameFramework.CutsceneSystem {
             trans.position = position;
             trans.rotation = rotation;
             // Handle化して返却
-            return new Handle(playingInfo);
+            return new Handle(this, playingInfo.HandleId);
         }
 
         /// <summary>
@@ -465,7 +558,7 @@ namespace GameFramework.CutsceneSystem {
             trans.rotation = rotation;
             onSetup?.Invoke(playingInfo.CutsceneInfo.Cutscene as T);
             // Handle化して返却
-            return new Handle(playingInfo);
+            return new Handle(this, playingInfo.HandleId);
         }
 
         /// <summary>
@@ -513,7 +606,7 @@ namespace GameFramework.CutsceneSystem {
             // 再生
             playingInfo.Play(onSetup);
             // Handle化して返却
-            return new Handle(playingInfo);
+            return new Handle(this, playingInfo.HandleId);
         }
 
         /// <summary>
@@ -559,7 +652,7 @@ namespace GameFramework.CutsceneSystem {
             // 再生
             playingInfo.Play(onSetup);
             // Handle化して返却
-            return new Handle(playingInfo);
+            return new Handle(this, playingInfo.HandleId);
         }
 
         /// <summary>
@@ -592,8 +685,8 @@ namespace GameFramework.CutsceneSystem {
                 info.Cleanup();
 
                 // 未使用リストに戻す
-                _playingInfoPool.Release(info);
-                ReturnCutsceneInfo(info.CutsceneInfo);
+                _playingInfos.RemoveAt(i);
+                ReleasePlayingInfo(info);
             }
 
             // Poolを全部削除
@@ -601,6 +694,14 @@ namespace GameFramework.CutsceneSystem {
 
             // Cutsceneを全部削除
             foreach (var info in _sceneBaseCutsceneInfos.Values) {
+                if (info?.Cutscene == null || info.Root == null) {
+                    continue;
+                }
+
+                if (info.Cutscene is Object unityObject && unityObject == null) {
+                    continue;
+                }
+
                 info.Cutscene.Dispose();
             }
             
@@ -621,9 +722,11 @@ namespace GameFramework.CutsceneSystem {
             }
 
             // 再生情報の構築
+            var handleId = _nextHandleId++;
             var playingInfo = _playingInfoPool.Get();
-            playingInfo.Setup(cutsceneInfo, layeredTime, autoDispose);
+            playingInfo.Setup(cutsceneInfo, layeredTime, handleId, autoDispose);
             _playingInfos.Add(playingInfo);
+            _playingInfoMap.Add(handleId, playingInfo);
 
             return playingInfo;
         }
@@ -641,30 +744,67 @@ namespace GameFramework.CutsceneSystem {
                 return null;
             }
 
-            // 再生中なら停止して再実行
-            if (cutsceneInfo.Cutscene.IsPlaying) {
-                var oldPlayingInfo = _playingInfos.FirstOrDefault(x => x.CutsceneInfo == cutsceneInfo);
-                if (oldPlayingInfo != null) {
-                    ReleasePlayingInfo(oldPlayingInfo);
-                    ReturnCutsceneInfo(oldPlayingInfo.CutsceneInfo);
-                }
+            // Scene ベースは常に単一インスタンスなので、既存の制御情報があれば先に解放する
+            var oldPlayingInfo = _playingInfos.FirstOrDefault(x => x.CutsceneInfo == cutsceneInfo);
+            if (oldPlayingInfo != null) {
+                oldPlayingInfo.Cleanup();
+                _playingInfos.Remove(oldPlayingInfo);
+                ReleasePlayingInfo(oldPlayingInfo);
             }
 
             // 再生情報の構築
+            var handleId = _nextHandleId++;
             var playingInfo = _playingInfoPool.Get();
-            playingInfo.Setup(cutsceneInfo, layeredTime, autoDispose);
+            playingInfo.Setup(cutsceneInfo, layeredTime, handleId, autoDispose);
             _playingInfos.Add(playingInfo);
+            _playingInfoMap.Add(handleId, playingInfo);
 
             return playingInfo;
+        }
+
+        /// <summary>
+        /// 再生情報の取得
+        /// </summary>
+        private bool TryGetPlayingInfo(int handleId, out PlayingInfo playingInfo) {
+            if (handleId <= 0) {
+                playingInfo = null;
+                return false;
+            }
+
+            return _playingInfoMap.TryGetValue(handleId, out playingInfo);
+        }
+
+        /// <summary>
+        /// Handle経由の廃棄
+        /// </summary>
+        private void DisposeHandle(int handleId) {
+            if (!TryGetPlayingInfo(handleId, out var playingInfo) || !playingInfo.Initialized) {
+                return;
+            }
+
+            playingInfo.Cleanup();
+            if (_isLateUpdating) {
+                playingInfo.MarkPendingRelease();
+                return;
+            }
+
+            if (_playingInfos.Remove(playingInfo)) {
+                ReleasePlayingInfo(playingInfo);
+            }
         }
 
         /// <summary>
         /// PlayingInfoの返却
         /// </summary>
         private void ReleasePlayingInfo(PlayingInfo playingInfo) {
-            playingInfo.Cleanup();
-            _playingInfos.Remove(playingInfo);
+            if (playingInfo == null) {
+                return;
+            }
+
+            _playingInfoMap.Remove(playingInfo.HandleId);
+            var cutsceneInfo = playingInfo.ReleaseCutsceneInfo();
             _playingInfoPool.Release(playingInfo);
+            ReturnCutsceneInfo(cutsceneInfo);
         }
 
         /// <summary>
@@ -672,7 +812,7 @@ namespace GameFramework.CutsceneSystem {
         /// </summary>
         private CutsceneInfo GetCutsceneInfo(GameObject prefab) {
             if (prefab == null) {
-                throw new ArgumentNullException($"Prefab is null");
+                throw new ArgumentNullException(nameof(prefab));
             }
 
             return _prefabBaseCutscenePools.Get(prefab);
@@ -683,7 +823,7 @@ namespace GameFramework.CutsceneSystem {
         /// </summary>
         private CutsceneInfo GetCutsceneInfo(Scene scene) {
             if (!scene.IsValid()) {
-                throw new ArgumentNullException($"Scene is invalid");
+                throw new ArgumentException("Scene is invalid.", nameof(scene));
             }
 
             // CutsceneInfoが作られていなければ、ここで生成
@@ -699,12 +839,24 @@ namespace GameFramework.CutsceneSystem {
         /// CutsceneInfoの返却
         /// </summary>
         private void ReturnCutsceneInfo(CutsceneInfo cutsceneInfo) {
+            if (cutsceneInfo == null) {
+                return;
+            }
+
             if (cutsceneInfo.Prefab != null) {
                 _prefabBaseCutscenePools.Release(cutsceneInfo.Prefab, cutsceneInfo);
             }
 
             if (cutsceneInfo.Scene.IsValid()) {
                 if (!_sceneBaseCutsceneInfos.TryGetValue(cutsceneInfo.Scene, out var info)) {
+                    return;
+                }
+
+                if (info.Cutscene == null || info.Root == null) {
+                    return;
+                }
+
+                if (info.Cutscene is Object unityObject && unityObject == null) {
                     return;
                 }
 
@@ -734,7 +886,11 @@ namespace GameFramework.CutsceneSystem {
                 instance = playableDirector.gameObject;
             }
             else {
-                instance = ((Cutscene)cutscene).gameObject;
+                if (cutscene is not MonoBehaviour cutsceneBehaviour) {
+                    throw new InvalidOperationException("Scene cutscene must be implemented by a MonoBehaviour.");
+                }
+
+                instance = cutsceneBehaviour.gameObject;
             }
 
             instance.SetActive(false);

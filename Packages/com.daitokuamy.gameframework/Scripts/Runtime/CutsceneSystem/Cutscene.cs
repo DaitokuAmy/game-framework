@@ -80,10 +80,7 @@ namespace GameFramework.CutsceneSystem {
                 return;
             }
 
-            if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) {
-                _playableDirector.time = 0.0f;
-            }
-            else {
+            if (_playableDirector.timeUpdateMode != DirectorUpdateMode.Manual) {
                 _playableDirector.Play();
             }
 
@@ -162,6 +159,11 @@ namespace GameFramework.CutsceneSystem {
             }
 
             _playableDirector.time = time;
+            if (_playableDirector.timeUpdateMode == DirectorUpdateMode.Manual) {
+                _playableDirector.Evaluate();
+            }
+
+            SeekInternal(time);
         }
 
         /// <inheritdoc/>
