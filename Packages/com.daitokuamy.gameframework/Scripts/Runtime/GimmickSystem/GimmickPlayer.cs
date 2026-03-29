@@ -9,6 +9,8 @@ namespace GameFramework.GimmickSystem {
     public sealed class GimmickPlayer {
         // キャッシュ用のGimmick情報
         private readonly Dictionary<string, List<IGimmick>> _gimmicks = new();
+        // 型ごとのGimmick取得キャッシュ
+        private readonly Dictionary<string, Dictionary<Type, Array>> _typedGimmicks = new();
 
         /// <summary>
         /// ギミックのキー一覧を取得
@@ -39,7 +41,18 @@ namespace GameFramework.GimmickSystem {
                 return Array.Empty<T>();
             }
 
-            return list.OfType<T>().ToArray();
+            if (!_typedGimmicks.TryGetValue(key, out var typeDict)) {
+                typeDict = new Dictionary<Type, Array>();
+                _typedGimmicks[key] = typeDict;
+            }
+
+            var type = typeof(T);
+            if (!typeDict.TryGetValue(type, out var cached)) {
+                cached = list.OfType<T>().ToArray();
+                typeDict[type] = cached;
+            }
+
+            return (T[])cached;
         }
 
         /// <summary>
@@ -48,6 +61,7 @@ namespace GameFramework.GimmickSystem {
         /// <param name="gimmickGroups">制御対象のGimmickGroupリスト</param>
         public void Setup(IEnumerable<GimmickGroup> gimmickGroups) {
             _gimmicks.Clear();
+            _typedGimmicks.Clear();
 
             foreach (var gimmickGroup in gimmickGroups) {
                 if (gimmickGroup == null) {
@@ -56,15 +70,17 @@ namespace GameFramework.GimmickSystem {
 
                 var gimmickInfos = gimmickGroup.GimmickInfos;
                 foreach (var gimmickInfo in gimmickInfos) {
+                    if (gimmickInfo?.gimmick is not IGimmick gimmick) {
+                        continue;
+                    }
+
                     if (!_gimmicks.TryGetValue(gimmickInfo.key, out var list)) {
                         list = new List<IGimmick>();
                         _gimmicks[gimmickInfo.key] = list;
-                        foreach (var gimmick in list) {
-                            gimmick.Initialize();
-                        }
                     }
 
-                    list.Add(gimmickInfo.gimmick);
+                    list.Add(gimmick);
+                    gimmick.Initialize();
                 }
             }
         }

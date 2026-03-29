@@ -24,6 +24,8 @@ namespace GameFramework.GimmickSystem {
 
         // ギミック情報
         private Dictionary<string, List<Gimmick>> _gimmicks = new Dictionary<string, List<Gimmick>>();
+        // 型ごとのGimmick取得キャッシュ
+        private Dictionary<string, Dictionary<Type, Array>> _typedGimmicks = new Dictionary<string, Dictionary<Type, Array>>();
         // 初期化フラグ
         private bool _initialized = false;
 
@@ -42,7 +44,18 @@ namespace GameFramework.GimmickSystem {
                 return Array.Empty<T>();
             }
 
-            return list.OfType<T>().ToArray();
+            if (!_typedGimmicks.TryGetValue(key, out var typeDict)) {
+                typeDict = new Dictionary<Type, Array>();
+                _typedGimmicks[key] = typeDict;
+            }
+
+            var type = typeof(T);
+            if (!typeDict.TryGetValue(type, out var cached)) {
+                cached = list.OfType<T>().ToArray();
+                typeDict[type] = cached;
+            }
+
+            return (T[])cached;
         }
 
         /// <summary>
@@ -55,8 +68,13 @@ namespace GameFramework.GimmickSystem {
 
             // Gimmick取得用辞書登録
             _gimmicks.Clear();
+            _typedGimmicks.Clear();
 
             foreach (var info in _gimmickInfos) {
+                if (info?.gimmick == null) {
+                    continue;
+                }
+
                 if (!_gimmicks.TryGetValue(info.key, out var list)) {
                     list = new List<Gimmick>();
                     _gimmicks[info.key] = list;

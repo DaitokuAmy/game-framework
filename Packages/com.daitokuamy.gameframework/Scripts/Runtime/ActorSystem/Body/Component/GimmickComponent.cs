@@ -37,8 +37,13 @@ namespace GameFramework.ActorSystem {
         protected override void InitializeInternal(IScope scope) {
             _gimmickPlayer = new GimmickPlayer();
             var meshController = Body.GetBodyComponent<MeshComponent>();
-            meshController.RefreshedEvent += RefreshGimmicks;
+            if (meshController != null) {
+                meshController.RefreshedEvent += RefreshGimmicks;
+                scope.ExpiredEvent += () => { meshController.RefreshedEvent -= RefreshGimmicks; };
+            }
+
             Body.LayeredTime.ChangedTimeScaleEvent += SetSpeed;
+            scope.ExpiredEvent += () => { Body.LayeredTime.ChangedTimeScaleEvent -= SetSpeed; };
             RefreshGimmicks();
             SetSpeed(Body.LayeredTime.TimeScale);
         }

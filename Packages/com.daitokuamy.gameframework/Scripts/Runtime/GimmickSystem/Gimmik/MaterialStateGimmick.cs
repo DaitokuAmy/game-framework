@@ -8,6 +8,12 @@ namespace GameFramework.GimmickSystem {
     /// Materialの値を設定できるギミック基底
     /// </summary>
     public abstract class MaterialStateGimmick<T> : StateGimmickBase<MaterialStateGimmick<T>.StateInfo> {
+        // 更新モード
+        private enum UpdateMode {
+            Update,
+            LateUpdate,
+        }
+
         /// <summary>
         /// ステート情報基底
         /// </summary>
@@ -20,11 +26,13 @@ namespace GameFramework.GimmickSystem {
         [SerializeField, Tooltip("制御プロパティ名")]
         private string _propertyName = "";
         [SerializeField, Tooltip("対象のMaterial")]
-        private RendererMaterial[] _targets;
+        private RendererMaterial[] _targets = Array.Empty<RendererMaterial>();
         [SerializeField, Tooltip("Materialの制御タイプ")]
         private MaterialInstance.ControlType _controlType = MaterialInstance.ControlType.Auto;
         [SerializeField, Tooltip("ブレンド時間")]
         private float _blendDuration = 0.2f;
+        [SerializeField, Tooltip("更新モード")]
+        private UpdateMode _updateMode = UpdateMode.LateUpdate;
         
         // マテリアルインスタンスリスト
         private List<MaterialInstance> _materialInstances = new();
@@ -57,9 +65,33 @@ namespace GameFramework.GimmickSystem {
 
         /// <inheritdoc/>
         protected sealed override void ChangeState(StateInfo prev, StateInfo current, bool immediate) {
-            if (current != null) {
-                _targetValue = current.materialValue;
-                _timer = !immediate && prev != null ? _blendDuration : 0.0f;
+            if (current == null) {
+                _timer = -1.0f;
+                return;
+            }
+
+            _targetValue = current.materialValue;
+
+            if (immediate || prev == null) {
+                _timer = -1.0f;
+                SetValue(_targetValue, 1.0f, _materialHandle, _propertyId);
+                return;
+            }
+
+            _timer = _blendDuration;
+        }
+
+        /// <inheritdoc/>
+        protected sealed override void UpdateInternal(float deltaTime) {
+            if (_updateMode == UpdateMode.Update) {
+                UpdateValue(deltaTime);
+            }
+        }
+
+        /// <inheritdoc/>
+        protected sealed override void LateUpdateInternal(float deltaTime) {
+            if (_updateMode == UpdateMode.LateUpdate) {
+                UpdateValue(deltaTime);
             }
         }
 
