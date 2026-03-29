@@ -12,6 +12,8 @@ namespace GameFramework.NavigationSystem {
         private readonly NavNodeTree _tree;
         private readonly IStateRouter<int, INavNode, NavNodeTree.TransitionOption> _router;
 
+        private bool _disposed;
+
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -24,6 +26,12 @@ namespace GameFramework.NavigationSystem {
         /// 破棄処理
         /// </summary>
         public void Dispose() {
+            if (_disposed) {
+                return;
+            }
+
+            _disposed = true;
+            _router?.Dispose();
             _tree.Dispose();
         }
 
