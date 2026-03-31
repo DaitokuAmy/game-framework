@@ -413,7 +413,7 @@ namespace GameFramework {
                 throw new ArgumentException($"Invalid file name. [{fileName}]", nameof(fileName));
             }
 
-            if (fileName.Contains(Path.DirectorySeparatorChar) || fileName.Contains(Path.AltDirectorySeparatorChar)) {
+            if (fileName.Contains('/') || fileName.Contains('\\')) {
                 throw new ArgumentException($"File name must not include path separators. [{fileName}]", nameof(fileName));
             }
         }

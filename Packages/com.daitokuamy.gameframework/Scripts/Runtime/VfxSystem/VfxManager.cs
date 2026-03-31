@@ -25,23 +25,23 @@ namespace GameFramework.VfxSystem {
             Exception IProcess.Exception => null;
 
             /// <summary>有効なハンドルか</summary>
-            public bool IsValid => TryGetPlayingInfo(out var playingInfo) && playingInfo.Initialized;
+            public bool IsValid => TryGetPlayingInfo(out var playingInfo) && playingInfo.IsHandleActive;
             /// <summary>再生中か</summary>
-            public bool IsPlaying => TryGetPlayingInfo(out var playingInfo) && playingInfo.Initialized && playingInfo.IsPlaying();
+            public bool IsPlaying => TryGetPlayingInfo(out var playingInfo) && playingInfo.IsHandleActive && playingInfo.IsPlaying();
             /// <summary>廃棄済みか</summary>
-            public bool IsDisposed => !TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized;
+            public bool IsDisposed => !TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsHandleActive;
 
             /// <summary>制御座標</summary>
             public Vector3 ContextPosition {
                 get {
-                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsHandleActive) {
                         return Vector3.zero;
                     }
 
                     return playingInfo.GetContextPosition();
                 }
                 set {
-                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsHandleActive) {
                         return;
                     }
 
@@ -51,14 +51,14 @@ namespace GameFramework.VfxSystem {
             /// <summary>制御向き</summary>
             public Quaternion ContextRotation {
                 get {
-                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsHandleActive) {
                         return Quaternion.identity;
                     }
 
                     return playingInfo.GetContextRotation();
                 }
                 set {
-                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsHandleActive) {
                         return;
                     }
 
@@ -68,14 +68,14 @@ namespace GameFramework.VfxSystem {
             /// <summary>制御スケール</summary>
             public Vector3 ContextLocalScale {
                 get {
-                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsHandleActive) {
                         return Vector3.zero;
                     }
 
                     return playingInfo.GetContextLocalScale();
                 }
                 set {
-                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.Initialized) {
+                    if (!TryGetPlayingInfo(out var playingInfo) || !playingInfo.IsHandleActive) {
                         return;
                     }
 
@@ -164,6 +164,8 @@ namespace GameFramework.VfxSystem {
             public int HandleId { get; private set; }
             /// <summary>廃棄済みか</summary>
             public bool Initialized { get; private set; }
+            /// <summary>ハンドルが有効か</summary>
+            public bool IsHandleActive => Initialized && (!_autoDispose || IsPlaying());
 
             /// <summary>
             /// 初期化処理
@@ -265,7 +267,7 @@ namespace GameFramework.VfxSystem {
                 var dirty = _transformDirty;
                 _transformDirty = false;
 
-                var deltaTime = _layeredTime != null ? _layeredTime.DeltaTime : Time.deltaTime;
+                var deltaTime = _layeredTime != null ? _layeredTime.DeltaTime : Mathf.Max(Time.deltaTime, 1.0f / 120.0f);
                 for (var i = 0; i < ObjectInfo.Components.Length; i++) {
                     var component = ObjectInfo.Components[i];
                     if (!component.IsPlaying) {
@@ -711,7 +713,7 @@ namespace GameFramework.VfxSystem {
         /// Handle経由の廃棄
         /// </summary>
         private void DisposeHandle(int handleId) {
-            if (!TryGetPlayingInfo(handleId, out var playingInfo) || !playingInfo.Initialized) {
+            if (!_playingInfoMap.TryGetValue(handleId, out var playingInfo) || !playingInfo.IsHandleActive) {
                 return;
             }
 
@@ -722,7 +724,7 @@ namespace GameFramework.VfxSystem {
         /// Handle経由の再生
         /// </summary>
         private void PlayHandle(int handleId) {
-            if (!TryGetPlayingInfo(handleId, out var playingInfo) || !playingInfo.Initialized) {
+            if (!_playingInfoMap.TryGetValue(handleId, out var playingInfo) || !playingInfo.IsHandleActive) {
                 return;
             }
 
@@ -733,7 +735,7 @@ namespace GameFramework.VfxSystem {
         /// Handle経由の停止
         /// </summary>
         private void StopHandle(int handleId, bool immediate, bool autoDispose) {
-            if (!TryGetPlayingInfo(handleId, out var playingInfo) || !playingInfo.Initialized) {
+            if (!_playingInfoMap.TryGetValue(handleId, out var playingInfo) || !playingInfo.IsHandleActive) {
                 return;
             }
 
